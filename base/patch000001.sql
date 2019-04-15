@@ -198,3 +198,11 @@ IS 'HRN, horas normales, LPV Licen por vacacion, LPC Licencia por compensacion ,
 
 
 /***********************************F-SCP-RAC-ASIS-1-30/01/2019****************************************/
+
+/***********************************I-SCP-MMV-ASIS-1-11/03/2019****************************************/
+ALTER TABLE asis.tmes_trabajo_con
+  ADD COLUMN calculado_resta VARCHAR(5);
+
+ALTER TABLE asis.tmes_trabajo_con
+  ALTER COLUMN calculado_resta SET DEFAULT 'no';
+/***********************************F-SCP-MMV-ASIS-1-11/03/2019****************************************/
