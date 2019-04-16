@@ -206,3 +206,11 @@ ALTER TABLE asis.tmes_trabajo_con
 ALTER TABLE asis.tmes_trabajo_con
   ALTER COLUMN calculado_resta SET DEFAULT 'no';
 /***********************************F-SCP-MMV-ASIS-1-11/03/2019****************************************/
+/***********************************I-SCP-MMV-ASIS-1-16/03/2019****************************************/
+ALTER TABLE asis.tmes_trabajo_det
+  ADD COLUMN tipo_dos VARCHAR(6);
+ALTER TABLE asis.tmes_trabajo_det
+  ADD COLUMN tipo_tres VARCHAR(6);
+  ALTER TABLE asis.tmes_trabajo
+  ADD COLUMN nro_tramite VARCHAR(200);
+/***********************************F-SCP-MMV-ASIS-1-16/03/2019****************************************/
