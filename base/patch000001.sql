@@ -9,7 +9,7 @@ CREATE TABLE asis.tmes_trabajo (
   id_funcionario INTEGER NOT NULL,
   id_estado_wf INTEGER NOT NULL,
   id_proceso_wf INTEGER NOT NULL,
-  id_gestion INTEGER NOT NULL;
+  id_gestion INTEGER NOT NULL,
   id_periodo INTEGER NOT NULL,
   estado VARCHAR(100),
   obs VARCHAR,
@@ -83,8 +83,8 @@ IS 'funcionario que aprueba las hojas de tiempo';
 
 
 ALTER TABLE asis.tmes_trabajo
-  ADD CONSTRAINT tmes_trabajo__id_estado_wffk FOREIGN KEY (id_funcionario_apro)
-    REFERENCES orga.tfuncionario(id_funcionario_apro)
+  ADD CONSTRAINT tmes_trabajo__id_funcionario_aprofk FOREIGN KEY (id_funcionario_apro)
+    REFERENCES orga.tfuncionario(id_funcionario)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
