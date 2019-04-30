@@ -52,4 +52,10 @@ FROM asis.tmes_trabajo_det de
 GROUP BY ta.id_funcionario, ta.id_periodo, ta.id_planilla, de.id_centro_costo,
     ta.estado;
 /***********************************F-DEP-MMV-ASIS-48-16/04/2019*****************************************/
-
+/***********************************I-DEP-MMV-ASIS-2-30/04/2019*****************************************/
+select pxp.f_insert_testructura_gui ('ASIS', 'SISTEMA');
+select pxp.f_insert_testructura_gui ('MTO', 'ASIS');
+select pxp.f_insert_testructura_gui ('VOM', 'ASIS');
+select pxp.f_insert_testructura_gui ('TPS', 'ASIS');
+select pxp.f_insert_testructura_gui ('AREP', 'ASIS');
+/***********************************F-DEP-MMV-ASIS-2-30/04/2019*****************************************/

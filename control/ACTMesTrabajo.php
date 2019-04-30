@@ -6,6 +6,7 @@
 *@date 31-01-2019 13:53:10
 *@description Clase que recibe los parametros enviados por la vista para mandar a la capa de Modelo
 */
+require_once(dirname(__FILE__).'/../reportes/RHojaTiempo.php');
 
 class ACTMesTrabajo extends ACTbase{    
 			
@@ -69,7 +70,23 @@ class ACTMesTrabajo extends ACTbase{
         $this->res=$this->objFunc->anteriorEstado($this->objParam);
         $this->res->imprimirRespuesta($this->res->generarJson());
     }
-			
+    function reporteHojaTiempo(){
+
+        $this->objFunc = $this->create('MODMesTrabajo');
+        $this->res = $this->objFunc->reporteHojaTiempo($this->objParam);
+        $titulo = 'Hoja Tiempo';
+        $nombreArchivo = uniqid(md5(session_id()) . $titulo);
+        $nombreArchivo .= '.xls';
+        $this->objParam->addParametro('nombre_archivo', $nombreArchivo);
+        $this->objParam->addParametro('datos', $this->res->datos);
+        $this->objReporteFormato = new RHojaTiempo($this->objParam);
+        $this->objReporteFormato->generarDatos();
+        $this->objReporteFormato->generarReporte();
+        $this->mensajeExito = new Mensaje();
+        $this->mensajeExito->setMensaje('EXITO', 'Reporte.php', 'Reporte generado','Se generó con éxito el reporte: ' . $nombreArchivo, 'control');
+        $this->mensajeExito->setArchivoGenerado($nombreArchivo);
+        $this->mensajeExito->imprimirRespuesta($this->mensajeExito->generarJson());
+    }
 }
 
 ?>

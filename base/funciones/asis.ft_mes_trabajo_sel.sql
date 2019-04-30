@@ -17,7 +17,7 @@ $body$
  HISTORIAL DE MODIFICACIONES:
 #ISSUE				FECHA				AUTOR				DESCRIPCION
  #0				31-01-2019 13:53:10								Funcion que devuelve conjuntos de registros de las consultas relacionadas con la tabla 'asis.tmes_trabajo'
- #
+ #2				30/04/2019 				kplian MMV			Validaciones y reporte
  ***************************************************************************/
 
 DECLARE
@@ -150,7 +150,44 @@ BEGIN
 			return v_consulta;
 
 		end;
+    /*********************************
+ 	#TRANSACCION:  'ASIS_RHT_SEL' #2
+ 	#DESCRIPCION:	Reporte Hoja Tiempo
+ 	#AUTOR:		Kplian MMV
+ 	#FECHA:		31-01-2019 13:53:10
+	***********************************/
+	elsif(p_transaccion='ASIS_RHT_SEL')then
+		begin
+			--Sentencia de la consulta de conteo de registros
+			v_consulta:='select  fun.desc_funcionario1 as nombre_funcionario,
+                                  trim(both ''FUNODTPR'' from  fun.codigo ) as codigo,
+                                  ges.gestion,
+                                  per.periodo,
+                                  mde.dia,
+                                  mde.ingreso_manana,
+                                  mde.salida_manana,
+                                  mde.ingreso_tarde,
+                                  mde.salida_tarde,
+                                  mde.ingreso_noche,
+                                  mde.salida_noche,
+                                  cen.codigo_tcc,
+                                  mde.total_normal,
+                                  mde.total_extra,
+                                  mde.total_nocturna,
+                                  mde.extra_autorizada,
+                                  mde.justificacion_extra
+                          from asis.tmes_trabajo me
+                          inner join orga.vfuncionario fun on fun.id_funcionario = me.id_funcionario
+                          inner join param.tgestion ges on ges.id_gestion = me.id_gestion
+                          inner join param.tperiodo per on per.id_periodo = per.id_periodo
+                          inner join asis.tmes_trabajo_det mde on mde.id_mes_trabajo = me.id_mes_trabajo
+                          inner join param.vcentro_costo cen on cen.id_centro_costo = mde.id_centro_costo
+                          where me.id_proceso_wf = '||v_parametros.id_proceso_wf||' and per.id_periodo = '||v_parametros.id_periodo||' and ges.id_gestion = '||v_parametros.id_gestion||'
+                          order by mde.id_mes_trabajo_det asc ';
 
+			--Devuelve la respuesta
+			return v_consulta;
+		end;
 	else
 
 		raise exception 'Transaccion inexistente';
