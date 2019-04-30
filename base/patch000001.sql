@@ -9,7 +9,7 @@ CREATE TABLE asis.tmes_trabajo (
   id_funcionario INTEGER NOT NULL,
   id_estado_wf INTEGER NOT NULL,
   id_proceso_wf INTEGER NOT NULL,
-  id_gestion INTEGER NOT NULL;
+  id_gestion INTEGER NOT NULL,
   id_periodo INTEGER NOT NULL,
   estado VARCHAR(100),
   obs VARCHAR,
@@ -83,8 +83,8 @@ IS 'funcionario que aprueba las hojas de tiempo';
 
 
 ALTER TABLE asis.tmes_trabajo
-  ADD CONSTRAINT tmes_trabajo__id_estado_wffk FOREIGN KEY (id_funcionario_apro)
-    REFERENCES orga.tfuncionario(id_funcionario_apro)
+  ADD CONSTRAINT tmes_trabajo__id_funcionario_aprofk FOREIGN KEY (id_funcionario_apro)
+    REFERENCES orga.tfuncionario(id_funcionario)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
@@ -206,11 +206,3 @@ ALTER TABLE asis.tmes_trabajo_con
 ALTER TABLE asis.tmes_trabajo_con
   ALTER COLUMN calculado_resta SET DEFAULT 'no';
 /***********************************F-SCP-MMV-ASIS-1-11/03/2019****************************************/
-/***********************************I-SCP-MMV-ASIS-1-16/03/2019****************************************/
-ALTER TABLE asis.tmes_trabajo_det
-  ADD COLUMN tipo_dos VARCHAR(6);
-ALTER TABLE asis.tmes_trabajo_det
-  ADD COLUMN tipo_tres VARCHAR(6);
-  ALTER TABLE asis.tmes_trabajo
-  ADD COLUMN nro_tramite VARCHAR(200);
-/***********************************F-SCP-MMV-ASIS-1-16/03/2019****************************************/
