@@ -17,7 +17,8 @@ $body$
  HISTORIAL DE MODIFICACIONES:
 #ISSUE				FECHA				AUTOR				DESCRIPCION
  #0				31-01-2019 16:36:51								Funcion que gestiona las operaciones basicas (inserciones, modificaciones, eliminaciones de la tabla 'asis.tmes_trabajo_det'
- #
+ #2				30/04/2019 				kplian MMV			Validaciones y reporte
+
  ***************************************************************************/
 
 DECLARE
@@ -46,6 +47,11 @@ DECLARE
     v_salidad_no			varchar;
     v_justificacion			varchar;
     v_extras_autorizadas	numeric;
+    v_codigo				varchar;--2
+    v_orden					varchar;--2
+    v_pep					varchar;--2
+
+
 BEGIN
 
     v_nombre_funcion = 'asis.ft_mes_trabajo_det_ime';
@@ -126,7 +132,7 @@ BEGIN
  	#TRANSACCION:  'ASIS_MTD_MOD'
  	#DESCRIPCION:	Modificacion de registros
  	#AUTOR:		miguel.mamani
- 	#FECHA:		31-01-2019 16:36:51
+ 	#FECHA:		31-01-2019 16:36:21
 	***********************************/
 
 	elsif(p_transaccion='ASIS_MTD_MOD')then
@@ -207,6 +213,7 @@ BEGIN
         v_tipo[4] = 'FER';
         v_tipo[5] = 'CDV';
         v_tipo[6] = 'LMP';
+        v_centro_costo = '';
 
         if exists( select 1
         		   from asis.tmes_trabajo_det md
@@ -225,27 +232,41 @@ BEGIN
             v_total_extra = v_mes_trabajo::JSON->>'total_extra';
             v_total_nocturna = v_mes_trabajo::JSON->>'total_nocturna';
             v_extras_autorizadas  = v_mes_trabajo::JSON->>'extras_autorizadas';
-            v_centro_costo = v_mes_trabajo::JSON->>'codigo';
-
-
+            v_codigo = v_mes_trabajo::JSON->>'codigo';
+            v_orden	= v_mes_trabajo::JSON->>'orden';
+            v_pep = v_mes_trabajo::JSON->>'pep';
             v_ingreso_ma = v_mes_trabajo::JSON->>'ingreso_manana';
             v_salidad_ma = v_mes_trabajo::JSON->>'salida_manana';
             v_ingreso_ta = v_mes_trabajo::JSON->>'ingreso_tarde';
             v_salidad_ta = v_mes_trabajo::JSON->>'salida_tarde';
             v_ingreso_no = v_mes_trabajo::JSON->>'ingreso_noche';
             v_salidad_no = v_mes_trabajo::JSON->>'salida_noche';
-
             v_justificacion = v_mes_trabajo::JSON->>'justificacion_extra';
 
-            if(v_centro_costo <> '')then
-                select cc.id_centro_costo
-                    into
-                    v_id_centro_costo
+            --2
+            if v_codigo != '' then
+            	v_centro_costo = v_codigo;
+            end if;
+
+            if v_orden != '' then
+            	v_centro_costo = v_orden;
+            end if;
+
+            if v_pep != '' then
+            	v_centro_costo = v_pep;
+            end if;
+
+            if(v_centro_costo != '')then
+                select cc.id_centro_costo into v_id_centro_costo
                 from param.vcentro_costo  cc
                 where cc.codigo_tcc = v_centro_costo and
                 cc.id_gestion = v_parametros.id_gestion;
             end if;
-
+            --2
+           /* if v_id_centro_costo is null then
+            	raise exception 'Error no se encuentra el centro de costo % ',v_centro_costo;
+            end if;
+            */
             if(v_ingreso_ma <> '' or v_salidad_ma <> '')then
               insert into asis.tmes_trabajo_det(  id_mes_trabajo,
                                                   id_centro_costo,

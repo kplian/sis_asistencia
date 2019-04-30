@@ -8,6 +8,18 @@ CREATE OR REPLACE FUNCTION asis.f_procesar_estado (
 )
 RETURNS boolean AS
 $body$
+/**************************************************************************
+ SISTEMA:		Sistema de Asistencia
+ FUNCION: 		asis.f_lista_funcionario_wf
+ DESCRIPCION:   Funcion que devuelve conjuntos de registros de las consultas relacionadas con la tabla 'asis.tmes_trabajo_con'
+ AUTOR: 		 (miguel.mamani)
+ FECHA:	        13-03-2019 13:52:11
+ COMENTARIOS:
+***************************************************************************
+ HISTORIAL DE MODIFICACIONES:
+#ISSUE				FECHA				AUTOR				DESCRIPCION
+ #2			30/04/2019 				kplian MMV			Validaciones y reporte
+ ***************************************************************************/
 DECLARE
   	v_nombre_funcion   	 			text;
     v_resp    			 			varchar;
@@ -27,9 +39,6 @@ DECLARE
 
 BEGIN
   v_nombre_funcion = 'mat.f_procesar_estados_solicitud';
-
-
-
 
 	select 	me.id_mes_trabajo,
     		me.id_funcionario,
@@ -51,6 +60,12 @@ BEGIN
       where id_proceso_wf = p_id_proceso_wf;
 
    elsif p_codigo_estado = 'aprobado' then
+   -----#2-------
+
+  	if not asis.f_validar_centro_costo(v_registo.id_mes_trabajo)then
+		raise exception 'Validar centro de costo';
+ 	end if;
+   -----#2-------
 
     v_sumar_normar = 0;
     v_ultimo_normal = 0;

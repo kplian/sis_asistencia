@@ -159,5 +159,40 @@ class MODMesTrabajo extends MODbase{
         //Devuelve la respuesta
         return $this->respuesta;
     }
+    function  reporteHojaTiempo(){
+        //Definicion de variables para ejecucion del procedimientp
+        $this->procedimiento='asis.ft_mes_trabajo_sel';
+        $this->transaccion='ASIS_RHT_SEL';
+        $this->tipo_procedimiento='SEL';//tipo de transaccion
+        $this->setParametro('id_proceso_wf', 'id_proceso_wf', 'int4');
+        $this->setParametro('id_periodo', 'id_periodo', 'int4');
+        $this->setParametro('id_gestion', 'id_gestion', 'int4');
+        $this->setCount(false);
+
+        $this->captura('nombre_funcionario','text');
+        $this->captura('codigo','text');
+        $this->captura('gestion','integer');
+        $this->captura('periodo','int4');
+        $this->captura('dia','int4');
+        $this->captura('ingreso_manana','time');
+        $this->captura('salida_manana','time');
+        $this->captura('ingreso_tarde','time');
+        $this->captura('salida_tarde','time');
+        $this->captura('ingreso_noche','time');
+        $this->captura('salida_noche','time');
+        $this->captura('codigo_tcc','varchar');
+        $this->captura('total_normal','numeric');
+        $this->captura('total_extra','numeric');
+        $this->captura('total_nocturna','numeric');
+        $this->captura('extra_autorizada','numeric');
+        $this->captura('justificacion_extra','varchar');
+
+        //Ejecuta la instruccion
+        $this->armarConsulta();
+        $this->ejecutarConsulta();
+        //var_dump($this->respuesta);exit;
+        //Devuelve la respuesta
+        return $this->respuesta;
+    }
 }
 ?>

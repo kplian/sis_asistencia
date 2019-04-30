@@ -33,6 +33,14 @@ Phx.vista.MesTrabajo=Ext.extend(Phx.gridInterfaz,{
         this.init();
         this.addButton('ant_estado',{  grupo:[3], argument: { estado: 'anterior'},text:'Anterior',iconCls: 'batras',disabled:true,handler:this.antEstado,tooltip: '<b>Pasar al Anterior Estado</b>'});
         this.addButton('fin_registro',{ grupo:[0,3], text:'Siguiente', iconCls: 'badelante',disabled:true,handler:this.fin_registro,tooltip: '<b>Siguiente</b><p>Pasa al siguiente estado</p>'});
+        this.addButton('Report',{
+            grupo:[0,3],
+            text :'Reporte',
+            iconCls : 'bexcel',
+            disabled: true,
+            handler : this.onButtonReporte,
+            tooltip : '<b>Reporte Requerimiento de Materiale</b>'
+        });
         this.addBotonesGantt();
         this.finCons = true;
     },
@@ -185,7 +193,7 @@ Phx.vista.MesTrabajo=Ext.extend(Phx.gridInterfaz,{
             config:{
                 name:'id_funcionario',
                 hiddenName: 'id_funcionario',
-                origen:'FUNCIONARIOCAR',
+                origen:'FUNCIONARIO',
                 fieldLabel:'Funcionario',
                 allowBlank:false,
                 gwidth:200,
@@ -196,8 +204,8 @@ Phx.vista.MesTrabajo=Ext.extend(Phx.gridInterfaz,{
             },
             type:'ComboRec',//ComboRec
             id_grupo:0,
-            filters:{pfiltro:'fun.desc_funcionario1',type:'string'},
-            bottom_filter:true,
+            //filters:{pfiltro:'fun.desc_funcionario1',type:'string'},
+            //bottom_filter:true,
             grid:true,
             form:true
         },
@@ -400,7 +408,7 @@ Phx.vista.MesTrabajo=Ext.extend(Phx.gridInterfaz,{
 	],
 	sortInfo:{
 		field: 'id_mes_trabajo',
-		direction: 'ASC'
+		direction: 'DESC'
 	},
 	bdel:true,
 	bsave:false,
@@ -492,6 +500,7 @@ Phx.vista.MesTrabajo=Ext.extend(Phx.gridInterfaz,{
         this.getBoton('fin_registro').enable();
         this.getBoton('diagrama_gantt').enable();
         this.getBoton('ant_estado').enable();
+        this.getBoton('Report').enable();
     },
     liberaMenu:function() {
         var tb = Phx.vista.MesTrabajo.superclass.liberaMenu.call(this);
@@ -499,6 +508,7 @@ Phx.vista.MesTrabajo=Ext.extend(Phx.gridInterfaz,{
             this.getBoton('fin_registro').disable();
             this.getBoton('diagrama_gantt').disable();
             this.getBoton('ant_estado').disable();
+            this.getBoton('Report').disable();
         }
     },
     fin_registro: function(){
@@ -655,20 +665,34 @@ Phx.vista.MesTrabajo=Ext.extend(Phx.gridInterfaz,{
         listWidth:'280',
         width:80
     }),
-        tabsouth:[
-            {
-                url:'../../../sis_asistencia/vista/mes_trabajo_det/MesTrabajoDet.php',
-                title:'Detalle',
-                height:'50%',
-                cls:'MesTrabajoDet'
+    tabsouth:[
+        {
+            url:'../../../sis_asistencia/vista/mes_trabajo_det/MesTrabajoDet.php',
+            title:'Detalle',
+            height:'50%',
+            cls:'MesTrabajoDet'
+        },
+        {
+            url:'../../../sis_asistencia/vista/mes_trabajo_con/MesTrabajoCon.php',
+            title:'Detalle Factor',
+            height:'50%',
+            cls:'MesTrabajoCon'
+        }
+    ],
+    onButtonReporte :function () {
+        var rec = this.sm.getSelected();
+        Ext.Ajax.request({
+            url:'../../sis_asistencia/control/MesTrabajo/reporteHojaTiempo',
+            params:{    id_proceso_wf : rec.data.id_proceso_wf,
+                        id_periodo : this.cmbPeriodo.getValue(),
+                        id_gestion : this.cmbGestion.getValue()
             },
-            {
-                url:'../../../sis_asistencia/vista/mes_trabajo_con/MesTrabajoCon.php',
-                title:'Detalle Factor',
-                height:'50%',
-                cls:'MesTrabajoCon'
-            }
-        ]
+            success: this.successExport,
+            failure: this.conexionFailure,
+            timeout:this.timeout,
+            scope:this
+        });
+    }
     }
 )
 </script>
