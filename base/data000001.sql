@@ -29,7 +29,7 @@ select param.f_import_tcolumna_plantilla_archivo_excel ('insert','ISA','HT','si'
 select param.f_import_tcolumna_plantilla_archivo_excel ('insert','NSA','HT','si','',NULL,'7','Salida','salida_noche','string','','activo');
 select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COM','HT','si','',NULL,'8','COMP','comp','string','','activo');
 select param.f_import_tcolumna_plantilla_archivo_excel ('insert','JUS','HT','si','',NULL,'16','Justificación Extras','justificacion_extra','string','','activo');
-select param.f_import_tcolumna_plantilla_archivo_excel ('insert','CEC','CEC','si','',NULL,'12','CeCo','codigo','string','','activo');
+--select param.f_import_tcolumna_plantilla_archivo_excel ('insert','CEC','CEC','si','',NULL,'12','CeCo','codigo','string','','activo');
 select param.f_import_tcolumna_plantilla_archivo_excel ('insert','NOR','HT','si','',NULL,'9','Normales','total_normal','numeric',',','activo');
 select param.f_import_tcolumna_plantilla_archivo_excel ('insert','TIN','HT','si','',NULL,'4','Ingreso','ingreso_tarde','string','','activo');
 select param.f_import_tcolumna_plantilla_archivo_excel ('insert','ORD','HT','si','',NULL,'13','Orden','orden','string','','activo');
