@@ -15,6 +15,7 @@ $body$
  HISTORIAL DE MODIFICACIONES:
 #ISSUE				FECHA				AUTOR				DESCRIPCION
  #5				30/04/2019 				kplian MMV			Validaciones y reporte
+ #3     ENDETR  07/06/2019              calvarez            eliminación de comentarios innecesarios de código
  ***************************************************************************/
 
 DECLARE
@@ -73,45 +74,7 @@ BEGIN
                               elsif v_record.id_funcionario is not null and v_record.numero_nivel = 6 then
                               	v_id_funcionario = v_record.id_funcionario;
                               end if;
-
-
     end loop;
-    /* with recursive funcionario_apro(   id_funcionario,
-                                    id_uo,
-                                    presupuesta,
-                                    gerencia,
-                                    numero_nivel,nombre_nivel) AS (
-                                select 	uofun.id_funcionario,
-                                          uo.id_uo,
-                                          uo.presupuesta,
-                                          uo.gerencia,
-                                          no.numero_nivel,
-                                          no.nombre_nivel
-                                  from orga.tuo_funcionario uofun
-                                  inner join orga.tuo uo on uo.id_uo = uofun.id_uo
-                                  inner join orga.tnivel_organizacional no on no.id_nivel_organizacional = uo.id_nivel_organizacional
-                                  where uofun.fecha_asignacion <= now()::date and
-                                  (uofun.fecha_finalizacion is null or uofun.fecha_finalizacion >= now()::date)
-                                  and uofun.estado_reg = 'activo' and uofun.id_funcionario = par_id_funcionario
-                              union
-                               select uofun.id_funcionario,
-                                      euo.id_uo_padre,
-                                      uo.presupuesta,
-                                      uo.gerencia,
-                                      no.numero_nivel,
-                                      no.nombre_nivel
-                                  from orga.testructura_uo euo
-                                  inner join orga.tuo uo on uo.id_uo = euo.id_uo_padre
-                                  inner join orga.tnivel_organizacional no on no.id_nivel_organizacional = uo.id_nivel_organizacional
-                                  inner join funcionario_apro hijo on hijo.id_uo = euo.id_uo_hijo
-                                  left join orga.tuo_funcionario uofun on uo.id_uo = uofun.id_uo and uofun.estado_reg = 'activo'
-                                  and uofun.fecha_asignacion <= now()::date
-                                  and (uofun.fecha_finalizacion is null or uofun.fecha_finalizacion >= now()::date))
-                                  select  f.id_funcionario,max(f.numero_nivel)
-                                  into v_id_funcionario,v_nivel
-                                  from funcionario_apro f
-                                  where f.id_funcionario is not null  and  f.numero_nivel <= 6
-                                  group by f.id_funcionario limit 1;*/
 RETURN v_id_funcionario;
 
 EXCEPTION
