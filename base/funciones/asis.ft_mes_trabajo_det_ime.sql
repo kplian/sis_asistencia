@@ -17,7 +17,7 @@ $body$
  HISTORIAL DE MODIFICACIONES:
 #ISSUE				FECHA				AUTOR				DESCRIPCION
  #0				31-01-2019 16:36:51								Funcion que gestiona las operaciones basicas (inserciones, modificaciones, eliminaciones de la tabla 'asis.tmes_trabajo_det'
- #2				30/04/2019 				kplian MMV			Validaciones y reporte
+ #5				30/04/2019 				kplian MMV			Validaciones y reporte
 
  ***************************************************************************/
 
@@ -47,10 +47,10 @@ DECLARE
     v_salidad_no			varchar;
     v_justificacion			varchar;
     v_extras_autorizadas	numeric;
-    v_codigo				varchar;--2
-    v_orden					varchar;--2
-    v_pep					varchar;--2
-
+    v_codigo				varchar;--5
+    v_orden					varchar;--5
+    v_pep					varchar;--5
+    v_id_gestion			integer;
 
 BEGIN
 
@@ -132,7 +132,7 @@ BEGIN
  	#TRANSACCION:  'ASIS_MTD_MOD'
  	#DESCRIPCION:	Modificacion de registros
  	#AUTOR:		miguel.mamani
- 	#FECHA:		31-01-2019 16:36:21
+ 	#FECHA:		31-01-2019 16:36:51
 	***********************************/
 
 	elsif(p_transaccion='ASIS_MTD_MOD')then
@@ -140,24 +140,9 @@ BEGIN
 		begin
 			--Sentencia de la modificacion
 			update asis.tmes_trabajo_det set
-			/*ingreso_manana = v_parametros.ingreso_manana,
-			id_mes_trabajo = v_parametros.id_mes_trabajo,*/
 			id_centro_costo = v_parametros.id_centro_costo,
-			/*ingreso_tarde = v_parametros.ingreso_tarde,
-
-			tipo = v_parametros.tipo,
-			ingreso_noche = v_parametros.ingreso_noche,
-
-			salida_manana = v_parametros.salida_manana,
-			salida_tarde = v_parametros.salida_tarde,
-			justificacion_extra = v_parametros.justificacion_extra,
-			salida_noche = v_parametros.salida_noche,
-			dia = v_parametros.dia,
-			,*/
-            --total_normal = v_parametros.total_normal,
-			total_extra = v_parametros.total_extra,
-            extra_autorizada = v_parametros.total_extra +  v_parametros.total_nocturna,
-            total_nocturna = v_parametros.total_nocturna,
+            extra_autorizada = v_parametros.extra_autorizada,
+            justificacion_extra = v_parametros.justificacion_extra,
 			fecha_mod = now(),
 			id_usuario_mod = p_id_usuario,
 			id_usuario_ai = v_parametros._id_usuario_ai,
@@ -214,7 +199,13 @@ BEGIN
         v_tipo[5] = 'CDV';
         v_tipo[6] = 'LMP';
         v_centro_costo = '';
+        v_id_centro_costo = null;
+        ---obtener la gesrion
+        select me.id_gestion into v_id_gestion
+        from asis.tmes_trabajo me
+        where me.id_mes_trabajo = v_parametros.id_mes_trabajo;
 
+        ---Valida si existe registro se vuelve a insertar
         if exists( select 1
         		   from asis.tmes_trabajo_det md
                    where md.id_mes_trabajo = v_parametros.id_mes_trabajo)then
@@ -223,10 +214,10 @@ BEGIN
                    where m.id_mes_trabajo = v_parametros.id_mes_trabajo;
         end if;
 
+        ---recrrer el json
         for v_json in (select json_array_elements(v_parametros.mes_trabajo_json::json))loop
-          v_mes_trabajo = v_json.json_array_elements::json;
 
-
+            v_mes_trabajo = v_json.json_array_elements::json;
             v_dia = v_mes_trabajo::JSON->>'dia';
             v_total_normal = v_mes_trabajo::JSON->>'total_normal';
             v_total_extra = v_mes_trabajo::JSON->>'total_extra';
@@ -243,7 +234,8 @@ BEGIN
             v_salidad_no = v_mes_trabajo::JSON->>'salida_noche';
             v_justificacion = v_mes_trabajo::JSON->>'justificacion_extra';
 
-            --2
+        	---obtener centro de costo
+            ---#5---
             if v_codigo != '' then
             	v_centro_costo = v_codigo;
             end if;
@@ -256,17 +248,16 @@ BEGIN
             	v_centro_costo = v_pep;
             end if;
 
+    		--validar 0 en las primera posicion de los codigo de lo centos de costo
             if(v_centro_costo != '')then
-                select cc.id_centro_costo into v_id_centro_costo
-                from param.vcentro_costo  cc
-                where cc.codigo_tcc = v_centro_costo and
-                cc.id_gestion = v_parametros.id_gestion;
+                	v_id_centro_costo = asis.f_centro_validar(v_centro_costo,v_id_gestion);
+                	if v_id_centro_costo is null then
+            			raise exception 'Error no se encuentra el centro de costo % ',v_centro_costo;
+                  	end if;
             end if;
-            --2
-           /* if v_id_centro_costo is null then
-            	raise exception 'Error no se encuentra el centro de costo % ',v_centro_costo;
-            end if;
-            */
+            ---#5---
+            ---Insertar detalle
+
             if(v_ingreso_ma <> '' or v_salidad_ma <> '')then
               insert into asis.tmes_trabajo_det(  id_mes_trabajo,
                                                   id_centro_costo,

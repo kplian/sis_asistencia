@@ -14,7 +14,7 @@ header("content-type: text/javascript; charset=UTF-8");
         require:'../../../sis_asistencia/vista/mes_trabajo/MesTrabajo.php',
         requireclase:'Phx.vista.MesTrabajo',
         title:'Mes trabajo VoBo',
-        nombreVista: 'MesTrabajoVoBo',
+        nombreVista: 'VoBo',
         bnew:false,
         bedit:false,
         bdel:false,

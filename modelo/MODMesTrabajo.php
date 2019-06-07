@@ -46,7 +46,10 @@ class MODMesTrabajo extends MODbase{
         $this->captura('codigo','varchar');
         $this->captura('desc_codigo','text');
         $this->captura('gestion','integer');
-		//Ejecuta la instruccion
+        $this->captura('nombre_cargo','varchar');
+        $this->captura('tipo_contrato','varchar');
+
+        //Ejecuta la instruccion
 		$this->armarConsulta();
 		$this->ejecutarConsulta();
 		

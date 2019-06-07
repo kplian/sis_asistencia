@@ -13,7 +13,7 @@ $body$
 ***************************************************************************
  HISTORIAL DE MODIFICACIONES:
 #ISSUE				FECHA				AUTOR				DESCRIPCION
- #2				30/04/2019 				kplian MMV			Validaciones y reporte
+ #5				30/04/2019 				kplian MMV			Validaciones y reporte
  ***************************************************************************/
 DECLARE
   	v_resp		            varchar;
@@ -56,6 +56,7 @@ BEGIN
     	v_contrato= 'sueldos_obradet';
     end if;
 
+    --raise exception '%',v_contrato;
     for v_record in ( select mes.id_centro_costo
                       from asis.tmes_trabajo_det mes
                       where mes.id_mes_trabajo = p_id_id_mes_trabajo)loop

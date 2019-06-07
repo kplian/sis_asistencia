@@ -14,7 +14,8 @@ $body$
 ***************************************************************************
  HISTORIAL DE MODIFICACIONES:
 #ISSUE				FECHA				AUTOR				DESCRIPCION
- #2				30/04/2019 				kplian MMV			Validaciones y reporte
+ #5				30/04/2019 				kplian MMV			Validaciones y reporte
+ #3     ENDETR  07/06/2019              calvarez            eliminación de comentarios innecesarios de código
  ***************************************************************************/
 
 DECLARE
@@ -22,7 +23,8 @@ DECLARE
 	v_nombre_funcion        text;
 	v_mensaje_error         text;
     v_record				record;
-
+    v_id_funcionario		integer;
+   	v_nivel					integer;
 BEGIN
   	v_nombre_funcion = 'asis.f_get_funcionario_boss';
 
@@ -60,19 +62,20 @@ BEGIN
                                   select 	f.id_funcionario,
                                           f.numero_nivel
                                   from funcionario_apro f
-                                  where f.numero_nivel <= 6
-                                  order by numero_nivel desc)loop
+                                  where f.numero_nivel <= 6 and f.numero_nivel != 0
+                                  order by numero_nivel  desc limit 1)loop
 
-                              if v_record.id_funcionario is not null and v_record.numero_nivel = 6 then
-                              	return v_record.id_funcionario;
-                              elsif v_record.id_funcionario is not null and v_record.numero_nivel = 5 then
-                              	return v_record.id_funcionario;
-							  elsif v_record.id_funcionario is not null and v_record.numero_nivel = 4 then
-                              	return v_record.id_funcionario;
+                              if v_record.id_funcionario is not null and v_record.numero_nivel = 2 then
+                              	v_id_funcionario = v_record.id_funcionario;
+                              elsif v_record.id_funcionario is not null and v_record.numero_nivel = 4 then
+                              	v_id_funcionario = v_record.id_funcionario;
+							  elsif v_record.id_funcionario is not null and v_record.numero_nivel = 5 then
+                              	v_id_funcionario = v_record.id_funcionario;
+                              elsif v_record.id_funcionario is not null and v_record.numero_nivel = 6 then
+                              	v_id_funcionario = v_record.id_funcionario;
                               end if;
-
-
     end loop;
+RETURN v_id_funcionario;
 
 EXCEPTION
 

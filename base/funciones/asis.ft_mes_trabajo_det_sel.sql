@@ -98,10 +98,10 @@ BEGIN
 		begin
 			--Sentencia de la consulta de conteo de registros
 			v_consulta:='select count(id_mes_trabajo_det),
-            					sum(mtd.total_normal) as suma_normal,
-                                sum(mtd.total_extra) as suma_extra,
-                                sum(mtd.total_nocturna) as suma_nocturna,
-                                sum(mtd.extra_autorizada) as suma_autorizada
+            					COALESCE(sum(mtd.total_normal),0) as suma_normal,
+                                COALESCE(sum(mtd.total_extra),0) as suma_extra,
+                                COALESCE(sum(mtd.total_nocturna),0) as suma_nocturna,
+                                COALESCE(sum(mtd.extra_autorizada),0) as suma_autorizada
 					    from asis.tmes_trabajo_det mtd
 					    inner join segu.tusuario usu1 on usu1.id_usuario = mtd.id_usuario_reg
                         inner join param.vcentro_costo cc on cc.id_centro_costo = mtd.id_centro_costo
@@ -110,7 +110,6 @@ BEGIN
 
 			--Definicion de la respuesta
 			v_consulta:=v_consulta||v_parametros.filtro;
-
 			--Devuelve la respuesta
 			return v_consulta;
 
