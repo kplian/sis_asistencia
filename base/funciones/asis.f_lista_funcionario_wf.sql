@@ -20,7 +20,7 @@ $body$
 ***************************************************************************
  HISTORIAL DE MODIFICACIONES:
 #ISSUE				FECHA				AUTOR				DESCRIPCION
- #2				30/04/2019 				kplian MMV			Validaciones y reporte
+ #5				30/04/2019 				kplian MMV			Validaciones y reporte
  ***************************************************************************/
 
 
@@ -38,7 +38,8 @@ DECLARE
 
 BEGIN
     v_nombre_funcion ='asis.f_lista_funcionario_wf';
------#2-------
+   -- raise exception 'entra';
+-----#5-------
           select mes.id_mes_trabajo,mes.id_funcionario
           into
           v_id_mes_trabajo,v_id_funcionario
@@ -53,11 +54,11 @@ BEGIN
           from asis.tmes_trabajo_det mde
           where mde.id_mes_trabajo = v_id_mes_trabajo;
 
-          select fun.id_funcionario
-          into v_id_funcionario_wf
-          from orga.vfuncionario fun
-          where fun.id_funcionario = asis.f_get_funcionario_boss (v_id_funcionario,v_total_extras);
------#2-------
+
+
+          select asis.f_get_funcionario_boss (v_id_funcionario,0) into v_id_funcionario_wf;
+-----#5-------
+
 
 
     IF not p_count then
@@ -67,7 +68,7 @@ BEGIN
                             fun.desc_funcionario1 as desc_funcionario,
                             ''Gerente''::text  as desc_funcionario_cargo,
                             1 as prioridad
-                         FROM orga.vfuncionario fun WHERE fun.id_funcionario = '||COALESCE(v_id_funcionario_wf,0)::varchar||'
+                         FROM orga.vfuncionario fun WHERE fun.id_funcionario = '||v_id_funcionario_wf||'
                          and '||p_filtro||'
                          limit '|| p_limit::varchar||' offset '||p_start::varchar;
 
@@ -79,7 +80,7 @@ BEGIN
       ELSE
                   v_consulta='select
                                   COUNT(fun.id_funcionario) as total
-                                 FROM orga.vfuncionario fun WHERE fun.id_funcionario = '||COALESCE(v_id_funcionario_wf,0)::varchar||'
+                                 FROM orga.vfuncionario fun  WHERE fun.id_funcionario = '||v_id_funcionario_wf||'
                                  and '||p_filtro;
 
                    FOR g_registros in execute (v_consulta)LOOP

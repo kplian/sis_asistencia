@@ -258,7 +258,7 @@ Phx.vista.MesTrabajoDet=Ext.extend(Phx.gridInterfaz,{
             filters:{pfiltro:'mtd.total_extra',type:'numeric'},
             id_grupo:1,
             grid:true,
-            form:true
+            form:false
         },
         {
             config:{
@@ -280,7 +280,7 @@ Phx.vista.MesTrabajoDet=Ext.extend(Phx.gridInterfaz,{
             filters:{pfiltro:'mtd.total_nocturna',type:'numeric'},
             id_grupo:1,
             grid:true,
-            form:true
+            form:false
         },
         {
             config:{
@@ -308,7 +308,7 @@ Phx.vista.MesTrabajoDet=Ext.extend(Phx.gridInterfaz,{
             config:{
                 name: 'justificacion_extra',
                 fieldLabel: 'Justificacion Extra',
-                allowBlank: true,
+                allowBlank: false,
                 anchor: '80%',
                 gwidth: 100
             },
@@ -492,8 +492,30 @@ Phx.vista.MesTrabajoDet=Ext.extend(Phx.gridInterfaz,{
                 width:450,
                 height:150
             },this.maestro,this.idContenedor,'SubirArchivo');
+    },
+    preparaMenu:function(n){
+        var tb =this.tbar;
+        Phx.vista.MesTrabajoDet.superclass.preparaMenu.call(this,n);
+        if( this.maestro.estado == 'borrador'){
+            this.getBoton('edit').enable();
+            this.getBoton('btnTransaccionesUpload').enable();
+        }else{
+            this.getBoton('edit').disable();
+            this.getBoton('btnTransaccionesUpload').disable();
+        }
+        return tb;
+    },
+    liberaMenu: function() {
+        var tb = Phx.vista.MesTrabajoDet.superclass.liberaMenu.call(this);
+        if(tb){
+            this.getBoton('edit').disable();
+            this.getBoton('btnTransaccionesUpload').disable();
+
+        }
+        return tb;
     }
-	}
+
+    }
 )
 </script>
 		

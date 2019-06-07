@@ -22,10 +22,27 @@ header("content-type: text/javascript; charset=UTF-8");
         constructor: function(config) {
             this.Atributos[this.getIndAtributo('id_centro_costo')].disabled = true;
             this.Atributos[this.getIndAtributo('justificacion_extra')].form = true;
+            this.Atributos[this.getIndAtributo('extra_autorizada')].form = true;
             Phx.vista.MesTrabajoDetVoBo.superclass.constructor.call(this,config);
             this.store.baseParams = {tipo_interfaz: this.nombreVista};
             this.getBoton('btnTransaccionesUpload').setVisible(false);
-
+        },
+        preparaMenu:function(n){
+            var tb =this.tbar;
+            Phx.vista.MesTrabajoDet.superclass.preparaMenu.call(this,n);
+            if( this.maestro.estado == 'asignado'){
+                this.getBoton('edit').enable();
+            }else{
+                this.getBoton('edit').disable();
+            }
+            return tb;
+        },
+        liberaMenu: function() {
+            var tb = Phx.vista.MesTrabajoDet.superclass.liberaMenu.call(this);
+            if(tb){
+                this.getBoton('edit').disable();
+            }
+            return tb;
         }
 
     };

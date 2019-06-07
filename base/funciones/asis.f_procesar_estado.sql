@@ -18,7 +18,7 @@ $body$
 ***************************************************************************
  HISTORIAL DE MODIFICACIONES:
 #ISSUE				FECHA				AUTOR				DESCRIPCION
- #2			30/04/2019 				kplian MMV			Validaciones y reporte
+ #5				30/04/2019 				kplian MMV			Validaciones y reporte
  ***************************************************************************/
 DECLARE
   	v_nombre_funcion   	 			text;
@@ -49,7 +49,11 @@ BEGIN
     where me.id_proceso_wf = p_id_proceso_wf;
 
    if p_codigo_estado = 'asignado' then
-
+    -----#5-------
+  	if not asis.f_validar_centro_costo(v_registo.id_mes_trabajo)then
+		raise exception 'Validar centro de costo';
+ 	end if;
+   -----#5-------
       update asis.tmes_trabajo  set
       id_estado_wf =  p_id_estado_wf,
       estado = p_codigo_estado,
@@ -60,12 +64,6 @@ BEGIN
       where id_proceso_wf = p_id_proceso_wf;
 
    elsif p_codigo_estado = 'aprobado' then
-   -----#2-------
-
-  	if not asis.f_validar_centro_costo(v_registo.id_mes_trabajo)then
-		raise exception 'Validar centro de costo';
- 	end if;
-   -----#2-------
 
     v_sumar_normar = 0;
     v_ultimo_normal = 0;

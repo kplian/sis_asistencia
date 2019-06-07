@@ -13,8 +13,8 @@ class ACTMesTrabajo extends ACTbase{
 	function listarMesTrabajo(){
 		$this->objParam->defecto('ordenacion','id_mes_trabajo');
 		$this->objParam->defecto('dir_ordenacion','asc');
-        if($this->objParam->getParametro('tipo_interfaz') == 'MesTrabajoVoBo'){
-            $this->objParam->addFiltro("smt.estado in (''asignado'',''aprobado'')");
+        if($this->objParam->getParametro('tipo_interfaz') == 'VoBo'){
+            $this->objParam->addFiltro("smt.estado in (''asignado'')");
         }else {
             if($this->objParam->getParametro('id_gestion') != ''){
                 $this->objParam->addFiltro("smt.id_gestion = ".$this->objParam->getParametro('id_gestion'));

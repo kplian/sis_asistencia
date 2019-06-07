@@ -43,6 +43,7 @@ Phx.vista.MesTrabajo=Ext.extend(Phx.gridInterfaz,{
         });
         this.addBotonesGantt();
         this.finCons = true;
+        this.store.baseParams.id_usuario = Phx.CP.config_ini.id_usuario;
     },
 	Atributos:[
 		{
@@ -128,6 +129,7 @@ Phx.vista.MesTrabajo=Ext.extend(Phx.gridInterfaz,{
             filters:{pfiltro:'smt.nro_tramite',type:'string'},
             id_grupo:1,
             grid:true,
+            bottom_filter:true,
             form:false
         },
         {
@@ -204,10 +206,38 @@ Phx.vista.MesTrabajo=Ext.extend(Phx.gridInterfaz,{
             },
             type:'ComboRec',//ComboRec
             id_grupo:0,
-            //filters:{pfiltro:'fun.desc_funcionario1',type:'string'},
-            //bottom_filter:true,
+            filters:{pfiltro:'fun.desc_funcionario1',type:'string'},
+            bottom_filter:true,
             grid:true,
             form:true
+        },
+        {
+            config:{
+                name: 'nombre_cargo',
+                fieldLabel: 'Cargo',
+                allowBlank: true,
+                anchor: '80%',
+                gwidth: 100,
+                maxLength:100
+            },
+            type:'TextField',
+            id_grupo:1,
+            grid:true,
+            form:false
+        },
+        {
+            config:{
+                name: 'tipo_contrato',
+                fieldLabel: 'Tipo Contrato',
+                allowBlank: true,
+                anchor: '80%',
+                gwidth: 100,
+                maxLength:100
+            },
+            type:'TextField',
+            id_grupo:1,
+            grid:true,
+            form:false
         },
         {
             config:{
@@ -220,7 +250,6 @@ Phx.vista.MesTrabajo=Ext.extend(Phx.gridInterfaz,{
                 renderer:function(value, p, record){
                     return String.format('<b><font size=2 >{0}</font></b>',value);
                 }
-
             },
             type:'TextField',
             id_grupo:1,
@@ -403,9 +432,12 @@ Phx.vista.MesTrabajo=Ext.extend(Phx.gridInterfaz,{
         {name:'nro_tramite', type: 'string'},
         {name:'periodo', type: 'numeric'},
         {name:'desc_codigo', type: 'string'},
-        {name:'gestion', type: 'numeric'}
-		
-	],
+        {name:'gestion', type: 'numeric'},
+        {name:'nombre_cargo', type: 'string'},
+        {name:'tipo_contrato', type: 'string'}
+
+
+    ],
 	sortInfo:{
 		field: 'id_mes_trabajo',
 		direction: 'DESC'

@@ -14,7 +14,7 @@ header("content-type: text/javascript; charset=UTF-8");
         require:'../../../sis_asistencia/vista/mes_trabajo/MesTrabajo.php',
         requireclase:'Phx.vista.MesTrabajo',
         title:'Mes trabajo VoBo',
-        nombreVista: 'MesTrabajoReg',
+        nombreVista: 'Reg',
         gruposBarraTareas:[
             {name:'borrador',title:'<h1 align="center"><i></i>Borrador</h1>',grupo:0,height:0},
             {name:'asignado',title:'<h1 align="center"><i></i>Asignado</h1>',grupo:1,height:0},
