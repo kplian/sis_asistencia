@@ -185,28 +185,6 @@ BEGIN
 	elsif(p_transaccion='ASIS_RHT_SEL')then
 		begin
 
-      	 if v_parametros.tipo_interfaz = 'Reg' then
-            	if (p_administrador) then
-                	v_filtro = '0=0 and';
-                else
-                	v_filtro = 'smt.id_usuario_reg = '||p_id_usuario||' and ';
-                end if;
-            end if;
-
-            if v_parametros.tipo_interfaz = 'VoBo' then
-            	if (p_administrador) then
-                		v_filtro = '0=0 and';
-
-                else
-                    select f.id_funcionario
-                            into
-                            v_id_funcionario
-                            from segu.vusuario u
-                            inner join orga.vfuncionario_persona f on f.id_persona = u.id_persona
-                            where u.id_usuario = p_id_usuario;
-                      v_filtro = 'ew.id_funcionario ='||v_id_funcionario||' and';
-                end if;
-            end if;
         --raise exception '%',v_parametros.id_proceso_wf;
 			--Sentencia de la consulta de conteo de registros
 			v_consulta:='select  fun.desc_funcionario1 as nombre_funcionario,
