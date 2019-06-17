@@ -4,8 +4,10 @@
 *@file gen-MODMesTrabajoCon.php
 *@author  (miguel.mamani)
 *@date 13-03-2019 13:52:11
-*@description Clase que envia los parametros requeridos a la Base de datos para la ejecucion de las funciones, y que recibe la respuesta del resultado de la ejecucion de las mismas
-*/
+ * HISTORIAL DE MODIFICACIONES:
+ * #ISSUE				FECHA				AUTOR				DESCRIPCION
+ * #4	ERT			17/06/2019 				 MMV					Correccion bug
+ */
 
 class MODMesTrabajoCon extends MODbase{
 	
@@ -20,6 +22,9 @@ class MODMesTrabajoCon extends MODbase{
 		$this->tipo_procedimiento='SEL';//tipo de transaccion
 				
 		//Definicion de la lista del resultado del query
+        $this->capturaCount('suma_horas','numeric');//#4
+        $this->capturaCount('suma_factor','numeric');//#4
+
 		$this->captura('id_mes_trabajo_con','int4');
 		$this->captura('id_tipo_aplicacion','int4');
 		$this->captura('total_horas','numeric');

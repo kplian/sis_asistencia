@@ -17,7 +17,7 @@ $body$
  HISTORIAL DE MODIFICACIONES:
 #ISSUE				FECHA				AUTOR				DESCRIPCION
  #0				13-03-2019 13:52:11								Funcion que devuelve conjuntos de registros de las consultas relacionadas con la tabla 'asis.tmes_trabajo_con'
- #
+ #4	ERT			17/06/2019 				 MMV					Correccion bug
  ***************************************************************************/
 
 DECLARE
@@ -88,7 +88,9 @@ BEGIN
 
 		begin
 			--Sentencia de la consulta de conteo de registros
-			v_consulta:='select count(id_mes_trabajo_con)
+			v_consulta:='select count(id_mes_trabajo_con),
+                                COALESCE(sum(mtf.total_horas),0) as suma_horas, -- #4
+                                COALESCE(sum(mtf.factor),0) as suma_factor -- #4
 					    from asis.tmes_trabajo_con mtf
 					    inner join segu.tusuario usu1 on usu1.id_usuario = mtf.id_usuario_reg
                         inner join asis.ttipo_aplicacion ap on ap.id_tipo_aplicacion = mtf.id_tipo_aplicacion
@@ -98,7 +100,6 @@ BEGIN
 
 			--Definicion de la respuesta
 			v_consulta:=v_consulta||v_parametros.filtro;
-
 			--Devuelve la respuesta
 			return v_consulta;
 

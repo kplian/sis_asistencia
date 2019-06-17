@@ -17,7 +17,7 @@ $body$
  HISTORIAL DE MODIFICACIONES:
 #ISSUE				FECHA				AUTOR				DESCRIPCION
  #0				21-02-2019 13:27:56								Funcion que devuelve conjuntos de registros de las consultas relacionadas con la tabla 'asis.ttipo_aplicacion'
- #
+ #4	ERT			17/06/2019 				 MMV					Correccion bug
  ***************************************************************************/
 
 DECLARE
@@ -62,7 +62,7 @@ BEGIN
                         tc.nombre as desc_tipo_columna
 						from asis.ttipo_aplicacion tas
 						inner join segu.tusuario usu1 on usu1.id_usuario = tas.id_usuario_reg
-                        inner join plani.ttipo_columna tc on tc.id_tipo_columna = tas.id_tipo_columna
+                        left join plani.ttipo_columna tc on tc.id_tipo_columna = tas.id_tipo_columna --#4
 						left join segu.tusuario usu2 on usu2.id_usuario = tas.id_usuario_mod
 				        where  ';
 
@@ -89,7 +89,7 @@ BEGIN
 			v_consulta:='select count(id_tipo_aplicacion)
 					    from asis.ttipo_aplicacion tas
 					    inner join segu.tusuario usu1 on usu1.id_usuario = tas.id_usuario_reg
-                        inner join plani.ttipo_columna tc on tc.id_tipo_columna = tas.id_tipo_columna
+                        left join plani.ttipo_columna tc on tc.id_tipo_columna = tas.id_tipo_columna --#4
 						left join segu.tusuario usu2 on usu2.id_usuario = tas.id_usuario_mod
 					    where ';
 
