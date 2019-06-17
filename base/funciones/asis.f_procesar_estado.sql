@@ -19,6 +19,7 @@ $body$
  HISTORIAL DE MODIFICACIONES:
 #ISSUE				FECHA				AUTOR				DESCRIPCION
  #5				30/04/2019 				kplian MMV			Validaciones y reporte
+ #4	ERT			17/06/2019 				 MMV				Validar que tenga registros el detalle
  ***************************************************************************/
 DECLARE
   	v_nombre_funcion   	 			text;
@@ -36,6 +37,7 @@ DECLARE
     v_ultimo_nocturno				numeric;
     v_sumar_extra					numeric;
     v_ultimo_extra				    numeric;
+    v_count							integer; --#4
 
 BEGIN
   v_nombre_funcion = 'mat.f_procesar_estados_solicitud';
@@ -49,6 +51,17 @@ BEGIN
     where me.id_proceso_wf = p_id_proceso_wf;
 
    if p_codigo_estado = 'asignado' then
+   -----#4-------
+   select count(md.id_mes_trabajo_det)
+        	into v_count
+        from asis.tmes_trabajo mt
+        inner join asis.tmes_trabajo_det md on md.id_mes_trabajo = mt.id_mes_trabajo
+        where mt.id_proceso_wf = p_id_proceso_wf;
+
+        if (v_count = 0 or v_count is null) then
+        	raise exception 'No tiene detelle HT';
+    	end if;
+         -----#4-------
     -----#5-------
   	if not asis.f_validar_centro_costo(v_registo.id_mes_trabajo)then
 		raise exception 'Validar centro de costo';
@@ -71,14 +84,24 @@ BEGIN
     v_ultimo_nocturno = 0;
     v_sumar_extra = 0;
     v_ultimo_extra = 0;
+  -----#4-------
+		select count(md.id_mes_trabajo_det)
+        	into v_count
+        from asis.tmes_trabajo mt
+        inner join asis.tmes_trabajo_det md on md.id_mes_trabajo = mt.id_mes_trabajo
+        where mt.id_proceso_wf = p_id_proceso_wf;
 
+        if (v_count = 0 or v_count is null) then
+        	raise exception 'No tiene detelle HT';
+    	end if;
+     -----#4-------
      for v_record in (with  total as (select    hc.id_funcionario,
                                                 sum(hc.total_normal) as total_normal,
                                                 sum(hc.total_extra) as total_extra,
                                                 sum(hc.total_nocturna) as total_nocturna,
                                                 sum(hc.extra_autorizada) as  extra_autorizada
                                                 from asis.vtotales_horas_centro_costo hc
-                                                where hc.id_funcionario = v_registo.id_funcionario
+                                                where hc.estado = 'asignado' and hc.id_funcionario = v_registo.id_funcionario
                                                 and hc.id_periodo = v_registo.id_periodo
                                                 group by hc.id_funcionario),
                           total_cc as (select   hc.id_funcionario,
@@ -88,7 +111,7 @@ BEGIN
                                                 sum(hc.total_nocturna) as total_nocturna_cc,
                                                 sum(hc.extra_autorizada) as  extra_autorizada_cc
                                                 from asis.vtotales_horas_centro_costo hc
-                                                where hc.id_funcionario = v_registo.id_funcionario
+                                                where hc.estado = 'asignado' and hc.id_funcionario = v_registo.id_funcionario
                                                 and hc.id_periodo = v_registo.id_periodo
                                                 group by hc.id_funcionario,
                                                 hc.id_centro_costo)
