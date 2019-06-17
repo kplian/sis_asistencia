@@ -4,7 +4,9 @@
 *@file gen-MesTrabajoDet.php
 *@author  (miguel.mamani)
 *@date 31-01-2019 16:36:51
-*@description Archivo con la interfaz de usuario que permite la ejecucion de todas las funcionalidades del sistema
+HISTORIAL DE MODIFICACIONES:
+#ISSUE				FECHA				AUTOR				DESCRIPCION
+#4	ERT			17/06/2019 				 MMV			corrección bug botón subir excel
 */
 
 header("content-type: text/javascript; charset=UTF-8");
@@ -19,7 +21,7 @@ Phx.vista.MesTrabajoDet=Ext.extend(Phx.gridInterfaz,{
 		this.init();
         this.addButton('btnTransaccionesUpload',
             {
-                text: 'Subir Trans.',
+                text: 'Subir HT.',  //#4
                 iconCls: 'bchecklist',
                 disabled: true,
                 handler: this.SubirArchivo,
@@ -508,8 +510,10 @@ Phx.vista.MesTrabajoDet=Ext.extend(Phx.gridInterfaz,{
     liberaMenu: function() {
         var tb = Phx.vista.MesTrabajoDet.superclass.liberaMenu.call(this);
         if(tb){
+            if( this.maestro.estado != 'borrador'){ //#4
+                this.getBoton('btnTransaccionesUpload').disable();
+            }
             this.getBoton('edit').disable();
-            this.getBoton('btnTransaccionesUpload').disable();
 
         }
         return tb;

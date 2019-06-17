@@ -18,6 +18,7 @@ $body$
 #ISSUE				FECHA				AUTOR				DESCRIPCION
  #0				31-01-2019 16:36:51								Funcion que gestiona las operaciones basicas (inserciones, modificaciones, eliminaciones de la tabla 'asis.tmes_trabajo_det'
  #5				30/04/2019 				kplian MMV			Validaciones y reporte
+ #4	ERT			17/06/2019 				 MMV			Validar columna de excel
 
  ***************************************************************************/
 
@@ -254,6 +255,8 @@ BEGIN
                 	if v_id_centro_costo is null then
             			raise exception 'Error no se encuentra el centro de costo % ',v_centro_costo;
                   	end if;
+        	else
+             raise exception 'Las columna no estan difinidas comuniquece con el admin.'; --#4
             end if;
             ---#5---
             ---Insertar detalle
