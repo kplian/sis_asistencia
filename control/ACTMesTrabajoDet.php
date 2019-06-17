@@ -4,8 +4,10 @@
 *@file gen-ACTMesTrabajoDet.php
 *@author  (miguel.mamani)
 *@date 31-01-2019 16:36:51
-*@description Clase que recibe los parametros enviados por la vista para mandar a la capa de Modelo
-*/
+ * HISTORIAL DE MODIFICACIONES:
+ * #ISSUE				FECHA				AUTOR				DESCRIPCION
+ * #4	ERT			17/06/2019 				 MMV			corrección bug botón subir excel
+ */
 include_once(dirname(__FILE__).'/../../lib/lib_general/ExcelInput.php');
 class ACTMesTrabajoDet extends ACTbase{    
 			
@@ -158,6 +160,12 @@ class ACTMesTrabajoDet extends ACTbase{
 
         //devolver respuesta
 
+    }
+    //#4
+    function eliminarTotoMesTrabajoDet(){
+        $this->objFunc=$this->create('MODMesTrabajoDet');
+        $this->res=$this->objFunc->eliminarTotoMesTrabajoDet($this->objParam);
+        $this->res->imprimirRespuesta($this->res->generarJson());
     }
 			
 }
