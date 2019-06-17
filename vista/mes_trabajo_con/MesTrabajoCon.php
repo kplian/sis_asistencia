@@ -326,7 +326,7 @@ Phx.vista.MesTrabajoCon=Ext.extend(Phx.gridInterfaz,{
         emptyText:'Aplicacion...',
         store:new Ext.data.JsonStore(
             {
-                url: '../../sis_asistencia/control/MesTrabajoCon/listarMesTrabajoCon',
+                url: '../../sis_asistencia/control/TipoAplicacion/listarTipoAplicacion', //#4
                 id: 'id_tipo_aplicacion',
                 root: 'datos',
                 sortInfo:{
