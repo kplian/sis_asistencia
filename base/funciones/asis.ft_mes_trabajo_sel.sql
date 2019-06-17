@@ -17,7 +17,7 @@ $body$
  HISTORIAL DE MODIFICACIONES:
 #ISSUE				FECHA				AUTOR				DESCRIPCION
  #0				31-01-2019 13:53:10								Funcion que devuelve conjuntos de registros de las consultas relacionadas con la tabla 'asis.tmes_trabajo'
- #2				30/04/2019 				kplian MMV			Validaciones y reporte
+ #5				30/04/2019 				kplian MMV			Validaciones y reporte
  ***************************************************************************/
 
 DECLARE
@@ -28,6 +28,8 @@ DECLARE
 	v_resp				varchar;
     v_filtro			varchar;
     v_id_funcionario	integer;
+    v_id_gestion		integer;
+    v_id_periodo		integer;
 
 BEGIN
 
@@ -45,18 +47,28 @@ BEGIN
 
     	begin
 
-        	select f.id_funcionario
-            into
-            v_id_funcionario
-            from segu.vusuario u
-            inner join orga.vfuncionario_persona f on f.id_persona = u.id_persona
-            where u.id_usuario = p_id_usuario;
+            if v_parametros.tipo_interfaz = 'Reg' then
+            	if (p_administrador) then
+                	v_filtro = '0=0 and';
+                else
+                	v_filtro = 'smt.id_usuario_reg = '||p_id_usuario||' and ';
+                end if;
+            end if;
 
-          if (p_administrador) then
-			 v_filtro = ' 0=0 and ';
-          elsif (v_parametros.dir_ordenacion = 'MesTrabajoVoBo') then
-           v_filtro = 'ew.id_funcionario ='||v_id_funcionario||' and';
-          end if ;
+            if v_parametros.tipo_interfaz = 'VoBo' then
+            	if (p_administrador) then
+                		v_filtro = '0=0 and';
+
+                else
+                    select f.id_funcionario
+                            into
+                            v_id_funcionario
+                            from segu.vusuario u
+                            inner join orga.vfuncionario_persona f on f.id_persona = u.id_persona
+                            where u.id_usuario = p_id_usuario;
+                      v_filtro = 'ew.id_funcionario ='||v_id_funcionario||' and';
+                end if;
+            end if;
 
 
     		--Sentencia de la consulta
@@ -85,10 +97,14 @@ BEGIN
                                 pe.periodo,
                                 fun.codigo,
                                 trim(both ''FUNODTPR'' from  fun.codigo ) as desc_codigo,
-                                g.gestion
+                                g.gestion,
+                                fun.nombre_cargo,
+                                tc.nombre as tipo_contrato
                                 from asis.tmes_trabajo smt
                                 inner join segu.tusuario usu1 on usu1.id_usuario = smt.id_usuario_reg
-                                inner join orga.vfuncionario fun on fun.id_funcionario = smt.id_funcionario
+                                inner join orga.vfuncionario_cargo fun on fun.id_funcionario = smt.id_funcionario and (fun.fecha_finalizacion is null or fun.fecha_finalizacion >= now()::date)
+                                inner join orga.tcargo ca on ca.id_cargo = fun.id_cargo
+                                inner join orga.ttipo_contrato tc on tc.id_tipo_contrato = ca.id_tipo_contrato
                                 left join orga.vfuncionario funa on funa.id_funcionario = smt.id_funcionario_apro
                                 left join wf.tproceso_wf pw on pw.id_proceso_wf = smt.id_proceso_wf
                                 left join wf.testado_wf ew on ew.id_estado_wf = smt.id_estado_wf
@@ -96,11 +112,9 @@ BEGIN
                                 inner join param.tgestion g on g.id_gestion = smt.id_gestion
                                 left join segu.tusuario usu2 on usu2.id_usuario = smt.id_usuario_mod
 				        		where  '|| v_filtro;
-
 			--Definicion de la respuesta
 			v_consulta:=v_consulta||v_parametros.filtro;
 			v_consulta:=v_consulta||' order by ' ||v_parametros.ordenacion|| ' ' || v_parametros.dir_ordenacion || ' limit ' || v_parametros.cantidad || ' offset ' || v_parametros.puntero;
- 			raise notice '%',v_consulta;
 			--Devuelve la respuesta
 			return v_consulta;
 
@@ -117,24 +131,36 @@ BEGIN
 
 		begin
 
-        	select f.id_funcionario
-            into
-            v_id_funcionario
-            from segu.vusuario u
-            inner join orga.vfuncionario_persona f on f.id_persona = u.id_persona
-            where u.id_usuario = p_id_usuario;
+        	 if v_parametros.tipo_interfaz = 'Reg' then
+            	if (p_administrador) then
+                	v_filtro = '0=0 and';
+                else
+                	v_filtro = 'smt.id_usuario_reg = '||p_id_usuario||' and ';
+                end if;
+            end if;
 
-            if (p_administrador) then
-               v_filtro = ' 0=0 and ';
-            elsif (v_parametros.dir_ordenacion = 'MesTrabajoVoBo') then
-             v_filtro = 'smt.estado = ''asignado'' and ew.id_funcionario ='||v_id_funcionario||' and';
-            end if ;
+            if v_parametros.tipo_interfaz = 'VoBo' then
+            	if (p_administrador) then
+                		v_filtro = '0=0 and';
+
+                else
+                    select f.id_funcionario
+                            into
+                            v_id_funcionario
+                            from segu.vusuario u
+                            inner join orga.vfuncionario_persona f on f.id_persona = u.id_persona
+                            where u.id_usuario = p_id_usuario;
+                      v_filtro = 'ew.id_funcionario ='||v_id_funcionario||' and';
+                end if;
+            end if;
 
 			--Sentencia de la consulta de conteo de registros
 			v_consulta:='select count(id_mes_trabajo)
  								from asis.tmes_trabajo smt
                                 inner join segu.tusuario usu1 on usu1.id_usuario = smt.id_usuario_reg
-                                inner join orga.vfuncionario fun on fun.id_funcionario = smt.id_funcionario
+                                inner join orga.vfuncionario_cargo fun on fun.id_funcionario = smt.id_funcionario and (fun.fecha_finalizacion is null or fun.fecha_finalizacion >= now()::date)
+                                inner join orga.tcargo ca on ca.id_cargo = fun.id_cargo
+                                inner join orga.ttipo_contrato tc on tc.id_tipo_contrato = ca.id_tipo_contrato
                                 left join orga.vfuncionario funa on funa.id_funcionario = smt.id_funcionario_apro
                                 left join wf.tproceso_wf pw on pw.id_proceso_wf = smt.id_proceso_wf
                                 left join wf.testado_wf ew on ew.id_estado_wf = smt.id_estado_wf
@@ -151,13 +177,37 @@ BEGIN
 
 		end;
     /*********************************
- 	#TRANSACCION:  'ASIS_RHT_SEL' #2
+ 	#TRANSACCION:  'ASIS_RHT_SEL' #5
  	#DESCRIPCION:	Reporte Hoja Tiempo
  	#AUTOR:		Kplian MMV
  	#FECHA:		31-01-2019 13:53:10
 	***********************************/
 	elsif(p_transaccion='ASIS_RHT_SEL')then
 		begin
+
+      	 if v_parametros.tipo_interfaz = 'Reg' then
+            	if (p_administrador) then
+                	v_filtro = '0=0 and';
+                else
+                	v_filtro = 'smt.id_usuario_reg = '||p_id_usuario||' and ';
+                end if;
+            end if;
+
+            if v_parametros.tipo_interfaz = 'VoBo' then
+            	if (p_administrador) then
+                		v_filtro = '0=0 and';
+
+                else
+                    select f.id_funcionario
+                            into
+                            v_id_funcionario
+                            from segu.vusuario u
+                            inner join orga.vfuncionario_persona f on f.id_persona = u.id_persona
+                            where u.id_usuario = p_id_usuario;
+                      v_filtro = 'ew.id_funcionario ='||v_id_funcionario||' and';
+                end if;
+            end if;
+        --raise exception '%',v_parametros.id_proceso_wf;
 			--Sentencia de la consulta de conteo de registros
 			v_consulta:='select  fun.desc_funcionario1 as nombre_funcionario,
                                   trim(both ''FUNODTPR'' from  fun.codigo ) as codigo,
@@ -182,9 +232,9 @@ BEGIN
                           inner join param.tperiodo per on per.id_periodo = per.id_periodo
                           inner join asis.tmes_trabajo_det mde on mde.id_mes_trabajo = me.id_mes_trabajo
                           inner join param.vcentro_costo cen on cen.id_centro_costo = mde.id_centro_costo
-                          where me.id_proceso_wf = '||v_parametros.id_proceso_wf||' and per.id_periodo = '||v_parametros.id_periodo||' and ges.id_gestion = '||v_parametros.id_gestion||'
-                          order by mde.id_mes_trabajo_det asc ';
-
+                          where me.id_proceso_wf = '||v_parametros.id_proceso_wf||' and per.id_periodo = '||v_id_periodo||' and ges.id_gestion = '||v_id_gestion||'
+                          order by mde.id_mes_trabajo_det asc';
+			--raise notice '%',v_consulta;
 			--Devuelve la respuesta
 			return v_consulta;
 		end;
