@@ -101,7 +101,7 @@ BEGIN
                                                 sum(hc.total_nocturna) as total_nocturna,
                                                 sum(hc.extra_autorizada) as  extra_autorizada
                                                 from asis.vtotales_horas_centro_costo hc
-                                                where hc.estado = 'asignado' and hc.id_funcionario = v_registo.id_funcionario
+                                                where  hc.id_funcionario = v_registo.id_funcionario
                                                 and hc.id_periodo = v_registo.id_periodo
                                                 group by hc.id_funcionario),
                           total_cc as (select   hc.id_funcionario,
@@ -111,7 +111,7 @@ BEGIN
                                                 sum(hc.total_nocturna) as total_nocturna_cc,
                                                 sum(hc.extra_autorizada) as  extra_autorizada_cc
                                                 from asis.vtotales_horas_centro_costo hc
-                                                where hc.estado = 'asignado' and hc.id_funcionario = v_registo.id_funcionario
+                                                where hc.id_funcionario = v_registo.id_funcionario
                                                 and hc.id_periodo = v_registo.id_periodo
                                                 group by hc.id_funcionario,
                                                 hc.id_centro_costo)
