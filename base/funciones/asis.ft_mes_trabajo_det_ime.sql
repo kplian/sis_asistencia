@@ -337,7 +337,28 @@ BEGIN
             return v_resp;
 
 		end;
+    	/*********************************
+        #TRANSACCION:  'ASIS_ELT_ELI'
+        #DESCRIPCION:	Eliminar Todo los registros detalle #4
+        #AUTOR:		miguel.mamani
+        #FECHA:		31-01-2019 16:36:51
+		***********************************/
 
+	elsif(p_transaccion='ASIS_ELT_ELI')then
+
+		begin
+			--Sentencia de la eliminacion
+			delete from asis.tmes_trabajo_det de
+            where de.id_mes_trabajo =v_parametros.id_mes_trabajo;
+
+            --Definicion de la respuesta
+            v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Mes trabajo detalle eliminado(a)');
+            v_resp = pxp.f_agrega_clave(v_resp,'id_mes_trabajo',v_parametros.id_mes_trabajo::varchar);
+
+            --Devuelve la respuesta
+            return v_resp;
+
+		end;
 	else
 
     	raise exception 'Transaccion inexistente: %',p_transaccion;

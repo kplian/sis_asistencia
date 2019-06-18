@@ -16,8 +16,8 @@ $body$
 ***************************************************************************
  HISTORIAL DE MODIFICACIONES:
 #ISSUE				FECHA				AUTOR				DESCRIPCION
- #0				31-01-2019 13:53:10								Funcion que gestiona las operaciones basicas (inserciones, modificaciones, eliminaciones de la tabla 'asis.tmes_trabajo'
- #
+ #0				31-01-2019 13:53:10							Funcion que gestiona las operaciones basicas (inserciones, modificaciones, eliminaciones de la tabla 'asis.tmes_trabajo'
+ #4	ERT			17/06/2019 				 MMV				Validar cuando vuelve a estabo borrador se elimina los registros para el nuevo calculo de factor
  ***************************************************************************/
 
 DECLARE
@@ -49,9 +49,11 @@ DECLARE
     v_id_estado_actual		integer;
 	v_operacion				varchar;
     v_id_funcionario		integer;
+    v_nombre_funcionario	varchar;
     v_id_usuario_reg			integer;
     v_id_estado_wf_ant			integer;
     v_codigo_estado_siguiente	varchar;
+    v_id_mes_trabajo_con		integer; --#4
 
 BEGIN
 
@@ -397,6 +399,15 @@ BEGIN
                   fecha_mod = now()
                   where id_proceso_wf = v_parametros.id_proceso_wf;
 
+                  ---#4---
+				    select mt.id_mes_trabajo into v_id_mes_trabajo_con
+                    from asis.tmes_trabajo mt
+                    where mt.id_proceso_wf = v_parametros.id_proceso_wf;
+
+                    delete from asis.tmes_trabajo_con mc
+                    where mc.id_mes_trabajo = v_id_mes_trabajo_con;
+                    ---#4---
+
              -- si hay mas de un estado disponible  preguntamos al usuario
                 v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Se realizo el cambio de estado)');
                 v_resp = pxp.f_agrega_clave(v_resp,'operacion','cambio_exitoso');
@@ -404,6 +415,32 @@ BEGIN
               --Devuelve la respuesta
                 return v_resp;
  			end;
+
+    /*********************************
+ 	#TRANSACCION:  'ASIS_FUN_IME'
+ 	#DESCRIPCION:	Obtener funcionario
+ 	#AUTOR:		MMV
+ 	#FECHA:		04/06/2019
+	***********************************/
+    elsif(p_transaccion='ASIS_FUN_IME')then
+		begin
+
+            select 	fun.id_funcionario,
+                    pw.nombre_completo1
+                    into
+                    v_id_funcionario,
+                    v_nombre_funcionario
+            from segu.vpersona pw
+            inner join orga.tfuncionario fun on fun.id_persona = pw.id_persona
+            inner join segu.vusuario us on us.id_persona = pw.id_persona
+            where us.id_usuario = p_administrador;
+
+            v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Transaccion Exitosa');
+			v_resp = pxp.f_agrega_clave(v_resp,'id_funcionario',v_id_funcionario::varchar);
+			v_resp = pxp.f_agrega_clave(v_resp,'nombre_completo',v_nombre_funcionario::varchar);
+            return v_resp;
+
+    	end;
 	else
 
     	raise exception 'Transaccion inexistente: %',p_transaccion;

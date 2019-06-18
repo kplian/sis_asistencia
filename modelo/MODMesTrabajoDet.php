@@ -4,8 +4,10 @@
 *@file gen-MODMesTrabajoDet.php
 *@author  (miguel.mamani)
 *@date 31-01-2019 16:36:51
-*@description Clase que envia los parametros requeridos a la Base de datos para la ejecucion de las funciones, y que recibe la respuesta del resultado de la ejecucion de las mismas
-*/
+ * HISTORIAL DE MODIFICACIONES:
+ * #ISSUE				FECHA				AUTOR				DESCRIPCION
+ * #4	ERT			17/06/2019 				 MMV			corrección bug botón subir excel
+ */
 
 class MODMesTrabajoDet extends MODbase{
 	
@@ -154,6 +156,23 @@ class MODMesTrabajoDet extends MODbase{
         $this->setParametro('desc_codigo','desc_codigo','text');
         $this->setParametro('periodo','periodo','int4');
         $this->setParametro('gestion','gestion','int4');
+
+        //Ejecuta la instruccion
+        $this->armarConsulta();
+        $this->ejecutarConsulta();
+
+        //Devuelve la respuesta
+        return $this->respuesta;
+    }
+    //#4
+    function eliminarTotoMesTrabajoDet(){
+        //Definicion de variables para ejecucion del procedimiento
+        $this->procedimiento='asis.ft_mes_trabajo_det_ime';
+        $this->transaccion='ASIS_ELT_ELI';
+        $this->tipo_procedimiento='IME';
+
+        //Define los parametros para la funcion
+        $this->setParametro('id_mes_trabajo','id_mes_trabajo','int4');
 
         //Ejecuta la instruccion
         $this->armarConsulta();

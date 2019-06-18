@@ -19,6 +19,14 @@ Phx.vista.MesTrabajoDet=Ext.extend(Phx.gridInterfaz,{
     	//llama al constructor de la clase padre
 		Phx.vista.MesTrabajoDet.superclass.constructor.call(this,config);
 		this.init();
+        this.addButton('btmBorrarTodo',
+            {
+                text: 'Borrar Todo HT',  //#4
+                iconCls: 'bdel',
+                disabled: true,
+                handler: this.borrarTodo
+            }
+        );
         this.addButton('btnTransaccionesUpload',
             {
                 text: 'Subir HT.',  //#4
@@ -501,9 +509,11 @@ Phx.vista.MesTrabajoDet=Ext.extend(Phx.gridInterfaz,{
         if( this.maestro.estado == 'borrador'){
             this.getBoton('edit').enable();
             this.getBoton('btnTransaccionesUpload').enable();
+            this.getBoton('btmBorrarTodo').enable();
         }else{
             this.getBoton('edit').disable();
             this.getBoton('btnTransaccionesUpload').disable();
+            this.getBoton('btmBorrarTodo').disable();
         }
         return tb;
     },
@@ -512,13 +522,34 @@ Phx.vista.MesTrabajoDet=Ext.extend(Phx.gridInterfaz,{
         if(tb){
             if( this.maestro.estado != 'borrador'){ //#4
                 this.getBoton('btnTransaccionesUpload').disable();
+                this.getBoton('btmBorrarTodo').disable();
             }
             this.getBoton('edit').disable();
 
         }
         return tb;
-    }
+    },
 
+    //#4
+    borrarTodo:function () {
+        Phx.CP.loadingShow();
+        var id = this.maestro.id_mes_trabajo;
+        Ext.Ajax.request({
+            url:'../../sis_asistencia/control/MesTrabajoDet/eliminarTotoMesTrabajoDet',
+            params:{ id_mes_trabajo: id},
+            success: this.success,
+            failure: this.conexionFailure,
+            timeout: this.timeout,
+            scope: this
+        });
+        this.reload();
+    },
+    success: function(resp){
+        Phx.CP.loadingHide();
+        var reg = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));
+        console.log(reg);
+    }
+//#4
     }
 )
 </script>

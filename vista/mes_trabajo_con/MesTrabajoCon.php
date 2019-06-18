@@ -4,8 +4,10 @@
 *@file gen-MesTrabajoCon.php
 *@author  (miguel.mamani)
 *@date 13-03-2019 13:52:11
-*@description Archivo con la interfaz de usuario que permite la ejecucion de todas las funcionalidades del sistema
-*/
+ * HISTORIAL DE MODIFICACIONES:
+ * #ISSUE				FECHA				AUTOR				DESCRIPCION
+ * #4	ERT			17/06/2019 				 MMV					Correccion bug
+ */
 
 header("content-type: text/javascript; charset=UTF-8");
 ?>
@@ -17,6 +19,8 @@ Phx.vista.MesTrabajoCon=Ext.extend(Phx.gridInterfaz,{
 		this.maestro=config.maestro;
     	//llama al constructor de la clase padre
 		Phx.vista.MesTrabajoCon.superclass.constructor.call(this,config);
+        this.cmbAplicacion.setValue('normal'); //#4
+        this.cmbAplicacion.setRawValue(1); //#4
         this.cmbAplicacion.on('select', function(combo, record, index){
             this.capturaFiltros();
         },this);

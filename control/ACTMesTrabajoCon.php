@@ -4,8 +4,10 @@
 *@file gen-ACTMesTrabajoCon.php
 *@author  (miguel.mamani)
 *@date 13-03-2019 13:52:11
-*@description Clase que recibe los parametros enviados por la vista para mandar a la capa de Modelo
-*/
+ * HISTORIAL DE MODIFICACIONES:
+ * #ISSUE				FECHA				AUTOR				DESCRIPCION
+ * #4	ERT			17/06/2019 				 MMV					Correccion bug
+ */
 
 class ACTMesTrabajoCon extends ACTbase{    
 			
@@ -26,6 +28,12 @@ class ACTMesTrabajoCon extends ACTbase{
 			
 			$this->res=$this->objFunc->listarMesTrabajoCon($this->objParam);
 		}
+        $temp = Array();
+        $temp['total_horas'] = $this->res->extraData['suma_horas'];  //#4
+        $temp['factor'] = $this->res->extraData['suma_factor']; //#4
+        $temp['codigo_aplicacion'] = 'total'; //#4
+        $this->res->total++; //#4
+        $this->res->addLastRecDatos($temp); //#4
 		$this->res->imprimirRespuesta($this->res->generarJson());
 	}
 				

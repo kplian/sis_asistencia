@@ -4,8 +4,10 @@
 *@file gen-MesTrabajo.php
 *@author  (miguel.mamani)
 *@date 31-01-2019 13:53:10
-*@description Archivo con la interfaz de usuario que permite la ejecucion de todas las funcionalidades del sistema
-*/
+ * HISTORIAL DE MODIFICACIONES:
+ * #ISSUE				FECHA				AUTOR				DESCRIPCION
+ *  #4	ERT			17/06/2019 				 MMV				Correccion Boton reporte mostrar grupos
+ */
 
 header("content-type: text/javascript; charset=UTF-8");
 ?>
@@ -34,7 +36,7 @@ Phx.vista.MesTrabajo=Ext.extend(Phx.gridInterfaz,{
         this.addButton('ant_estado',{  grupo:[3], argument: { estado: 'anterior'},text:'Anterior',iconCls: 'batras',disabled:true,handler:this.antEstado,tooltip: '<b>Pasar al Anterior Estado</b>'});
         this.addButton('fin_registro',{ grupo:[0,3], text:'Siguiente', iconCls: 'badelante',disabled:true,handler:this.fin_registro,tooltip: '<b>Siguiente</b><p>Pasa al siguiente estado</p>'});
         this.addButton('Report',{
-            grupo:[0,3],
+            grupo:[0,3,1,2], //#4
             text :'Reporte',
             iconCls : 'bexcel',
             disabled: true,
