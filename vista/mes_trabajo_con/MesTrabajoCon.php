@@ -326,7 +326,8 @@ Phx.vista.MesTrabajoCon=Ext.extend(Phx.gridInterfaz,{
     },
     cmbAplicacion: new Ext.form.ComboBox({
         fieldLabel: 'Aplicacion',
-        allowBlank: false,
+        allowBlank: true,
+        editable: false,
         emptyText:'Aplicacion...',
         store:new Ext.data.JsonStore(
             {
@@ -341,7 +342,7 @@ Phx.vista.MesTrabajoCon=Ext.extend(Phx.gridInterfaz,{
                 fields: ['id_tipo_aplicacion','codigo_aplicacion'],
                 // turn on remote sorting
                 remoteSort: true,
-                baseParams:{par_filtro:'codigo_aplicacion'}
+                baseParams:{par_filtro:'codigo_aplicacion',_adicionar:'si'}
             }),
         valueField: 'id_tipo_aplicacion',
         triggerAction: 'all',
