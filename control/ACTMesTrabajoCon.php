@@ -18,7 +18,9 @@ class ACTMesTrabajoCon extends ACTbase{
             $this->objParam->addFiltro("mtf.id_mes_trabajo = " . $this->objParam->getParametro('id_mes_trabajo'));
         }
         if($this->objParam->getParametro('id_tipo_aplicacion') != '') {
-            $this->objParam->addFiltro("mtf.id_tipo_aplicacion = " . $this->objParam->getParametro('id_tipo_aplicacion'));
+            if($this->objParam->getParametro('id_tipo_aplicacion') != 0){
+                $this->objParam->addFiltro("mtf.id_tipo_aplicacion = " . $this->objParam->getParametro('id_tipo_aplicacion'));
+            }
         }
 		if($this->objParam->getParametro('tipoReporte')=='excel_grid' || $this->objParam->getParametro('tipoReporte')=='pdf_grid'){
 			$this->objReporte = new Reporte($this->objParam,$this);

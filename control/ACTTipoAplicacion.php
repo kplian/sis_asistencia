@@ -21,6 +21,12 @@ class ACTTipoAplicacion extends ACTbase{
 			
 			$this->res=$this->objFunc->listarTipoAplicacion($this->objParam);
 		}
+        if($this->objParam->getParametro('_adicionar')!=''){
+            $respuesta = $this->res->getDatos();
+            array_unshift ( $respuesta, array( 'id_tipo_aplicacion'=>'0',
+                'codigo_aplicacion'=>'Todos'));
+            $this->res->setDatos($respuesta);
+        }
 		$this->res->imprimirRespuesta($this->res->generarJson());
 	}
 				

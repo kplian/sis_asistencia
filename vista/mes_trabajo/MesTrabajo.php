@@ -35,14 +35,14 @@ Phx.vista.MesTrabajo=Ext.extend(Phx.gridInterfaz,{
         this.init();
         this.addButton('ant_estado',{  grupo:[3], argument: { estado: 'anterior'},text:'Anterior',iconCls: 'batras',disabled:true,handler:this.antEstado,tooltip: '<b>Pasar al Anterior Estado</b>'});
         this.addButton('fin_registro',{ grupo:[0,3], text:'Siguiente', iconCls: 'badelante',disabled:true,handler:this.fin_registro,tooltip: '<b>Siguiente</b><p>Pasa al siguiente estado</p>'});
-        this.addButton('Report',{
+        /*this.addButton('Report',{
             grupo:[0,3,1,2], //#4
             text :'Reporte',
             iconCls : 'bexcel',
             disabled: true,
             handler : this.onButtonReporte,
             tooltip : '<b>Reporte Requerimiento de Materiale</b>'
-        });
+        });*/
         this.addBotonesGantt();
         this.finCons = true;
         this.store.baseParams.id_usuario = Phx.CP.config_ini.id_usuario;
@@ -534,7 +534,7 @@ Phx.vista.MesTrabajo=Ext.extend(Phx.gridInterfaz,{
         this.getBoton('fin_registro').enable();
         this.getBoton('diagrama_gantt').enable();
         this.getBoton('ant_estado').enable();
-        this.getBoton('Report').enable();
+        //this.getBoton('Report').enable();
     },
     liberaMenu:function() {
         var tb = Phx.vista.MesTrabajo.superclass.liberaMenu.call(this);
@@ -542,7 +542,7 @@ Phx.vista.MesTrabajo=Ext.extend(Phx.gridInterfaz,{
             this.getBoton('fin_registro').disable();
             this.getBoton('diagrama_gantt').disable();
             this.getBoton('ant_estado').disable();
-            this.getBoton('Report').disable();
+          //  this.getBoton('Report').disable();
         }
     },
     fin_registro: function(){
