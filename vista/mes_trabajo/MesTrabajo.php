@@ -7,6 +7,7 @@
  * HISTORIAL DE MODIFICACIONES:
  * #ISSUE				FECHA				AUTOR				DESCRIPCION
  *  #4	ERT			17/06/2019 				 MMV				Correccion Boton reporte mostrar grupos
+ *  #6	ERT			17/06/2019 				 MMV				Correccion filtro
  */
 
 header("content-type: text/javascript; charset=UTF-8");
@@ -203,7 +204,7 @@ Phx.vista.MesTrabajo=Ext.extend(Phx.gridInterfaz,{
                 gwidth:200,
                 valueField: 'id_funcionario',
                 gdisplayField: 'desc_funcionario',
-                baseParams: { es_combo_solicitud : 'si' },
+                //baseParams: { es_combo_solicitud : 'si' },
                 renderer:function(value, p, record){return String.format('{0}', record.data['desc_funcionario']);}
             },
             type:'ComboRec',//ComboRec
@@ -243,6 +244,25 @@ Phx.vista.MesTrabajo=Ext.extend(Phx.gridInterfaz,{
         },
         {
             config:{
+                name: 'codigo',
+                fieldLabel: 'Codigo',
+                allowBlank: true,
+                anchor: '80%',
+                gwidth: 100,
+                maxLength:100,
+                renderer:function(value, p, record){
+                    return String.format('<b><font size=2 >{0}</font></b>',value);
+                }
+            },
+            type:'TextField',
+            filters:{pfiltro:'fun.codigo',type:'string'},
+
+            id_grupo:1,
+            grid:false,
+            bottom_filter:true,
+            form:false
+        }, {
+            config:{
                 name: 'desc_codigo',
                 fieldLabel: 'Codigo Funcionario',
                 allowBlank: true,
@@ -256,7 +276,7 @@ Phx.vista.MesTrabajo=Ext.extend(Phx.gridInterfaz,{
             type:'TextField',
             id_grupo:1,
             grid:true,
-            form:false
+            form:false //#6
         },
         {
             config:{
@@ -433,6 +453,7 @@ Phx.vista.MesTrabajo=Ext.extend(Phx.gridInterfaz,{
         {name:'desc_funcionario_apro', type: 'string'},
         {name:'nro_tramite', type: 'string'},
         {name:'periodo', type: 'numeric'},
+        {name:'codigo', type: 'string'},
         {name:'desc_codigo', type: 'string'},
         {name:'gestion', type: 'numeric'},
         {name:'nombre_cargo', type: 'string'},
