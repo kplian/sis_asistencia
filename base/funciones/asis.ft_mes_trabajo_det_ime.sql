@@ -268,7 +268,7 @@ BEGIN
                            from temp_error;
 
                            if v_count = 0 then
-                              v_insertar	= true;
+                              v_insertar = true;
                            end if;
 
                   end if;
@@ -286,7 +286,7 @@ BEGIN
                                              v_id_usuario
                                              );
         else
-        select pxp.list( 'Dia '||dia||' - '||error) as mensaje  into v_error from temp_error;
+        select pxp.list(DISTINCT cc||' - '||error) as mensaje  into v_error from temp_error;
 				raise exception 'Observaciónes %',v_error ;
         end if;
 
