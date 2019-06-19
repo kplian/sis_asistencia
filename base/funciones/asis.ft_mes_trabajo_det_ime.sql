@@ -19,6 +19,7 @@ $body$
  #0				31-01-2019 16:36:51								Funcion que gestiona las operaciones basicas (inserciones, modificaciones, eliminaciones de la tabla 'asis.tmes_trabajo_det'
  #5				30/04/2019 				kplian MMV			Validaciones y reporte
  #4	ERT			17/06/2019 				 MMV			Validar columna de excel
+ #5	ERT			19/06/2019 				 MMV			Validar centro de costo
 
  ***************************************************************************/
 
@@ -52,7 +53,14 @@ DECLARE
     v_orden					varchar;--5
     v_pep					varchar;--5
     v_id_gestion			integer;
-
+    v_mensaje				varchar;
+    v_error					text;
+    v_count					integer;
+    v_cc_validar			boolean;
+    v_id_mes_trabajo		integer;
+    v_id_usuario			integer;
+    v_json_p				json;
+    v_insertar				boolean;
 BEGIN
 
     v_nombre_funcion = 'asis.ft_mes_trabajo_det_ime';
@@ -183,7 +191,7 @@ BEGIN
 		end;
 
     /*********************************
- 	#TRANSACCION:  'ASIS_MJS_INS'
+ 	#TRANSACCION:  'ASIS_MJS_INS' #5
  	#DESCRIPCION:	Inserat json
  	#AUTOR:		miguel.mamani
  	#FECHA:		31-01-2019 16:36:51
@@ -192,146 +200,101 @@ BEGIN
 	elsif(p_transaccion='ASIS_MJS_INS')then
 
 		begin
+        	CREATE TEMPORARY TABLE temp_error( id serial,
+                                               dia varchar,
+                                               cc varchar,
+                                               error varchar) ON COMMIT DROP;
 
-        v_tipo[1] = 'HRN';
-        v_tipo[2] = 'LPV';
-        v_tipo[3] = 'LPC';
-        v_tipo[4] = 'FER';
-        v_tipo[5] = 'CDV';
-        v_tipo[6] = 'LMP';
-        v_centro_costo = '';
-        v_id_centro_costo = null;
-        ---obtener la gesrion
-        select me.id_gestion into v_id_gestion
-        from asis.tmes_trabajo me
-        where me.id_mes_trabajo = v_parametros.id_mes_trabajo;
+            v_id_mes_trabajo = v_parametros.id_mes_trabajo;
+            v_json_p = v_parametros.mes_trabajo_json::json;
+            v_id_usuario = p_id_usuario;
 
-        ---Valida si existe registro se vuelve a insertar
-        if exists( select 1
-        		   from asis.tmes_trabajo_det md
-                   where md.id_mes_trabajo = v_parametros.id_mes_trabajo)then
+              v_mensaje = '';
+              v_centro_costo = '';
+              v_id_centro_costo	= null;
+              v_insertar = false;
 
-                   delete from asis.tmes_trabajo_det m
-                   where m.id_mes_trabajo = v_parametros.id_mes_trabajo;
-        end if;
+                ---obtener la gesrion
+              select me.id_gestion into v_id_gestion
+              from asis.tmes_trabajo me
+              where me.id_mes_trabajo = v_id_mes_trabajo;
 
-        ---recrrer el json
-        for v_json in (select json_array_elements(v_parametros.mes_trabajo_json::json))loop
+        for v_json in (select json_array_elements(v_json_p))loop
+              v_mes_trabajo = v_json.json_array_elements::json;
+              v_dia = v_mes_trabajo::JSON->>'dia';
+              v_total_normal = v_mes_trabajo::JSON->>'total_normal';
+              v_total_extra = v_mes_trabajo::JSON->>'total_extra';
+              v_total_nocturna = v_mes_trabajo::JSON->>'total_nocturna';
+              v_extras_autorizadas  = v_mes_trabajo::JSON->>'extras_autorizadas';
+              v_codigo = v_mes_trabajo::JSON->>'codigo';
+              v_orden = v_mes_trabajo::JSON->>'orden';
+              v_pep = v_mes_trabajo::JSON->>'pep';
+              v_ingreso_ma = v_mes_trabajo::JSON->>'ingreso_manana';
+              v_salidad_ma = v_mes_trabajo::JSON->>'salida_manana';
+              v_ingreso_ta = v_mes_trabajo::JSON->>'ingreso_tarde';
+              v_salidad_ta = v_mes_trabajo::JSON->>'salida_tarde';
+              v_ingreso_no = v_mes_trabajo::JSON->>'ingreso_noche';
+              v_salidad_no = v_mes_trabajo::JSON->>'salida_noche';
+              v_justificacion = v_mes_trabajo::JSON->>'justificacion_extra';
 
-            v_mes_trabajo = v_json.json_array_elements::json;
-            v_dia = v_mes_trabajo::JSON->>'dia';
-            v_total_normal = v_mes_trabajo::JSON->>'total_normal';
-            v_total_extra = v_mes_trabajo::JSON->>'total_extra';
-            v_total_nocturna = v_mes_trabajo::JSON->>'total_nocturna';
-            v_extras_autorizadas  = v_mes_trabajo::JSON->>'extras_autorizadas';
-            v_codigo = v_mes_trabajo::JSON->>'codigo';
-            v_orden	= v_mes_trabajo::JSON->>'orden';
-            v_pep = v_mes_trabajo::JSON->>'pep';
-            v_ingreso_ma = v_mes_trabajo::JSON->>'ingreso_manana';
-            v_salidad_ma = v_mes_trabajo::JSON->>'salida_manana';
-            v_ingreso_ta = v_mes_trabajo::JSON->>'ingreso_tarde';
-            v_salidad_ta = v_mes_trabajo::JSON->>'salida_tarde';
-            v_ingreso_no = v_mes_trabajo::JSON->>'ingreso_noche';
-            v_salidad_no = v_mes_trabajo::JSON->>'salida_noche';
-            v_justificacion = v_mes_trabajo::JSON->>'justificacion_extra';
-
-        	---obtener centro de costo
-            ---#5---
             if v_codigo != '' then
-            	v_centro_costo = v_codigo;
+              v_centro_costo = v_codigo;
             end if;
 
             if v_orden != '' then
-            	v_centro_costo = v_orden;
+              v_centro_costo = v_orden;
             end if;
 
             if v_pep != '' then
-            	v_centro_costo = v_pep;
+              v_centro_costo = v_pep;
             end if;
-
-    		--validar 0 en las primera posicion de los codigo de lo centos de costo
-            if(v_centro_costo != '')then
-                	v_id_centro_costo = asis.f_centro_validar(v_centro_costo,v_id_gestion);
-                	if v_id_centro_costo is null then
-            			raise exception 'Error no se encuentra el centro de costo % ',v_centro_costo;
-                  	end if;
-        	else
-             raise exception 'Las columna no estan difinidas comuniquece con el admin.'; --#4
-            end if;
-            ---#5---
-            ---Insertar detalle
 
             if(v_ingreso_ma <> '' or v_salidad_ma <> '')then
-              insert into asis.tmes_trabajo_det(  id_mes_trabajo,
-                                                  id_centro_costo,
-                                                  ingreso_manana,
-                                                  salida_manana,
-                                                  ingreso_tarde,
-                                                  salida_tarde,
-                                                  ingreso_noche,
-                                                  salida_noche,
-                                                  total_normal,
-                                                  total_extra,
-                                                  total_nocturna,
-                                                  extra_autorizada,
-                                                  dia,
-                                                  justificacion_extra,
-                                                  tipo,
-                                                  tipo_dos,
-                                                  tipo_tres,
-                                                  usuario_ai,
-                                                  fecha_reg,
-                                                  id_usuario_reg,
-                                                  id_usuario_ai,
-                                                  fecha_mod,
-                                                  id_usuario_mod
-                                                  ) values(
-                                                  v_parametros.id_mes_trabajo,
-                                                  v_id_centro_costo,
-                                                  '08:30',
-                                                  '12:30',
-                                                  '14:30',
-                                                  '18:30',
-                                                  '0:00',
-                                                  '0:00',
-                                                  v_total_normal,
-                                                  v_total_extra,
-                                                  v_total_nocturna,
-                                                  v_extras_autorizadas,
-                                                  v_dia,
-                                                  v_justificacion,
-                                                  case
-                                                      when v_ingreso_ma = ANY (v_tipo) then
-                                                      		v_ingreso_ma
-                                                      else
-                                                     		 v_tipo[1]
-                                                   end,
-                                                   case
-                                                      when v_ingreso_ta = ANY (v_tipo) then
-                                                      		v_ingreso_ta
-                                                      else
-                                                      		v_tipo[1]
-                                                   end,
-                                                   case
-                                                      when v_ingreso_no = ANY (v_tipo) then
-                                                      		v_ingreso_no
-                                                      else
-                                                      		v_tipo[1]
-                                                   end,
-                                                  v_parametros._nombre_usuario_ai,
-                                                  now(),
-                                                  p_id_usuario,
-                                                  v_parametros._id_usuario_ai,
-                                                  null,
-                                                  null);
+              if(v_centro_costo != '')then
+                  if not v_insertar then
+
+                          v_mensaje = asis.f_centro_validar_record(v_centro_costo,v_id_gestion);
+                        if v_mensaje != '' then
+                           insert into temp_error (dia,
+                                                   cc,
+                                                   error)
+                                                   values
+                                                  (v_dia,
+                                                   v_centro_costo,
+                                                   v_mensaje
+                                                  );
+                           end if;
+                           select count(id)into v_count
+                           from temp_error;
+
+                           if v_count = 0 then
+                              v_insertar	= true;
+                           end if;
+
+                  end if;
+
+              else
+                  raise exception 'Las columna no estan difinidas comuniquece con el admin.'; --#4
               end if;
-        end loop;
+            end if;
+
+  		end loop;
+
+        if v_insertar then
+        	PERFORM asis.f_registrar_detalle(v_id_mes_trabajo,
+                                             v_json_p,
+                                             v_id_usuario
+                                             );
+        else
+        select pxp.list( 'Dia '||dia||' - '||error) as mensaje  into v_error from temp_error;
+				raise exception 'Observaciónes %',v_error ;
+        end if;
 
 
 
             --Definicion de la respuesta
-            v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Mes trabajo detalle eliminado(a)');
-            v_resp = pxp.f_agrega_clave(v_resp,'v_id_mes_trabajo_det',v_id_mes_trabajo_det::varchar);
+            v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Mes trabajo registrado(a)');
+            v_resp = pxp.f_agrega_clave(v_resp,'v_parametros.id_mes_trabajo',v_parametros.id_mes_trabajo::varchar);
 
             --Devuelve la respuesta
             return v_resp;
