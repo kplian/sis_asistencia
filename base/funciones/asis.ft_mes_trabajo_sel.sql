@@ -51,7 +51,8 @@ BEGIN
             	if (p_administrador) then
                 	v_filtro = '0=0 and';
                 else
-                	v_filtro = 'smt.id_usuario_reg = '||p_id_usuario||' and ';
+                                    	v_filtro = '0=0 and';
+
                 end if;
             end if;
 
@@ -135,7 +136,8 @@ BEGIN
             	if (p_administrador) then
                 	v_filtro = '0=0 and';
                 else
-                	v_filtro = 'smt.id_usuario_reg = '||p_id_usuario||' and ';
+                                    	v_filtro = '0=0 and';
+
                 end if;
             end if;
 

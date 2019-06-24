@@ -88,19 +88,20 @@ BEGIN
       v_salidad_no = v_mes_trabajo::JSON->>'salida_noche';
       v_justificacion = v_mes_trabajo::JSON->>'justificacion_extra';
 
-        if v_codigo != '' then
-          v_centro_costo = v_codigo;
-        end if;
+       if(rtrim(v_ingreso_ma) <> '' or rtrim(v_salidad_ma) <> '')then
 
-        if v_orden != '' then
-          v_centro_costo = v_orden;
-        end if;
+            if rtrim(v_codigo) != '' then
+              v_centro_costo = v_codigo;
+            end if;
 
-        if v_pep != '' then
-          v_centro_costo = v_pep;
-        end if;
+            if rtrim(v_orden) != '' then
+              v_centro_costo = v_orden;
+            end if;
 
-      if(v_ingreso_ma <> '' or v_salidad_ma <> '')then
+            if rtrim(v_pep) != '' then
+              v_centro_costo = v_pep;
+            end if;
+
         if(v_centro_costo != '')then
             v_id_centro_costo = asis.f_centro_validar(v_centro_costo,v_id_gestion);
                 insert into asis.tmes_trabajo_det(  id_mes_trabajo,
