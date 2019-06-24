@@ -237,19 +237,19 @@ BEGIN
               v_salidad_no = v_mes_trabajo::JSON->>'salida_noche';
               v_justificacion = v_mes_trabajo::JSON->>'justificacion_extra';
 
-            if v_codigo != '' then
+		if(rtrim(v_ingreso_ma) <> '' or rtrim(v_salidad_ma) <> '')then
+
+            if rtrim(v_codigo) != '' then
               v_centro_costo = v_codigo;
             end if;
 
-            if v_orden != '' then
+            if rtrim(v_orden) != '' then
               v_centro_costo = v_orden;
             end if;
 
-            if v_pep != '' then
+            if rtrim(v_pep) != '' then
               v_centro_costo = v_pep;
             end if;
-
-            if(v_ingreso_ma <> '' or v_salidad_ma <> '')then
               if(v_centro_costo != '')then
                   if not v_insertar then
 
@@ -264,12 +264,6 @@ BEGIN
                                                    v_mensaje
                                                   );
                            end if;
-                           select count(id)into v_count
-                           from temp_error;
-
-                           if v_count = 0 then
-                              v_insertar	= true;
-                           end if;
 
                   end if;
 
@@ -279,6 +273,12 @@ BEGIN
             end if;
 
   		end loop;
+		  select count(id)into v_count
+                           from temp_error;
+
+                           if v_count = 0 then
+                              v_insertar = true;
+                           end if;
 
         if v_insertar then
         	PERFORM asis.f_registrar_detalle(v_id_mes_trabajo,
@@ -286,8 +286,8 @@ BEGIN
                                              v_id_usuario
                                              );
         else
-        select pxp.list( 'Dia '||dia||' - '||error) as mensaje  into v_error from temp_error;
-				raise exception 'Observaciónes %',v_error ;
+        select pxp.list(DISTINCT cc||' - '||error) as mensaje  into v_error from temp_error;
+				raise exception 'Observaciónes % contactese con finanzas',v_error ;
         end if;
 
 
