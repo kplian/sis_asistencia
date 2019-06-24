@@ -14,7 +14,7 @@ $body$
 ***************************************************************************
  HISTORIAL DE MODIFICACIONES:
 #ISSUE				FECHA				AUTOR				DESCRIPCION
- #0				31-01-2019 16:36:51								Funcion que gestiona las operaciones basicas (inserciones, modificaciones, eliminaciones de la tabla 'asis.tmes_trabajo_det'
+  #7    ETR    24/0/2019  MMV          Correccion nombre
 
  ***************************************************************************/
 DECLARE
