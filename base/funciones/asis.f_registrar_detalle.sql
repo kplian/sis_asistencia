@@ -15,6 +15,7 @@ $body$
 ***************************************************************************
  HISTORIAL DE MODIFICACIONES:
  #5	ERT			19/06/2019 				 MMV			Insertar HT
+ #9	ERT			19/06/2019 				 MMV			Control de horas
 
  ***************************************************************************/
 DECLARE
@@ -29,12 +30,14 @@ DECLARE
     v_total_nocturna		numeric;
     v_centro_costo			varchar;
     v_tipo					varchar[];
-    v_ingreso_ma			varchar;
+
+    v_ingreso_ma			varchar;-- #9
     v_salidad_ma			varchar;
     v_ingreso_ta			varchar;
     v_salidad_ta			varchar;
     v_ingreso_no			varchar;
-    v_salidad_no			varchar;
+    v_salidad_no			varchar;-- #9
+
     v_justificacion			varchar;
     v_extras_autorizadas	numeric;
     v_codigo				varchar;--5
@@ -104,6 +107,7 @@ BEGIN
 
         if(v_centro_costo != '')then
             v_id_centro_costo = asis.f_centro_validar(v_centro_costo,v_id_gestion);
+
                 insert into asis.tmes_trabajo_det(  id_mes_trabajo,
                                         id_centro_costo,
                                         ingreso_manana,
@@ -129,13 +133,43 @@ BEGIN
                                         id_usuario_mod
     									) values(
                                         p_id_mes_trabajo,
-                                        v_id_centro_costo,
-                                        '08:30',
-                                        '12:30',
-                                        '14:30',
-                                        '18:30',
-                                        '0:00',
-                                        '0:00',
+                                        v_id_centro_costo, -- #9
+                                        (case
+                                          when v_ingreso_ma = ANY (v_tipo) then
+                                            '08:30'
+                                          else
+                                            to_timestamp(v_ingreso_ma, 'HH24:MI')::time
+                                        end),
+                                         (case
+                                          when v_salidad_ma = ANY (v_tipo) then
+                                            '13:30'
+                                          else
+                                            to_timestamp(v_salidad_ma, 'HH24:MI')::time
+                                        end),
+                                        (case
+                                          when v_ingreso_ta = ANY (v_tipo) then
+                                            '14:30'
+                                          else
+                                            to_timestamp(v_ingreso_ta, 'HH24:MI')::time
+                                        end),
+                                          (case
+                                          when v_salidad_ta = ANY (v_tipo) then
+                                            '18:30'
+                                          else
+                                            to_timestamp(v_salidad_ta, 'HH24:MI')::time
+                                        end),
+                                        (case
+                                          when v_ingreso_no = ANY (v_tipo) then
+                                            '00:00'
+                                          else
+                                            to_timestamp(v_ingreso_no, 'HH24:MI')::time
+                                        end),
+                                        (case
+                                          when v_salidad_no = ANY (v_tipo) then
+                                            '00:00'
+                                          else
+                                            to_timestamp(v_salidad_no, 'HH24:MI')::time
+                                        end), -- #9
                                         v_total_normal,
                                         v_total_extra,
                                         v_total_nocturna,
