@@ -9,6 +9,7 @@
  *  #4	ERT			17/06/2019 				 MMV				Correccion Boton reporte mostrar grupos
  *  #6	ERT			17/06/2019 				 MMV				Correccion filtro
  *  #8 ETR			24/06/2019				MMV					Validar fecha des contrato finalizados y listado
+ *  #10 ETR			24/06/2019				MMV					Habilitar boton ant_estado estado aprobado
  */
 
 header("content-type: text/javascript; charset=UTF-8");
@@ -34,7 +35,7 @@ Phx.vista.MesTrabajo=Ext.extend(Phx.gridInterfaz,{
             this.capturaFiltros();
         },this);
         this.init();
-        this.addButton('ant_estado',{  grupo:[3], argument: { estado: 'anterior'},text:'Anterior',iconCls: 'batras',disabled:true,handler:this.antEstado,tooltip: '<b>Pasar al Anterior Estado</b>'});
+        this.addButton('ant_estado',{  grupo:[2,3], argument: { estado: 'anterior'},text:'Anterior',iconCls: 'batras',disabled:true,handler:this.antEstado,tooltip: '<b>Pasar al Anterior Estado</b>'});
         this.addButton('fin_registro',{ grupo:[0,3], text:'Siguiente', iconCls: 'badelante',disabled:true,handler:this.fin_registro,tooltip: '<b>Siguiente</b><p>Pasa al siguiente estado</p>'});
         /*this.addButton('Report',{
             grupo:[0,3,1,2], //#4
