@@ -8,13 +8,13 @@
  * #ISSUE				FECHA				AUTOR				DESCRIPCION
  *  #4	ERT			17/06/2019 				 MMV				Correccion Boton reporte mostrar grupos
  *  #6	ERT			17/06/2019 				 MMV				Correccion filtro
+ *  #8 ETR			24/06/2019				MMV					Validar fecha des contrato finalizados y listado
  */
 
 header("content-type: text/javascript; charset=UTF-8");
 ?>
 <script>
 Phx.vista.MesTrabajo=Ext.extend(Phx.gridInterfaz,{
-
 	constructor:function(config){
         this.maestro=config.maestro;
     	//llama al constructor de la clase padre
@@ -47,6 +47,8 @@ Phx.vista.MesTrabajo=Ext.extend(Phx.gridInterfaz,{
         this.addBotonesGantt();
         this.finCons = true;
         this.store.baseParams.id_usuario = Phx.CP.config_ini.id_usuario;
+       // this.store.baseParams = {id_periodo: this.nombreVista};
+
     },
 	Atributos:[
 		{
@@ -194,26 +196,55 @@ Phx.vista.MesTrabajo=Ext.extend(Phx.gridInterfaz,{
             grid:true,
             form:false
         },
+        //#8
         {
-            config:{
-                name:'id_funcionario',
-                hiddenName: 'id_funcionario',
-                origen:'FUNCIONARIO',
-                fieldLabel:'Funcionario',
-                allowBlank:false,
-                gwidth:200,
+            config: {
+                name: 'id_funcionario',
+                fieldLabel: 'Funcionario',
+                allowBlank: true,
+                tinit: false,
+                emptyText: 'Funcionario...',
+                store: new Ext.data.JsonStore({
+                    url: '../../sis_asistencia/control/MesTrabajo/listarFuncionarioHt',
+                    id: 'id_funcionario',
+                    root: 'datos',
+                    sortInfo: {
+                        field: 'desc_funcionario1',
+                        direction: 'ASC'
+                    },
+                    totalProperty: 'total',
+                    fields: ['id_funcionario','desc_funcionario1','codigo'],
+                    remoteSort: true
+                    //baseParams: {id_periodo:this.cmbGestion.getValue()}
+                }),
                 valueField: 'id_funcionario',
+                displayField: 'desc_funcionario1',
                 gdisplayField: 'desc_funcionario',
-                //baseParams: { es_combo_solicitud : 'si' },
+                hiddenName: 'fecha',
+                tpl:'<tpl for="."><div class="x-combo-list-item"><p><font color="#006400"><b>{desc_funcionario1}</b></font></p>' +
+                '<p><b>{codigo}</b></p></div></tpl>',
+                forceSelection: true,
+                typeAhead: false,
+                triggerAction: 'all',
+                lazyRender: true,
+                mode: 'remote',
+                pageSize: 15,
+                queryDelay: 1000,
+                anchor: '62%',
+                gwidth: 150,
+                listWidth: 305,
+                resizable: true,
+                minChars: 2,
                 renderer:function(value, p, record){return String.format('{0}', record.data['desc_funcionario']);}
             },
-            type:'ComboRec',//ComboRec
-            id_grupo:0,
-            filters:{pfiltro:'fun.desc_funcionario1',type:'string'},
+            type: 'ComboBox',
+            filters: {pfiltro:'fun.desc_funcionario1', type:'string'},
+            id_grupo: 1,
+            grid: true,
             bottom_filter:true,
-            grid:true,
-            form:true
+            form: true
         },
+        //#8
         {
             config:{
                 name: 'nombre_cargo',
@@ -474,12 +505,14 @@ Phx.vista.MesTrabajo=Ext.extend(Phx.gridInterfaz,{
             Phx.vista.MesTrabajo.superclass.onButtonNew.call(this);//habilita el boton y se abre
             this.Cmp.id_gestion.setValue(this.cmbGestion.getValue());
             this.Cmp.id_periodo.setValue(this.cmbPeriodo.getValue());
-            //this.mostrarComponente(this.Cmp.id_funcionario_apro);
+            this.Cmp.id_funcionario.store.baseParams ={id_periodo:this.cmbPeriodo.getValue(),par_filtro: 'codigo#desc_funcionario1'};  //#8
+           // this.Cmp.id_funcionario.lastQuery = null;
         }
     },
     onButtonEdit:function(){
         Phx.vista.MesTrabajo.superclass.onButtonEdit.call(this);
-        //this.ocultarComponente(this.Cmp.id_funcionario_apro);
+        this.Cmp.id_funcionario.store.baseParams ={id_periodo:this.cmbPeriodo.getValue(),par_filtro: 'codigo#desc_funcionario1'};  //#8
+       // this.Cmp.id_funcionario.lastQuery = null;
     },
     capturaFiltros:function(combo, record, index){
        // this.desbloquearOrdenamientoGrid();

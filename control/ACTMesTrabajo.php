@@ -5,6 +5,9 @@
 *@author  (miguel.mamani)
 *@date 31-01-2019 13:53:10
 *@description Clase que recibe los parametros enviados por la vista para mandar a la capa de Modelo
+ * HISTORIAL DE MODIFICACIONES:
+ * #ISSUE				FECHA				AUTOR				DESCRIPCION
+ *  #8 ETR			24/06/2019				MMV					Validar fecha des contrato finalizados y listado
 */
 require_once(dirname(__FILE__).'/../reportes/RHojaTiempo.php');
 
@@ -86,6 +89,14 @@ class ACTMesTrabajo extends ACTbase{
         $this->mensajeExito->setMensaje('EXITO', 'Reporte.php', 'Reporte generado','Se generó con éxito el reporte: ' . $nombreArchivo, 'control');
         $this->mensajeExito->setArchivoGenerado($nombreArchivo);
         $this->mensajeExito->imprimirRespuesta($this->mensajeExito->generarJson());
+    }
+    //#8
+    function listarFuncionarioHt(){
+        $this->objParam->defecto('ordenacion','id_funcionario');
+        $this->objParam->defecto('dir_ordenacion','asc');
+        $this->objFunc=$this->create('MODMesTrabajo');
+        $this->res=$this->objFunc->listarFuncionarioHt($this->objParam);
+        $this->res->imprimirRespuesta($this->res->generarJson());
     }
 }
 

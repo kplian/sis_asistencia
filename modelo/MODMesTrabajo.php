@@ -5,7 +5,10 @@
 *@author  (miguel.mamani)
 *@date 31-01-2019 13:53:10
 *@description Clase que envia los parametros requeridos a la Base de datos para la ejecucion de las funciones, y que recibe la respuesta del resultado de la ejecucion de las mismas
-*/
+ * HISTORIAL DE MODIFICACIONES:
+ * #ISSUE				FECHA				AUTOR				DESCRIPCION
+ *  #8 ETR			24/06/2019				MMV					Validar fecha des contrato finalizados y listado
+ */
 
 class MODMesTrabajo extends MODbase{
 	
@@ -19,7 +22,9 @@ class MODMesTrabajo extends MODbase{
 		$this->transaccion='ASIS_SMT_SEL';
 		$this->tipo_procedimiento='SEL';//tipo de transaccion
         $this->setParametro('tipo_interfaz', 'tipo_interfaz', 'varchar');
-		//Definicion de la lista del resultado del query
+        $this->setParametro('id_periodo', 'id_periodo', 'int4');
+
+        //Definicion de la lista del resultado del query
 		$this->captura('id_mes_trabajo','int4');
 		$this->captura('id_periodo','int4');
 		$this->captura('id_gestion','int4');
@@ -194,6 +199,26 @@ class MODMesTrabajo extends MODbase{
         $this->armarConsulta();
         $this->ejecutarConsulta();
         //var_dump($this->respuesta);exit;
+        //Devuelve la respuesta
+        return $this->respuesta;
+    }
+    //#8
+    function listarFuncionarioHt(){
+        //Definicion de variables para ejecucion del procedimientp
+        $this->procedimiento='asis.ft_mes_trabajo_sel';
+        $this->transaccion='ASIS_FUA_SEL';
+        $this->tipo_procedimiento='SEL';//tipo de transaccion
+        $this->setParametro('id_periodo', 'id_periodo', 'int4');
+
+        //Definicion de la lista del resultado del query
+        $this->captura('id_funcionario','int4');
+        $this->captura('desc_funcionario1','text');
+        $this->captura('codigo','varchar');
+
+        //Ejecuta la instruccion
+        $this->armarConsulta();
+        $this->ejecutarConsulta();
+
         //Devuelve la respuesta
         return $this->respuesta;
     }
