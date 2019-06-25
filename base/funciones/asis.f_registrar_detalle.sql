@@ -55,6 +55,7 @@ BEGIN
   v_tipo[4] = 'FER';
   v_tipo[5] = 'CDV';
   v_tipo[6] = 'LMP';
+  v_tipo[7] = 'LP';
   v_mensaje = '';
   v_centro_costo = '';
   v_id_centro_costo	= null;
