@@ -15,7 +15,7 @@ $body$
 ***************************************************************************
  HISTORIAL DE MODIFICACIONES:
  #5	ERT			19/06/2019 				 MMV			Insertar HT
- #9	ERT			19/06/2019 				 MMV			Control de horas
+ #9	ERT			19/06/2019 				 MMV			Control de horas nuevo codigo
 
  ***************************************************************************/
 DECLARE
@@ -56,6 +56,7 @@ BEGIN
   v_tipo[5] = 'CDV';
   v_tipo[6] = 'LMP';
   v_tipo[7] = 'LP';
+  v_tipo[8] = 'LPE';  --#9
   v_mensaje = '';
   v_centro_costo = '';
   v_id_centro_costo	= null;
