@@ -504,13 +504,13 @@ Phx.vista.MesTrabajo=Ext.extend(Phx.gridInterfaz,{
             Phx.vista.MesTrabajo.superclass.onButtonNew.call(this);//habilita el boton y se abre
             this.Cmp.id_gestion.setValue(this.cmbGestion.getValue());
             this.Cmp.id_periodo.setValue(this.cmbPeriodo.getValue());
-            this.Cmp.id_funcionario.store.baseParams ={id_periodo:this.cmbPeriodo.getValue(),par_filtro: 'fun.codigo#fun.desc_funcionario1'};  //#8
+            this.Cmp.id_funcionario.store.baseParams ={id_periodo:this.cmbPeriodo.getValue(),par_filtro: 'fun.codigo#pe.nombre_completo1'};  //#8
             this.Cmp.id_funcionario.lastQuery = null;
         }
     },
     onButtonEdit:function(){
         Phx.vista.MesTrabajo.superclass.onButtonEdit.call(this);
-        this.Cmp.id_funcionario.store.baseParams ={id_periodo:this.cmbPeriodo.getValue(),par_filtro: 'fun.codigo#fun.desc_funcionario1'};  //#8
+        this.Cmp.id_funcionario.store.baseParams ={id_periodo:this.cmbPeriodo.getValue(),par_filtro: 'fun.codigo#pe.nombre_completo1'};  //#8
         this.Cmp.id_funcionario.lastQuery = null;
     },
     capturaFiltros:function(combo, record, index){

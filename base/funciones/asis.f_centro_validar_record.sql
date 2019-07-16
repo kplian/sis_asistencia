@@ -43,6 +43,8 @@ BEGIN
 
    if v_id_centro_costo is not null then
    		v_autorizacion = asis.f_validar_centro_costo(p_id_id_mes_trabajo,p_id_periodo,v_id_centro_costo); 	--#10
+
+
         if v_autorizacion <> '' then
        		 v_autorizacion = v_autorizacion;
         end if;
@@ -64,7 +66,12 @@ BEGIN
                 else
                   v_mensaje = v_mensaje;
                 end if;
-           return  v_mensaje ||' '|| v_autorizacion;  --#10
+                if v_autorizacion = ''then
+                	return v_mensaje;
+                else
+                	return v_mensaje ||' '|| v_autorizacion;  --#10;
+                end if;
+
    end if;
   return  v_mensaje;
 EXCEPTION
