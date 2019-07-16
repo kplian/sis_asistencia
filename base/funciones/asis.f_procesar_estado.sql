@@ -51,22 +51,7 @@ BEGIN
     where me.id_proceso_wf = p_id_proceso_wf;
 
    if p_codigo_estado = 'asignado' then
-   -----#4-------
-   select count(md.id_mes_trabajo_det)
-        	into v_count
-        from asis.tmes_trabajo mt
-        inner join asis.tmes_trabajo_det md on md.id_mes_trabajo = mt.id_mes_trabajo
-        where mt.id_proceso_wf = p_id_proceso_wf;
 
-        if (v_count = 0 or v_count is null) then
-        	raise exception 'No tiene detelle HT';
-    	end if;
-         -----#4-------
-    -----#5-------
-  	if not asis.f_validar_centro_costo(v_registo.id_mes_trabajo)then
-		raise exception 'Validar centro de costo';
- 	end if;
-   -----#5-------
       update asis.tmes_trabajo  set
       id_estado_wf =  p_id_estado_wf,
       estado = p_codigo_estado,

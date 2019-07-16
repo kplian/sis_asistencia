@@ -35,21 +35,19 @@ Phx.vista.MesTrabajo=Ext.extend(Phx.gridInterfaz,{
             this.capturaFiltros();
         },this);
         this.init();
+        this.addButton('insert_aunto',
+            {
+                text: 'Insertar Auto',
+                iconCls: 'bchecklist',
+                disabled: true,
+                handler: this.insertAuto
+            }
+        );
         this.addButton('ant_estado',{  grupo:[2,3], argument: { estado: 'anterior'},text:'Anterior',iconCls: 'batras',disabled:true,handler:this.antEstado,tooltip: '<b>Pasar al Anterior Estado</b>'});
         this.addButton('fin_registro',{ grupo:[0,3], text:'Siguiente', iconCls: 'badelante',disabled:true,handler:this.fin_registro,tooltip: '<b>Siguiente</b><p>Pasa al siguiente estado</p>'});
-        /*this.addButton('Report',{
-            grupo:[0,3,1,2], //#4
-            text :'Reporte',
-            iconCls : 'bexcel',
-            disabled: true,
-            handler : this.onButtonReporte,
-            tooltip : '<b>Reporte Requerimiento de Materiale</b>'
-        });*/
         this.addBotonesGantt();
         this.finCons = true;
-        this.store.baseParams.id_usuario = Phx.CP.config_ini.id_usuario;
        // this.store.baseParams = {id_periodo: this.nombreVista};
-
     },
 	Atributos:[
 		{
@@ -506,20 +504,21 @@ Phx.vista.MesTrabajo=Ext.extend(Phx.gridInterfaz,{
             Phx.vista.MesTrabajo.superclass.onButtonNew.call(this);//habilita el boton y se abre
             this.Cmp.id_gestion.setValue(this.cmbGestion.getValue());
             this.Cmp.id_periodo.setValue(this.cmbPeriodo.getValue());
-            this.Cmp.id_funcionario.store.baseParams ={id_periodo:this.cmbPeriodo.getValue(),par_filtro: 'codigo#desc_funcionario1'};  //#8
-           // this.Cmp.id_funcionario.lastQuery = null;
+            this.Cmp.id_funcionario.store.baseParams ={id_periodo:this.cmbPeriodo.getValue(),par_filtro: 'fun.codigo#fun.desc_funcionario1'};  //#8
+            this.Cmp.id_funcionario.lastQuery = null;
         }
     },
     onButtonEdit:function(){
         Phx.vista.MesTrabajo.superclass.onButtonEdit.call(this);
-        this.Cmp.id_funcionario.store.baseParams ={id_periodo:this.cmbPeriodo.getValue(),par_filtro: 'codigo#desc_funcionario1'};  //#8
-       // this.Cmp.id_funcionario.lastQuery = null;
+        this.Cmp.id_funcionario.store.baseParams ={id_periodo:this.cmbPeriodo.getValue(),par_filtro: 'fun.codigo#fun.desc_funcionario1'};  //#8
+        this.Cmp.id_funcionario.lastQuery = null;
     },
     capturaFiltros:function(combo, record, index){
        // this.desbloquearOrdenamientoGrid();
         if(this.validarFiltros()){
             this.store.baseParams.id_gestion = this.cmbGestion.getValue();
             this.store.baseParams.id_periodo = this.cmbPeriodo.getValue();
+            this.getBoton('insert_aunto').enable();
             this.load();
         }
 
@@ -781,6 +780,24 @@ Phx.vista.MesTrabajo=Ext.extend(Phx.gridInterfaz,{
             timeout:this.timeout,
             scope:this
         });
+    },
+    insertAuto :function () {
+        Phx.CP.loadingShow();
+        Ext.Ajax.request({
+            url:'../../sis_asistencia/control/MesTrabajo/isertarAuto',
+            params:{ id_periodo : this.cmbPeriodo.getValue(),
+                     id_gestion : this.cmbGestion.getValue()},
+            success: this.success,
+            failure: this.conexionFailure,
+            timeout: this.timeout,
+            scope: this
+        });
+        this.reload();
+    },
+    success: function(resp){
+        Phx.CP.loadingHide();
+        var reg = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));
+        console.log(reg);
     }
     }
 )

@@ -132,7 +132,7 @@ class ACTMesTrabajoDet extends ACTbase{
                                 "orden" => (string)$fila["orden"],
                                 "pep" => (string)$fila["pep"],
                                 "extras_autorizadas" => (float)$fila["extras_autorizadas"],
-                                "justificacion_extra" => (string)$fila["justificacion_extra"]
+                                "justificacion_extra" => (string)$fila["justificacion_extras"]
                             );
                         }
                     }

@@ -17,11 +17,11 @@ class ACTMesTrabajo extends ACTbase{
 		$this->objParam->defecto('ordenacion','id_mes_trabajo');
 		$this->objParam->defecto('dir_ordenacion','asc');
         if($this->objParam->getParametro('tipo_interfaz') == 'VoBo'){
+            if($this->objParam->getParametro('id_periodo') != ''){
+                $this->objParam->addFiltro("smt.id_periodo = ".$this->objParam->getParametro('id_periodo'));
+            }
             $this->objParam->addFiltro("smt.estado in (''asignado'')");
         }else {
-            if($this->objParam->getParametro('id_gestion') != ''){
-                $this->objParam->addFiltro("smt.id_gestion = ".$this->objParam->getParametro('id_gestion'));
-            }
             if($this->objParam->getParametro('id_periodo') != ''){
                 $this->objParam->addFiltro("smt.id_periodo = ".$this->objParam->getParametro('id_periodo'));
             }
@@ -92,10 +92,13 @@ class ACTMesTrabajo extends ACTbase{
     }
     //#8
     function listarFuncionarioHt(){
-        $this->objParam->defecto('ordenacion','id_funcionario');
-        $this->objParam->defecto('dir_ordenacion','asc');
         $this->objFunc=$this->create('MODMesTrabajo');
         $this->res=$this->objFunc->listarFuncionarioHt($this->objParam);
+        $this->res->imprimirRespuesta($this->res->generarJson());
+    }
+    function isertarAuto(){
+        $this->objFunc=$this->create('MODMesTrabajo');
+        $this->res=$this->objFunc->isertarAuto($this->objParam);
         $this->res->imprimirRespuesta($this->res->generarJson());
     }
 }
