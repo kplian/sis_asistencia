@@ -72,7 +72,6 @@ BEGIN
     from param.tcentro_costo cec
     inner join param.ttipo_cc tcc on tcc.id_tipo_cc = cec.id_tipo_cc
     where cec.id_centro_costo = p_id_centro_costo;
-
     if v_autorizado_cont is null then
     	v_mensaje = ' -> no esta asignado una autorización';
     	return  v_mensaje;
@@ -88,13 +87,15 @@ BEGIN
 
         if v_contrato = ANY (v_autorizado) then
             v_mensaje = '';
+            RETURN v_mensaje;
         else
-            v_mensaje =' -> no tiene autorización';
+            v_mensaje =' -> no tiene relacion con tipo de contrato autorización';
+            RETURN v_mensaje;
         end if;
     end if;
 
 
-RETURN v_mensaje;
+
 
 EXCEPTION
 
