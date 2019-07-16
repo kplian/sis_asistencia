@@ -25,11 +25,11 @@ class MODMesTrabajo extends MODbase{
         $this->setParametro('id_periodo', 'id_periodo', 'int4');
 
         //Definicion de la lista del resultado del query
-		$this->captura('id_mes_trabajo','int4');
+        $this->captura('id_funcionario','int4');
+        $this->captura('id_mes_trabajo','int4');
 		$this->captura('id_periodo','int4');
 		$this->captura('id_gestion','int4');
 		$this->captura('id_planilla','int4');
-		$this->captura('id_funcionario','int4');
 		$this->captura('id_estado_wf','int4');
 		$this->captura('id_proceso_wf','int4');
 		$this->captura('id_funcionario_apro','int4');
@@ -219,6 +219,19 @@ class MODMesTrabajo extends MODbase{
         $this->armarConsulta();
         $this->ejecutarConsulta();
 
+        //Devuelve la respuesta
+        return $this->respuesta;
+    }
+    function isertarAuto(){
+        //Definicion de variables para ejecucion del procedimientp
+        $this->procedimiento='asis.ft_mes_trabajo_ime';
+        $this->transaccion='ASIS_FAUO_IME';
+        $this->tipo_procedimiento='IME';//tipo de transaccion
+        $this->setParametro('id_gestion', 'id_gestion', 'int4');
+        $this->setParametro('id_periodo', 'id_periodo', 'int4');
+        //Ejecuta la instruccion
+        $this->armarConsulta();
+        $this->ejecutarConsulta();
         //Devuelve la respuesta
         return $this->respuesta;
     }

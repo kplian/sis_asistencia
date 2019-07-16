@@ -16,6 +16,7 @@ $body$
  HISTORIAL DE MODIFICACIONES:
  #5	ERT			19/06/2019 				 MMV			Insertar HT
  #9	ERT			19/06/2019 				 MMV			Control de horas nuevo codigo
+ #10 ETR		16/07/2019				 MMV			Validar insertado
 
  ***************************************************************************/
 DECLARE
@@ -23,7 +24,7 @@ DECLARE
     v_nombre_funcion        text;
     v_json					record;
     v_mes_trabajo			varchar;
-	v_dia					integer;
+	  v_dia					integer;
     v_id_centro_costo		integer;
     v_total_normal			numeric;
     v_total_extra			numeric;
@@ -93,7 +94,10 @@ BEGIN
       v_salidad_no = v_mes_trabajo::JSON->>'salida_noche';
       v_justificacion = v_mes_trabajo::JSON->>'justificacion_extra';
 
-       if(rtrim(v_ingreso_ma) <> '' or rtrim(v_salidad_ma) <> '')then
+       ---Para en caso que no tenga ninguna hora  asignada
+   			if((v_total_normal > 0) or --#10
+               (v_extras_autorizadas > 0) or --#10
+               (v_total_nocturna > 0))then --#10
 
             if rtrim(v_codigo) != '' then
               v_centro_costo = v_codigo;

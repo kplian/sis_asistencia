@@ -18,6 +18,8 @@ $body$
 #ISSUE				FECHA				AUTOR				DESCRIPCION
  #0				31-01-2019 13:53:10							Funcion que gestiona las operaciones basicas (inserciones, modificaciones, eliminaciones de la tabla 'asis.tmes_trabajo'
  #4	ERT			17/06/2019 				 MMV				Validar cuando vuelve a estabo borrador se elimina los registros para el nuevo calculo de factor
+ #10 ETR		16/07/2019				MMV					Insertar funcionario por periodo
+
  ***************************************************************************/
 
 DECLARE
@@ -54,6 +56,8 @@ DECLARE
     v_id_estado_wf_ant			integer;
     v_codigo_estado_siguiente	varchar;
     v_id_mes_trabajo_con		integer; --#4
+    v_fecha_ini			date;
+    v_fecha_fin			date;
 
 BEGIN
 
@@ -440,6 +444,114 @@ BEGIN
 			v_resp = pxp.f_agrega_clave(v_resp,'nombre_completo',v_nombre_funcionario::varchar);
             return v_resp;
 
+    	end;
+    /*********************************
+ 	#TRANSACCION:  'ASIS_FAUO_IME' #10
+ 	#DESCRIPCION:	Obtener funcionario
+ 	#AUTOR:		MMV
+ 	#FECHA:		04/06/2019
+	***********************************/
+    elsif(p_transaccion='ASIS_FAUO_IME')then
+		begin
+
+        --Obtenemos la gestion
+        select   g.id_gestion,
+                 g.gestion
+                   into
+                   v_rec_gestion
+                   from param.tgestion g
+                   where g.gestion = EXTRACT(YEAR FROM current_date);
+
+         select  tp.codigo,
+           		 pm.id_proceso_macro
+                into
+                v_codigo_tipo_proceso,
+                v_id_proceso_macro
+           from  wf.tproceso_macro pm
+           inner join wf.ttipo_proceso tp on tp.id_proceso_macro = pm.id_proceso_macro
+           where pm.codigo='HT' and tp.estado_reg = 'activo' and tp.inicio = 'si';
+
+           select 	pe.fecha_ini,
+           			pe.fecha_fin
+                    into
+                    v_fecha_ini,
+                    v_fecha_fin
+           from param.tperiodo pe
+           where pe.id_periodo = v_parametros.id_periodo;
+
+       FOR v_record in (select distinct on (ca.id_funcionario) ca.id_funcionario
+                        from orga.vfuncionario_cargo ca
+                        inner join orga.tcargo car on car.id_cargo = ca.id_cargo
+						inner join orga.ttipo_contrato tc on car.id_tipo_contrato = tc.id_tipo_contrato
+                        where tc.codigo in ('PLA', 'EVE') and ca.fecha_asignacion <= v_fecha_fin and (ca.fecha_finalizacion is null or ca.fecha_finalizacion >= v_fecha_ini)
+                        and ca.id_funcionario not in (	select me.id_funcionario
+                                                        from asis.tmes_trabajo me
+                                                        where me.id_periodo = v_parametros.id_periodo)
+                        order by ca.id_funcionario, ca.fecha_asignacion desc)LOOP
+
+
+                  SELECT
+                       ps_num_tramite ,
+                       ps_id_proceso_wf ,
+                       ps_id_estado_wf ,
+                       ps_codigo_estado
+                    into
+                       v_nro_tramite,
+                       v_id_proceso_wf,
+                       v_id_estado_wf,
+                       v_codigo_estado
+                  FROM wf.f_inicia_tramite(
+                       p_id_usuario,
+                       null,
+                       '',
+                       v_rec_gestion.id_gestion,
+                       v_codigo_tipo_proceso,
+                       NULL,
+                       NULL,
+                       'Horas de Trabajo',
+                       v_codigo_tipo_proceso);
+
+                        insert into asis.tmes_trabajo(   id_periodo,
+                                                         id_gestion,
+                                                         id_planilla,
+                                                         id_funcionario,
+                                                         id_estado_wf,
+                                                         id_proceso_wf,
+                                                         id_funcionario_apro,
+                                                         estado,
+                                                         estado_reg,
+                                                         obs,
+                                                         id_usuario_reg,
+                                                         usuario_ai,
+                                                         fecha_reg,
+                                                         id_usuario_ai,
+                                                         fecha_mod,
+                                                         id_usuario_mod,
+                                                         nro_tramite
+                                                         )values(
+                                                         v_parametros.id_periodo,
+                                                         v_parametros.id_gestion,
+                                                         null,
+                                                         v_record.id_funcionario,
+                                                         v_id_estado_wf, --id
+                                                         v_id_proceso_wf, --d
+                                                         null,
+                                                         v_codigo_estado,---es
+                                                         'activo',
+                                                         '',
+                                                         p_id_usuario,
+                                                         '',
+                                                         now(),
+                                                         null,
+                                                         null,
+                                                         null,
+                                                         v_nro_tramite
+                                                          );
+  				END LOOP;
+
+
+            v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Transaccion Exitosa');
+            return v_resp;
     	end;
 	else
 

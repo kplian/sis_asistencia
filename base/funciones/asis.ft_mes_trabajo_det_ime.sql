@@ -20,6 +20,7 @@ $body$
  #5				30/04/2019 				kplian MMV			Validaciones y reporte
  #4	ERT			17/06/2019 				 MMV			Validar columna de excel
  #5	ERT			19/06/2019 				 MMV			Validar centro de costo
+ #10 ETR		16/07/2019				MMV				Validar Centtro de costo por autorizaciones
 
  ***************************************************************************/
 
@@ -61,6 +62,7 @@ DECLARE
     v_id_usuario			integer;
     v_json_p				json;
     v_insertar				boolean;
+    v_id_periodo			integer;
 BEGIN
 
     v_nombre_funcion = 'asis.ft_mes_trabajo_det_ime';
@@ -200,85 +202,88 @@ BEGIN
 	elsif(p_transaccion='ASIS_MJS_INS')then
 
 		begin
-        	CREATE TEMPORARY TABLE temp_error( id serial,
-                                               dia varchar,
-                                               cc varchar,
-                                               error varchar) ON COMMIT DROP;
 
-            v_id_mes_trabajo = v_parametros.id_mes_trabajo;
-            v_json_p = v_parametros.mes_trabajo_json::json;
-            v_id_usuario = p_id_usuario;
-
-              v_mensaje = '';
-              v_centro_costo = '';
-              v_id_centro_costo	= null;
-              v_insertar = false;
-
-                ---obtener la gesrion
-              select me.id_gestion into v_id_gestion
-              from asis.tmes_trabajo me
-              where me.id_mes_trabajo = v_id_mes_trabajo;
-
+        --Creamos una table temporal para alamcenar los erros de los centros de costo
+        create temporary table tmp_error( id serial, dia varchar, centro_costo varchar, mensaje varchar);
+        --inicioamos la varible
+        v_id_mes_trabajo = v_parametros.id_mes_trabajo;
+        v_id_usuario = p_id_usuario;
+        v_mensaje = '';
+        v_centro_costo = '';
+        v_id_centro_costo= null;
+        v_insertar = false;
+        ---json obtener los datos del excel
+    	v_json_p = v_parametros.mes_trabajo_json::json;
+        --obtenemos la gestion y perido
+		select me.id_gestion, me.id_periodo into v_id_gestion,v_id_periodo
+        from asis.tmes_trabajo me
+        where me.id_mes_trabajo = v_id_mes_trabajo;
+        --recorremos el json
         for v_json in (select json_array_elements(v_json_p))loop
-              v_mes_trabajo = v_json.json_array_elements::json;
-              v_dia = v_mes_trabajo::JSON->>'dia';
-              v_total_normal = v_mes_trabajo::JSON->>'total_normal';
-              v_total_extra = v_mes_trabajo::JSON->>'total_extra';
-              v_total_nocturna = v_mes_trabajo::JSON->>'total_nocturna';
-              v_extras_autorizadas  = v_mes_trabajo::JSON->>'extras_autorizadas';
-              v_codigo = v_mes_trabajo::JSON->>'codigo';
-              v_orden = v_mes_trabajo::JSON->>'orden';
-              v_pep = v_mes_trabajo::JSON->>'pep';
-              v_ingreso_ma = v_mes_trabajo::JSON->>'ingreso_manana';
-              v_salidad_ma = v_mes_trabajo::JSON->>'salida_manana';
-              v_ingreso_ta = v_mes_trabajo::JSON->>'ingreso_tarde';
-              v_salidad_ta = v_mes_trabajo::JSON->>'salida_tarde';
-              v_ingreso_no = v_mes_trabajo::JSON->>'ingreso_noche';
-              v_salidad_no = v_mes_trabajo::JSON->>'salida_noche';
-              v_justificacion = v_mes_trabajo::JSON->>'justificacion_extra';
+			---asignamos valores alas varibles
 
-		if(rtrim(v_ingreso_ma) <> '' or rtrim(v_salidad_ma) <> '')then
+        	v_mes_trabajo = v_json.json_array_elements::json;
+            v_dia = v_mes_trabajo::JSON->>'dia';
+            v_total_normal = v_mes_trabajo::JSON->>'total_normal';
+            v_total_extra = v_mes_trabajo::JSON->>'total_extra';
+            v_total_nocturna = v_mes_trabajo::JSON->>'total_nocturna';
+            v_extras_autorizadas  = v_mes_trabajo::JSON->>'extras_autorizadas';
+            v_codigo = v_mes_trabajo::JSON->>'codigo';
+            v_orden = v_mes_trabajo::JSON->>'orden';
+            v_pep = v_mes_trabajo::JSON->>'pep';
+            v_ingreso_ma = v_mes_trabajo::JSON->>'ingreso_manana';
+            v_salidad_ma = v_mes_trabajo::JSON->>'salida_manana';
+            v_ingreso_ta = v_mes_trabajo::JSON->>'ingreso_tarde';
+            v_salidad_ta = v_mes_trabajo::JSON->>'salida_tarde';
+            v_ingreso_no = v_mes_trabajo::JSON->>'ingreso_noche';
+            v_salidad_no = v_mes_trabajo::JSON->>'salida_noche';
+            v_justificacion = v_mes_trabajo::JSON->>'justificacion_extra';
 
-            if rtrim(v_codigo) != '' then
-              v_centro_costo = v_codigo;
-            end if;
+            ---Para en caso que no tenga ninguna hora  asignada
+        	if((v_total_normal > 0) or --#10
+               (v_extras_autorizadas > 0) or   --#10
+               (v_total_nocturna > 0))then  --#10
+               ---obtenemos el codigo del centro de contso segun columna
+          			 if rtrim(v_codigo) != '' then
+                        v_centro_costo = v_codigo;
+                      end if;
 
-            if rtrim(v_orden) != '' then
-              v_centro_costo = v_orden;
-            end if;
+                      if rtrim(v_orden) != '' then
+                        v_centro_costo = v_orden;
+                      end if;
 
-            if rtrim(v_pep) != '' then
-              v_centro_costo = v_pep;
-            end if;
-              if(v_centro_costo != '')then
-                  if not v_insertar then
+                      if rtrim(v_pep) != '' then
+                        v_centro_costo = v_pep;
+                      end if;
 
-                          v_mensaje = asis.f_centro_validar_record(v_centro_costo,v_id_gestion);
-                        if v_mensaje != '' then
-                           insert into temp_error (dia,
-                                                   cc,
-                                                   error)
-                                                   values
-                                                  (v_dia,
-                                                   v_centro_costo,
-                                                   v_mensaje
-                                                  );
+                      if(v_centro_costo != '')then
+                      	v_mensaje = asis.f_centro_validar_record(v_centro_costo,
+                        										 v_id_gestion,
+                                                                 v_id_mes_trabajo,
+                                                                 v_id_periodo
+                                                                 );
+                          if v_mensaje != '' then
+                             insert into tmp_error ( dia,
+                                                     centro_costo,
+                                                     mensaje)
+                                                     values
+                                                    (v_dia,
+                                                     v_centro_costo,
+                                                     v_mensaje
+                                                    );
                            end if;
+                      else
+                     		raise exception 'Las columna no estan difinidas comuniquece con el admin.'; --#4
+                      end if;
 
-                  end if;
-
-              else
-                  raise exception 'Las columna no estan difinidas comuniquece con el admin.'; --#4
-              end if;
             end if;
-
   		end loop;
-		  select count(id)into v_count
-                           from temp_error;
+        --si el contador es mayor a 0 hay errores en los centos de costso
+        select count(id)into v_count from tmp_error;
 
-                           if v_count = 0 then
-                              v_insertar = true;
-                           end if;
+         if v_count = 0 then
+            v_insertar = true;
+         end if;
 
         if v_insertar then
         	PERFORM asis.f_registrar_detalle(v_id_mes_trabajo,
@@ -286,7 +291,7 @@ BEGIN
                                              v_id_usuario
                                              );
         else
-        select pxp.list(DISTINCT cc||' - '||error) as mensaje  into v_error from temp_error;
+        select pxp.list(DISTINCT centro_costo||' - '||mensaje) as mensaje  into v_error from tmp_error;
 				raise exception 'Observaciónes % contactese con finanzas',v_error ;
         end if;
 

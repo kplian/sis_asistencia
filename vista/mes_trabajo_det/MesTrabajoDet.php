@@ -92,6 +92,136 @@ Phx.vista.MesTrabajoDet=Ext.extend(Phx.gridInterfaz,{
             form:false
         },
         {
+            config:{
+                name: 'total_normal',
+                fieldLabel: 'Total Normal',
+                allowBlank: false,
+                anchor: '80%',
+                gwidth: 100,
+                maxLength:6553602,
+                renderer: function(value,p,record){
+                    if(record.data.estado_reg != 'summary'){
+                        return String.format('<b><font size = 2 >{0}</font></b>', value);
+                    }else{
+                        var color = '';
+                        if (value > 0){
+                            color = 'green';
+                        }else
+                        {
+                            color = 'red';
+                        }
+                        return String.format('<b><font size = 3 color="'+color+'" >{0}</font></b>', value);
+                    }
+                }
+            },
+            type:'NumberField',
+            filters:{pfiltro:'mtd.total_normal',type:'numeric'},
+            id_grupo:1,
+            grid:true,
+            form:false
+        },
+        {
+            config:{
+                name: 'total_extra',
+                fieldLabel: 'Total Extra',
+                allowBlank: false,
+                anchor: '80%',
+                gwidth: 100,
+                maxLength:6553602,
+                renderer: function(value,p,record){
+                    if(record.data.estado_reg != 'summary'){
+                        return String.format('<b><font size = 2 >{0}</font></b>', value);
+                    }else{
+                        var color = '';
+                        if (value > 0){
+                            color = 'green';
+                        }else
+                        {
+                            color = 'red';
+                        }
+                        return String.format('<b><font size = 3 color="'+color+'" >{0}</font></b>', value);
+                    }
+                }
+            },
+            type:'NumberField',
+            filters:{pfiltro:'mtd.total_extra',type:'numeric'},
+            id_grupo:1,
+            grid:true,
+            form:false
+        },
+        {
+            config:{
+                name: 'total_nocturna',
+                fieldLabel: 'Total Nocturna',
+                allowBlank: false,
+                anchor: '80%',
+                gwidth: 100,
+                maxLength:6553602,
+                renderer: function(value,p,record){
+                    if(record.data.estado_reg != 'summary'){
+                        return String.format('<b><font size = 2 >{0}</font></b>', value);
+                    }else{
+                        var color = '';
+                        if (value > 0){
+                            color = 'blue';
+                        }else
+                        {
+                            color = 'red';
+                        }
+                        return String.format('<b><font size = 3 color="'+color+'" >{0}</font></b>', value);
+                    }
+                }
+            },
+            type:'NumberField',
+            filters:{pfiltro:'mtd.total_nocturna',type:'numeric'},
+            id_grupo:1,
+            grid:true,
+            form:false
+        },
+        {
+            config:{
+                name: 'extra_autorizada',
+                fieldLabel: 'Extra Autorizada',
+                allowBlank: false,
+                anchor: '80%',
+                gwidth: 100,
+                maxLength:6553602,
+                renderer: function(value,p,record){
+                    if(record.data.estado_reg != 'summary'){
+                        return String.format('<b><font size = 2 >{0}</font></b>', value);
+                    }else{
+                        var color = '';
+                        if (value > 0){
+                            color = '#ff8c00';
+                        }else
+                        {
+                            color = 'red';
+                        }
+                        return String.format('<b><font size = 3 color="'+color+'" >{0}</font></b>', value);
+                    }
+                }
+            },
+            type:'NumberField',
+            filters:{pfiltro:'mtd.extra_autorizada',type:'numeric'},
+            id_grupo:1,
+            grid:true,
+            form:false
+        },
+        {
+            config:{
+                name: 'justificacion_extra',
+                fieldLabel: 'Justificacion Extra',
+                allowBlank: false,
+                anchor: '80%',
+                gwidth: 100
+            },
+            type:'TextArea',
+            filters:{pfiltro:'mtd.justificacion_extra',type:'string'},
+            id_grupo:1,
+            grid:true,
+            form:false
+        },
+        {
 			config:{
 				name: 'ingreso_manana',
 				fieldLabel: 'Ingreso Mañana',
@@ -222,108 +352,6 @@ Phx.vista.MesTrabajoDet=Ext.extend(Phx.gridInterfaz,{
             },
             type:'TextField',
             filters:{pfiltro:'mtd.tipo_tres',type:'string'},
-            id_grupo:1,
-            grid:true,
-            form:false
-        },
-        {
-            config:{
-                name: 'total_normal',
-                fieldLabel: 'Total Normal',
-                allowBlank: false,
-                anchor: '80%',
-                gwidth: 100,
-                maxLength:6553602,
-                renderer: function(value,p,record){
-                    if(record.data.estado_reg != 'summary'){
-                        return String.format('<b><font size = 2 >{0}</font></b>', value);
-                    }else{
-                        return String.format('<b><font size = 2 color="green" >{0}</font></b>', value);
-                    }
-                }
-            },
-            type:'NumberField',
-            filters:{pfiltro:'mtd.total_normal',type:'numeric'},
-            id_grupo:1,
-            grid:true,
-            form:false
-        },
-        {
-            config:{
-                name: 'total_extra',
-                fieldLabel: 'Total Extra',
-                allowBlank: false,
-                anchor: '80%',
-                gwidth: 100,
-                maxLength:6553602,
-                renderer: function(value,p,record){
-                    if(record.data.estado_reg != 'summary'){
-                        return String.format('<b><font size = 2 >{0}</font></b>', value);
-                    }else{
-                        return String.format('<b><font size = 2 color="green" >{0}</font></b>', value);
-                    }
-                }
-            },
-            type:'NumberField',
-            filters:{pfiltro:'mtd.total_extra',type:'numeric'},
-            id_grupo:1,
-            grid:true,
-            form:false
-        },
-        {
-            config:{
-                name: 'total_nocturna',
-                fieldLabel: 'Total Nocturna',
-                allowBlank: false,
-                anchor: '80%',
-                gwidth: 100,
-                maxLength:6553602,
-                renderer: function(value,p,record){
-                    if(record.data.estado_reg != 'summary'){
-                        return String.format('<b><font size = 2 >{0}</font></b>', value);
-                    }else{
-                        return String.format('<b><font size = 2 color="green" >{0}</font></b>', value);
-                    }
-                }
-            },
-            type:'NumberField',
-            filters:{pfiltro:'mtd.total_nocturna',type:'numeric'},
-            id_grupo:1,
-            grid:true,
-            form:false
-        },
-        {
-            config:{
-                name: 'extra_autorizada',
-                fieldLabel: 'Extra Autorizada',
-                allowBlank: false,
-                anchor: '80%',
-                gwidth: 100,
-                maxLength:6553602,
-                renderer: function(value,p,record){
-                    if(record.data.estado_reg != 'summary'){
-                        return String.format('<b><font size = 2 >{0}</font></b>', value);
-                    }else{
-                        return String.format('<b><font size = 2 color="green" >{0}</font></b>', value);
-                    }
-                }
-            },
-            type:'NumberField',
-            filters:{pfiltro:'mtd.extra_autorizada',type:'numeric'},
-            id_grupo:1,
-            grid:true,
-            form:false
-        },
-        {
-            config:{
-                name: 'justificacion_extra',
-                fieldLabel: 'Justificacion Extra',
-                allowBlank: false,
-                anchor: '80%',
-                gwidth: 100
-            },
-            type:'TextArea',
-            filters:{pfiltro:'mtd.justificacion_extra',type:'string'},
             id_grupo:1,
             grid:true,
             form:false

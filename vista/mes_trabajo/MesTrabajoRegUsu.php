@@ -10,11 +10,11 @@ header("content-type: text/javascript; charset=UTF-8");
 ?>
 
 <script>
-    Phx.vista.MesTrabajoReg = {
-        require:'../../../sis_asistencia/vista/mes_trabajo/MesTrabajo.php',
-        requireclase:'Phx.vista.MesTrabajo',
-        title:'Mes trabajo VoBo',
-        nombreVista: 'RegRRHH',
+    Phx.vista.MesTrabajoRegUsu = {
+        require:'../../../sis_asistencia/vista/mes_trabajo/MesTrabajoReg.php',
+        requireclase:'Phx.vista.MesTrabajoReg',
+        title:'Mes trabajo',
+        nombreVista: 'Reg',
         gruposBarraTareas:[
             {name:'borrador',title:'<h1 align="center"><i></i>Borrador</h1>',grupo:0,height:0},
             {name:'asignado',title:'<h1 align="center"><i></i>Asignado</h1>',grupo:1,height:0},
@@ -38,7 +38,7 @@ header("content-type: text/javascript; charset=UTF-8");
         bexcelGroups:[0,1,2],
         constructor: function(config) {
             this.initButtons=[this.cmbGestion, this.cmbPeriodo];
-            Phx.vista.MesTrabajoReg.superclass.constructor.call(this,config);
+            Phx.vista.MesTrabajoRegUsu.superclass.constructor.call(this, config);
             this.store.baseParams = {tipo_interfaz: this.nombreVista};
             this.store.baseParams.pes_estado = 'borrador';
             this.getBoton('ant_estado').setVisible(false);
@@ -50,10 +50,9 @@ header("content-type: text/javascript; charset=UTF-8");
             else{
                 this.store.baseParams.id_gestion=this.cmbGestion.getValue();
                 this.store.baseParams.id_periodo = this.cmbPeriodo.getValue();
-                Phx.vista.MesTrabajoReg.superclass.onButtonAct.call(this);
+                Phx.vista.MesTrabajoRegUsu.superclass.onButtonAct.call(this);
             }
         }
-
     };
 </script>
 
