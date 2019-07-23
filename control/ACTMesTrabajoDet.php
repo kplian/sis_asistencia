@@ -7,6 +7,7 @@
  * HISTORIAL DE MODIFICACIONES:
  * #ISSUE				FECHA				AUTOR				DESCRIPCION
  * #4	ERT			17/06/2019 				 MMV			corrección bug botón subir excel
+ * #11	ERT			23/07/2019 				 MMV			Validar colmna sin datos al subir excel
  */
 include_once(dirname(__FILE__).'/../../lib/lib_general/ExcelInput.php');
 class ACTMesTrabajoDet extends ACTbase{    
@@ -116,14 +117,54 @@ class ACTMesTrabajoDet extends ACTbase{
                 if($fila["dia"] != 'Totales'){
                     if ($fila["dia"] != 'Total Hrs.') {
                         if ($fila["dia"] != 'Cálc. de hrs extras y rec noct en periodo de vacación/Recon turno cerrado:') {
+                            // jornada mañana #11
+                            // Ingreos
+                            if ((string)$fila["ingreso_manana"] == null || (string)$fila["ingreso_manana"] == ' '){
+                                $entradaMm = '00:00';
+                            }else{
+                                $entradaMm = $fila["ingreso_manana"];
+                            }
+                            // Salida
+                            if ((string)$fila["salida_manana"] == null || (string)$fila["salida_manana"] == ' '){
+                                $salidaMm = '00:00';
+                            }else{
+                                $salidaMm = $fila["salida_manana"];
+                            }
+
+                            // jornada tarde
+                            // Ingreos
+                            if ((string)$fila["ingreso_tarde"] == null || (string)$fila["ingreso_tarde"] == ' ' ){
+                                $entradaTa = '00:00';
+                            }else{
+                                $entradaTa = $fila["ingreso_tarde"];
+                            }
+                            // Salida
+                            if ((string)$fila["salida_tarde"] == null || (string)$fila["salida_tarde"] == ' '){
+                                $salidaTa = '00:00';
+                            }else{
+                                $salidaTa = $fila["salida_tarde"];
+                            }
+                            // jornada Noche
+                            // Ingreos
+                            if ((string)$fila["ingreso_noche"] == null || (string)$fila["ingreso_noche"] == ' '){
+                                $entradaNo = '00:00';
+                            }else{
+                                $entradaNo = $fila["ingreso_noche"];
+                            }
+                            // Salida
+                            if ((string)$fila["salida_noche"] == null || (string)$fila["salida_noche"] == ' '){
+                                $salidaNo = '00:00';
+                            }else{
+                                $salidaNo = $fila["salida_noche"];
+                            }
                             $arra_excel_detalle[] = array(
                                 "dia" => (string)$fila["dia"],
-                                "ingreso_manana" => (string)$fila["ingreso_manana"],
-                                "salida_manana" => (string)$fila["salida_manana"],
-                                "ingreso_tarde" => (string)$fila["ingreso_tarde"],
-                                "salida_tarde" => (string)$fila["salida_tarde"],
-                                "ingreso_noche" => (string)$fila["salida_noche"],
-                                "salida_noche" => (string)$fila["salida_noche"],
+                                "ingreso_manana" => (string)$entradaMm,
+                                "salida_manana" => (string)$salidaMm,
+                                "ingreso_tarde" => (string)$entradaTa,
+                                "salida_tarde" => (string)$salidaTa,
+                                "ingreso_noche" => (string)$entradaNo,
+                                "salida_noche" => (string)$salidaNo,
                                 "comp" => (string)$fila["comp"],
                                 "total_normal" => (float)$fila["total_normal"],
                                 "total_extra" => (float)$fila["total_extra"],
@@ -136,7 +177,7 @@ class ACTMesTrabajoDet extends ACTbase{
                             );
                         }
                     }
-                }
+                } //#11
             }
            // var_dump($arra_excel_detalle);exit;
             $json = json_encode($arra_excel_detalle);
