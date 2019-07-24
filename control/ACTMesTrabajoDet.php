@@ -108,6 +108,7 @@ class ACTMesTrabajoDet extends ACTbase{
             $res = $archivoExcel->recuperarColumnasExcel();
             $arrayArchivo = $archivoExcel->leerColumnasArchivoExcel();
             $arra_excel_detalle = array();
+
             foreach ($arrayArchivo as $fila) {
                 if($fila["total_nocturna"] == '=NocturnalHours(A11,B11,C11,F11,G11)'){
                     $noctruno = 0;
@@ -119,13 +120,13 @@ class ACTMesTrabajoDet extends ACTbase{
                         if ($fila["dia"] != 'Cálc. de hrs extras y rec noct en periodo de vacación/Recon turno cerrado:') {
                             // jornada mañana #11
                             // Ingreos
-                            if ((string)$fila["ingreso_manana"] == null || (string)$fila["ingreso_manana"] == ' '){
+                            if (preg_replace('/\s+/', '', (string)$fila["ingreso_manana"]) == null){
                                 $entradaMm = '00:00';
                             }else{
                                 $entradaMm = $fila["ingreso_manana"];
                             }
                             // Salida
-                            if ((string)$fila["salida_manana"] == null || (string)$fila["salida_manana"] == ' '){
+                            if (preg_replace('/\s+/', '', (string)$fila["salida_manana"]) == null){
                                 $salidaMm = '00:00';
                             }else{
                                 $salidaMm = $fila["salida_manana"];
@@ -133,26 +134,26 @@ class ACTMesTrabajoDet extends ACTbase{
 
                             // jornada tarde
                             // Ingreos
-                            if ((string)$fila["ingreso_tarde"] == null || (string)$fila["ingreso_tarde"] == ' ' ){
+                            if (preg_replace('/\s+/', '', (string)$fila["ingreso_tarde"]) == null){
                                 $entradaTa = '00:00';
                             }else{
                                 $entradaTa = $fila["ingreso_tarde"];
                             }
                             // Salida
-                            if ((string)$fila["salida_tarde"] == null || (string)$fila["salida_tarde"] == ' '){
+                            if (preg_replace('/\s+/', '', (string)$fila["salida_tarde"]) == null){
                                 $salidaTa = '00:00';
                             }else{
                                 $salidaTa = $fila["salida_tarde"];
                             }
                             // jornada Noche
                             // Ingreos
-                            if ((string)$fila["ingreso_noche"] == null || (string)$fila["ingreso_noche"] == ' '){
+                            if (preg_replace('/\s+/', '', (string)$fila["ingreso_noche"]) == null){
                                 $entradaNo = '00:00';
                             }else{
                                 $entradaNo = $fila["ingreso_noche"];
                             }
                             // Salida
-                            if ((string)$fila["salida_noche"] == null || (string)$fila["salida_noche"] == ' '){
+                            if ( preg_replace('/\s+/', '', (string)$fila["salida_noche"]) == null){
                                 $salidaNo = '00:00';
                             }else{
                                 $salidaNo = $fila["salida_noche"];
