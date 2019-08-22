@@ -207,21 +207,16 @@ Phx.vista.MesTrabajo=Ext.extend(Phx.gridInterfaz,{
                     url: '../../sis_asistencia/control/MesTrabajo/listarFuncionarioHt',
                     id: 'id_funcionario',
                     root: 'datos',
-                    sortInfo: {
-                        field: 'desc_funcionario1',
-                        direction: 'ASC'
-                    },
                     totalProperty: 'total',
                     fields: ['id_funcionario','desc_funcionario1','codigo'],
                     remoteSort: true
-                    //baseParams: {id_periodo:this.cmbGestion.getValue()}
                 }),
                 valueField: 'id_funcionario',
                 displayField: 'desc_funcionario1',
                 gdisplayField: 'desc_funcionario',
                 hiddenName: 'fecha',
-                tpl:'<tpl for="."><div class="x-combo-list-item"><p><font color="#006400"><b>{desc_funcionario1}</b></font></p>' +
-                '<p><b>{codigo}</b></p></div></tpl>',
+                tpl:'<tpl for="."><div class="x-combo-list-item"><p><b> Codigo {codigo}</b></p>' +
+                '<p><b> nombre {desc_funcionario1}</b></p></div></tpl>',
                 forceSelection: true,
                 typeAhead: false,
                 triggerAction: 'all',
@@ -505,13 +500,13 @@ Phx.vista.MesTrabajo=Ext.extend(Phx.gridInterfaz,{
             this.Cmp.id_gestion.setValue(this.cmbGestion.getValue());
             this.Cmp.id_periodo.setValue(this.cmbPeriodo.getValue());
             this.Cmp.id_funcionario.store.baseParams ={id_periodo:this.cmbPeriodo.getValue(),par_filtro: 'fun.codigo#pe.nombre_completo1'};  //#8
-            this.Cmp.id_funcionario.lastQuery = null;
+            this.Cmp.id_funcionario.modificado = true;
         }
     },
     onButtonEdit:function(){
         Phx.vista.MesTrabajo.superclass.onButtonEdit.call(this);
         this.Cmp.id_funcionario.store.baseParams ={id_periodo:this.cmbPeriodo.getValue(),par_filtro: 'fun.codigo#pe.nombre_completo1'};  //#8
-        this.Cmp.id_funcionario.lastQuery = null;
+        this.Cmp.id_funcionario.modificado = true;
     },
     capturaFiltros:function(combo, record, index){
        // this.desbloquearOrdenamientoGrid();

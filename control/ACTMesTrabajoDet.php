@@ -8,6 +8,7 @@
  * #ISSUE				FECHA				AUTOR				DESCRIPCION
  * #4	ERT			17/06/2019 				 MMV			corrección bug botón subir excel
  * #11	ERT			23/07/2019 				 MMV			Validar colmna sin datos al subir excel
+ * #12	ERT			21/08/2019 				 MMV			Nuevo campo COMP detalle hoja de trabajo
  */
 include_once(dirname(__FILE__).'/../../lib/lib_general/ExcelInput.php');
 class ACTMesTrabajoDet extends ACTbase{    
@@ -27,6 +28,7 @@ class ACTMesTrabajoDet extends ACTbase{
 			$this->res=$this->objFunc->listarMesTrabajoDet($this->objParam);
 		}
         $temp = Array();
+        $temp['total_comp'] = $this->res->extraData['suma_comp']; //#12
         $temp['total_normal'] = $this->res->extraData['suma_normal'];
         $temp['total_extra'] = $this->res->extraData['suma_extra'];
         $temp['total_nocturna'] = $this->res->extraData['suma_nocturna'];
@@ -166,7 +168,7 @@ class ACTMesTrabajoDet extends ACTbase{
                                 "salida_tarde" => (string)$salidaTa,
                                 "ingreso_noche" => (string)$entradaNo,
                                 "salida_noche" => (string)$salidaNo,
-                                "comp" => (string)$fila["comp"],
+                                "comp" => (float)$fila["comp"],  //#12
                                 "total_normal" => (float)$fila["total_normal"],
                                 "total_extra" => (float)$fila["total_extra"],
                                 "total_nocturna" => (float)$noctruno,
