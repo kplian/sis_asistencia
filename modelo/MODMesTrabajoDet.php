@@ -7,6 +7,7 @@
  * HISTORIAL DE MODIFICACIONES:
  * #ISSUE				FECHA				AUTOR				DESCRIPCION
  * #4	ERT			17/06/2019 				 MMV			corrección bug botón subir excel
+ * #12	ERT			21/08/2019 				 MMV			Nuevo campo COMP detalle hoja de trabajo
  */
 
 class MODMesTrabajoDet extends MODbase{
@@ -21,6 +22,7 @@ class MODMesTrabajoDet extends MODbase{
 		$this->transaccion='ASIS_MTD_SEL';
 		$this->tipo_procedimiento='SEL';//tipo de transaccion
 
+        $this->capturaCount('suma_comp','numeric');
         $this->capturaCount('suma_normal','numeric');
         $this->capturaCount('suma_extra','numeric');
         $this->capturaCount('suma_nocturna','numeric');
@@ -55,6 +57,7 @@ class MODMesTrabajoDet extends MODbase{
 		$this->captura('codigo_cc','text');
         $this->captura('tipo_dos','varchar');
         $this->captura('tipo_tres','varchar');
+        $this->captura('total_comp','numeric'); //#12
 		//Ejecuta la instruccion
 		$this->armarConsulta();
 		$this->ejecutarConsulta();

@@ -17,7 +17,7 @@ $body$
  HISTORIAL DE MODIFICACIONES:
 #ISSUE				FECHA				AUTOR				DESCRIPCION
  #0				31-01-2019 16:36:51								Funcion que devuelve conjuntos de registros de las consultas relacionadas con la tabla 'asis.tmes_trabajo_det'
- #
+ #12	ERT			21/08/2019 				 MMV			Nuevo campo COMP detalle hoja de trabajo
  ***************************************************************************/
 
 DECLARE
@@ -70,7 +70,8 @@ BEGIN
                                   usu2.cuenta as usr_mod,
                                   cc.codigo_cc,
                                   mtd.tipo_dos,
-                                  mtd.tipo_tres
+                                  mtd.tipo_tres,
+                                  mtd.total_comp --#12
                                   from asis.tmes_trabajo_det mtd
                                   inner join segu.tusuario usu1 on usu1.id_usuario = mtd.id_usuario_reg
                                   inner join param.vcentro_costo cc on cc.id_centro_costo = mtd.id_centro_costo
@@ -98,6 +99,7 @@ BEGIN
 		begin
 			--Sentencia de la consulta de conteo de registros
 			v_consulta:='select count(id_mes_trabajo_det),
+           						 COALESCE(sum(mtd.total_comp),0) as suma_comp, --#12
             					COALESCE(sum(mtd.total_normal),0) as suma_normal,
                                 COALESCE(sum(mtd.total_extra),0) as suma_extra,
                                 COALESCE(sum(mtd.total_nocturna),0) as suma_nocturna,
@@ -136,3 +138,6 @@ VOLATILE
 CALLED ON NULL INPUT
 SECURITY INVOKER
 COST 100;
+
+ALTER FUNCTION asis.ft_mes_trabajo_det_sel (p_administrador integer, p_id_usuario integer, p_tabla varchar, p_transaccion varchar)
+  OWNER TO postgres;

@@ -7,7 +7,9 @@
 HISTORIAL DE MODIFICACIONES:
 #ISSUE				FECHA				AUTOR				DESCRIPCION
 #4	ERT			17/06/2019 				 MMV			corrección bug botón subir excel
-*/
+#12	ERT			21/08/2019 				 MMV			Nuevo campo COMP detalle hoja de trabajo
+
+ */
 
 header("content-type: text/javascript; charset=UTF-8");
 ?>
@@ -91,6 +93,35 @@ Phx.vista.MesTrabajoDet=Ext.extend(Phx.gridInterfaz,{
             grid:true,
             form:false
         },
+        {//#12
+            config:{
+                name: 'total_comp',
+                fieldLabel: 'Total Comp',
+                allowBlank: false,
+                anchor: '80%',
+                gwidth: 100,
+                maxLength:6553602,
+                renderer: function(value,p,record){
+                    if(record.data.estado_reg != 'summary'){
+                        return String.format('<b><font size = 2 >{0}</font></b>', value);
+                    }else{
+                        var color = '';
+                        if (value > 0){
+                            color = 'green';
+                        }else
+                        {
+                            color = 'red';
+                        }
+                        return String.format('<b><font size = 3 color="'+color+'" >{0}</font></b>', value);
+                    }
+                }
+            },
+            type:'NumberField',
+            filters:{pfiltro:'mtd.total_comp',type:'numeric'},
+            id_grupo:1,
+            grid:true,
+            form:false
+        },//#12
         {
             config:{
                 name: 'total_normal',
@@ -503,7 +534,8 @@ Phx.vista.MesTrabajoDet=Ext.extend(Phx.gridInterfaz,{
 		{name:'usr_mod', type: 'string'},
         {name:'codigo_cc', type: 'string'},
         {name:'tipo_dos', type: 'string'},
-        {name:'tipo_tres', type: 'string'}
+        {name:'tipo_tres', type: 'string'},
+        {name:'total_comp', type: 'numeric'} //#12
 	],
 	sortInfo:{
 		field: 'id_mes_trabajo_det',

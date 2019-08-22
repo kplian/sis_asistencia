@@ -17,7 +17,7 @@ $body$
  #5	ERT			19/06/2019 				 MMV			Insertar HT
  #9	ERT			19/06/2019 				 MMV			Control de horas nuevo codigo
  #10 ETR		16/07/2019				 MMV			Validar insertado
-
+ #12	ERT			21/08/2019 				 MMV			Nuevo campo COMP detalle hoja de trabajo
  ***************************************************************************/
 DECLARE
     v_resp                  varchar;
@@ -49,6 +49,7 @@ DECLARE
     v_insertar				boolean;
     v_count					integer;
     v_error					text;
+    v_total_comp			numeric; -- #12
 BEGIN
   v_tipo[1] = 'HRN';
   v_tipo[2] = 'LPV';
@@ -79,6 +80,7 @@ BEGIN
   for v_json in (select json_array_elements(p_mes_trabajo_json))loop
       v_mes_trabajo = v_json.json_array_elements::json;
       v_dia = v_mes_trabajo::JSON->>'dia';
+      v_total_comp = v_mes_trabajo::JSON->>'comp';  -- #12
       v_total_normal = v_mes_trabajo::JSON->>'total_normal';
       v_total_extra = v_mes_trabajo::JSON->>'total_extra';
       v_total_nocturna = v_mes_trabajo::JSON->>'total_nocturna';
@@ -93,6 +95,7 @@ BEGIN
       v_ingreso_no = v_mes_trabajo::JSON->>'ingreso_noche';
       v_salidad_no = v_mes_trabajo::JSON->>'salida_noche';
       v_justificacion = v_mes_trabajo::JSON->>'justificacion_extra';
+
 
        ---Para en caso que no tenga ninguna hora  asignada
    			if((v_total_normal > 0) or --#10
@@ -126,6 +129,7 @@ BEGIN
                                         total_extra,
                                         total_nocturna,
                                         extra_autorizada,
+                                        total_comp,  --#12
                                         dia,
                                         justificacion_extra,
                                         tipo,
@@ -180,6 +184,7 @@ BEGIN
                                         v_total_extra,
                                         v_total_nocturna,
                                         v_extras_autorizadas,
+                                        v_total_comp, -- #12
                                         v_dia,
                                         v_justificacion,
                                         case
@@ -233,3 +238,6 @@ VOLATILE
 CALLED ON NULL INPUT
 SECURITY INVOKER
 COST 100;
+
+ALTER FUNCTION asis.f_registrar_detalle (p_id_mes_trabajo integer, p_mes_trabajo_json json, p_id_usuario integer)
+  OWNER TO dbaamamani;
