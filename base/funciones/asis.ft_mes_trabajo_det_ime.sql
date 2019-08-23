@@ -21,6 +21,7 @@ $body$
  #4	ERT			17/06/2019 				 MMV			Validar columna de excel
  #5	ERT			19/06/2019 				 MMV			Validar centro de costo
  #10 ETR		16/07/2019				MMV				Validar Centtro de costo por autorizaciones
+ #13	ERT			23/08/2019 				 MMV			Corregir validación insertado comp
 
  ***************************************************************************/
 
@@ -63,6 +64,8 @@ DECLARE
     v_json_p				json;
     v_insertar				boolean;
     v_id_periodo			integer;
+    v_total_comp			numeric; -- #13
+
 BEGIN
 
     v_nombre_funcion = 'asis.ft_mes_trabajo_det_ime';
@@ -224,6 +227,7 @@ BEGIN
 
         	v_mes_trabajo = v_json.json_array_elements::json;
             v_dia = v_mes_trabajo::JSON->>'dia';
+            v_total_comp = v_mes_trabajo::JSON->>'comp';  -- #13
             v_total_normal = v_mes_trabajo::JSON->>'total_normal';
             v_total_extra = v_mes_trabajo::JSON->>'total_extra';
             v_total_nocturna = v_mes_trabajo::JSON->>'total_nocturna';
@@ -242,7 +246,8 @@ BEGIN
             ---Para en caso que no tenga ninguna hora  asignada
         	if((v_total_normal > 0) or --#10
                (v_extras_autorizadas > 0) or   --#10
-               (v_total_nocturna > 0))then  --#10
+               (v_total_nocturna > 0)or
+               (v_total_comp > 0))then  --#10
                ---obtenemos el codigo del centro de contso segun columna
           			 if rtrim(v_codigo) != '' then
                         v_centro_costo = v_codigo;
@@ -349,3 +354,6 @@ VOLATILE
 CALLED ON NULL INPUT
 SECURITY INVOKER
 COST 100;
+
+ALTER FUNCTION asis.ft_mes_trabajo_det_ime (p_administrador integer, p_id_usuario integer, p_tabla varchar, p_transaccion varchar)
+  OWNER TO postgres;

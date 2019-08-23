@@ -18,6 +18,8 @@ $body$
  #9	ERT			19/06/2019 				 MMV			Control de horas nuevo codigo
  #10 ETR		16/07/2019				 MMV			Validar insertado
  #12	ERT			21/08/2019 				 MMV			Nuevo campo COMP detalle hoja de trabajo
+ #13	ERT			23/08/2019 				 MMV			Corregir validación insertado comp
+
  ***************************************************************************/
 DECLARE
     v_resp                  varchar;
@@ -100,7 +102,8 @@ BEGIN
        ---Para en caso que no tenga ninguna hora  asignada
    			if((v_total_normal > 0) or --#10
                (v_extras_autorizadas > 0) or --#10
-               (v_total_nocturna > 0))then --#10
+               (v_total_nocturna > 0) or
+               (v_total_comp > 0))then --#10
 
             if rtrim(v_codigo) != '' then
               v_centro_costo = v_codigo;
