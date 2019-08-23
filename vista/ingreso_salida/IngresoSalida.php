@@ -44,7 +44,7 @@ Phx.vista.IngresoSalida=Ext.extend(Phx.gridInterfaz,{
                 name:'id_funcionario',
                 hiddenName: 'id_funcionario',
                 origen:'FUNCIONARIOCAR',
-                fieldLabel:'Funcionario Solicitante',
+                fieldLabel:'Funcionario',
                 allowBlank:true,
                 gwidth:200,
                 valueField: 'id_funcionario',
