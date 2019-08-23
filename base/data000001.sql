@@ -61,4 +61,8 @@ select wf.f_import_testructura_estado ('insert','asignado','aprobado','HT-MT',1,
 /***********************************F-DAT-MMV-ASIS-2-30/04/2019*****************************************/
 
 
- 
+
+/***********************************I-DAT-JDJ-ASIS-48-14/08/2019*****************************************/
+select pxp.f_insert_tgui ('Control diario', 'Control diario', 'CONDIA', 'si', 4, '', 2, '', '', 'ASIS');
+select pxp.f_insert_tgui ('Ingreso salida', 'Ingreso salida', 'INGSAL', 'si', 1, 'sis_asistencia/vista/ingreso_salida/IngresoSalida.php', 3, '', 'IngresoSalida', 'ASIS');
+/***********************************F-DAT-JDJ-ASIS-48-14/08/2019*****************************************/

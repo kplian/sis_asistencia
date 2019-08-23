@@ -206,3 +206,34 @@ ALTER TABLE asis.tmes_trabajo_con
 ALTER TABLE asis.tmes_trabajo_con
   ALTER COLUMN calculado_resta SET DEFAULT 'no';
 /***********************************F-SCP-MMV-ASIS-1-11/03/2019****************************************/
+
+/***********************************I-SCP-JDJ-ASIS-1-14/08/2019****************************************/
+CREATE TABLE asis.tingreso_salida (
+  ingreso_salida INTEGER NOT NULL,
+  id_funcionario INTEGER,
+  fecha DATE,
+  hora TIME WITHOUT TIME ZONE,
+  tipo VARCHAR(50),
+  PRIMARY KEY(ingreso_salida)
+) INHERITS (pxp.tbase)
+WITH (oids = false);
+
+ALTER TABLE asis.tingreso_salida
+  ALTER COLUMN fecha SET STATISTICS 0;
+
+
+ALTER TABLE asis.tingreso_salida
+  RENAME COLUMN ingreso_salida TO id_ingreso_salida;
+
+
+--------------- SQL ---------------
+
+CREATE SEQUENCE asis.tingreso_salida_id_ingreso_salida_seq
+MAXVALUE 2147483647;
+
+ALTER TABLE asis.tingreso_salida
+  ALTER COLUMN id_ingreso_salida TYPE INTEGER;
+
+ALTER TABLE asis.tingreso_salida
+  ALTER COLUMN id_ingreso_salida SET DEFAULT nextval('asis.tingreso_salida_id_ingreso_salida_seq'::text);
+/***********************************F-SCP-JDJ-ASIS-1-14/08/2019****************************************/
