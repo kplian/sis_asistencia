@@ -59,3 +59,9 @@ select pxp.f_insert_testructura_gui ('VOM', 'ASIS');
 select pxp.f_insert_testructura_gui ('TPS', 'ASIS');
 select pxp.f_insert_testructura_gui ('AREP', 'ASIS');
 /***********************************F-DEP-MMV-ASIS-2-30/04/2019*****************************************/
+
+
+/***********************************I-DEP-JDJ-ASIS-48-14/08/2019*****************************************/
+select pxp.f_insert_testructura_gui ('CONDIA', 'ASIS');
+select pxp.f_insert_testructura_gui ('INGSAL', 'CONDIA');
+/***********************************F-DEP-JDJ-ASIS-48-14/08/2019*****************************************/
