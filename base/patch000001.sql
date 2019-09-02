@@ -237,3 +237,87 @@ ALTER TABLE asis.tingreso_salida
 ALTER TABLE asis.tingreso_salida
   ALTER COLUMN id_ingreso_salida SET DEFAULT nextval('asis.tingreso_salida_id_ingreso_salida_seq'::text);
 /***********************************F-SCP-JDJ-ASIS-1-14/08/2019****************************************/
+/***********************************I-SCP-MMV-ASIS-15-02/09/2019****************************************/
+---creacion de foreign
+CREATE SERVER mssql_zka
+  FOREIGN DATA WRAPPER tds_fdw
+  OPTIONS (
+    port '1433',
+    servername '172.18.79.22');
+-- creacion de usuario remoto
+CREATE USER MAPPING FOR public
+  SERVER mssql_zka
+  OPTIONS (
+    password 'usrZKAccess2KK7prod',
+    username 'usrZKAccess');
+
+ALTER SERVER mssql_zka
+  OWNER TO postgres;
+---cracion de la tabla
+CREATE FOREIGN TABLE asis.ttranscc_zka (
+  id INTEGER,
+  unique_key VARCHAR(100),
+  log_id INTEGER,
+  create_operator VARCHAR(30),
+  create_time TIMESTAMP WITHOUT TIME ZONE,
+  event_time TIMESTAMP WITHOUT TIME ZONE,
+  pin VARCHAR(30),
+  name VARCHAR(50),
+  last_name VARCHAR(50),
+  dept_name VARCHAR(100),
+  area_name VARCHAR(100),
+  card_no VARCHAR(50),
+  dev_id INTEGER,
+  dev_sn VARCHAR(30),
+  dev_alias VARCHAR(100),
+  verify_mode_no SMALLINT,
+  verify_mode_name VARCHAR(100),
+  event_no SMALLINT,
+  event_name VARCHAR(100),
+  event_point_type SMALLINT,
+  event_point_id INTEGER,
+  event_point_name VARCHAR(100),
+  reader_state SMALLINT,
+  reader_name VARCHAR(100),
+  trigger_cond SMALLINT,
+  description VARCHAR(200),
+  vid_linkage_handle VARCHAR(256),
+  acc_zone VARCHAR(30),
+  event_addr SMALLINT
+)
+SERVER mssql_zka -- conexicon al servidor
+OPTIONS (query 'SELECT [id]
+      ,[unique_key]
+      ,[log_id]
+      ,[create_operator]
+      ,[create_time]
+      ,[event_time]
+      ,[pin]
+      ,[name]
+      ,[last_name]
+      ,[dept_name]
+      ,[area_name]
+      ,[card_no]
+      ,[dev_id]
+      ,[dev_sn]
+      ,[dev_alias]
+      ,[verify_mode_no]
+      ,[verify_mode_name]
+      ,[event_no]
+      ,[event_name]
+      ,[event_point_type]
+      ,[event_point_id]
+      ,[event_point_name]
+      ,[reader_state]
+      ,[reader_name]
+      ,[trigger_cond]
+      ,[description]
+      ,[vid_linkage_handle]
+      ,[acc_zone]
+      ,[event_addr]
+  FROM [ACCESO_ZKBIOSEC].[dbo].[acc_transaction]');
+
+ALTER TABLE asis.ttranscc_zka
+  OWNER TO postgres;
+/***********************************F-SCP-MMV-ASIS-15-02/09/2019****************************************/
+
