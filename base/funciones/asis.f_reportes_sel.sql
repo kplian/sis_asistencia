@@ -63,18 +63,18 @@ BEGIN
                                           id_uo integer ) ON COMMIT DROP;
         v_filtro = '';
     	if v_parametros.hora_ini is not null and v_parametros.hora_fin is not null then
-        	  v_filtro = 'and to_char(tr.event_time, ''HH12:MI'')::time BETWEEN '''|| v_parametros.hora_ini|| '''and'''|| v_parametros.hora_fin||''' ';
+        	  v_filtro = 'and to_char(tr.event_time, ''HH24:MI'')::time BETWEEN '''|| to_char(v_parametros.hora_ini,'HH24:MI')::time || '''and'''||to_char(v_parametros.hora_fin,'HH24:MI')::time||''' ';
         end if;
         if v_parametros.hora_ini is not null and v_parametros.hora_fin is null then
-        	  v_filtro = 'and to_char(tr.event_time, ''HH12:MI'')::time >= '''|| v_parametros.hora_ini||''' ';
+        	  v_filtro = 'and to_char(tr.event_time, ''HH24:MI'')::time >= '''|| to_char(v_parametros.hora_ini,'HH24:MI')::time||''' ';
         end if;
         if v_parametros.hora_ini is null and v_parametros.hora_fin is not null then
-        	  v_filtro = 'and to_char(tr.event_time, ''HH12:MI'')::time <= '''|| v_parametros.hora_fin||''' ';
+        	  v_filtro = 'and to_char(tr.event_time, ''HH24:MI'')::time <= '''|| to_char(v_parametros.hora_fin,'HH24:MI')::time||''' ';
         end if;
 
        v_consulta_ := 'select   tr.pin as codigo_funcionario,
                                     tr.event_time::date as fecha_marcado,
-                                    to_char(tr.event_time, ''HH12:MI'') as hora,
+                                    to_char(tr.event_time, ''HH24:MI'') as hora,
                                     to_char(tr.event_time, ''DD'') as dia,
                                     tr.event_no as codigo_evento,  --filtro
                                     tr.event_name::varchar as tipo_evento,
