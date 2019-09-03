@@ -37,8 +37,9 @@ header("content-type: text/javascript; charset=UTF-8");
                 config:{
                     name: 'hora_ini',
                     fieldLabel: 'Hora Desde',
-                    minValue: '12:00 AM',
-                    maxValue: '11:59 PM',
+                    // minValue: '12:00 AM',
+                    // maxValue: '11:59 PM',
+                    format: 'H:i',
                     increment: 1,
                     //allowBlank: false,
                     width: 250,
@@ -73,8 +74,9 @@ header("content-type: text/javascript; charset=UTF-8");
                 config:{
                     name: 'hora_fin',
                     fieldLabel: 'Hora Hasta',
-                    minValue: '12:00 AM',
-                    maxValue: '11:59 PM',
+                    // minValue: '12:00 AM',
+                    // maxValue: '11:59 PM',
+                    format: 'H:i',
                     increment: 1,
                     //allowBlank: false,
                     width: 250,

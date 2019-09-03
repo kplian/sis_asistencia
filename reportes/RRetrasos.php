@@ -118,7 +118,7 @@ class RRetrasos{
         $this->docexcel->getActiveSheet()->getColumnDimension('D')->setWidth(35);
         $this->docexcel->getActiveSheet()->getColumnDimension('E')->setWidth(30);
         $this->docexcel->getActiveSheet()->getColumnDimension('F')->setWidth(30);
-        $this->docexcel->getActiveSheet()->getColumnDimension('G')->setWidth(25);
+        $this->docexcel->getActiveSheet()->getColumnDimension('G')->setWidth(30);
         $this->docexcel->getActiveSheet()->getColumnDimension('H')->setWidth(20);
         $this->docexcel->getActiveSheet()->setCellValue('A6','Nº');
         $this->docexcel->getActiveSheet()->setCellValue('B6','Fecha');
@@ -126,7 +126,7 @@ class RRetrasos{
         $this->docexcel->getActiveSheet()->setCellValue('D6','Funcionario');
         $this->docexcel->getActiveSheet()->setCellValue('E6','Cargo');
         $this->docexcel->getActiveSheet()->setCellValue('F6','Dispositivo');
-        $this->docexcel->getActiveSheet()->setCellValue('G6','Area');
+        $this->docexcel->getActiveSheet()->setCellValue('G6','Evento');
         $this->docexcel->getActiveSheet()->setCellValue('H6','Codigo / Tarjeta');
 
         $this->docexcel->getActiveSheet()->getStyle('A6:H6')->getAlignment()->setWrapText(true);
@@ -165,7 +165,7 @@ class RRetrasos{
             $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(3, $fila, $value['nombre_funcionario']);
             $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(4, $fila, $value['departamento']);
             $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(5, $fila, $value['nombre_dispositivo']);
-            $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(6, $fila, $this->eliminar_tildes($value['nombre_area']));
+            $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(6, $fila, $this->eliminar_tildes($value['tipo_evento']));
             $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(7, $fila, ($value['numero_tarjeta'] == ' ')?$value['codigo_funcionario']:$value['codigo_funcionario'].' / '.$value['numero_tarjeta']);
             $this->docexcel->getActiveSheet()->getStyle("A$fila:I$fila")->applyFromArray($border);
             $this->docexcel->getActiveSheet()->getStyle("A$fila:C$fila")->applyFromArray($style3);
