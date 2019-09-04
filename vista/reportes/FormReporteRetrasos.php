@@ -8,6 +8,8 @@
  * HISTORIAL DE MODIFICACIONES:
 #ISSUE				FECHA				AUTOR				DESCRIPCION
 #15		etr			02-09-2019			MCGH               	Reporte Transacción marcados
+#16		etr			04-09-2019			MMV               	Medicaciones reporte marcados
+
  */
 header("content-type: text/javascript; charset=UTF-8");
 ?>
@@ -110,7 +112,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 grid : true,
                 form : true
             },
-            {
+            { //#16
                 config : {
                     name : 'evento',
                     fieldLabel : 'Descripción del Evento',
@@ -132,6 +134,23 @@ header("content-type: text/javascript; charset=UTF-8");
                 id_grupo : 2,
                 grid : true,
                 form : true
+            },//#16
+            {
+                config:{
+                    name: 'agrupar_por',
+                    fieldLabel: 'Agrupar por',
+                    allowBlank: false,
+                    width: 250,
+                    typeAhead: true,
+                    triggerAction: 'all',
+                    lazyRender:true,
+                    mode: 'local',
+                    store:['etr','gerencias','departamentos']
+                },
+                type:'ComboBox',
+                id_grupo:2,
+                valorInicial: 'etr',
+                form:true
             },
             {
                 config : {
