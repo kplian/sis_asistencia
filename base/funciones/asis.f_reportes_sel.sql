@@ -17,6 +17,8 @@ $body$
  HISTORIAL DE MODIFICACIONES:
 #ISSUE				FECHA				AUTOR				DESCRIPCION
 #15		etr			02-09-2019			MMV               	Reporte Transacción marcados ASIS_RET_SEL
+#16		etr			04-09-2019			MMV               	Medicaciones reporte marcados ASIS_REF_SEL
+
  ***************************************************************************/
 
 DECLARE
@@ -30,6 +32,7 @@ DECLARE
 	v_consulta_			varchar;
     v_filtro			varchar;
     v_fil				varchar;
+    v_marcado			record;
 
 BEGIN
 
@@ -165,6 +168,152 @@ BEGIN
 
 		end;
 
+    /*********************************
+ 	#TRANSACCION:  'ASIS_REF_SEL' # 16
+ 	#DESCRIPCION:	Reporte de retrasos funcionarios
+ 	#AUTOR:		miguel.mamani
+ 	#FECHA:		29/08/2019
+	***********************************/
+	elsif(p_transaccion='ASIS_REF_SEL')then
+    	begin
+            CREATE TEMPORARY TABLE tmp_retr (   dia varchar,
+                                                fecha_marcado date,
+                                                hora varchar,
+                                                id_funcionario integer,
+                                                codigo_funcionario varchar,
+                                                nombre_funcionario varchar,
+                                                nombre_cargo varchar,
+                                                tipo_evento varchar,
+                                                modo_verificacion varchar,
+                                                nombre_dispositivo varchar,
+                                                codigo_evento varchar,
+                                                gerencia varchar,
+                                                departamento varchar ) ON COMMIT DROP;
+
+        for v_record in (with funcionario as (select distinct on (ca.id_funcionario) ca.id_funcionario,
+                                                    ca.desc_funcionario1,
+                                                    trim(both 'FUNODTPR' from ca.codigo) as codigo,
+                                                    ca.nombre_cargo,
+                                                    ger.nombre_unidad as gerencia,
+                                                    dep.nombre_unidad as departamento
+                                                    from orga.vfuncionario_cargo ca
+                                                    inner join orga.tcargo car on car.id_cargo = ca.id_cargo
+                                                    inner join orga.ttipo_contrato tc on car.id_tipo_contrato = tc.id_tipo_contrato
+                                                    inner join orga.tuo ger on ger.id_uo = orga.f_get_uo_gerencia(ca.id_uo, NULL::integer, NULL::date)
+                                                    inner join orga.tuo dep ON dep.id_uo = orga.f_get_uo_departamento(ca.id_uo, NULL::integer, NULL::date)
+                                                    where tc.codigo in ('PLA', 'EVE')
+                                                    and ca.fecha_asignacion <= v_parametros.fecha_fin and (ca.fecha_finalizacion is null or ca.fecha_finalizacion >= v_parametros.fecha_ini)
+                                                    order by ca.id_funcionario, ca.fecha_asignacion desc),
+                                       marcador as (select  tm.codigo_funcionario,
+                                                               tm.fecha_marcado,
+                                                               tm.dia,
+                                                               min(tm.hora) as hora,
+                                                               tm.codigo_evento,
+                                                               tm.tipo_evento,
+                                                               tm.modo_verificacion,
+                                                               tm.nombre_dispositivo
+                                                        from asis.vtransaccion_marcados  tm
+                                                        where tm.fecha_marcado BETWEEN v_parametros.fecha_ini and v_parametros.fecha_fin
+                                                        group by tm.codigo_funcionario,
+                                                                 tm.fecha_marcado,
+                                                                 tm.dia,
+                                                                 tm.codigo_evento,
+                                                                 tm.tipo_evento,
+                                                                 tm.modo_verificacion,
+                                                                 tm.nombre_dispositivo
+                                                        		 order by hora asc)
+                  select 	ma.dia,
+                  			ma.fecha_marcado,
+                            ma.hora,
+                            fu.id_funcionario,
+                            fu.codigo,
+                            fu.desc_funcionario1,
+                            fu.nombre_cargo,
+                            fu.gerencia,
+                            fu.departamento,
+                            ma.codigo_evento,
+                            ma.tipo_evento,
+                            ma.modo_verificacion,
+                            ma.nombre_dispositivo
+                  from funcionario fu
+                  inner join marcador ma on ma.codigo_funcionario = fu.codigo) loop
+
+        					insert into tmp_retr ( 	dia,
+                                                    fecha_marcado,
+                                                    hora,
+                                                    id_funcionario,
+                                                    codigo_funcionario,
+                                                    nombre_funcionario,
+                                                    tipo_evento,
+                                                    modo_verificacion,
+                                                    nombre_dispositivo,
+                                                    codigo_evento,
+                                                    gerencia,
+                                                    departamento,
+                                                    nombre_cargo
+                                                    )values (
+                                                    v_record.dia,
+                                                    v_record.fecha_marcado,
+                                                    v_record.hora,
+                                                    v_record.id_funcionario,
+                                                    v_record.codigo,
+                                                    v_record.desc_funcionario1,
+                                                    v_record.tipo_evento,
+                                                    v_record.modo_verificacion,
+                                                    v_record.nombre_dispositivo,
+                                                    v_record.codigo_evento,
+                                                    v_record.gerencia,
+                                                    v_record.departamento,
+                                                    v_record.nombre_cargo
+                                                    );
+
+        end loop;
+
+        v_filtro = '0 = 0 ';
+    	if v_parametros.hora_ini is not null and v_parametros.hora_fin is not null then
+        	  v_filtro = 'tmp.hora BETWEEN '''|| to_char(v_parametros.hora_ini,'HH24:MI')::time || '''and'''||to_char(v_parametros.hora_fin,'HH24:MI')::time||''' ';
+        end if;
+        if v_parametros.hora_ini is not null and v_parametros.hora_fin is null then
+        	  v_filtro = 'tmp.hora >= '''|| to_char(v_parametros.hora_ini,'HH24:MI')::time||''' ';
+        end if;
+        if v_parametros.hora_ini is null and v_parametros.hora_fin is not null then
+        	  v_filtro = 'tmp.hora <= '''|| to_char(v_parametros.hora_fin,'HH24:MI')::time||''' ';
+        end if;
+
+        if v_parametros.id_funcionario is not null then
+          v_filtro:= v_filtro || ' and tmp.id_funcionario = '|| v_parametros.id_funcionario;
+        end if;
+        if v_parametros.modo_verif != '' then
+            v_filtro:= v_filtro||' and tmp.modo_verificacion = '''||v_parametros.modo_verif||''' ';
+        end if;
+        if v_parametros.evento != '' then
+            v_filtro:= v_filtro||' and tmp.codigo_evento = '''||v_parametros.evento||''' ';
+        end if;
+
+        v_consulta:= 'select  tmp.dia,
+                              to_char(tmp.fecha_marcado,''DD/MM/YYYY'') as fecha_marcado,
+                              tmp.hora,
+                              tmp.id_funcionario,
+                              tmp.codigo_funcionario,
+                              initcap(tmp.nombre_funcionario) as nombre_funcionario,
+                              tmp.tipo_evento,
+                              tmp.modo_verificacion,
+                              tmp.nombre_dispositivo,
+                              tmp.gerencia,
+                              tmp.departamento,
+                              initcap(tmp.nombre_cargo) as nombre_cargo
+                              from tmp_retr tmp
+                              where ';
+        v_consulta:= v_consulta || v_filtro;
+        if (v_parametros.agrupar_por = 'etr')then
+                v_consulta:= v_consulta || 'order by gerencia desc, departamento, hora,nombre_funcionario';
+        elsif(v_parametros.agrupar_por = 'gerencias')then
+        		v_consulta:= v_consulta || 'order by gerencia desc, hora,nombre_funcionario';
+        elsif(v_parametros.agrupar_por = 'departamentos')then
+        		v_consulta:= v_consulta || 'order by departamento desc, hora,nombre_funcionario';
+        end if;
+        return v_consulta;
+    end;
 	else
 
 		raise exception 'Transaccion inexistente';

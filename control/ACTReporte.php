@@ -8,12 +8,13 @@
  * HISTORIAL DE MODIFICACIONES:
 #ISSUE				FECHA				AUTOR				DESCRIPCION
 #15		etr			02-09-2019			MVM               	Reporte Transacción marcados
+#16		etr			04-09-2019			MMV               	Medicaciones reporte marcados
  */
 require_once(dirname(__FILE__).'/../reportes/RRetrasos.php');
 class ACTReporte extends ACTbase{
     function reporteAnexos(){
         $this->objFunc = $this->create('MODReportes');
-        $this->res = $this->objFunc->listarReporteRetrasos($this->objParam);
+        $this->res = $this->objFunc->listarReporteFuncionario($this->objParam); //#16
         $titulo = 'Retrasos';
         $nombreArchivo = uniqid(md5(session_id()) . $titulo);
         $nombreArchivo .= '.xls';

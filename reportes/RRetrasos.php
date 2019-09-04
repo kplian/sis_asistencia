@@ -8,6 +8,8 @@
  * HISTORIAL DE MODIFICACIONES:
 #ISSUE				FECHA				AUTOR				DESCRIPCION
 #15		etr			02-09-2019			MVM               	Reporte Transacción marcados
+#16		etr			04-09-2019			MMV               	Medicaciones reporte marcados
+
  */
 class RRetrasos{
     private $docexcel;
@@ -110,6 +112,7 @@ class RRetrasos{
         $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(5,3,'Hasta: '.$this->objParam->getParametro('fecha_fin'));
         $this->docexcel->getActiveSheet()->getStyle('A3:H3')->applyFromArray($titulossubcabezera);
         $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(3,4,($this->objParam->getParametro('modo_verif') == '' ) ? 'Modo Verificación: Todos' : 'Modo Verificación: '.$this->objParam->getParametro('modo_verif'));
+        $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(4,4,'Agrupar Por: '.$this->objParam->getParametro('agrupar_por'));
         $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(5,4,($this->objParam->getParametro('eventodesc') == '' ) ? 'Evento: Todos' : 'Evento: '.$this->objParam->getParametro('eventodesc'));
         $this->docexcel->getActiveSheet()->getStyle('A4:H4')->applyFromArray($titulossubcabezera);
         $this->docexcel->getActiveSheet()->getColumnDimension('A')->setWidth(10);
@@ -127,7 +130,7 @@ class RRetrasos{
         $this->docexcel->getActiveSheet()->setCellValue('E6','Cargo');
         $this->docexcel->getActiveSheet()->setCellValue('F6','Dispositivo');
         $this->docexcel->getActiveSheet()->setCellValue('G6','Evento');
-        $this->docexcel->getActiveSheet()->setCellValue('H6','Codigo / Tarjeta');
+        $this->docexcel->getActiveSheet()->setCellValue('H6','Codigo Funcionario');
 
         $this->docexcel->getActiveSheet()->getStyle('A6:H6')->getAlignment()->setWrapText(true);
         $this->docexcel->getActiveSheet()->getStyle('A6:H6')->applyFromArray($styleTitulos3);
@@ -152,21 +155,46 @@ class RRetrasos{
         $fila = 7;
         $datos = $this->objParam->getParametro('datos');
         $gerencias = '';
+        $departamento = '';
         foreach ($datos as $value) {
-            if ($value['gerencia'] != $gerencias) {
-                $this->imprimeSubtitulo($fila,$value['gerencia']);
-                $gerencias = $value['gerencia'];
-                $fila++;
+             #16
+            if ($this->objParam->getParametro('agrupar_por') == 'etr'){
+                if ($value['gerencia'] != $gerencias) {
+                    $this->imprimeSubtitulo($fila,$value['gerencia'],10);
+                    $gerencias = $value['gerencia'];
+                    $fila++;
+                }
+
+                if ($value['departamento'] != $departamento && $value['departamento'] != $value['gerencia']){
+                    $this->imprimeSubtitulo($fila,$value['departamento'],8);
+                    $departamento = $value['departamento'];
+                    $fila++;
+                }
             }
-          //  var_dump($value['numero_tarjeta']);exit;
+            if ($this->objParam->getParametro('agrupar_por') == 'gerencias'){
+                if ($value['gerencia'] != $gerencias) {
+                    $this->imprimeSubtitulo($fila,$value['gerencia'],10);
+                    $gerencias = $value['gerencia'];
+                    $fila++;
+                }
+            }
+            if ($this->objParam->getParametro('agrupar_por') == 'departamentos'){
+                if ($value['departamento'] != $departamento) {
+                    $this->imprimeSubtitulo($fila,$value['departamento'],10);
+                    $departamento = $value['departamento'];
+                    $fila++;
+                }
+            }
+            #16
+
             $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(0, $fila, $this->numero);
             $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(1, $fila, $value['fecha_marcado']);
             $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(2, $fila, $value['hora']);
             $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(3, $fila, $value['nombre_funcionario']);
-            $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(4, $fila, $value['departamento']);
+            $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(4, $fila, $value['nombre_cargo']);              #16
             $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(5, $fila, $value['nombre_dispositivo']);
             $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(6, $fila, $this->eliminar_tildes($value['tipo_evento']));
-            $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(7, $fila, ($value['numero_tarjeta'] == ' ')?$value['codigo_funcionario']:$value['codigo_funcionario'].' / '.$value['numero_tarjeta']);
+            $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(7, $fila, $value['codigo_funcionario']);
             $this->docexcel->getActiveSheet()->getStyle("A$fila:I$fila")->applyFromArray($border);
             $this->docexcel->getActiveSheet()->getStyle("A$fila:C$fila")->applyFromArray($style3);
             $this->docexcel->getActiveSheet()->getStyle("H$fila:H$fila")->applyFromArray($style3);
@@ -214,11 +242,11 @@ class RRetrasos{
 
         return $cadena;
     }
-    function imprimeSubtitulo($fila, $valor) {
+    function imprimeSubtitulo($fila, $valor,$tamanhio) {
         $styleTitulos = array(
             'font'  => array(
                 'bold'  => true,
-                'size'  => 11,
+                'size'  => $tamanhio,             #16
                 'name'  => 'Arial'
             ),
             'borders' => array(
