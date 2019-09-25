@@ -11,7 +11,8 @@ HISTORIAL DE MODIFICACIONES:
 
 #ISSUE				FECHA				AUTOR				DESCRIPCION
 
- #14			23-08-2019 12:53:11		Juan 				Archivo Nuevo Control diario de ingreso salida a la empresa Ende Transmision S.A.'
+ #14			23-08-2019 12:53:11		Juan 				Archivo Nuevo Control diario de ingreso salida a la empresa Ende Transmision S.A.
+ #17			25-09-2019 12:53:11		Juan 				Cambiar el orden de lista de control diario
 
  */
 
@@ -277,7 +278,7 @@ Phx.vista.IngresoSalida=Ext.extend(Phx.gridInterfaz,{
 	],
 	sortInfo:{
 		field: 'id_ingreso_salida',
-		direction: 'ASC'
+		direction: 'DESC' //#17
 	},
 	bdel:false,
 	bsave:true,
