@@ -71,7 +71,6 @@ select pxp.f_insert_tgui ('Ingreso salida', 'Ingreso salida', 'INGSAL', 'si', 1,
 select pxp.f_insert_tgui ('Reporte Retrasos', 'Reporte Retrasos', 'RRET', 'si', 2, 'sis_asistencia/vista/reportes/FormReporteRetrasos.php', 3, '', 'FormReporteRetrasos', 'ASIS');
 /***********************************F-DAT-MMV-ASIS-15-02/09/2019*****************************************/
 /***********************************I-DAT-MMV-ASIS-18-26/09/2019*****************************************/
-
+select pxp.f_insert_tgui ('Hoja de tiempo', 'Hoja de tiempo', 'HFT', 'si', 1, '', 2, '', '', 'ASIS');
 select pxp.f_insert_tgui ('Centro Costo HT', 'Centro Costo HT', 'CCT', 'si', 3, 'sis_asistencia/vista/mes_trabajo/MesTrabajoCc.php', 3, '', 'MesTrabajoCc', 'ASIS');
-
 /***********************************F-DAT-MMV-ASIS-18-26/09/2019*****************************************/
