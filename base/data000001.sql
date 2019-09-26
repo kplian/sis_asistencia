@@ -74,4 +74,4 @@ select pxp.f_insert_tgui ('Reporte Retrasos', 'Reporte Retrasos', 'RRET', 'si', 
 
 select pxp.f_insert_tgui ('Centro Costo HT', 'Centro Costo HT', 'CCT', 'si', 3, 'sis_asistencia/vista/mes_trabajo/MesTrabajoCc.php', 3, '', 'MesTrabajoCc', 'ASIS');
 
-/***********************************I-DAT-MMV-ASIS-18-26/09/2019*****************************************/
+/***********************************F-DAT-MMV-ASIS-18-26/09/2019*****************************************/
