@@ -320,4 +320,8 @@ OPTIONS (query 'SELECT [id]
 ALTER TABLE asis.ttranscc_zka
   OWNER TO postgres;
 /***********************************F-SCP-MMV-ASIS-15-02/09/2019****************************************/
+/***********************************I-SCP-MMV-ASIS-18-26/09/2019****************************************/
+ALTER TABLE asis.tmes_trabajo_det
+  ADD COLUMN id_centro_costo_anterior INTEGER;
+/***********************************F-SCP-MMV-ASIS-18-26/09/2019****************************************/
 

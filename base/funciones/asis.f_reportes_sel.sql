@@ -18,6 +18,7 @@ $body$
 #ISSUE				FECHA				AUTOR				DESCRIPCION
 #15		etr			02-09-2019			MMV               	Reporte Transacción marcados ASIS_RET_SEL
 #16		etr			04-09-2019			MMV               	Medicaciones reporte marcados ASIS_REF_SEL
+ #18	ERT			26/09/2019 				 MMV			Filtra codigo fun
 
  ***************************************************************************/
 
@@ -221,7 +222,7 @@ BEGIN
                                                                  tm.tipo_evento,
                                                                  tm.modo_verificacion,
                                                                  tm.nombre_dispositivo
-                                                        		 order by hora asc)
+                                                        		 order by fecha_marcado asc, hora asc)
                   select 	ma.dia,
                   			ma.fecha_marcado,
                             ma.hora,
@@ -234,9 +235,11 @@ BEGIN
                             ma.codigo_evento,
                             ma.tipo_evento,
                             ma.modo_verificacion,
-                            ma.nombre_dispositivo
+                            asis.f_estraer_palabra(ma.nombre_dispositivo,'Entrada','Salida') as nombre_dispositivo
                   from funcionario fu
-                  inner join marcador ma on ma.codigo_funcionario = fu.codigo) loop
+                  inner join marcador ma on ma.codigo_funcionario = fu.codigo or ma.codigo_funcionario = (select co.codigo
+                                                                                                          from orga.tcodigo_funcionario co --18
+                                                                                                          where co.id_funcionario =  fu.id_funcionario)) loop
 
         					insert into tmp_retr ( 	dia,
                                                     fecha_marcado,
@@ -306,11 +309,11 @@ BEGIN
                               where ';
         v_consulta:= v_consulta || v_filtro;
         if (v_parametros.agrupar_por = 'etr')then
-                v_consulta:= v_consulta || 'order by gerencia desc, departamento, hora,nombre_funcionario';
+                v_consulta:= v_consulta || 'order by gerencia desc, departamento,fecha_marcado,hora,nombre_funcionario';
         elsif(v_parametros.agrupar_por = 'gerencias')then
-        		v_consulta:= v_consulta || 'order by gerencia desc, hora,nombre_funcionario';
+        		v_consulta:= v_consulta || 'order by gerencia desc, fecha_marcado,hora,nombre_funcionario';
         elsif(v_parametros.agrupar_por = 'departamentos')then
-        		v_consulta:= v_consulta || 'order by departamento desc, hora,nombre_funcionario';
+        		v_consulta:= v_consulta || 'order by departamento desc, fecha_marcado,hora,nombre_funcionario';
         end if;
         return v_consulta;
     end;
