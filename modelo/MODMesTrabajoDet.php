@@ -8,6 +8,8 @@
  * #ISSUE				FECHA				AUTOR				DESCRIPCION
  * #4	ERT			17/06/2019 				 MMV			corrección bug botón subir excel
  * #12	ERT			21/08/2019 				 MMV			Nuevo campo COMP detalle hoja de trabajo
+ * #18	ERT			26/09/2019 				 MMV			Modificar centros de costo
+
  */
 
 class MODMesTrabajoDet extends MODbase{
@@ -184,6 +186,27 @@ class MODMesTrabajoDet extends MODbase{
         //Devuelve la respuesta
         return $this->respuesta;
     }
+    function validarCcJson(){//#18
+        //Definicion de variables para ejecucion del procedimiento
+        $this->procedimiento='asis.ft_mes_trabajo_det_ime';
+        $this->transaccion='ASIS_MCS_INS';
+        $this->tipo_procedimiento='IME';
+        //Define los parametros para la funcion
+
+        $this->setParametro('mes_trabajo_json','mes_trabajo_json','text');
+        $this->setParametro('id_mes_trabajo','id_mes_trabajo','int4');
+        $this->setParametro('id_gestion','id_gestion','int4');
+        $this->setParametro('desc_codigo','desc_codigo','text');
+        $this->setParametro('periodo','periodo','int4');
+        $this->setParametro('gestion','gestion','int4');
+
+        //Ejecuta la instruccion
+        $this->armarConsulta();
+        $this->ejecutarConsulta();
+
+        //Devuelve la respuesta
+        return $this->respuesta;
+    }//#18
 			
 }
 ?>
