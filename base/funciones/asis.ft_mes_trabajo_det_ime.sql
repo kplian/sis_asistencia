@@ -73,6 +73,7 @@ DECLARE
     v_count_tmp				integer;
     v_record_tmp 			record;
 	v_record_dm				record;
+    v_funcionario			integer;
 
 BEGIN
 
@@ -371,6 +372,8 @@ BEGIN
                                         tipo_dos VARCHAR(6),
                                         tipo_tres VARCHAR(6),
                                         total_comp NUMERIC DEFAULT 0);
+          --Creamos una table temporal para alamcenar los erros de los centros de costo
+        create temporary table tmp_error( id serial, dia varchar, centro_costo varchar, mensaje varchar);
 
          ---json obtener los datos del excel
     	v_json_p = v_parametros.mes_trabajo_json::json;
@@ -378,10 +381,12 @@ BEGIN
 
         --obtenemos la gestion y perido
 		select  me.id_gestion,
-        		me.id_periodo
+        		me.id_periodo,
+                me.id_funcionario
                 into
                 v_id_gestion,
-                v_id_periodo
+                v_id_periodo,
+                v_funcionario
         from asis.tmes_trabajo me
         where me.id_mes_trabajo = v_parametros.id_mes_trabajo;
 
@@ -436,20 +441,30 @@ BEGIN
                                                                  v_id_periodo
                                                                  );
                         	 if v_mensaje != '' then
-                             	--v_cc = 	array_append(v_cc, v_centro_costo);
-                                v_notificar := v_notificar || ' dia: '||v_dia||' centro: '|| v_centro_costo ||' mensaje: '|| v_mensaje;
+                               insert into tmp_error ( dia,
+                                                     centro_costo,
+                                                     mensaje)
+                                                     values
+                                                    (v_dia,
+                                                     v_centro_costo,
+                                                     v_mensaje
+                                                    );
                              end if;
 
                       else
                      		raise exception 'Las columna no estan difinidas comuniquece con el admin.';
                       end if;
             END IF;
-
         END LOOP;
 
-        IF v_notificar != ''THEN
-        	raise exception 'Observaciones: %',v_notificar;
-        END IF;
+
+          --si el contador es mayor a 0 hay errores en los centos de costso
+        select count(id)into v_count from tmp_error;
+
+         if v_count != 0 then
+        	  select pxp.list(DISTINCT centro_costo||' - '||mensaje) as mensaje  into v_error from tmp_error;
+				raise exception 'Observaciónes % contactese con finanzas',v_error ;
+         end if;
 
         v_tipo[1] = 'HRN';
         v_tipo[2] = 'LPV';
@@ -595,7 +610,8 @@ BEGIN
         if (v_count_det != v_count_tmp)then
         	raise exception 'Hay diferencia de fila entre el archivo y lo registrado en etr';
         end if;
-    	for v_record_tmp in ( select  tm.id_centro_costo,
+
+        for v_record_tmp in ( select  tm.id_centro_costo,
                                       tm.dia,
                                       tm.ingreso_manana,
                                       tm.salida_manana,
@@ -630,7 +646,8 @@ BEGIN
                                         into
                                         v_record_dm
                                 from asis.tmes_trabajo_det md
-                                where md.id_mes_trabajo = v_parametros.id_mes_trabajo and md.dia = v_record_tmp.dia;
+                                where md.id_mes_trabajo = v_parametros.id_mes_trabajo and md.dia = v_record_tmp.dia
+                                order by dia;
 
                                if v_record_tmp.total_normal != v_record_dm.total_normal then
                                   raise exception 'Dia % las hora normales fuero modificados',v_record_tmp.dia;
@@ -651,7 +668,9 @@ BEGIN
                                if v_record_tmp.extra_autorizada != v_record_dm.extra_autorizada then
                                   raise exception 'Dia % las hora autorizadas fuero modificados',v_record_tmp.dia;
                                end if;
-                               ----
+
+                               ----tipo
+
                                 if v_record_tmp.tipo != v_record_dm.tipo then
                                   raise exception 'Columna modificado en tipo mañana';
                                end if;
@@ -670,6 +689,20 @@ BEGIN
             end if;
 
         end loop;
+
+        ----limpiar los factores #18
+
+    	delete from asis.tmes_trabajo_con  co
+        where co.id_mes_trabajo =  v_parametros.id_mes_trabajo;
+
+        ----Calcular de nuevo #18
+          PERFORM asis.f_porcentaje (
+          v_funcionario,
+             v_parametros.id_mes_trabajo,
+             v_id_periodo
+		);
+
+
 
           --Definicion de la respuesta
         v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Mes trabajo registrado(a)');

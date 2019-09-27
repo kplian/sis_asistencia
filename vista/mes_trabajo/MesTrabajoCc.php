@@ -47,6 +47,12 @@ header("content-type: text/javascript; charset=UTF-8");
                 title:'Detalle',
                 height:'50%',
                 cls:'MesTrabajoDetCc'
+            },
+            {
+                url:'../../../sis_asistencia/vista/mes_trabajo_con/MesTrabajoCon.php',
+                title:'Detalle Factor',
+                height:'50%',
+                cls:'MesTrabajoCon'
             }
         ]
 
