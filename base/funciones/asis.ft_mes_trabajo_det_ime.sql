@@ -364,10 +364,10 @@ BEGIN
                                         ingreso_noche TIME WITHOUT TIME ZONE,
                                         salida_noche TIME WITHOUT TIME ZONE,
                                         justificacion_extra VARCHAR,
-                                        total_normal NUMERIC(100,2) DEFAULT 0,
-                                        total_nocturna NUMERIC(100,2) DEFAULT 0,
-                                        total_extra NUMERIC(100,2) DEFAULT 0,
-                                        extra_autorizada NUMERIC(100,2) DEFAULT 0 ,
+                                        total_normal NUMERIC,
+                                        total_nocturna NUMERIC,
+                                        total_extra NUMERIC,
+                                        extra_autorizada NUMERIC,
                                         tipo VARCHAR(6),
                                         tipo_dos VARCHAR(6),
                                         tipo_tres VARCHAR(6),
@@ -437,7 +437,7 @@ BEGIN
                       if(v_centro_costo != '')then
                       	v_mensaje = asis.f_centro_validar_record(v_centro_costo,
                         										 v_id_gestion,
-                                                                 v_id_mes_trabajo,
+                                                                 v_parametros.id_mes_trabajo,
                                                                  v_id_periodo
                                                                  );
                         	 if v_mensaje != '' then
@@ -523,7 +523,7 @@ BEGIN
                                                           salida_tarde,
                                                           ingreso_noche,
                                                           salida_noche,
-                                                          total_normal,
+                                                          total_normal, --nom
                                                           total_nocturna,
                                                           total_extra,
                                                           extra_autorizada,
@@ -571,9 +571,9 @@ BEGIN
                                                               else
                                                                 to_timestamp(v_salidad_no, 'HH24:MI')::time
                                                             end),
-                                                            v_total_normal,
-                                                            v_total_extra,
+                                                            v_total_normal, --no
                                                             v_total_nocturna,
+                                                            v_total_extra,
                                                             v_extras_autorizadas,
                                                             v_total_comp,
                                                             v_justificacion,
@@ -654,7 +654,7 @@ BEGIN
                                end if;
 
                                if v_record_tmp.total_extra != v_record_dm.total_extra then
-                                  raise exception 'Dia % las hora extras fuero modificados',v_record_tmp.dia;
+                                  raise exception 'Dia % las hora extras fuero modificados tmp % dm %',v_record_tmp.dia,v_record_tmp.total_extra,v_record_dm.total_extra;
                                end if;
 
                                if v_record_tmp.total_nocturna != v_record_dm.total_nocturna then
