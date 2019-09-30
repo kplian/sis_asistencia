@@ -10,12 +10,19 @@
  *  #8 ETR			24/06/2019				MMV					Validar fecha des contrato finalizados y listado
 */
 require_once(dirname(__FILE__).'/../reportes/RHojaTiempo.php');
+require_once(dirname(__FILE__).'/../reportes/RReporteMesTrabajoUo.php');
 
 class ACTMesTrabajo extends ACTbase{    
 			
 	function listarMesTrabajo(){
 		$this->objParam->defecto('ordenacion','id_mes_trabajo');
 		$this->objParam->defecto('dir_ordenacion','asc');
+        if($this->objParam->getParametro('tipo_interfaz') == 'cc_ht'){
+            if($this->objParam->getParametro('id_periodo') != ''){
+                $this->objParam->addFiltro("smt.id_periodo = ".$this->objParam->getParametro('id_periodo'));
+            }
+            $this->objParam->addFiltro("smt.estado in (''aprobado'')");
+        }
         if($this->objParam->getParametro('tipo_interfaz') == 'VoBo'){
             if($this->objParam->getParametro('id_periodo') != ''){
                 $this->objParam->addFiltro("smt.id_periodo = ".$this->objParam->getParametro('id_periodo'));
@@ -100,6 +107,22 @@ class ACTMesTrabajo extends ACTbase{
         $this->objFunc=$this->create('MODMesTrabajo');
         $this->res=$this->objFunc->isertarAuto($this->objParam);
         $this->res->imprimirRespuesta($this->res->generarJson());
+    }
+    function reporteMesTrabajoUo(){
+        $this->objFunc = $this->create('MODMesTrabajo');
+        $this->res = $this->objFunc->reporteMesTrabajoUo($this->objParam);
+        $titulo = 'Hoja Tiempo';
+        $nombreArchivo = uniqid(md5(session_id()) . $titulo);
+        $nombreArchivo .= '.xls';
+        $this->objParam->addParametro('nombre_archivo', $nombreArchivo);
+        $this->objParam->addParametro('datos', $this->res->datos);
+        $this->objReporteFormato = new RReporteMesTrabajoUo($this->objParam);
+        $this->objReporteFormato->generarDatos();
+        $this->objReporteFormato->generarReporte();
+        $this->mensajeExito = new Mensaje();
+        $this->mensajeExito->setMensaje('EXITO', 'Reporte.php', 'Reporte generado','Se generó con éxito el reporte: ' . $nombreArchivo, 'control');
+        $this->mensajeExito->setArchivoGenerado($nombreArchivo);
+        $this->mensajeExito->imprimirRespuesta($this->mensajeExito->generarJson());
     }
 }
 

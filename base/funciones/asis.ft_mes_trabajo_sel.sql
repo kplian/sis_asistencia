@@ -20,6 +20,7 @@ $body$
  #5				30/04/2019 				kplian MMV			Validaciones y reporte
  #8 ETR			24/06/2019				MMV					Validar fecha des contrato finalizados y listado
  #10 ETR		16/07/2019				MMV					Validar fecha des contrato finalizados y listado uo
+  #18	ERT			26/09/2019 				 MMV			Modificar centros de costo
 
  ***************************************************************************/
 
@@ -50,7 +51,7 @@ BEGIN
 
 	if(p_transaccion='ASIS_SMT_SEL')then
     	begin
-         if v_parametros.tipo_interfaz = 'RegRRHH' then
+         if v_parametros.tipo_interfaz = 'RegRRHH' or v_parametros.tipo_interfaz = 'cc_ht' then --#18
             	if (p_administrador) then
                 	v_filtro = '0=0 and';
                 else
@@ -148,7 +149,7 @@ BEGIN
 
 		begin
 
-          if v_parametros.tipo_interfaz = 'RegRRHH' then
+          if v_parametros.tipo_interfaz = 'RegRRHH' or v_parametros.tipo_interfaz = 'cc_ht' then --#18
             	if (p_administrador) then
                 	v_filtro = '0=0 and';
                 else
