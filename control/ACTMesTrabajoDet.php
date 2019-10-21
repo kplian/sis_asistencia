@@ -10,6 +10,7 @@
  * #11	ERT			23/07/2019 				 MMV			Validar colmna sin datos al subir excel
  * #12	ERT			21/08/2019 				 MMV			Nuevo campo COMP detalle hoja de trabajo
  * #18	ERT			26/09/2019 				 MMV			Modificar centros de costo
+ * #19	ERT			26/09/2019 				 MMV			Validar Archivo de nombre HT
  */
 include_once(dirname(__FILE__).'/../../lib/lib_general/ExcelInput.php');
 class ACTMesTrabajoDet extends ACTbase{    
@@ -58,7 +59,7 @@ class ACTMesTrabajoDet extends ACTbase{
 	}
     function subirArchivoExcel(){
         //validar extnsion del archivo
-        if($this->objParam->getParametro('periodo') <= 9){
+        if($this->objParam->getParametro('periodo') < 10){ //#19
             $mes = '0'.$this->objParam->getParametro('periodo');
         }else{
             $mes = '0'.$this->objParam->getParametro('periodo');
