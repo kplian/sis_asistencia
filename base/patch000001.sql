@@ -500,7 +500,7 @@ CREATE TABLE asis.tpares (
 WITH (oids = false);
 
 ALTER TABLE asis.tpares
-  OWNER TO dbamgarcia;
+  OWNER TO dbaamamani;
 
   CREATE TABLE asis.trango_horario (
   id_rango_horario SERIAL,
@@ -635,6 +635,6 @@ ALTER TABLE asis.ttransacc_zkb_etl
   DISABLE TRIGGER ttransacc_zkb_etl_tr;
 
 ALTER TABLE asis.ttransacc_zkb_etl
-  OWNER TO dbamgarcia;
+  OWNER TO dbaamamani;
 /***********************************F-SCP-MAM-ASIS-20-21/10/2019****************************************/
 
