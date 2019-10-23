@@ -327,33 +327,7 @@ ALTER TABLE asis.tmes_trabajo_det
 
 
 
-/***********************************I-SCP-AUG-ASIS-0-01/10/2019****************************************/
 
-CREATE TABLE asis.tvacacion (
-  id_vacacion SERIAL NOT NULL,
-  id_funcionario INTEGER,
-  fecha_inicio DATE,
-  fecha_fin DATE,
-  dias NUMERIC,
-  descripcion TEXT,
-  PRIMARY KEY(id_vacacion)
-) INHERITS (pxp.tbase)
-
-WITH (oids = false);
-
-ALTER TABLE asis.tvacacion
-  ALTER COLUMN fecha_inicio SET STATISTICS 0;
-
-ALTER TABLE asis.tvacacion
-  ALTER COLUMN fecha_fin SET STATISTICS 0;
-
-ALTER TABLE asis.tvacacion
-  ALTER COLUMN dias SET STATISTICS 0;
-
-ALTER TABLE asis.tvacacion
-  ALTER COLUMN descripcion SET STATISTICS 0;
-
-/***********************************F-SCP-AUG-ASIS-0-01/10/2019****************************************/
 /***********************************I-SCP-MAM-ASIS-20-21/10/2019****************************************/
 CREATE TABLE asis.tmovimiento_vacacion (
   id_movimiento_vacacion SERIAL,
@@ -600,4 +574,40 @@ IS 'Si el valor es verdadero, el horario considera el día sábado';
 ALTER TABLE asis.trango_horario
   OWNER TO dbaamamani;
 /***********************************F-SCP-MAM-ASIS-20-21/10/2019****************************************/
+
+/***********************************I-SCP-AUG-ASIS-1-23/10/2019****************************************/
+
+CREATE TABLE asis.tvacacion (
+  id_vacacion SERIAL,
+  id_funcionario INTEGER,
+  fecha_inicio DATE,
+  fecha_fin DATE,
+  dias NUMERIC,
+  descripcion TEXT,
+  id_proceso_wf INTEGER,
+  id_estado_wf INTEGER,
+  estado VARCHAR(50),
+  nro_tramite VARCHAR(100),
+  solicitud DATE DEFAULT now()::date,
+  id_gestion INTEGER,
+  medio_dia BOOLEAN,
+  CONSTRAINT tvacacion_id_proceso_wf_key UNIQUE(id_proceso_wf),
+  CONSTRAINT tvacacion_pkey PRIMARY KEY(id_vacacion)
+) INHERITS (pxp.tbase)
+
+WITH (oids = false);
+
+ALTER TABLE asis.tvacacion
+  ALTER COLUMN fecha_inicio SET STATISTICS 0;
+
+ALTER TABLE asis.tvacacion
+  ALTER COLUMN fecha_fin SET STATISTICS 0;
+
+ALTER TABLE asis.tvacacion
+  ALTER COLUMN dias SET STATISTICS 0;
+
+ALTER TABLE asis.tvacacion
+  ALTER COLUMN descripcion SET STATISTICS 0;
+
+/***********************************F-SCP-AUG-ASIS-1-23/10/2019****************************************/
 
