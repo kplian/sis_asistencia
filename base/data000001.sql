@@ -106,28 +106,28 @@ select wf.f_import_testructura_estado ('insert','vobo','aprobado','PER-ASI',1,''
 /***********************************I-DAT-MMV-ASIS-20-23/10/2019*****************************************/
 select pxp.f_insert_tgui ('<i class="fa fa-calendar" style="font-size:24px"></i>  SISTEMA DE ASISTENCIA', '', 'ASIS', 'si', 1, '', 1, '', '', 'ASIS');
 select pxp.f_insert_tgui ('Mes Trabajo RRHH', 'Mes Trabajo', 'MTO', 'si', 1, 'sis_asistencia/vista/mes_trabajo/MesTrabajoReg.php', 2, '', 'MesTrabajoReg', 'ASIS');
-select pxp.f_insert_tgui ('Mes Trabajo VoBo', 'Mes Trabajo VoBo', 'VOM', 'si', 3, 'sis_asistencia/vista/mes_trabajo/MesTrabajoVoBo.php', 2, '', 'MesTrabajoVoBo', 'ASIS');
+select pxp.f_insert_tgui ('VoBo Mes Trabajo', 'VoBo Mes Trabajo', 'VOM', 'si', 1, 'sis_asistencia/vista/mes_trabajo/MesTrabajoVoBo.php', 2, '', 'MesTrabajoVoBo', 'ASIS');
 select pxp.f_insert_tgui ('Tipo Aplicación ', 'Tipo Aplicación', 'TPS', 'si', 2, 'sis_asistencia/vista/tipo_aplicacion/TipoAplicacion.php', 2, '', 'TipoAplicacion', 'ASIS');
-select pxp.f_insert_tgui ('Reportes', 'Reportes', 'AREP', 'si', 3, '', 2, '', '', 'ASIS');
-select pxp.f_insert_tgui ('Mes trabajo', 'Mes trabajo usuario', 'MES', 'si', 2, 'sis_asistencia/vista/mes_trabajo/MesTrabajoRegUsu.php', 2, '', 'MesTrabajoRegUsu', 'ASIS');
+select pxp.f_insert_tgui ('Reportes', 'Reportes', 'AREP', 'si', 5, '', 2, '', '', 'ASIS');
 select pxp.f_insert_tgui ('Reporte Total Horas', 'Reporte Total Horas', 'RTH', 'si', 1, 'sis_asistencia/vista/reporte_mes_trabajo/ReporteMesTrabajo.php', 3, '', 'ReporteMesTrabajo', 'ASIS');
 select pxp.f_insert_tgui ('Tus Marcado de Asistencias', 'Marcado de Asistencias', 'marc', 'si', 0, 'sis_asistencia/vista/transaccion_bio/TransaccionBio.php', 3, '', 'TransaccionBio', 'ASIS');
 select pxp.f_insert_tgui ('Rango de Horarios', 'Rango de Horarios', 'RHO', 'si', 1, 'sis_asistencia/vista/rango_horario/RangoHorario.php', 3, '', 'RangoHorario', 'ASIS');
-select pxp.f_insert_tgui ('Ingreso salida', 'Ingreso salida', 'INGSAL', 'si', 0, 'sis_asistencia/vista/ingreso_salida/IngresoSalida.php', 3, '', 'IngresoSalida', 'ASIS');
+select pxp.f_insert_tgui ('Ingreso salida', 'Ingreso salida', 'INGSAL', 'si', 13, 'sis_asistencia/vista/ingreso_salida/IngresoSalida.php', 3, '', 'IngresoSalida', 'ASIS');
 select pxp.f_insert_tgui ('Reporte Retrasos', 'Reporte Retrasos', 'RRET', 'si', 2, 'sis_asistencia/vista/reportes/FormReporteRetrasos.php', 3, '', 'FormReporteRetrasos', 'ASIS');
 select pxp.f_insert_tgui ('Parámetros', 'Parámetros', 'PARM', 'si', 1, '', 2, '', '', 'ASIS');
-select pxp.f_insert_tgui ('Centro Costo HT', 'Centro Costo HT', 'CCT', 'si', 0, 'sis_asistencia/vista/mes_trabajo/MesTrabajoCc.php', 3, '', 'MesTrabajoCc', 'ASIS');
+select pxp.f_insert_tgui ('Modificar CC ', 'Centro Costo HT', 'CCT', 'si', 0, 'sis_asistencia/vista/mes_trabajo/MesTrabajoCc.php', 3, '', 'MesTrabajoCc', 'ASIS');
 select pxp.f_insert_tgui ('Asignación de Pares', 'Asignación de Marcados Pares', 'PAR', 'si', 0, 'sis_asistencia/vista/pares/Pares.php', 3, '', 'Pares', 'ASIS');
-select pxp.f_insert_tgui ('Permisos', 'Permisos', 'PERMI', 'si', 0, 'sis_asistencia/vista/permiso/PermisoReg.php', 3, '', 'PermisoReg', 'ASIS');
+select pxp.f_insert_tgui ('Solicitud  de Permisos', 'Permisos', 'PERMI', 'si', 3, 'sis_asistencia/vista/permiso/PermisoReg.php', 3, '', 'PermisoReg', 'ASIS');
 select pxp.f_insert_tgui ('Vacaciones', 'Vacaciones', 'VAC', 'si', 10, '', 3, '', '', 'ASIS');
-select pxp.f_insert_tgui ('Solicitud de Vacación', 'Solicitud de Vacación', 'SOLVAC', 'si', 0, 'sis_asistencia/vista/vacacion/SolicitudVacaciones.php', 4, '', 'SolicitudVacaciones', 'ASIS');
+select pxp.f_insert_tgui ('Solicitud de Vacación', 'Solicitud de Vacación', 'SOLVAC', 'si', 2, 'sis_asistencia/vista/vacacion/SolicitudVacaciones.php', 4, '', 'SolicitudVacaciones', 'ASIS');
 select pxp.f_insert_tgui ('Reporte de Marcado', 'Reporte de marcacion', 'RMAR', 'si', 3, 'sis_asistencia/vista/reportes/FormReporteMarcacion.php', 3, '', 'FormReporteMarcacion', 'ASIS');
-select pxp.f_insert_tgui ('VoBo Vacaciones ', 'VoBo Vacaciones', 'VOB', 'si', 0, 'sis_asistencia/vista/vacacion/VacacionVoBo.php', 4, '', 'VacacionVoBo', 'ASIS');
+select pxp.f_insert_tgui ('VoBo Vacaciones ', 'VoBo Vacaciones', 'VOB', 'si', 2, 'sis_asistencia/vista/vacacion/VacacionVoBo.php', 4, '', 'VacacionVoBo', 'ASIS');
 select pxp.f_insert_tgui ('Tipo Permiso', 'Tipo Permiso', 'TLS', 'si', 3, 'sis_asistencia/vista/tipo_permiso/TipoPermiso.php', 3, '', 'TipoPermiso', 'ASIS');
-select pxp.f_insert_tgui ('Movimiento', 'Movimiento', 'MVA', 'si', 0, 'sis_asistencia/vista/movimiento_vacacion/MovimientoVacacion.php', 4, '', 'MovimientoVacacion', 'ASIS');
-select pxp.f_insert_tgui ('Permiso VoBo', 'Permiso VoBo', 'PVO', 'si', 0, 'sis_asistencia/vista/permiso/PermisoVoBo.php', 3, '', 'PermisoVoBo', 'ASIS');
-select pxp.f_insert_tgui ('Permiso RRHH', 'Permiso RRHH', 'PRH', 'si', 0, 'sis_asistencia/vista/permiso/PermisoRRHH.php', 3, '', 'PermisoRRHH', 'ASIS');
+select pxp.f_insert_tgui ('Vacaciones', 'Movimiento Vacaciones', 'MVA', 'si', 8, 'sis_asistencia/vista/movimiento_vacacion/MovimientoVacacion.php', 4, '', 'MovimientoVacacion', 'ASIS');
+select pxp.f_insert_tgui ('VoBo Permiso', 'VoBo Permiso', 'PVO', 'si', 3, 'sis_asistencia/vista/permiso/PermisoVoBo.php', 3, '', 'PermisoVoBo', 'ASIS');
+select pxp.f_insert_tgui ('Consulta Permiso', 'Permiso RRHH', 'PRH', 'si', 5, 'sis_asistencia/vista/permiso/PermisoRRHH.php', 3, '', 'PermisoRRHH', 'ASIS');
 select pxp.f_insert_tgui ('Marcados Funcionarios', 'Marcados Funcionarios', 'MFS', 'si', 0, 'sis_asistencia/vista/transaccion_bio/FormularioTransaccion.php', 3, '', 'FormularioTransaccion', 'ASIS');
-select pxp.f_insert_tgui ('Procesos', 'Procesos', 'APR', 'si', 2, '', 2, '', '', 'ASIS');
+select pxp.f_insert_tgui ('Solicitudes', 'Solicitudes', 'APR', 'si', 2, '', 2, '', '', 'ASIS');
+select pxp.f_insert_tgui ('VoBo', 'VoBo', 'SBO', 'si', 3, '', 2, '', '', 'ASIS');
 /***********************************F-DAT-MMV-ASIS-20-23/10/2019*****************************************/
 
