@@ -9,6 +9,7 @@
 #ISSUE				FECHA				AUTOR				DESCRIPCION
 #15		etr			02-09-2019			MVM               	Reporte Transacción marcados
 #16		etr			04-09-2019			MMV               	Medicaciones reporte marcados
+#21		etr			18-10-2019			SAZP				Modificacion datos funcionarion en el reporte
  */
 require_once(dirname(__FILE__).'/../reportes/RRetrasos.php');
 require_once(dirname(__FILE__).'/../reportes/RMarcacionFunc.php');
@@ -116,11 +117,7 @@ class ACTReporte extends ACTbase{
 		case "Tiempos Maximos":
 			var_dump('Tiempos Maximos');exit;
 			break;
-}
-			
-		
-
-
+		}
 
         $this->mensajeExito=new Mensaje();
         $this->mensajeExito->setMensaje('EXITO','Reporte.php','Reporte generado',
@@ -129,18 +126,6 @@ class ACTReporte extends ACTbase{
         $this->mensajeExito->imprimirRespuesta($this->mensajeExito->generarJson());
 
     }
-	
-	
-	
-	function listarSomUsuario(){
-        $this->objParam->defecto('ordenacion','id_funcionario');
 
-        $this->objParam->defecto('dir_ordenacion','asc');
-
-        $this->objFunc=$this->create('MODNoConformidad');
-
-        $this->res=$this->objFunc->listarSomUsuario($this->objParam);
-        $this->res->imprimirRespuesta($this->res->generarJson());
-    }
 }
 ?>

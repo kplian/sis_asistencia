@@ -7,7 +7,7 @@
  *@description Reporte
  * HISTORIAL DE MODIFICACIONES:
 #ISSUE				FECHA				AUTOR				DESCRIPCION
-
+#21		etr			18-10-2019			SAZP				Modificacion datos funcionarion en el combo del reporte
 
  */
 header("content-type: text/javascript; charset=UTF-8");
@@ -56,174 +56,53 @@ header("content-type: text/javascript; charset=UTF-8");
                 grid : true,
                 form : true
             },
-			/*{
-                config:{
-                    name: 'hora_fin',
-                    fieldLabel: 'Hora Hasta',
-                    // minValue: '12:00 AM',
-                    // maxValue: '11:59 PM',
-                    format: 'H:i',
-                    increment: 1,
-                    //allowBlank: false,
-                    width: 250,
-                },
-                type:'TimeField',
-                filters:{pfiltro:'rho.hora_fin',type:'string'},
-                id_grupo:1,
-                grid:true,
-                form:true
-            },
-            {
-                config : {
-                    name : 'modo_verif',
-                    fieldLabel : 'Modo Verificación',
-                    //labelStyle: 'width:150px; margin: 5;',
-                    emptyText : 'Seleccione Opcion...',
-                    width : 250,
-                    mode : 'local',
-                    store : new Ext.data.ArrayStore({
-                        fields : ['ID', 'valor'],
-                        data : [['Solo Huella', 'Solo Huella'], ['Solo Tarjeta', 'Solo Tarjeta'], ['Otro', 'Otro']]
 
-                    }),
-                    triggerAction : 'all',
-                    valueField : 'ID',
-                    displayField : 'valor'
-
-                },
-                type : 'ComboBox',
-                id_grupo : 2,
-                grid : true,
-                form : true
-            },
-            { //#16
-                config : {
-                    name : 'evento',
-                    fieldLabel : 'Descripción del Evento',
-                    //labelStyle: 'width:150px; margin: 5;',
-                    emptyText : 'Seleccione Opcion...',
-                    width : 250,
-                    mode : 'local',
-                    store : new Ext.data.ArrayStore({
-                        fields : ['ID', 'valor'],
-                        data : [['0', 'Apertura con verificación normal'], ['27', 'Usuario no Registrado'], ['22', 'Fuera del horario permitido'],['', 'Otro']],
-
-                    }),
-                    triggerAction : 'all',
-                    valueField : 'ID',
-                    displayField : 'valor'
-
-                },
-                type : 'ComboBox',
-                id_grupo : 2,
-                grid : true,
-                form : true
-            },//#16
-            {
-                config:{
-                    name: 'agrupar_por',
-                    fieldLabel: 'Agrupar por',
-                    allowBlank: false,
-                    width: 250,
-                    typeAhead: true,
-                    triggerAction: 'all',
-                    lazyRender:true,
-                    mode: 'local',
-                    store:['etr','gerencias','departamentos']
-                },
-                type:'ComboBox',
-                id_grupo:2,
-                valorInicial: 'etr',
-                form:true
-            },*/
-			/*
-            {
-                config : {
-                    name : 'id_funcionario',
-                    origen : 'FUNCIONARIOCAR',
-                    fieldLabel : 'Funcionario',
-                    gdisplayField : 'desc_funcionario', //mapea al store del grid
-                    valueField : 'id_funcionario',
-                    width : 250,
-                    renderer : function(value, p, record) {
-                        return String.format('{0}', record.data['desc_funcionario']);
-                    }
-                },
-                type : 'ComboRec',
-                id_grupo : 2,
-                grid : true,
-                form : true
-            }
-			*/
 			{
-				config: {
-					name: 'id_funcionario',
-					fieldLabel: 'Funcionario',
-					allowBlank: true,
-					emptyText: 'Elija un Funcionario...',
-					store: new Ext.data.JsonStore({
-						url: '../../sis_auditoria/control/NoConformidad/listarSomUsuario',
-						id: 'id_funcionario',
-						root: 'datos',
-						sortInfo: {
-							field: 'id_funcionario',
-							direction: 'ASC'
-						},
-						totalProperty: 'total',
-						fields: ['id_funcionario', 'desc_funcionario1'],
-						remoteSort: true,
-						baseParams: {par_filtro: 'ofunc.id_funcionario#ofunc.desc_funcionario1'}
-					}),
-					valueField: 'id_funcionario',
-					displayField: 'desc_funcionario1',
-					gdisplayField: 'desc_funcionario1',
+				config:{
+					name:'id_funcionario',
 					hiddenName: 'id_funcionario',
-					forceSelection: true,
-					typeAhead: false,
-					triggerAction: 'all',
-					lazyRender: true,
-					mode: 'remote',
-					pageSize: 15,
-					queryDelay: 1000,
+					origen:'FUNCIONARIOCAR',
+					fieldLabel:'Funcionario',
+					allowBlank:false,
 					anchor: '85%',
-					gwidth: 85,
-					minChars: 2,
-					disabled : false,
-					renderer : function(value, p, record) {
-						//return String.format('{0}', record.data['desc_funcionario1']);
-						return String.format('{0}', record.data['funcionario_uo']);
-					}
+					gwidth:85,
+					valueField: 'id_funcionario',
+					gdisplayField: 'funcionario',
+					baseParams: {par_filtro: 'id_funcionario#desc_funcionario1#codigo'},
+					renderer:function(value, p, record){return String.format('{0}', record.data['funcionario']);}
 				},
-				type: 'ComboBox',
-				id_grupo: 2,
-				filters: {pfiltro: 'ofunc.id_funcionario',type: 'string'},
-				grid: true,
-				form: true
+				type:'ComboRec',//ComboRec
+				id_grupo:2,
+				filters:{pfiltro:'fun.desc_funcionario1',type:'string'},
+				bottom_filter:false,
+				grid:true,
+				form:true
 			},
-			
-            {
-                config : {
-                    name : 'tipo_rpt',
-                    fieldLabel : 'Tipo de Reporte',
-                    //labelStyle: 'width:150px; margin: 5;',
-                    emptyText : 'Seleccione Opcion...',
-                    width : 250,
-                    mode : 'local',
-                    store : new Ext.data.ArrayStore({
-                        fields : ['ID', 'valor'],
-                        data : [['General', 'General'], ['Resumen', 'Resumen'], ['Tiempos Maximos', 'Tiempos Maximos'], ['Incumplimientos', 'Incumplimientos'], ['Impares', 'Impares'] ]
 
-                    }),
-                    triggerAction : 'all',
-                    valueField : 'ID',
-                    displayField : 'valor'
+			{
+				config : {
+					name : 'tipo_rpt',
+					fieldLabel : 'Tipo de Reporte',
+					//labelStyle: 'width:150px; margin: 5;',
+					emptyText : 'Seleccione Opcion...',
+					width : 250,
+					mode : 'local',
+					store : new Ext.data.ArrayStore({
+						fields : ['ID', 'valor'],
+						data : [['General', 'General'], ['Resumen', 'Resumen'], ['Tiempos Maximos', 'Tiempos Maximos'], ['Incumplimientos', 'Incumplimientos'], ['Impares', 'Impares'] ]
 
-                },
-                type : 'ComboBox',
-                id_grupo : 2,
-                grid : true,
-                form : true
-            },			
+					}),
+					triggerAction : 'all',
+					valueField : 'ID',
+					displayField : 'valor'
+
+				},
+				type : 'ComboBox',
+				id_grupo : 2,
+				grid : true,
+				form : true
+			},			
+
         ],
         title : 'Generar Reporte',
         //ActSave : '../../sis_asistencia/control/Reporte/ReporteMarcadoFuncGral',
@@ -291,18 +170,8 @@ header("content-type: text/javascript; charset=UTF-8");
                                         },
                                         items: [],
                                         id_grupo:1
-                                    }/*,
-                                {
-                                    xtype: 'compositefield',
-                                    fieldLabel: 'UO',
-                                    msgTarget : 'side',
-                                    anchor    : '-100',
-                                    defaults: {
-                                        flex: 1
-                                    },
-                                    items: [],
-                                    id_grupo:2
-                                }*/
+                                    }
+
                                 ]
                             }]
                         },

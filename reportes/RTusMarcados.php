@@ -127,16 +127,13 @@ class RTusMarcados{
             )
         );
 
-        //modificacionw
+        //modificacion
         $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(0,2,'REPORTE DE MARCACION FUNCIONARIO' );
         $this->docexcel->getActiveSheet()->getStyle('A2:L2')->applyFromArray($tituloscabezera);
         $this->docexcel->getActiveSheet()->mergeCells('A2:L2');
         $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(3,3,'Funcionario: '.$this->objParam->getParametro('datos')[0]['nombre']);
         $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(5,3,'Periodo: '.$this->objParam->getParametro('id_periodo'));
-        //$this->docexcel->getActiveSheet()->getStyle('A3:H3')->applyFromArray($titulossubcabezera);
-        //$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(3,4,($this->objParam->getParametro('modo_verif') == '' ) ? 'Modo Verificación: Todos' : 'Modo Verificación: '.$this->objParam->getParametro('modo_verif'));
-        //$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(4,4,'Agrupar Por: '.$this->objParam->getParametro('agrupar_por'));
-        //$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(5,4,($this->objParam->getParametro('eventodesc') == '' ) ? 'Evento: Todos' : 'Evento: '.$this->objParam->getParametro('eventodesc'));
+
         $this->docexcel->getActiveSheet()->getStyle('A3:L3')->applyFromArray($titulossubcabezera);
         $this->docexcel->getActiveSheet()->getColumnDimension('A')->setWidth(8);
         $this->docexcel->getActiveSheet()->getColumnDimension('B')->setWidth(10);
@@ -188,7 +185,7 @@ class RTusMarcados{
         );
 		$style4 = array(
             'alignment' => array(
-                //'horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_CENTER,
+                'horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_CENTER,
 				'vertical' => PHPExcel_Style_Alignment::VERTICAL_CENTER,
             ),
         );
@@ -197,8 +194,6 @@ class RTusMarcados{
         $fila = 7;
         $datos = $this->objParam->getParametro('datos');
 		$fechaanterior = '';
-
-		//$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(0, $fila, 'Fecha Marcado: '.$value['fecha_marcado']);
 
         foreach ($datos as $value) {
 			//var_dump($contadia, $value['dia'], $value['hora'], $primero);
@@ -228,7 +223,6 @@ class RTusMarcados{
 			$this->docexcel->getActiveSheet()->getStyle("A$fini:A$fila")->applyFromArray($style4);
 			$this->docexcel->getActiveSheet()->mergeCells("A$fini:A$fila");
 
-
 			$fila++;
 			//$this->numero++;
 
@@ -245,8 +239,6 @@ class RTusMarcados{
 
         $this->docexcel->getActiveSheet()->getStyle("A$fila:A$fila")->applyFromArray($styleTitulos);
 		$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(0, $fila, 'Fecha Marcado: '.$valor);
-        //$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(0, $fila, $valor);
-
     }	
 	
     function eliminar_tildes($cadena){
