@@ -599,42 +599,5 @@ IS 'Si el valor es verdadero, el horario considera el día sábado';
 
 ALTER TABLE asis.trango_horario
   OWNER TO dbaamamani;
-
-CREATE TABLE asis.ttransacc_zkb_etl (
-  pk_id BIGSERIAL,
-  version INTEGER,
-  date_from TIMESTAMP WITHOUT TIME ZONE,
-  date_to TIMESTAMP WITHOUT TIME ZONE,
-  id INTEGER,
-  event_time TIMESTAMP WITHOUT TIME ZONE,
-  pin VARCHAR(30),
-  area_name VARCHAR(100),
-  card_no VARCHAR(50),
-  verify_mode_no SMALLINT,
-  verify_mode_name VARCHAR(100),
-  event_no SMALLINT,
-  event_name VARCHAR(100),
-  reader_name VARCHAR(100)
-)
-WITH (oids = false);
-
-CREATE INDEX idx_ttransacc_zkb_etl_lookup ON asis.ttransacc_zkb_etl
-  USING btree (id);
-
-CREATE INDEX idx_ttransacc_zkb_etl_tk ON asis.ttransacc_zkb_etl
-  USING btree (pk_id);
-
-CREATE TRIGGER ttransacc_zkb_etl_tr
-  BEFORE INSERT
-  ON asis.ttransacc_zkb_etl
-
-FOR EACH ROW
-  EXECUTE PROCEDURE asis.f_asignar_rango_trg();
-
-ALTER TABLE asis.ttransacc_zkb_etl
-  DISABLE TRIGGER ttransacc_zkb_etl_tr;
-
-ALTER TABLE asis.ttransacc_zkb_etl
-  OWNER TO dbaamamani;
 /***********************************F-SCP-MAM-ASIS-20-21/10/2019****************************************/
 
