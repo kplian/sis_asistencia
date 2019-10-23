@@ -130,4 +130,7 @@ select pxp.f_insert_tgui ('Marcados Funcionarios', 'Marcados Funcionarios', 'MFS
 select pxp.f_insert_tgui ('Solicitudes', 'Solicitudes', 'APR', 'si', 2, '', 2, '', '', 'ASIS');
 select pxp.f_insert_tgui ('VoBo', 'VoBo', 'SBO', 'si', 3, '', 2, '', '', 'ASIS');
 /***********************************F-DAT-MMV-ASIS-20-23/10/2019*****************************************/
+/***********************************I-DAT-MMV-ASIS-21-23/10/2019*****************************************/
+select pxp.f_insert_tgui ('Marcaciones ', 'Marcaciones', 'ASM', 'si', 4, '', 2, '', '', 'ASIS');
+/***********************************F-DAT-MMV-ASIS-21-23/10/2019*****************************************/
 
