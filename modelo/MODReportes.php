@@ -58,6 +58,42 @@ class MODReportes extends MODbase{
         //Devuelve la respuesta
         return $this->respuesta;
     }
+	//aumentado para listar el usuario
+	function listarSomUsuario(){
+        //Definicion de variables para ejecucion del procedimiento
+        $this->procedimiento='ssom.ft_no_conformidad_sel';
+        $this->transaccion='SSOM_USU_SEL';
+        $this->tipo_procedimiento='SEL';//tipo de transaccion
+
+        //$this->setCount(false);
+
+        //Definicion de la lista del resultado del query
+        $this->captura('id_uo_funcionario','int4');
+        $this->captura('id_funcionario','int4');
+        $this->captura('desc_funcionario1','text');
+        $this->captura('desc_funcionario2','text');
+        $this->captura('id_uo','int4');
+        $this->captura('nombre_cargo','varchar');
+        $this->captura('fecha_asignacion','date');
+        $this->captura('fecha_finalizacion','date');
+        $this->captura('num_doc','int4');
+        $this->captura('ci','varchar');
+        $this->captura('codigo','varchar');
+        $this->captura('email_empresa','varchar');
+        $this->captura('estado_reg_fun','varchar');
+        $this->captura('estado_reg_asi','varchar');
+		$this->captura('id_cargo','int4');
+		$this->captura('descripcion_cargo','varchar');
+		$this->captura('cargo_codigo','varchar');
+		$this->captura('nombre_unidad','varchar');
+
+        //Ejecuta la instruccion
+        $this->armarConsulta();
+        $this->ejecutarConsulta();
+
+        //Devuelve la respuesta
+        return $this->respuesta;
+    }
     function listarReporteFuncionario(){ //#16
         //Definicion de variables para ejecucion del procedimientp
         $this->procedimiento='asis.f_reportes_sel';
@@ -98,6 +134,66 @@ class MODReportes extends MODbase{
         //Devuelve la respuesta
         return $this->respuesta;
     }
+    function ReporteMarcadoFuncionario(){ 
+        //Definicion de variables para ejecucion del procedimientp
+        $this->procedimiento='asis.f_reportes_sel';
+        $this->transaccion='ASIS_RPT_MAR';
+        $this->tipo_procedimiento='SEL';//tipo de transaccion
+        $this->setCount(false);
+
+        $this->setParametro('fecha_ini', 'fecha_ini', 'date');
+        $this->setParametro('fecha_fin', 'fecha_fin', 'date');
+        $this->setParametro('id_funcionario', 'id_funcionario', 'int4');
+
+        //Definicion de la lista del resultado del query
+        // $this->captura('idsolicitudplan','int4');
+        $this->captura('id_transaccion_bio','int4');
+        $this->captura('fecha_marcado','date');
+        $this->captura('hora','time');
+        $this->captura('id_funcionario','int4');
+        $this->captura('nombre_funcionario','text');
+        $this->captura('mes','int4');
+        $this->captura('obs','text');
+        $this->captura('evento','varchar');
+
+        
+        //Ejecuta la instruccion
+        $this->armarConsulta();
+        $this->ejecutarConsulta();
+        //var_dump($this->respuesta);exit;
+        //Devuelve la respuesta
+        return $this->respuesta;
+    }
+	
+	function ReporteMarcadoFuncGralPDF(){ 
+        //Definicion de variables para ejecucion del procedimientp
+        $this->procedimiento='asis.f_reportes_sel';
+        $this->transaccion='ASIS_RPT_MAR_GRAL';
+        $this->tipo_procedimiento='SEL';//tipo de transaccion
+        $this->setCount(false);
+
+        $this->setParametro('fecha_ini', 'fecha_ini', 'date');
+        $this->setParametro('fecha_fin', 'fecha_fin', 'date');
+        $this->setParametro('id_funcionario', 'id_funcionario', 'int4');
+
+        //Definicion de la lista del resultado del query
+        // $this->captura('idsolicitudplan','int4');
+        $this->captura('detalles','text');
+		$this->captura('hra1','time');
+		$this->captura('hra2','time');
+		$this->captura('hra3','time');
+        $this->captura('hra4','time');		
+    
+        //Ejecuta la instruccion
+        $this->armarConsulta();
+        $this->ejecutarConsulta();
+        //var_dump($this->respuesta);exit;
+        //Devuelve la respuesta
+        return $this->respuesta;
+    }
+
+
+
 
 
 

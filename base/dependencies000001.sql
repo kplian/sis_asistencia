@@ -75,3 +75,11 @@ select pxp.f_insert_testructura_gui ('MTO', 'HFT');
 select pxp.f_insert_testructura_gui ('VOM', 'HFT');
 select pxp.f_insert_testructura_gui ('CCT', 'HFT');
 /***********************************F-DEP-MMV-ASIS-18-26/09/2019*****************************************/
+
+/**********************************I-DEP-AUG-ASIS-0-01/10/2019********************************************/
+
+select pxp.f_delete_testructura_gui ('VAC', 'PARM');
+select pxp.f_insert_testructura_gui ('VAC', 'ASIS');
+select pxp.f_insert_testructura_gui ('SOLVAC', 'VAC');
+
+/**********************************F-DEP-AUG-ASIS-0-01/10/2019********************************************/
