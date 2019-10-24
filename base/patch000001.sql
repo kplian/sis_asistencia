@@ -610,4 +610,28 @@ ALTER TABLE asis.tvacacion
   ALTER COLUMN descripcion SET STATISTICS 0;
 
 /***********************************F-SCP-AUG-ASIS-1-23/10/2019****************************************/
+/***********************************I-SCP-MMV-ASIS-1-24/10/2019****************************************/
+CREATE TABLE asis.tasignar_rango (
+  asignar_rango SERIAL,
+  id_rango_horario INTEGER NOT NULL,
+  id_funcionario INTEGER,
+  id_uo SERIAL,
+  desde DATE,
+  hasta DATE,
+  CONSTRAINT tasignar_rango_pkey PRIMARY KEY(asignar_rango)
+) INHERITS (pxp.tbase)
+WITH (oids = false);
+
+ALTER TABLE asis.tasignar_rango
+  ALTER COLUMN id_funcionario SET STATISTICS 0;
+
+ALTER TABLE asis.tasignar_rango
+  ALTER COLUMN id_uo SET STATISTICS 0;
+
+ALTER TABLE asis.tasignar_rango
+  ALTER COLUMN desde SET STATISTICS 0;
+
+ALTER TABLE asis.tasignar_rango
+  OWNER TO dbaamamani;
+/***********************************F-SCP-MMV-ASIS-1-24/10/2019****************************************/
 
