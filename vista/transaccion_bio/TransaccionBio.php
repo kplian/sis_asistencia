@@ -16,6 +16,13 @@ header("content-type: text/javascript; charset=UTF-8");
                 this.maestro=config.maestro;
                 //llama al constructor de la clase padre
                 Phx.vista.TransaccionBio.superclass.constructor.call(this,config);
+                var id;
+                if (Phx.CP.config_ini.id_funcionario !== ''){
+                    id = Phx.CP.config_ini.id_funcionario;
+                }else {
+                    id = null;
+                }
+                this.store.baseParams = {id_funcionario: id};
                 this.cmbGestion.on('select', function(combo, record, index){
                     this.tmpGestion = record.data.gestion;
                     this.cmbPeriodo.enable();
@@ -391,7 +398,6 @@ header("content-type: text/javascript; charset=UTF-8");
                     alert('Seleccione la gestion y el periodo');
                 }
             },
-
             capturaFiltros:function(){
                 // this.desbloquearOrdenamientoGrid();
                 if(this.validarFiltros()){
@@ -409,9 +415,17 @@ header("content-type: text/javascript; charset=UTF-8");
             migrarMarcas:function () {
                 if(this.validarFiltros()) {
                     Phx.CP.loadingShow();
+                    var id;
+                    if (Phx.CP.config_ini.id_funcionario !== ''){
+                        id = Phx.CP.config_ini.id_funcionario;
+                    }else {
+                        id = null;
+                    }
+
                     Ext.Ajax.request({
                         url: '../../sis_asistencia/control/TransaccionBio/migrarMarcadoFuncionario',
-                        params: {id_periodo: this.cmbPeriodo.getValue()},
+                        params: {id_periodo: this.cmbPeriodo.getValue(),
+                                 id_funcionario: id},
                         success: this.success,
                         failure: this.conexionFailure,
                         timeout: this.timeout,
@@ -431,20 +445,12 @@ header("content-type: text/javascript; charset=UTF-8");
             groupField: 'fecha_marcado',
             viewGrid: new Ext.grid.GroupingView({
                 forceFit: false
-                // custom grouping text template to display the number of items per group
-                //groupTextTpl: '{text} ({[values.rs.length]} {[values.rs.length > 1 ? "Items" : "Item"]})'
             }),
-
             //boton reporte de marcados
             onButtonReporte :function () {
-                //var rec = this.sm.getSelected();
-                console.log(Phx.CP.config_ini)
-                //alert(Phx.CP.config_ini.id_funcionario +'-----'+ this.cmbPeriodo.getValue());
                 Phx.CP.loadingShow();
                 Ext.Ajax.request({
                     url:'../../sis_asistencia/control/TransaccionBio/ReporteTusMarcados',
-                    //url:'../../sis_auditoria/control/NoConformidad/reporteNoConforPDF',
-
                     params:{ id_funcionario : Phx.CP.config_ini.id_funcionario, id_periodo : this.cmbPeriodo.getValue()
                     },
                     success: this.successExport,
@@ -454,8 +460,6 @@ header("content-type: text/javascript; charset=UTF-8");
                 });
             },
             //*****************
-
-
             bdel:false,
             bsave:false,
             bedit:false,

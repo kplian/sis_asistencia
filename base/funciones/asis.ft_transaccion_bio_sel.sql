@@ -12,11 +12,11 @@ $body$
  DESCRIPCION:   Funcion que devuelve conjuntos de registros de las consultas relacionadas con la tabla 'asis.ttransaccion_bio'
  AUTOR: 		 (miguel.mamani)
  FECHA:	        06-09-2019 13:08:03
- COMENTARIOS:	
+ COMENTARIOS:
 ***************************************************************************
  HISTORIAL DE MODIFICACIONES:
 #ISSUE				FECHA				AUTOR				DESCRIPCION
- #0				06-09-2019 13:08:03							Funcion que devuelve conjuntos de registros de las consultas relacionadas con la tabla 'asis.ttransaccion_bio'	
+ #0				06-09-2019 13:08:03							Funcion que devuelve conjuntos de registros de las consultas relacionadas con la tabla 'asis.ttransaccion_bio'
  #29			18-10-2019				SAZP				Reporte marcados del funcionario
  ***************************************************************************/
 
@@ -26,22 +26,27 @@ DECLARE
 	v_parametros  		record;
 	v_nombre_funcion   	text;
 	v_resp				varchar;
-			    
+
 BEGIN
 
 	v_nombre_funcion = 'asis.ft_transaccion_bio_sel';
     v_parametros = pxp.f_get_record(p_tabla);
 
-	/*********************************    
+	/*********************************
  	#TRANSACCION:  'ASIS_BIO_SEL'
  	#DESCRIPCION:	Consulta de datos
- 	#AUTOR:		miguel.mamani	
+ 	#AUTOR:		miguel.mamani
  	#FECHA:		06-09-2019 13:08:03
 	***********************************/
 
 	if(p_transaccion='ASIS_BIO_SEL')then
-     				
+
     	begin
+          ---Obtener el id funcionario
+        if v_parametros.id_funcionario is null then
+        	raise exception 'Usted no esta registrado como funcionario';
+        end if;
+
     		--Sentencia de la consulta
 			v_consulta:='select bio.id_transaccion_bio,
                                 bio.obs,
@@ -71,27 +76,31 @@ BEGIN
                                 inner join orga.vfuncionario vfun on vfun.id_funcionario = bio.id_funcionario
                                 left join asis.trango_horario rh on rh.id_rango_horario = bio.id_rango_horario
                                 left join segu.tusuario usu2 on usu2.id_usuario = bio.id_usuario_mod
-				        		where  ';
-			
+				        		where  bio.id_funcionario ='||v_parametros.id_funcionario||' and';
+
 			--Definicion de la respuesta
 			v_consulta:=v_consulta||v_parametros.filtro;
 			v_consulta:=v_consulta||' order by ' ||v_parametros.ordenacion|| ',dia ,hora asc ' || v_parametros.dir_ordenacion || ' limit ' || v_parametros.cantidad || ' offset ' || v_parametros.puntero;
-			raise notice '--> %',v_consulta;
 			--Devuelve la respuesta
 			return v_consulta;
-						
+
 		end;
 
-	/*********************************    
+	/*********************************
  	#TRANSACCION:  'ASIS_BIO_CONT'
  	#DESCRIPCION:	Conteo de registros
- 	#AUTOR:		miguel.mamani	
+ 	#AUTOR:		miguel.mamani
  	#FECHA:		06-09-2019 13:08:03
 	***********************************/
 
 	elsif(p_transaccion='ASIS_BIO_CONT')then
 
 		begin
+          ---Obtener el id funcionario
+        if v_parametros.id_funcionario is null then
+        	raise exception 'Usted no esta registrado como funcionario';
+        end if;
+
 			--Sentencia de la consulta de conteo de registros
 			v_consulta:='select count(id_transaccion_bio)
 					    from asis.ttransaccion_bio bio
@@ -99,25 +108,25 @@ BEGIN
                         inner join orga.vfuncionario vfun on vfun.id_funcionario = bio.id_funcionario
                         left join asis.trango_horario rh on rh.id_rango_horario = bio.id_rango_horario
 						left join segu.tusuario usu2 on usu2.id_usuario = bio.id_usuario_mod
-					    where ';
-			
-			--Definicion de la respuesta		    
+					    where bio.id_funcionario ='||v_parametros.id_funcionario||' and';
+
+			--Definicion de la respuesta
 			v_consulta:=v_consulta||v_parametros.filtro;
 
 			--Devuelve la respuesta
 			return v_consulta;
 
 		end;
-    
-    /*********************************    
+
+    /*********************************
  	#TRANSACCION:  'ASIS_BIORPT_SEL'
  	#DESCRIPCION:	Consulta de datos
- 	#AUTOR:		sazp	
+ 	#AUTOR:		sazp
  	#FECHA:		21-10-2019 10:08:03
 	***********************************/
 
 	elseif(p_transaccion='ASIS_BIORPT_SEL')then
-     				
+
     	begin
     		--#29
             --Sentencia de la consulta
@@ -149,23 +158,23 @@ BEGIN
                                 left join asis.trango_horario rh on rh.id_rango_horario = bio.id_rango_horario
                                 left join segu.tusuario usu2 on usu2.id_usuario = bio.id_usuario_mod
                                 inner join orga.vfuncionario vfun on vfun.id_funcionario = bio.id_funcionario
-				        		where  bio.id_funcionario = '||v_parametros.id_funcionario|| ' and bio.id_periodo ='||v_parametros.id_periodo ||' order by bio.fecha_marcado, bio.hora'; 
-                                
-			
+				        		where  bio.id_funcionario = '||v_parametros.id_funcionario|| ' and bio.id_periodo ='||v_parametros.id_periodo ||' order by bio.fecha_marcado, bio.hora';
+
+
 			--Definicion de la respuesta
 			raise notice '--> %',v_consulta;
 			--Devuelve la respuesta
 			return v_consulta;
-						
+
 		end;
-    /*********************************    
+    /*********************************
  	#TRANSACCION:  'ASIS_RFA_SEL'
  	#DESCRIPCION:	listar marcaciones
- 	#AUTOR:		miguel.mamani	
+ 	#AUTOR:		miguel.mamani
  	#FECHA:		06-09-2019 13:08:03
 	***********************************/
     	elseif(p_transaccion='ASIS_RFA_SEL')then
-     				
+
     	begin
     		--Sentencia de la consulta
 			v_consulta:='select	bio.id_transaccion_bio,
@@ -193,19 +202,18 @@ BEGIN
 			--Definicion de la respuesta
 			v_consulta:=v_consulta||v_parametros.filtro;
 			v_consulta:=v_consulta||' order by ' ||v_parametros.ordenacion|| ',hora ' || v_parametros.dir_ordenacion || ' limit ' || v_parametros.cantidad || ' offset ' || v_parametros.puntero;
-			raise notice '--> %',v_consulta;
 			--Devuelve la respuesta
 			return v_consulta;
-						
+
 		end;
-    
-    /*********************************    
+
+    /*********************************
  	#TRANSACCION:  'ASIS_RFA_CONT'
  	#DESCRIPCION:	Conteo de registros
- 	#AUTOR:		miguel.mamani	
+ 	#AUTOR:		miguel.mamani
  	#FECHA:		06-09-2019 13:08:03
 	***********************************/
-    
+
     elsif(p_transaccion='ASIS_RFA_CONT')then
 
 		begin
@@ -217,21 +225,21 @@ BEGIN
                           left join asis.trango_horario rh on rh.id_rango_horario = bio.id_rango_horario
                           where (vfun.fecha_finalizacion is null or vfun.fecha_finalizacion >= now()::date)
                           and ';
-			--Definicion de la respuesta		    
+			--Definicion de la respuesta
 			v_consulta:=v_consulta||v_parametros.filtro;
 			--Devuelve la respuesta
 			return v_consulta;
 
 		end;
-					
+
 	else
-					     
+
 		raise exception 'Transaccion inexistente';
-					         
+
 	end if;
-					
+
 EXCEPTION
-					
+
 	WHEN OTHERS THEN
 			v_resp='';
 			v_resp = pxp.f_agrega_clave(v_resp,'mensaje',SQLERRM);

@@ -18,8 +18,9 @@ class MODTransaccionBio extends MODbase{
 		$this->procedimiento='asis.ft_transaccion_bio_sel';
 		$this->transaccion='ASIS_BIO_SEL';
 		$this->tipo_procedimiento='SEL';//tipo de transaccion
-				
-		//Definicion de la lista del resultado del query
+
+        $this->setParametro('id_funcionario','id_funcionario','int4');
+        //Definicion de la lista del resultado del query
 		$this->captura('id_transaccion_bio','int4');
 		$this->captura('obs','text');
 		$this->captura('estado_reg','varchar');
@@ -127,8 +128,8 @@ class MODTransaccionBio extends MODbase{
         $this->tipo_procedimiento='IME';
 
         //Define los parametros para la funcion
-        /// this->setParametro('id_funcionario','id_funcionario','int4');
         $this->setParametro('id_periodo','id_periodo','int4');
+        $this->setParametro('id_funcionario','id_funcionario','int4');
         //Ejecuta la instruccion
         $this->armarConsulta();
         $this->ejecutarConsulta();

@@ -167,22 +167,14 @@ BEGIN
         begin
 
         ---Obtener el id funcionario
-        /*
-        select trim(both 'FUNODTPR' from  fu.codigo ) as desc_codigo,
-               fu.id_funcionario
-                 into
-          		v_codigo,
-          		v_id_funcionario
-        from segu.tusuario us
-        inner join segu.vpersona pe on pe.id_persona = us.id_persona
-        inner join orga.tfuncionario fu on fu.id_persona = pe.id_persona
-        where us.id_usuario = p_id_usuario;
-        raise exception '%',v_id_funcionario;*/
+        if v_parametros.id_funcionario is null then
+        	raise exception 'Usted no esta registrado como funcionario';
+        end if;
 
         select trim(both 'FUNODTPR' from  fun.codigo ) as desc_codigo,fun.id_funcionario
         into v_codigo,v_id_funcionario
         from orga.vfuncionario fun
-        where fun.id_funcionario = 591;  --322 591 562
+        where fun.id_funcionario = v_parametros.id_funcionario;  --322 591 562
 
         ---Obtener el fechas de periodo
         select pe.fecha_ini, pe.fecha_fin
