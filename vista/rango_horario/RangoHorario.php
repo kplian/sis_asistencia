@@ -274,7 +274,8 @@ Phx.vista.RangoHorario=Ext.extend(Phx.gridInterfaz,{
                 anchor: '50%',
                 gwidth: 100,
                 maxLength:8,
-                format: 'H:i'
+                format: 'H:i',
+                increment: 1
             },
             type:'TimeField',
             filters:{pfiltro:'rho.rango_entrada_ini',type:'string'},
@@ -292,7 +293,8 @@ Phx.vista.RangoHorario=Ext.extend(Phx.gridInterfaz,{
                 anchor: '50%',
                 gwidth: 100,
                 maxLength:8,
-                format: 'H:i'
+                format: 'H:i',
+                increment: 1
             },
             type:'TimeField',
             filters:{pfiltro:'rho.hora_entrada',type:'string'},
@@ -311,7 +313,8 @@ Phx.vista.RangoHorario=Ext.extend(Phx.gridInterfaz,{
                 anchor: '50%',
                 gwidth: 100,
                 maxLength:8,
-                format: 'H:i'
+                format: 'H:i',
+                increment: 1
             },
             type:'TimeField',
             filters:{pfiltro:'rho.rango_entrada_fin',type:'string'},
@@ -330,7 +333,8 @@ Phx.vista.RangoHorario=Ext.extend(Phx.gridInterfaz,{
                 anchor: '50%',
                 gwidth: 100,
                 maxLength:8,
-                format: 'H:i'
+                format: 'H:i',
+                increment: 1
             },
             type:'TimeField',
             filters:{pfiltro:'rho.rango_salida_ini',type:'string'},
@@ -349,7 +353,8 @@ Phx.vista.RangoHorario=Ext.extend(Phx.gridInterfaz,{
                 anchor: '50%',
                 gwidth: 100,
                 maxLength:8,
-                format: 'H:i'
+                format: 'H:i',
+                increment: 1
             },
             type:'TimeField',
             filters:{pfiltro:'rho.hora_salida',type:'string'},
@@ -368,7 +373,8 @@ Phx.vista.RangoHorario=Ext.extend(Phx.gridInterfaz,{
                 anchor: '50%',
                 gwidth: 100,
                 maxLength:8,
-                format: 'H:i'
+                format: 'H:i',
+                increment: 1
             },
             type:'TimeField',
             filters:{pfiltro:'rho.rango_salida_fin',type:'string'},
