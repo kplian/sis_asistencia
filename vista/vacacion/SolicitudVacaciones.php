@@ -29,7 +29,7 @@ header("content-type: text/javascript; charset=UTF-8");
         },
         // tab
         gruposBarraTareas:[
-            {name:'registro',title:'<h1 align="center"><i></i>Registrado</h1>',grupo:0,height:0},
+            {name:'registro',title:'<h1 align="center"><i></i>Solicitud</h1>',grupo:0,height:0},
             {name:'vobo',title:'<h1 align="center"><i></i>VoBo</h1>',grupo:1,height:0},
             {name:'aprobado',title:'<h1 align="center"><i></i>Aprobado</h1>',grupo:2,height:0}
         ],
@@ -46,6 +46,7 @@ header("content-type: text/javascript; charset=UTF-8");
             this.getBoton('btn_atras').setVisible(false);
             this.finCons = true;
             this.load({params: {start: 0, limit: this.tam_pag}});
+            
         }
     };
 </script>

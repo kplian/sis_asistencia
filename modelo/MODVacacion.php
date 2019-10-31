@@ -40,7 +40,7 @@ class MODVacacion extends MODbase{
 		$this->captura('fecha_mod','timestamp');
 		$this->captura('usr_reg','varchar');
 		$this->captura('usr_mod','varchar');
-        $this->captura('funcionario','varchar');
+        $this->captura('desc_funcionario1','varchar');
 		//wf
         $this->captura('id_proceso_wf','int4');
         $this->captura('id_estado_wf','int4');

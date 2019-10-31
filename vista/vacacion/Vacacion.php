@@ -108,22 +108,6 @@ Phx.vista.Vacacion=Ext.extend(Phx.gridInterfaz,{
         console.log('Prueba de parametros2', respuesta_valid[1]);
         this.Cmp.dias.setValue(respuesta_valid[1]);
 
-
-        /* v_competencias=[];
-        try{
-            v_competencias=respuesta_planificacion[3].split(',');
-
-
-        }catch(error){
-            v_competencias[0]=[respuesta_planificacion[3]];
-
-        }
-        console.log("entro aaaa11 ",respuesta_planificacion);
-
-        v_nombre_planificacion=respuesta_planificacion[4];
-        v_contenido_basico=respuesta_planificacion[5];
-        v_horas_previstas=respuesta_planificacion[6];
-        v_id_proveedor=respuesta_planificacion[7];*/
     },
 	Atributos:[
 		{
@@ -207,14 +191,14 @@ Phx.vista.Vacacion=Ext.extend(Phx.gridInterfaz,{
                 anchor: '70%',
                 gwidth:200,
                 valueField: 'id_funcionario',
-                gdisplayField: 'funcionario',
-                baseParams: {par_filtro: 'id_funcionario#desc_funcionario1#codigo'},
-                renderer:function(value, p, record){return String.format('{0}', record.data['funcionario']);}
+                gdisplayField: 'desc_funcionario1',
+                baseParams: {par_filtro: 'id_funcionario#desc_funcionario1#codigo',es_combo_solicitud : 'si'},
+                renderer:function(value, p, record){return String.format('{0}', record.data['desc_funcionario1']);}
             },
             type:'ComboRec',//ComboRec
             id_grupo:0,
             filters:{pfiltro:'fun.desc_funcionario1',type:'string'},
-            bottom_filter:false,
+            bottom_filter:true,
             grid:true,
             form:true
         },
@@ -427,7 +411,7 @@ Phx.vista.Vacacion=Ext.extend(Phx.gridInterfaz,{
 		{name:'fecha_mod', type: 'date',dateFormat:'Y-m-d H:i:s.u'},
 		{name:'usr_reg', type: 'string'},
 		{name:'usr_mod', type: 'string'},
-        {name:'funcionario', type: 'string'},
+        {name:'desc_funcionario1', type: 'string'},
         {name:'id_proceso_wf', type: 'numeric'}, // campos wf
         {name:'id_estado_wf', type: 'numeric'},
         {name:'estado', type: 'string'},
@@ -444,18 +428,28 @@ Phx.vista.Vacacion=Ext.extend(Phx.gridInterfaz,{
     fheight: '36%',
     onButtonNew:function(){
         Phx.vista.Vacacion.superclass.onButtonNew.call(this);//habilita el boton y se abre
-        var inicio;
-        this.Cmp.fecha_inicio.on('select', function(menu, record){
-            inicio = record;
-        },this);
         
-        /*this.Cmp.fecha_fin.on('select', function(menu, record){
-            this.Cmp.dias.setValue(this.calcularDiferenciasDias(inicio,record));
-        },this);*/
+       this.Cmp.id_funcionario.store.load({params:{start:0, limit:this.tam_pag },
+            callback : function (r) {
+                console.log(r[0]);
+                if (r.length === 1 ) {
+
+                    this.Cmp.id_funcionario.setValue(r[0].data.id_funcionario);
+                    this.Cmp.id_funcionario.fireEvent('select', this.Cmp.id_funcionario, r[0]);
+                }
+
+            }, scope : this
+        });
     },
     onButtonEdit:function(){
+
         Phx.vista.Vacacion.superclass.onButtonEdit.call(this);
         var inicio;
+        
+         
+        if(this.sm.selections.items[0].data.medio_dia=='t'){
+           this.Cmp.medio_dia.setValue(true);
+        }
         this.Cmp.fecha_inicio.on('select', function(menu, record){
             inicio = record;
         },this);

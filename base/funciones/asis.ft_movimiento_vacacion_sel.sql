@@ -26,6 +26,7 @@ DECLARE
 	v_parametros  		record;
 	v_nombre_funcion   	text;
 	v_resp				varchar;
+    v_filtro			varchar;
 
 BEGIN
 
@@ -42,39 +43,58 @@ BEGIN
 	if(p_transaccion='ASIS_MVS_SEL')then
 
     	begin
+        	--raise exception 'id_funcionario: % interfaz %', v_parametros.id_funcionario, v_parametros.interfaz;
+            --raise exception '%',v_parametros;
+            v_filtro = '';
+            	if  pxp.f_existe_parametro(p_tabla,'interfaz') then  --condicional a causa de que no existe en vista.
+                	if v_parametros.interfaz = 'MovVacUsuario' then
+                    	if p_administrador = 1 then
+                       		if  pxp.f_existe_parametro(p_tabla,'id_funcionario') then
+                       			if v_parametros.id_funcionario is null then
+                       				raise exception 'Tu usuario no esta  registrado com funcionario';
+                            	end if;
+                       	 		v_filtro= 'mvs.id_funcionario ='||v_parametros.id_funcionario||' and';
+                    		end if;
+                    	end if;
+                    if pxp.f_existe_parametro(p_tabla,'id_funcionario') then
+                    	v_filtro= 'mvs.id_funcionario ='||v_parametros.id_funcionario||' and';
+                   	end if;
+                end if;
+    end if;
+
     		--Sentencia de la consulta
-			v_consulta:='select
-						mvs.id_movimiento_vacacion,
-						mvs.activo,
-						mvs.id_funcionario,
-						mvs.desde,
-						mvs.hasta,
-                        mvs.dias,
-                        mvs.tipo,
-						mvs.dias_actual,
-						mvs.id_usuario_reg,
-						mvs.fecha_reg,
-						mvs.id_usuario_ai,
-						mvs.usuario_ai,
-						mvs.id_usuario_mod,
-						mvs.fecha_mod,
-						usu1.cuenta as usr_reg,
-						usu2.cuenta as usr_mod,
-                        (p.nombre||'' ''||p.apellido_paterno||'' ''||p.apellido_materno)::varchar as funcionario,
-                        p.nombre::varchar,
-                        p.apellido_paterno::varchar,
-                        p.apellido_materno::varchar
+                v_consulta:='select
+                          mvs.id_movimiento_vacacion,
+                          mvs.activo,
+                          mvs.id_funcionario,
+                          mvs.desde,
+                          mvs.hasta,
+                          mvs.dias,
+                          mvs.tipo,
+                          mvs.dias_actual,
+                          mvs.id_usuario_reg,
+                          mvs.fecha_reg,
+                          mvs.id_usuario_ai,
+                          mvs.usuario_ai,
+                          mvs.id_usuario_mod,
+                          mvs.fecha_mod,
+                          usu1.cuenta as usr_reg,
+                          usu2.cuenta as usr_mod,
+                          (p.nombre||'' ''||p.apellido_paterno||'' ''||p.apellido_materno)::varchar as funcionario,
+                          p.nombre::varchar,
+                          p.apellido_paterno::varchar,
+                          p.apellido_materno::varchar
 
-						from asis.tmovimiento_vacacion mvs
-						inner join segu.tusuario usu1 on usu1.id_usuario = mvs.id_usuario_reg
-						left join segu.tusuario usu2 on usu2.id_usuario = mvs.id_usuario_mod
-                        join orga.tfuncionario f on f.id_funcionario = mvs.id_funcionario
-                        join segu.tpersona p on p.id_persona = f.id_persona
-				        where  ';
+                          from asis.tmovimiento_vacacion mvs
+                          inner join segu.tusuario usu1 on usu1.id_usuario = mvs.id_usuario_reg
+                          left join segu.tusuario usu2 on usu2.id_usuario = mvs.id_usuario_mod
+                          join orga.tfuncionario f on f.id_funcionario = mvs.id_funcionario
+                          join segu.tpersona p on p.id_persona = f.id_persona
+                          where '||v_filtro;
 
-			--Definicion de la respuesta
-			v_consulta:=v_consulta||v_parametros.filtro;
-			v_consulta:=v_consulta||' order by ' ||v_parametros.ordenacion|| ' ' || v_parametros.dir_ordenacion || ' limit ' || v_parametros.cantidad || ' offset ' || v_parametros.puntero;
+              --Definicion de la respuesta
+              v_consulta:=v_consulta||v_parametros.filtro;
+              v_consulta:=v_consulta||' order by ' ||v_parametros.ordenacion|| ' ' || v_parametros.dir_ordenacion || ' limit ' || v_parametros.cantidad || ' offset ' || v_parametros.puntero;
 
 
 			--Devuelve la respuesta
@@ -93,13 +113,30 @@ BEGIN
 
 		begin
 			--Sentencia de la consulta de conteo de registros
+               v_filtro = '';
+               if  pxp.f_existe_parametro(p_tabla,'interfaz') then
+                 if v_parametros.interfaz = 'MovVacUsuario' then
+                 	if p_administrador = 1 then
+                       if  pxp.f_existe_parametro(p_tabla,'id_funcionario') then
+                       		if v_parametros.id_funcionario is null then
+                       			raise exception 'Tu usuario no esta  registrado com funcionario';
+                            end if;
+                       	 v_filtro= 'mvs.id_funcionario ='||v_parametros.id_funcionario||' and';
+                   		end if;
+                    end if;
+                    if  pxp.f_existe_parametro(p_tabla,'id_funcionario') then
+                       v_filtro= 'mvs.id_funcionario ='||v_parametros.id_funcionario||' and';
+                   	end if;
+                  end if;
+               end if;
+
 			v_consulta:='select count(id_movimiento_vacacion)
 					    from asis.tmovimiento_vacacion mvs
 					    inner join segu.tusuario usu1 on usu1.id_usuario = mvs.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = mvs.id_usuario_mod
                         join orga.tfuncionario f on f.id_funcionario = mvs.id_funcionario
                         join segu.tpersona p on p.id_persona = f.id_persona
-					    where ';
+					    where '||v_filtro;
 
 			--Definicion de la respuesta
 			v_consulta:=v_consulta||v_parametros.filtro;
@@ -130,6 +167,3 @@ VOLATILE
 CALLED ON NULL INPUT
 SECURITY INVOKER
 COST 100;
-
-ALTER FUNCTION asis.ft_movimiento_vacacion_sel (p_administrador integer, p_id_usuario integer, p_tabla varchar, p_transaccion varchar)
-  OWNER TO postgres;

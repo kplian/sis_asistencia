@@ -22,6 +22,8 @@ class MODMovimientoVacacion extends MODbase{
 		$this->procedimiento='asis.ft_movimiento_vacacion_sel';
 		$this->transaccion='ASIS_MVS_SEL';
 		$this->tipo_procedimiento='SEL';//tipo de transaccion
+        $this->setParametro('id_funcionario','id_funcionario','int4');
+        $this->setParametro('interfaz','interfaz','varchar');
 				
 		//Definicion de la lista del resultado del query
 		$this->captura('id_movimiento_vacacion','int4');

@@ -63,6 +63,7 @@ DECLARE
     v_parte_decimal				varchar;
     v_mensaje					varchar;
     v_fecha_aux					date;
+    v_lugar						varchar;
 
 
 BEGIN
@@ -221,6 +222,17 @@ BEGIN
 	elsif(p_transaccion='ASIS_VAC_VALID')then
 
         begin
+        	--Raise exception '%', p_id_usuario;
+         	select
+            l.codigo
+            into v_lugar
+            from segu.tusuario us
+            join segu.tpersona p on p.id_persona=us.id_persona
+            join orga.tfuncionario f on f.id_persona = p.id_persona
+            join orga.tuo_funcionario uf on uf.id_funcionario=f.id_funcionario
+            join orga.tcargo c on c.id_cargo=uf.id_cargo
+            join param.tlugar l on l.id_lugar=c.id_lugar
+            where uf.estado_reg = 'activo' and uf.tipo = 'oficial' and uf.fecha_asignacion<=now() and coalesce(uf.fecha_finalizacion, now())>=now() and us.id_usuario=p_id_usuario;
 
         	--Sentencia de la insercion
             IF v_parametros.fecha_inicio::DATE > v_parametros.fecha_fin::DATE THEN
@@ -234,9 +246,10 @@ BEGIN
             	IF(select extract(dow from v_fecha_aux::date)not in (v_sabado, v_domingo) ) THEN
                 	IF NOT EXISTS(select * from param.tferiado f
                                           JOIN param.tlugar l on l.id_lugar = f.id_lugar
-                                          WHERE l.codigo='BO' AND (EXTRACT(MONTH from f.fecha))::integer = (EXTRACT(MONTH from v_fecha_aux::date))::integer
+                                          WHERE l.codigo in ('BO',v_lugar)
+                                          AND (EXTRACT(MONTH from f.fecha))::integer = (EXTRACT(MONTH from v_fecha_aux::date))::integer
                                           AND (EXTRACT(DAY from f.fecha))::integer = (EXTRACT(DAY from v_fecha_aux)))THEN
-                                          v_cant_dias=v_cant_dias+1;
+                                          	v_cant_dias=v_cant_dias+1;
 
                 	END IF;
                 END IF;
@@ -538,6 +551,3 @@ VOLATILE
 CALLED ON NULL INPUT
 SECURITY INVOKER
 COST 100;
-
-ALTER FUNCTION asis.ft_vacacion_ime (p_administrador integer, p_id_usuario integer, p_tabla varchar, p_transaccion varchar)
-  OWNER TO postgres;
