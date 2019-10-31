@@ -21,6 +21,13 @@ Phx.vista.Pares=Ext.extend(Phx.gridInterfaz,{
 		this.maestro=config.maestro;
     	//llama al constructor de la clase padre
 		Phx.vista.Pares.superclass.constructor.call(this,config);
+        var id;
+        if (Phx.CP.config_ini.id_funcionario !== ''){
+            id = Phx.CP.config_ini.id_funcionario;
+        }else {
+            id = null;
+        }
+        this.store.baseParams = {id_funcionario: id};
         this.init();
 
         this.cmbGestion.on('select', function(combo, record, index){
@@ -394,7 +401,7 @@ Phx.vista.Pares=Ext.extend(Phx.gridInterfaz,{
         {name:'desc_funcionario', type: 'string'}
     ],
 	sortInfo:{
-		field: 'id_pares',
+		field: 'fecha_marcado',
 		direction: 'ASC'
 	},
     bdel:false,
@@ -436,9 +443,16 @@ Phx.vista.Pares=Ext.extend(Phx.gridInterfaz,{
     armarPares:function () {
         if(this.validarFiltros()) {
             Phx.CP.loadingShow();
+            var id;
+            if (Phx.CP.config_ini.id_funcionario !== ''){
+                id = Phx.CP.config_ini.id_funcionario;
+            }else {
+                id = null;
+            }
             Ext.Ajax.request({
                 url: '../../sis_asistencia/control/Pares/armarPares',
-                params: {id_periodo: this.cmbPeriodo.getValue()},
+                params: {id_periodo: this.cmbPeriodo.getValue(),
+                        id_funcionario: id},
                 success: this.success,
                 failure: this.conexionFailure,
                 timeout: this.timeout,

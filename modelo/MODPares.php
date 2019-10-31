@@ -22,8 +22,9 @@ class MODPares extends MODbase{
 		$this->procedimiento='asis.ft_pares_sel';
 		$this->transaccion='ASIS_PAR_SEL';
 		$this->tipo_procedimiento='SEL';//tipo de transaccion
-				
-		//Definicion de la lista del resultado del query
+        $this->setParametro('id_funcionario','id_funcionario','int4');
+
+        //Definicion de la lista del resultado del query
 		$this->captura('id_pares','int4');
 		$this->captura('estado_reg','varchar');
 		$this->captura('id_transaccion_ini','int4');
@@ -54,7 +55,7 @@ class MODPares extends MODbase{
         //Ejecuta la instruccion
 		$this->armarConsulta();
 		$this->ejecutarConsulta();
-		
+		//var_dump($this->respuesta);exit;
 		//Devuelve la respuesta
 		return $this->respuesta;
 	}
@@ -133,6 +134,8 @@ class MODPares extends MODbase{
         //Define los parametros para la funcion
         /// this->setParametro('id_funcionario','id_funcionario','int4');
         $this->setParametro('id_periodo','id_periodo','int4');
+        $this->setParametro('id_funcionario','id_funcionario','int4');
+
         //Ejecuta la instruccion
         $this->armarConsulta();
         $this->ejecutarConsulta();

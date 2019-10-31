@@ -43,6 +43,10 @@ BEGIN
 
     	begin
     		--Sentencia de la consulta
+
+            if v_parametros.id_funcionario is null then
+                  raise exception 'Usted no esta registrado como funcionario';
+            end if;
 			v_consulta:='select	  par.id_pares,
                                   par.estado_reg,
                                   par.id_transaccion_ini,
@@ -113,12 +117,12 @@ BEGIN
                                   left join asis.trango_horario re on re.id_rango_horario = te.id_rango_horario
                                   left join asis.ttransaccion_bio ts on ts.id_transaccion_bio = par.id_transaccion_fin
                                   left join asis.trango_horario rs on rs.id_rango_horario = ts.id_rango_horario
-				        		  where  ';
+				        		  where  par.id_funcionario ='||v_parametros.id_funcionario||' and';
 
 			--Definicion de la respuesta
 			v_consulta:=v_consulta||v_parametros.filtro;
-			v_consulta:=v_consulta||' order by dia,hora, ' ||v_parametros.ordenacion|| ' ' || v_parametros.dir_ordenacion || ' limit ' || v_parametros.cantidad || ' offset ' || v_parametros.puntero;
-
+			v_consulta:=v_consulta||' order by ' ||v_parametros.ordenacion|| ' ' || v_parametros.dir_ordenacion || ' limit ' || v_parametros.cantidad || ' offset ' || v_parametros.puntero;
+			raise notice  '%',v_consulta;
 			--Devuelve la respuesta
 			return v_consulta;
 
@@ -135,6 +139,11 @@ BEGIN
 
 		begin
 			--Sentencia de la consulta de conteo de registros
+
+            if v_parametros.id_funcionario is null then
+                raise exception 'Usted no esta registrado como funcionario';
+            end if;
+
 			v_consulta:='select count(id_pares)
 					    from asis.tpares par
 					    inner join segu.tusuario usu1 on usu1.id_usuario = par.id_usuario_reg
@@ -144,7 +153,7 @@ BEGIN
                         left join asis.trango_horario re on re.id_rango_horario = te.id_rango_horario
                         left join asis.ttransaccion_bio ts on ts.id_transaccion_bio = par.id_transaccion_fin
                         left join asis.trango_horario rs on rs.id_rango_horario = ts.id_rango_horario
-					    where ';
+					    where  par.id_funcionario ='||v_parametros.id_funcionario||' and';
 
 			--Definicion de la respuesta
 			v_consulta:=v_consulta||v_parametros.filtro;

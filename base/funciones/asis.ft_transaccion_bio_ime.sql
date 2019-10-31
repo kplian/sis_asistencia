@@ -54,40 +54,39 @@ BEGIN
 
         begin
         	--Sentencia de la insercion
-        	insert into asis.ttransaccion_bio(
-			obs,
-			estado_reg,
-			evento,
-			id_periodo,
-			hora,
-			id_funcionario,
-			area,
-			tipo_verificacion,
-			fecha_marcado,
-			id_rango_horario,
-			id_usuario_reg,
-			usuario_ai,
-			fecha_reg,
-			id_usuario_ai,
-			id_usuario_mod,
-			fecha_mod
-          	) values(
-			v_parametros.obs,
-			'activo',
-			v_parametros.evento,
-			v_parametros.id_periodo,
-			v_parametros.hora,
-			v_parametros.id_funcionario,
-			v_parametros.area,
-			v_parametros.tipo_verificacion,
-			v_parametros.fecha_marcado,
-			v_parametros.id_rango_horario,
-			p_id_usuario,
-			v_parametros._nombre_usuario_ai,
-			now(),
-			v_parametros._id_usuario_ai,
-			null,
-			null)RETURNING id_transaccion_bio into v_id_transaccion_bio;
+        	insert into asis.ttransaccion_bio(obs,
+                                              estado_reg,
+                                              evento,
+                                              id_periodo,
+                                              hora,
+                                              id_funcionario,
+                                              area,
+                                              tipo_verificacion,
+                                              fecha_marcado,
+                                              id_rango_horario,
+                                              id_usuario_reg,
+                                              usuario_ai,
+                                              fecha_reg,
+                                              id_usuario_ai,
+                                              id_usuario_mod,
+                                              fecha_mod
+                                              ) values(
+                                              v_parametros.obs,
+                                              'activo',
+                                              v_parametros.evento,
+                                              v_parametros.id_periodo,
+                                              v_parametros.hora,
+                                              v_parametros.id_funcionario,
+                                              v_parametros.area,
+                                              v_parametros.tipo_verificacion,
+                                              v_parametros.fecha_marcado,
+                                              v_parametros.id_rango_horario,
+                                              p_id_usuario,
+                                              v_parametros._nombre_usuario_ai,
+                                              now(),
+                                              v_parametros._id_usuario_ai,
+                                              null,
+                                              null)RETURNING id_transaccion_bio into v_id_transaccion_bio;
 
 			--Definicion de la respuesta
 			v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Transaccion Bio almacenado(a) con exito (id_transaccion_bio'||v_id_transaccion_bio||')');
@@ -171,17 +170,22 @@ BEGIN
         	raise exception 'Usted no esta registrado como funcionario';
         end if;
 
-        select trim(both 'FUNODTPR' from  fun.codigo ) as desc_codigo,fun.id_funcionario
-        into v_codigo,v_id_funcionario
-        from orga.vfuncionario fun
-        where fun.id_funcionario = v_parametros.id_funcionario;  --322 591 562
-
         ---Obtener el fechas de periodo
         select pe.fecha_ini, pe.fecha_fin
         into v_fecha_ini,v_fecha_fin
         from param.tperiodo pe
         where pe.id_periodo = v_parametros.id_periodo;
 
+        --validar que funcionario este vigente
+
+        if not exists ( select 1
+                        from asis.ttransacc_zkb_etl tr
+                        where tr.event_time::date BETWEEN v_fecha_ini and v_fecha_fin
+                        and tr.id_funcionario = v_parametros.id_funcionario)then
+        		raise exception 'No hay registro id:(%) en biometrico ',v_parametros.id_funcionario;
+        end if;
+
+        v_id_funcionario = v_parametros.id_funcionario;
 
         ---Recoremos la table de etl
         for v_record in ( select   tr.pin,
@@ -196,7 +200,8 @@ BEGIN
                                    tr.area_name
                                 from asis.ttransacc_zkb_etl tr
                                 where tr.event_time::date BETWEEN v_fecha_ini and v_fecha_fin
-                                and tr.pin = v_codigo
+                                and tr.id_funcionario = v_id_funcionario
+                               -- and to_char(tr.event_time, 'DD'::text)::integer = 8
                                 order by event_time, hora)loop
 		if not exists (select 1
                         from asis.ttransaccion_bio bio
@@ -249,6 +254,9 @@ BEGIN
                                                 v_record.event_time);
          end if;
         end loop;
+
+
+
             --Definicion de la respuesta
             v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Transaccion Bio eliminado(a)');
             --Devuelve la respuesta

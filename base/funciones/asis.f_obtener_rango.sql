@@ -32,6 +32,8 @@ DECLARE
    v_consulta_v2						varchar;
    v_filtro								varchar;
    v_rango								record;
+   v_rango_salida						record;
+   v_nombre_unidad						varchar;
 
 BEGIN
   	v_nombre_funcion = 'asis.f_obtener_rango';
@@ -46,16 +48,23 @@ BEGIN
                   when 6 then 'sabado'
                   else 'no'
                   end;
+
     if v_dia = 'no' then
-        raise exception 'No esta paramtrizado rango hrs';
+       -- raise exception 'No esta paramtrizado rango hrs';
+       	v_resultado[1] = null;
+        v_resultado[2] = 'Domingo';
+        v_resultado[3] = asis.f_estraer_palabra(p_reader_name,'Entrada','Salida');
+        return v_resultado;
     end if;
 
       --obtener datos de funcionario
       select distinct on (uof.id_funcionario) uof.id_funcionario,
-                      ger.id_uo
+                      ger.id_uo,
+                      ger.nombre_unidad
                       into
                       v_id_funcionario,
-                      v_id_uo
+                      v_id_uo,
+                      v_nombre_unidad
       from orga.tuo_funcionario uof
       inner join orga.tuo ger on ger.id_uo = orga.f_get_uo_gerencia(uof.id_uo, NULL::integer, NULL::date)
       where uof.id_funcionario = p_id_funcionario and
@@ -142,7 +151,9 @@ BEGIN
             --entrada
              v_consulta:= 'select  rh.id_rango_horario,
                                         rh.rango_entrada_ini,
-                                        rh.rango_entrada_fin
+                                        rh.rango_entrada_fin,
+                                        rh.rango_salida_ini,
+                                        rh.rango_salida_fin
                             from asis.trango_horario rh
                             inner join asis.tasignar_rango ar on ar.id_rango_horario = rh.id_rango_horario
                             where  '||v_filtro||'
@@ -150,15 +161,19 @@ BEGIN
                             and rh.'||v_dia||' = ''si'' ';
 
                			EXECUTE (v_consulta) into v_rango;
+
                         if v_rango.id_rango_horario is not null then
                                  v_resultado[1] = v_rango.id_rango_horario;
                                  v_resultado[2] = null;
-                                 v_resultado[3] = 'Salida';
+                                 v_resultado[3] = 'Entrada';
                                  return v_resultado;
                          end if;
                          --salida
                          if v_rango.id_rango_horario is null then
-                         	v_consulta_v2 := 'select  rh.id_rango_horario,
+
+                             v_consulta_v2 := 'select  rh.id_rango_horario,
+                                                      rh.rango_entrada_ini,
+                                        			  rh.rango_entrada_fin,
                                                       rh.rango_salida_ini,
                                                       rh.rango_salida_fin
                                                   from asis.trango_horario rh
@@ -167,15 +182,16 @@ BEGIN
        											  and '''||p_hora||'''::time >= rh.rango_salida_ini::time and '''||p_hora||'''::time < rh.rango_salida_fin::time
                                                   and rh.'||v_dia||' = ''si'' ';
 
-                                         EXECUTE (v_consulta_v2) into v_rango;
-                                         if v_rango.id_rango_horario is not null then
-                                           v_resultado[1] = v_rango.id_rango_horario;
+                                         EXECUTE (v_consulta_v2) into v_rango_salida;
+
+                                         if v_rango_salida.id_rango_horario is not null then
+                                           v_resultado[1] = v_rango_salida.id_rango_horario;
                                            v_resultado[2] = null;
                                            v_resultado[3] = 'Salida';
                                            return v_resultado;
                                          end if;
                              v_resultado[1] = null;
-                             v_resultado[2] = null;
+                             v_resultado[2] = 'Fuera de rango';
                              v_resultado[3] = 'Otro';
                              return v_resultado;
                          end if;
@@ -185,7 +201,7 @@ BEGIN
 
        else
          v_resultado[1] = null;
-         v_resultado[2] = 'no tiene asignado un rango';
+         v_resultado[2] = 'no tiene asignado un rango '||v_nombre_unidad;
          v_resultado[3] = 'Otro';
          return v_resultado;
        end if;

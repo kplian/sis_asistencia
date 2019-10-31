@@ -178,26 +178,14 @@ BEGIN
 		begin
 
         ---Obtener el id funcionario
-        /*
-        select trim(both 'FUNODTPR' from  fu.codigo ) as desc_codigo,
-               fu.id_funcionario
-                 into
-          		v_codigo,
-          		v_id_funcionario
-        from segu.tusuario us
-        inner join segu.vpersona pe on pe.id_persona = us.id_persona
-        inner join orga.tfuncionario fu on fu.id_persona = pe.id_persona
-        where us.id_usuario = p_id_usuario;
-        raise exception '%',v_id_funcionario;*/
 
-          select trim(both 'FUNODTPR' from  fun.codigo ) as desc_codigo,fun.id_funcionario
-          into v_codigo,v_id_funcionario
-          from orga.vfuncionario fun
-          where fun.id_funcionario = 591;  --322 591 562
+            select trim(both 'FUNODTPR' from  fun.codigo ) as desc_codigo,fun.id_funcionario
+            into v_codigo,v_id_funcionario
+            from orga.vfuncionario fun
+            where fun.id_funcionario = v_parametros.id_funcionario;
 
-
-            delete from asis.tpares pa
-            where pa.id_funcionario = v_id_funcionario  and pa.id_periodo = v_parametros.id_periodo;
+           /* delete from asis.tpares pa
+            where pa.id_funcionario = v_id_funcionario  and pa.id_periodo = v_parametros.id_periodo;*/
 
 			--Sentencia de la Pares
             for v_record_pares in (select  ma.dia,
@@ -250,7 +238,7 @@ BEGIN
                                       and bio.id_rango_horario is null
                                       order by dia) as ma
                                       where ma.id_rango_horario is not null
-                                      --and  ma.dia = 3
+                                     -- and  ma.dia = 3
                                       group by ma.dia,
                                                ma.id_rango_horario
                                       order by dia)loop
@@ -392,7 +380,7 @@ BEGIN
                 end loop;
             end loop;
 
-            for v_justificar in (select   bio.id_transaccion_bio,
+           /* for v_justificar in (select   bio.id_transaccion_bio,
                                           to_char(bio.fecha_marcado,'DD')::integer as dia,
                                           bio.hora,
                                           bio.id_rango_horario,
@@ -402,6 +390,7 @@ BEGIN
                                     from asis.ttransaccion_bio bio
                                     where  bio.id_funcionario = v_id_funcionario
                                     and bio.id_periodo = v_parametros.id_periodo
+                                    and  bio.id_rango_horario is null
                                     and bio.rango = 'no'
                                     order by dia,hora) loop
              if v_justificar.evento = 'Salida' then
@@ -448,7 +437,7 @@ BEGIN
              	v_id = null;
              end if;
 
-            end loop;
+            end loop;*/
 
 
             --Definicion de la respuesta

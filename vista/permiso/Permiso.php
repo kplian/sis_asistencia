@@ -161,7 +161,7 @@ Phx.vista.Permiso=Ext.extend(Phx.gridInterfaz,{
                 gwidth:250,
                 valueField: 'id_funcionario',
                 gdisplayField: 'desc_funcionario',
-                baseParams: {par_filtro: 'id_funcionario#desc_funcionario1#codigo'},
+                baseParams: {par_filtro: 'id_funcionario#desc_funcionario1#codigo',es_combo_solicitud : 'si'},
                 renderer:function(value, p, record){return String.format('{0}', record.data['desc_funcionario']);}
             },
             type:'ComboRec',//ComboRec
@@ -491,6 +491,16 @@ Phx.vista.Permiso=Ext.extend(Phx.gridInterfaz,{
             }
 
         },this);
+        this.Cmp.id_funcionario.store.load({params:{start:0,limit:this.tam_pag},
+            callback : function (r) {
+                console.log(r[0]);
+                if (r.length === 1 ) {
+                    this.Cmp.id_funcionario.setValue(r[0].data.id_funcionario);
+                    this.Cmp.id_funcionario.fireEvent('select', this.Cmp.id_funcionario, r[0]);
+                }
+
+            }, scope : this
+        });
     },
     onButtonEdit:function(){
         Phx.vista.Permiso.superclass.onButtonEdit.call(this);
