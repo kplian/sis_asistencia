@@ -27,8 +27,8 @@ class ACTVacacion extends ACTbase{
                 case 'vobo':
                     $this->objParam->addFiltro("vac.estado = ''vobo''");
                     break;
-                case 'finalizado':
-                    $this->objParam->addFiltro("vac.estado = ''finalizado''");
+                case 'aprobado':
+                    $this->objParam->addFiltro("vac.estado = ''aprobado''");
                     break;
             }
         }
