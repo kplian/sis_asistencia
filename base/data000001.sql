@@ -134,3 +134,9 @@ select pxp.f_insert_tgui ('VoBo', 'VoBo', 'SBO', 'si', 3, '', 2, '', '', 'ASIS')
 select pxp.f_insert_tgui ('Marcaciones ', 'Marcaciones', 'ASM', 'si', 4, '', 2, '', '', 'ASIS');
 /***********************************F-DAT-MMV-ASIS-21-23/10/2019*****************************************/
 
+
+/***********************************I-DAT-APS-ASIS-22-31/10/2019*****************************************/
+
+select pxp.f_insert_tgui ('Vacaciones Funcionario', 'Vacaciones Funcionario', 'VACFUN', 'si', 6, 'sis_asistencia/vista/movimiento_vacacion/MovVacUsuario.php', 3, '', 'MovVacUsuario', 'ASIS');
+
+/***********************************F-DAT-APS-ASIS-22-31/10/2019*****************************************/
