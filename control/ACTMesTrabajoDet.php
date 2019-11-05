@@ -215,10 +215,10 @@ class ACTMesTrabajoDet extends ACTbase{
     }
     function subirArchivoExcelCc(){ //#18
         //validar extnsion del archivo
-        if($this->objParam->getParametro('periodo') <= 9){
+        if($this->objParam->getParametro('periodo') < 10){ //#19
             $mes = '0'.$this->objParam->getParametro('periodo');
         }else{
-            $mes = '0'.$this->objParam->getParametro('periodo');
+            $mes = $this->objParam->getParametro('periodo'); //19
         }
         $codigoPeriodoGestion = $this->objParam->getParametro('desc_codigo').'_'.$mes.$this->objParam->getParametro('gestion');
 
