@@ -479,7 +479,7 @@ CREATE TABLE asis.tpares (
 WITH (oids = false);
 
 ALTER TABLE asis.tpares
-  OWNER TO dbamgarcia;
+  OWNER TO dbaamamani;
 
   CREATE TABLE asis.trango_horario (
   id_rango_horario SERIAL,
