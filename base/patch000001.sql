@@ -457,24 +457,29 @@ ALTER TABLE asis.tpermiso
 
 CREATE TABLE asis.tpares (
   id_pares SERIAL,
+  fecha_marcado DATE,
+  hora_ini TIME WITHOUT TIME ZONE,
+  hora_fin TIME WITHOUT TIME ZONE,
+  lector VARCHAR(50),
+  acceso VARCHAR(50),
   id_transaccion_ini INTEGER,
   id_transaccion_fin INTEGER,
-  fecha_marcado DATE,
   id_funcionario INTEGER,
-  id_licencia INTEGER,
+  id_permiso INTEGER,
   id_vacacion INTEGER,
   id_viatico INTEGER,
   id_pares_entrada INTEGER,
-  lector VARCHAR(100),
-  evento VARCHAR(100),
-  rango VARCHAR(5) DEFAULT 'no'::character varying,
   id_periodo INTEGER,
+  rango VARCHAR(5) DEFAULT 'no'::character varying,
+  impar VARCHAR(5) DEFAULT 'no'::character varying,
+  verificacion VARCHAR(20),
+  permiso VARCHAR(5) DEFAULT 'no'::character varying,
   CONSTRAINT tpares_pkey PRIMARY KEY(id_pares)
 ) INHERITS (pxp.tbase)
 WITH (oids = false);
 
 ALTER TABLE asis.tpares
-  OWNER TO dbaamamani;
+  OWNER TO dbamgarcia;
 
   CREATE TABLE asis.trango_horario (
   id_rango_horario SERIAL,

@@ -10,10 +10,11 @@ require_once(dirname(__FILE__).'/../reportes/RTusMarcados.php');
 class ACTTransaccionBio extends ACTbase{
 			
 	function listarTransaccionBio(){
-		$this->objParam->defecto('ordenacion','id_transaccion_bio');
+		$this->objParam->defecto('ordenacion','id');
 		$this->objParam->defecto('dir_ordenacion','asc');
         if($this->objParam->getParametro('id_periodo') != ''){
-            $this->objParam->addFiltro("bio.id_periodo = ".$this->objParam->getParametro('id_periodo'));
+
+            $this->objParam->addFiltro("EXTRACT(MONTH FROM bio.event_time::date)::integer = ".$this->objParam->getParametro('id_periodo'));
         }
 		if($this->objParam->getParametro('tipoReporte')=='excel_grid' || $this->objParam->getParametro('tipoReporte')=='pdf_grid'){
 			$this->objReporte = new Reporte($this->objParam,$this);

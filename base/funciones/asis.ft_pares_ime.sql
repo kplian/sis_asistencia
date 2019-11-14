@@ -28,27 +28,17 @@ DECLARE
 	v_resp		            varchar;
 	v_nombre_funcion        text;
 	v_mensaje_error         text;
-	v_id_pares				integer;
-    v_record_pares			record;
-    v_count					integer;
-    v_codigo				varchar;
-    v_id_funcionario		integer;
-    v_marcaciones			record;
-    v_count_entrada			integer;
-    v_count_salida			integer;
-    v_id_pares_aux			integer;
-    v_pivot					integer;
     v_registro				record;
-    v_hora					time;
+    v_rango_horario			varchar[];
+    v_id_pares				integer;
+    v_record_pares			record;
     v_index					integer;
-    v_fuera_rango			varchar[];
-    v_pares					varchar[];
-    v_array_hora			time;
-    v_conte_hora			time;
+    v_hora					time;
     v_impar   				integer;
+    v_pivot					integer;
     v_record				record;
-    v_justificar			record;
-    v_id					integer;
+    v_id_pares_aux			integer;
+
 
 BEGIN
 
@@ -176,81 +166,237 @@ BEGIN
 	elsif(p_transaccion='ASIS_PARS_INS')then
 
 		begin
-
         ---Obtener el id funcionario
+        for v_registro in (select   bio.id,
+                                    bio.id_funcionario,
+                                    bio.pin as codigo_funcionario,
+                                    bio.area_name as nombre_area,
+                                    bio.verify_mode_name as verificacion,
+                                    bio.event_name evento,
+                                    bio.pivot,
+                                    bio.rango,
+                                    EXTRACT(MONTH FROM bio.event_time::date) as periodo,
+                                    bio.event_time::date as fecha_registro,
+                                    to_char(bio.event_time, 'HH24:MI')::time as hora,
+                                    to_char(bio.event_time, 'DD'::text)::integer as dia,
+                                    asis.f_estraer_palabra(bio.reader_name,'Entrada','Salida')::varchar as accion,
+                                    asis.f_estraer_palabra(bio.reader_name,'barrera')::varchar as dispocitvo,
+                                    bio.reader_name
+                                  from
+                                    asis.ttransacc_zkb_etl bio
+                                  where bio.id_funcionario = v_parametros.id_funcionario and
+                                  EXTRACT(MONTH FROM bio.event_time::date)::integer = v_parametros.id_periodo
+                                  and bio.reader_name not in  ('10.231.14.120-1-Entrada',
+                                                              '10.231.14.120-2-Salida',
+                                                              '10.231.14.170-1-Entrada',
+                                                              '10.231.14.170-2-Entrada',
+                                                              '10.231.14.170-3-Entrada',
+                                                              '10.231.14.170-4-Entrada',
+                                                              '10.231.14.171-1-Entrada',
+                                                              '10.231.14.171-2-Entrada',
+                                                              '10.231.14.171-3-Entrada',
+                                                              '10.231.14.171-4-Entrada',
+                                                              '10.231.14.171-4-Salida',
+                                                              '10.231.14.172-1-Entrada',
+                                                              '10.231.14.172-2-Entrada',
+                                                              '10.231.14.172-3-Entrada',
+                                                              '10.231.14.172-4-Entrada',
+                                                              '10.231.14.173-1-Entrada',
+                                                              '10.231.14.173-2-Entrada',
+                                                              '10.231.14.173-3-Entrada',
+                                                              '10.231.14.173-4-Entrada',
+                                                              'PB_COT_INBIO460-1-Entrada',
+                                                              'PB_COT_INBIO460-2-Entrada',
+                                                              'PB_COT_INBIO460-3-Entrada',
+                                                              'PB_COT_INBIO460-3-Salida',
+                                                              'PB_COT_INBIO460-4-Entrada',
+                                                              'PB_COT_INBIO460-4-Salida',
+                                                              'P1_ACC1_INBIO460-1-Entrada',
+                                                              'P1_ACC1_INBIO460-2-Entrada',
+                                                              'P1_ACC1_INBIO460-3-Entrada',
+                                                              'P1_ACC1_INBIO460-3-Salida',
+                                                              'P1_ACC1_INBIO460-4-Entrada',
+                                                              'P1_ACC2_INBIO260-1-Entrada',
+                                                              'P2_ACC1_INBIO260-1-Entrada',
+                                                              'P2_ACC1_INBIO260-2-Entrada',
+                                                              'P2_ACC2_INBIO260-1-Entrada',
+                                                              'PB_ACC1_INBIO260-1-Entrada',
+                                                              'PB_ACC1_INBIO260-2-Entrada',
+                                                              'PB_ACC2_INBIO460-1-Entrada',
+                                                              'PB_ACC2_INBIO460-2-Entrada',
+                                                              'PB_ACC2_INBIO460-3-Entrada',
+                                                              'PB_ACC2_INBIO460-3-Salida',
+                                                              'PB_ACC3_INBIO460-1-Entrada',
+                                                              'PB_ACC3_INBIO460-2-Entrada',
+                                                              'PB_ACC3_INBIO460-2-Salida',
+                                                              'PB_ACC3_INBIO460-3-Entrada',
+                                                              'PB_ACC3_INBIO460-4-Entrada',
+                                                              'PB_ACC3_INBIO460-4-Salida')
+                                  order by dia,hora asc)loop
 
-            select trim(both 'FUNODTPR' from  fun.codigo ) as desc_codigo,fun.id_funcionario
-            into v_codigo,v_id_funcionario
-            from orga.vfuncionario fun
-            where fun.id_funcionario = v_parametros.id_funcionario;
+                  v_rango_horario = asis.f_obtener_rango(  v_parametros.id_funcionario,
+                                                              v_registro.fecha_registro,
+                                                              v_registro.hora,
+                                                              v_registro.reader_name);
 
-           /* delete from asis.tpares pa
-            where pa.id_funcionario = v_id_funcionario  and pa.id_periodo = v_parametros.id_periodo;*/
+            	update asis.ttransacc_zkb_etl set
+                id_rango_horario = v_rango_horario[1]::integer,
+        		fecha = v_registro.fecha_registro,
+                hora = v_registro.hora,
+                acceso = v_rango_horario[2]::varchar
+                where id = v_registro.id;
 
-			--Sentencia de la Pares
-            for v_record_pares in (select  ma.dia,
+        end loop;
+        for v_record_pares in ( select  ma.dia,
                                   ma.id_rango_horario,
                                   asis.array_sort (string_to_array(pxp.list(ma.hora::text),','))  as horas
-                                  from ( select   asis.f_id_transacion_bio (
-                                                min( bio.hora)::time,
-                                                v_parametros.id_periodo,
-                                                v_id_funcionario,
-                                                to_char(bio.fecha_marcado,'DD')::integer,
-                                                'si'
-                                              ) as id_transaccion_bio,
-                                              to_char(bio.fecha_marcado,'DD')::integer as dia,
-                                              bio.id_rango_horario,
-                                              min( bio.hora) as hora,
-                                              bio.evento
-                                      from asis.ttransaccion_bio bio
-                                      where bio.evento = 'Entrada'
-                                      and bio.id_funcionario = v_id_funcionario
-                                      and bio.id_periodo = v_parametros.id_periodo
-                                      and bio.id_rango_horario is not null
-                                      group by bio.id_rango_horario, bio.evento,bio.fecha_marcado
-                                      union all
-                                      select  asis.f_id_transacion_bio (
-                                                max( bio.hora)::time,
-                                                v_parametros.id_periodo,
-                                                v_id_funcionario,
-                                                to_char(bio.fecha_marcado,'DD')::integer,
-                                                'si'
-                                              ) as id_transaccion_bio,
-                                              to_char(bio.fecha_marcado,'DD')::integer as dia,
-                                              bio.id_rango_horario,
-                                              max( bio.hora) as hora,
-                                              bio.evento
-                                      from asis.ttransaccion_bio bio
-                                      where bio.evento = 'Salida'
-                                      and bio.id_funcionario = v_id_funcionario
-                                      and bio.id_periodo = v_parametros.id_periodo
-                                      and bio.id_rango_horario is not null
-                                      group by bio.id_rango_horario, bio.evento,bio.fecha_marcado
-                                      union all
-                                      select  bio.id_transaccion_bio,
-                                              to_char(bio.fecha_marcado,'DD')::integer as dia,
-                                              bio.id_rango_horario,
-                                              bio.hora,
-                                              bio.evento
-                                      from asis.ttransaccion_bio bio
-                                      where  bio.id_funcionario = v_id_funcionario
-                                      and bio.id_periodo = v_parametros.id_periodo
-                                      and bio.id_rango_horario is null
-                                      order by dia) as ma
-                                      where ma.id_rango_horario is not null
-                                     -- and  ma.dia = 3
-                                      group by ma.dia,
-                                               ma.id_rango_horario
-                                      order by dia)loop
-
-                         v_index := 1;
+                                  from ( select  asis.f_id_transacion_bio (min(etl.hora)::time,
+                                      v_parametros.id_periodo,
+                                      v_parametros.id_funcionario,
+                                      to_char(etl.fecha::date,'DD')::integer,
+                                      'si'
+                                    ) as id_transaccion_bio,
+                                  to_char(etl.fecha, 'DD'::text)::integer as dia,
+                                  etl.id_rango_horario,
+                                  min(etl.hora) as hora,
+                                  etl.acceso
+                            from asis.ttransacc_zkb_etl etl
+                            where etl.acceso = 'Entrada'
+                            and etl.id_funcionario = v_parametros.id_funcionario
+                            and EXTRACT(MONTH FROM etl.fecha::date)::integer = v_parametros.id_periodo
+                            and etl.id_rango_horario is not null
+                            and etl.reader_name not in  ('10.231.14.120-1-Entrada',
+                                                              '10.231.14.120-2-Salida',
+                                                              '10.231.14.170-1-Entrada',
+                                                              '10.231.14.170-2-Entrada',
+                                                              '10.231.14.170-3-Entrada',
+                                                              '10.231.14.170-4-Entrada',
+                                                              '10.231.14.171-1-Entrada',
+                                                              '10.231.14.171-2-Entrada',
+                                                              '10.231.14.171-3-Entrada',
+                                                              '10.231.14.171-4-Entrada',
+                                                              '10.231.14.171-4-Salida',
+                                                              '10.231.14.172-1-Entrada',
+                                                              '10.231.14.172-2-Entrada',
+                                                              '10.231.14.172-3-Entrada',
+                                                              '10.231.14.172-4-Entrada',
+                                                              '10.231.14.173-1-Entrada',
+                                                              '10.231.14.173-2-Entrada',
+                                                              '10.231.14.173-3-Entrada',
+                                                              '10.231.14.173-4-Entrada',
+                                                              'PB_COT_INBIO460-1-Entrada',
+                                                              'PB_COT_INBIO460-2-Entrada',
+                                                              'PB_COT_INBIO460-3-Entrada',
+                                                              'PB_COT_INBIO460-3-Salida',
+                                                              'PB_COT_INBIO460-4-Entrada',
+                                                              'PB_COT_INBIO460-4-Salida',
+                                                              'P1_ACC1_INBIO460-1-Entrada',
+                                                              'P1_ACC1_INBIO460-2-Entrada',
+                                                              'P1_ACC1_INBIO460-3-Entrada',
+                                                              'P1_ACC1_INBIO460-3-Salida',
+                                                              'P1_ACC1_INBIO460-4-Entrada',
+                                                              'P1_ACC2_INBIO260-1-Entrada',
+                                                              'P2_ACC1_INBIO260-1-Entrada',
+                                                              'P2_ACC1_INBIO260-2-Entrada',
+                                                              'P2_ACC2_INBIO260-1-Entrada',
+                                                              'PB_ACC1_INBIO260-1-Entrada',
+                                                              'PB_ACC1_INBIO260-2-Entrada',
+                                                              'PB_ACC2_INBIO460-1-Entrada',
+                                                              'PB_ACC2_INBIO460-2-Entrada',
+                                                              'PB_ACC2_INBIO460-3-Entrada',
+                                                              'PB_ACC2_INBIO460-3-Salida',
+                                                              'PB_ACC3_INBIO460-1-Entrada',
+                                                              'PB_ACC3_INBIO460-2-Entrada',
+                                                              'PB_ACC3_INBIO460-2-Salida',
+                                                              'PB_ACC3_INBIO460-3-Entrada',
+                                                              'PB_ACC3_INBIO460-4-Entrada',
+                                                              'PB_ACC3_INBIO460-4-Salida')
+                            group by etl.id_rango_horario, etl.fecha,etl.acceso
+                            union all
+                            select  asis.f_id_transacion_bio (max(etl.hora)::time,
+                                                                v_parametros.id_periodo,
+                                                                v_parametros.id_funcionario,
+                                                                to_char(etl.fecha::date,'DD')::integer,
+                                                                'si'
+                                                              ) as id_transaccion_bio,
+                                  to_char(etl.fecha, 'DD'::text)::integer as dia,
+                                  etl.id_rango_horario,
+                                  max(etl.hora) as hora,
+                                  etl.acceso
+                            from asis.ttransacc_zkb_etl etl
+                            where etl.acceso = 'Salida'
+                            and etl.id_funcionario = v_parametros.id_funcionario
+                            and EXTRACT(MONTH FROM etl.fecha::date)::integer = v_parametros.id_periodo
+                            and etl.id_rango_horario is not null
+                             and etl.reader_name not in  ('10.231.14.120-1-Entrada',
+                                                              '10.231.14.120-2-Salida',
+                                                              '10.231.14.170-1-Entrada',
+                                                              '10.231.14.170-2-Entrada',
+                                                              '10.231.14.170-3-Entrada',
+                                                              '10.231.14.170-4-Entrada',
+                                                              '10.231.14.171-1-Entrada',
+                                                              '10.231.14.171-2-Entrada',
+                                                              '10.231.14.171-3-Entrada',
+                                                              '10.231.14.171-4-Entrada',
+                                                              '10.231.14.171-4-Salida',
+                                                              '10.231.14.172-1-Entrada',
+                                                              '10.231.14.172-2-Entrada',
+                                                              '10.231.14.172-3-Entrada',
+                                                              '10.231.14.172-4-Entrada',
+                                                              '10.231.14.173-1-Entrada',
+                                                              '10.231.14.173-2-Entrada',
+                                                              '10.231.14.173-3-Entrada',
+                                                              '10.231.14.173-4-Entrada',
+                                                              'PB_COT_INBIO460-1-Entrada',
+                                                              'PB_COT_INBIO460-2-Entrada',
+                                                              'PB_COT_INBIO460-3-Entrada',
+                                                              'PB_COT_INBIO460-3-Salida',
+                                                              'PB_COT_INBIO460-4-Entrada',
+                                                              'PB_COT_INBIO460-4-Salida',
+                                                              'P1_ACC1_INBIO460-1-Entrada',
+                                                              'P1_ACC1_INBIO460-2-Entrada',
+                                                              'P1_ACC1_INBIO460-3-Entrada',
+                                                              'P1_ACC1_INBIO460-3-Salida',
+                                                              'P1_ACC1_INBIO460-4-Entrada',
+                                                              'P1_ACC2_INBIO260-1-Entrada',
+                                                              'P2_ACC1_INBIO260-1-Entrada',
+                                                              'P2_ACC1_INBIO260-2-Entrada',
+                                                              'P2_ACC2_INBIO260-1-Entrada',
+                                                              'PB_ACC1_INBIO260-1-Entrada',
+                                                              'PB_ACC1_INBIO260-2-Entrada',
+                                                              'PB_ACC2_INBIO460-1-Entrada',
+                                                              'PB_ACC2_INBIO460-2-Entrada',
+                                                              'PB_ACC2_INBIO460-3-Entrada',
+                                                              'PB_ACC2_INBIO460-3-Salida',
+                                                              'PB_ACC3_INBIO460-1-Entrada',
+                                                              'PB_ACC3_INBIO460-2-Entrada',
+                                                              'PB_ACC3_INBIO460-2-Salida',
+                                                              'PB_ACC3_INBIO460-3-Entrada',
+                                                              'PB_ACC3_INBIO460-4-Entrada',
+                                                              'PB_ACC3_INBIO460-4-Salida')
+                            group by etl.id_rango_horario, etl.fecha,etl.acceso
+                             union all
+                            select  etl.id,
+                                    to_char(etl.event_time, 'DD'::text)::integer as dia,
+                                    etl.id_rango_horario,
+                                    etl.hora,
+                                    etl.acceso
+                              from asis.ttransacc_zkb_etl etl
+                              where etl.id_funcionario = v_parametros.id_funcionario
+                              and EXTRACT(MONTH FROM etl.event_time::date)::integer = v_parametros.id_periodo
+                              and etl.id_rango_horario is null
+                              order by dia) as ma
+                                          where ma.id_rango_horario is not null
+                                          group by ma.dia,
+                                                   ma.id_rango_horario
+                                          order by dia)loop
                          foreach v_hora in array v_record_pares.horas
            				 										loop
 
                          v_impar =  array_length(v_record_pares.horas,1) % 2;
 
                          if v_impar = 0 then
-                        		 if not asis.f_pares ( v_id_funcionario,
+                        		 if not asis.f_pares ( v_parametros.id_funcionario,
                                                        v_parametros.id_periodo,
                                                        v_record_pares.dia,
                                                        v_hora) then
@@ -259,7 +405,7 @@ BEGIN
                          end if;
 
                          if v_impar = 1 then
-                         	  if not asis.f_buscar_su_par ( v_id_funcionario,
+                         	  if not asis.f_buscar_su_par ( v_parametros.id_funcionario,
                               								v_parametros.id_periodo,
                                                             v_record_pares.dia,
                                                             v_hora,
@@ -268,117 +414,9 @@ BEGIN
                               end if;
                          end if;
 
-                         v_index = v_index + 1;
                          end loop;
+        	end loop;
 
-            end loop;
-            --raise exception 'final';
-
-
-            for v_registro in (select  distinct to_char(bio.fecha_marcado,'DD')::integer as dia
-                                        from asis.ttransaccion_bio bio
-                                        where bio.id_periodo = v_parametros.id_periodo
-                                        and bio.id_funcionario = v_id_funcionario
-                                        order by dia)loop
-
-              		 v_pivot = 1;
-            		for v_record in (select   bio.id_transaccion_bio,
-                                              to_char(bio.fecha_marcado,'DD')::integer as dia,
-                                              bio.hora,
-                                              bio.id_rango_horario,
-                                              bio.event_time::date as event_time,
-                                              bio.evento,
-                                              bio.rango
-                                      from asis.ttransaccion_bio bio
-                                      where  bio.id_funcionario = v_id_funcionario
-                                      and bio.id_periodo = v_parametros.id_periodo
-                                      and bio.rango = 'si'
-                                      and to_char(bio.fecha_marcado,'DD')::integer = v_registro.dia
-                                      order by dia,hora)loop
-
-                        if v_record.evento = 'Entrada' then
-
-                        	update asis.ttransaccion_bio set
-                            pivot = v_pivot
-                            where id_transaccion_bio = v_record.id_transaccion_bio;
-
-                                      insert into asis.tpares( id_usuario_reg,
-                                                                id_usuario_mod,
-                                                                fecha_reg,
-                                                                fecha_mod,
-                                                                estado_reg,
-                                                                id_transaccion_ini,
-                                                                id_transaccion_fin,
-                                                                fecha_marcado,
-                                                                id_funcionario,
-                                                                id_licencia,
-                                                                id_vacacion,
-                                                                id_viatico,
-                                                                id_periodo,
-                                                                rango
-                                                                 )values (
-                                                                p_id_usuario,
-                                                                null,
-                                                                now(),
-                                                                null,
-                                                                'activo',
-                                                                v_record.id_transaccion_bio,
-                                                                null,
-                                                                v_record.event_time,
-                                                                v_id_funcionario,
-                                                                null,
-                                                                null,
-                                                                null,
-                                                                v_parametros.id_periodo,
-                                                                'si'
-                                                                )RETURNING id_pares into v_id_pares;
-                                      v_id_pares_aux = v_id_pares;
-                          end if;
-
-                            if v_record.evento = 'Salida' then
-
-                            update asis.ttransaccion_bio set
-                            pivot = v_pivot
-                            where id_transaccion_bio = v_record.id_transaccion_bio;
-
-                                      insert into asis.tpares( id_usuario_reg,
-                                                                id_usuario_mod,
-                                                                fecha_reg,
-                                                                fecha_mod,
-                                                                estado_reg,
-                                                                id_transaccion_ini,
-                                                                id_transaccion_fin,
-                                                                fecha_marcado,
-                                                                id_funcionario,
-                                                                id_licencia,
-                                                                id_vacacion,
-                                                                id_viatico,
-                                                                id_pares_entrada,
-                                                                id_periodo,
-                                                                rango
-                                                                 )values (
-                                                                p_id_usuario,
-                                                                null,
-                                                                now(),
-                                                                null,
-                                                                'activo',
-                                                                null,
-                                                                v_record.id_transaccion_bio,
-                                                                v_record.event_time,
-                                                                v_id_funcionario,
-                                                                null,
-                                                                null,
-                                                                null,
-                                                                v_id_pares_aux,
-                                                                v_parametros.id_periodo,
-                                                                'si'
-                                                                );
-                                      v_id_pares_aux = null;
-
-                          end if;
-                          v_pivot = v_pivot + 1;
-                end loop;
-            end loop;
 
            /* for v_justificar in (select   bio.id_transaccion_bio,
                                           to_char(bio.fecha_marcado,'DD')::integer as dia,

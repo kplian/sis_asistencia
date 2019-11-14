@@ -48,39 +48,30 @@ BEGIN
         end if;
 
     		--Sentencia de la consulta
-			v_consulta:='select bio.id_transaccion_bio,
-                                bio.obs,
-                                bio.estado_reg,
-                                bio.id_periodo,
-                                bio.hora::varchar,
-                                bio.id_funcionario,
-                                bio.fecha_marcado,
-                                bio.id_rango_horario,
-                                bio.id_usuario_reg,
-                                bio.usuario_ai,
-                                bio.fecha_reg,
-                                bio.id_usuario_ai,
-                                bio.id_usuario_mod,
-                                bio.fecha_mod,
-                                usu1.cuenta as usr_reg,
-                                usu2.cuenta as usr_mod,
-                                bio.evento,
-                                bio.tipo_verificacion,
-                                bio.area,
-                                rh.descripcion as rango,
-                                to_char(bio.fecha_marcado,''DD'')::text as dia,
-                                bio.acceso,
-                                vfun.desc_funcionario1 as desc_funcionario
-                                from asis.ttransaccion_bio bio
-                                inner join segu.tusuario usu1 on usu1.id_usuario = bio.id_usuario_reg
-                                inner join orga.vfuncionario vfun on vfun.id_funcionario = bio.id_funcionario
-                                left join asis.trango_horario rh on rh.id_rango_horario = bio.id_rango_horario
-                                left join segu.tusuario usu2 on usu2.id_usuario = bio.id_usuario_mod
-				        		where  bio.id_funcionario ='||v_parametros.id_funcionario||' and';
+			v_consulta:='select
+                              bio.id,
+                              bio.id_funcionario,
+                              bio.pin as codigo_funcionario,
+                              initcap(bio.area_name)::varchar as nombre_area,
+                              bio.verify_mode_name as verificacion,
+                              bio.event_name evento,
+                              bio.pivot,
+                              bio.rango,
+                              initcap(fun.desc_funcionario1) as desc_funcionario1,
+                              EXTRACT(MONTH FROM bio.event_time::date)::integer as periodo,
+                              bio.event_time::date as fecha_registro,
+                              to_char(bio.event_time, ''HH24:MI'')::varchar as hora,
+                              to_char(bio.event_time, ''DD''::text)::integer as dia,
+                              asis.f_estraer_palabra(bio.reader_name,''Entrada'',''Salida'')::varchar as accion,
+                              initcap(asis.f_estraer_palabra(bio.reader_name,''barrera''))::varchar as dispocitvo
+                          from
+                            asis.ttransacc_zkb_etl bio
+                            inner join orga.vfuncionario fun on fun.id_funcionario = bio.id_funcionario
+                            where bio.id_funcionario = '||v_parametros.id_funcionario||' and ';
 
 			--Definicion de la respuesta
 			v_consulta:=v_consulta||v_parametros.filtro;
-			v_consulta:=v_consulta||' order by ' ||v_parametros.ordenacion|| ',dia ,hora asc ' || v_parametros.dir_ordenacion || ' limit ' || v_parametros.cantidad || ' offset ' || v_parametros.puntero;
+			v_consulta:=v_consulta||' order by ' ||v_parametros.ordenacion|| ',hora asc ' || v_parametros.dir_ordenacion || ' limit ' || v_parametros.cantidad || ' offset ' || v_parametros.puntero;
 			--Devuelve la respuesta
 			return v_consulta;
 
@@ -97,18 +88,16 @@ BEGIN
 
 		begin
           ---Obtener el id funcionario
-        if v_parametros.id_funcionario is null then
+        /*if v_parametros.id_funcionario is null then
         	raise exception 'Usted no esta registrado como funcionario';
-        end if;
+        end if;*/
 
 			--Sentencia de la consulta de conteo de registros
-			v_consulta:='select count(id_transaccion_bio)
-					    from asis.ttransaccion_bio bio
-					    inner join segu.tusuario usu1 on usu1.id_usuario = bio.id_usuario_reg
-                        inner join orga.vfuncionario vfun on vfun.id_funcionario = bio.id_funcionario
-                        left join asis.trango_horario rh on rh.id_rango_horario = bio.id_rango_horario
-						left join segu.tusuario usu2 on usu2.id_usuario = bio.id_usuario_mod
-					    where bio.id_funcionario ='||v_parametros.id_funcionario||' and';
+			v_consulta:='select  count (bio.id)
+            			 from
+                              asis.ttransacc_zkb_etl bio
+                              inner join orga.vfuncionario fun on fun.id_funcionario = bio.id_funcionario
+                         where bio.id_funcionario = '||v_parametros.id_funcionario||' and';
 
 			--Definicion de la respuesta
 			v_consulta:=v_consulta||v_parametros.filtro;

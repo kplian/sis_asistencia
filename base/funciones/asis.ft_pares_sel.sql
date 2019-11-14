@@ -53,7 +53,7 @@ BEGIN
                                   par.id_transaccion_fin,
                                   par.fecha_marcado,
                                   par.id_funcionario,
-                                  par.id_licencia,
+                                  par.id_permiso,
                                   par.id_vacacion,
                                   par.id_viatico,
                                   par.id_usuario_reg,
@@ -65,10 +65,10 @@ BEGIN
                                   usu1.cuenta as usr_reg,
                                   usu2.cuenta as usr_mod,
                                   (case
-                                      when to_char(te.fecha_marcado, ''DD''::text) is not null then
-                                       to_char(te.fecha_marcado, ''DD''::text)
+                                      when to_char(te.fecha, ''DD''::text) is not null then
+                                       to_char(te.fecha, ''DD''::text)
                                       else
-                                      to_char(ts.fecha_marcado, ''DD''::text)
+                                      to_char(ts.fecha, ''DD''::text)
                                       end )::integer as dia,
                                   (case
                                      when te.hora is not null and ts.hora is not null then
@@ -81,28 +81,28 @@ BEGIN
                                        (case
 
                                           when te.hora is not null and ts.hora is not null then
-                                      			ts.evento ||'' - ''||te.evento
-                                           when te.evento is not null then
-                                          		te.evento
+                                      			ts.acceso ||'' - ''||te.acceso
+                                           when te.acceso is not null then
+                                          		te.acceso
                                           else
-                                          ts.evento
+                                          ts.acceso
                                           end)::varchar as evento,
                                            (case
-                                          when te.evento is not null then
-                                          te.tipo_verificacion
+                                          when te.acceso is not null then
+                                          te.verify_mode_name
                                           else
-                                          ts.tipo_verificacion
+                                          ts.verify_mode_name
                                           end)::varchar as tipo_verificacion,
                                           (case
                                            when te.hora is not null and ts.hora is not null then
                                            ''JUSTIFICAR''::varchar
-                                          when te.evento is not null then
-                                          te.obs
+                                          when te.acceso is not null then
+                                          ''''
                                           else
-                                          ts.obs
+                                          ''''
                                           end)::varchar as obs,
                                           (case
-                                            when te.evento is not null then
+                                            when te.acceso is not null then
                                           re.descripcion
                                           else
                                           rs.descripcion
@@ -113,15 +113,15 @@ BEGIN
                                   inner join segu.tusuario usu1 on usu1.id_usuario = par.id_usuario_reg
                                   inner join orga.vfuncionario vfun on vfun.id_funcionario = par.id_funcionario
                                   left join segu.tusuario usu2 on usu2.id_usuario = par.id_usuario_mod
-                                  left join asis.ttransaccion_bio te on te.id_transaccion_bio = par.id_transaccion_ini
+                                  left join asis.ttransacc_zkb_etl te on te.id = par.id_transaccion_ini
                                   left join asis.trango_horario re on re.id_rango_horario = te.id_rango_horario
-                                  left join asis.ttransaccion_bio ts on ts.id_transaccion_bio = par.id_transaccion_fin
+                                  left join asis.ttransacc_zkb_etl ts on ts.id = par.id_transaccion_fin
                                   left join asis.trango_horario rs on rs.id_rango_horario = ts.id_rango_horario
-				        		  where  par.id_funcionario ='||v_parametros.id_funcionario||' and';
+				        		  where  par.id_funcionario ='||v_parametros.id_funcionario||' and par.fecha_marcado is not null and ';
 
 			--Definicion de la respuesta
 			v_consulta:=v_consulta||v_parametros.filtro;
-			v_consulta:=v_consulta||' order by ' ||v_parametros.ordenacion|| ' ' || v_parametros.dir_ordenacion || ' limit ' || v_parametros.cantidad || ' offset ' || v_parametros.puntero;
+			v_consulta:=v_consulta||' order by ' ||v_parametros.ordenacion|| ', dia, hora ' || v_parametros.dir_ordenacion || ' limit ' || v_parametros.cantidad || ' offset ' || v_parametros.puntero;
 			raise notice  '%',v_consulta;
 			--Devuelve la respuesta
 			return v_consulta;
@@ -149,11 +149,11 @@ BEGIN
 					    inner join segu.tusuario usu1 on usu1.id_usuario = par.id_usuario_reg
                         inner join orga.vfuncionario vfun on vfun.id_funcionario = par.id_funcionario
                         left join segu.tusuario usu2 on usu2.id_usuario = par.id_usuario_mod
-                        left join asis.ttransaccion_bio te on te.id_transaccion_bio = par.id_transaccion_ini
+                        left join asis.ttransacc_zkb_etl te on te.id = par.id_transaccion_ini
                         left join asis.trango_horario re on re.id_rango_horario = te.id_rango_horario
-                        left join asis.ttransaccion_bio ts on ts.id_transaccion_bio = par.id_transaccion_fin
+                        left join asis.ttransacc_zkb_etl ts on ts.id = par.id_transaccion_fin
                         left join asis.trango_horario rs on rs.id_rango_horario = ts.id_rango_horario
-					    where  par.id_funcionario ='||v_parametros.id_funcionario||' and';
+					    where  par.id_funcionario ='||v_parametros.id_funcionario||' and par.fecha_marcado is not null and';
 
 			--Definicion de la respuesta
 			v_consulta:=v_consulta||v_parametros.filtro;

@@ -458,7 +458,7 @@ Phx.vista.Pares=Ext.extend(Phx.gridInterfaz,{
                 timeout: this.timeout,
                 scope: this
             });
-            this.reload();
+
         }else{
             alert('Seleccione la gestion y el periodo');
         }
@@ -466,6 +466,7 @@ Phx.vista.Pares=Ext.extend(Phx.gridInterfaz,{
     success: function(resp){
         Phx.CP.loadingHide();
         var reg = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));
+        this.reload();
     },
     preparaMenu: function(n) {
         var rec = this.getSelectedData();
@@ -533,7 +534,7 @@ Phx.vista.Pares=Ext.extend(Phx.gridInterfaz,{
                 remoteSort: true,
                 baseParams:{par_filtro:'gestion'}
             }),
-        valueField: 'id_periodo',
+        valueField: 'periodo',
         triggerAction: 'all',
         displayField: 'literal',
         hiddenName: 'id_periodo',

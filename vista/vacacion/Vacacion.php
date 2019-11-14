@@ -14,6 +14,9 @@
 header("content-type: text/javascript; charset=UTF-8");
 ?>
 <script>
+
+var arrayMediosDias = new Array();
+
 Phx.vista.Vacacion=Ext.extend(Phx.gridInterfaz,{
 
 	constructor:function(config){
@@ -39,6 +42,7 @@ Phx.vista.Vacacion=Ext.extend(Phx.gridInterfaz,{
 
         this.iniciarEventos();
 
+        this.diasEfectivo(); //-->Función definida para el calculo de los dias efectivos
     },
 
     iniciarEventos: function(){
@@ -50,7 +54,9 @@ Phx.vista.Vacacion=Ext.extend(Phx.gridInterfaz,{
                     'fecha_fin': this.Cmp.fecha_fin.getValue(),
                     'fecha_inicio': Fecha.getValue(),
                     'dias': 0,
-                    'medios_dias':  this.Cmp.medio_dia.getValue()
+
+                    'medios_dias':  '',
+
                 },
                 success: this.respuestaValidacion,
                 failure: this.conexionFailure,
@@ -68,28 +74,9 @@ Phx.vista.Vacacion=Ext.extend(Phx.gridInterfaz,{
                     'fecha_fin': Fecha.getValue(),
                     'fecha_inicio': this.Cmp.fecha_inicio.getValue(),
                     'dias': 0,
-                    'medios_dias':  this.Cmp.medio_dia.getValue()
-                },
-                success: this.respuestaValidacion,
-                failure: this.conexionFailure,
-                timeout: this.timeout,
-                scope: this
-            });
 
+                    'medios_dias':  '',
 
-        }, this);
-
-        this.Cmp.medio_dia.on('Check', function (Seleccion, dato) {
-            console.log('Testeo de CHECK', Seleccion);
-
-
-            Ext.Ajax.request({
-                url: '../../sis_asistencia/control/Vacacion/getDias', //llamando ala funcion geDias.
-                params: {
-                    'fecha_fin': this.Cmp.fecha_fin.getValue(),
-                    'fecha_inicio': this.Cmp.fecha_inicio.getValue(),
-                    'dias': 0,
-                    'medios_dias': Seleccion.getValue()
                 },
                 success: this.respuestaValidacion,
                 failure: this.conexionFailure,
@@ -100,15 +87,47 @@ Phx.vista.Vacacion=Ext.extend(Phx.gridInterfaz,{
 
         }, this);
     },
+	arrayStore :{
+            	'Selección':[
+            	            ['',''],
+                ],
+            	'Selección2':[ ],                         
+	},
     respuestaValidacion: function (s,m){
 
         this.maestro = m;
-        console.log('Prueba de parametros1', s.responseText);
+       // console.log('Prueba de parametros1', s.responseText);
         var respuesta_valid = s.responseText.split('%');
-        console.log('Prueba de parametros2', respuesta_valid[1]);
-        this.Cmp.dias.setValue(respuesta_valid[1]);
+        //console.log('Prueba de parametros2', respuesta_valid[1]);
+        this.Cmp.dias_efectivo.setValue(respuesta_valid[1]); //dias
+
+        this.arrayStore.Selección=[];
+        this.arrayStore.Selección=['',''];
+        for(var i=0; i<=parseInt(respuesta_valid[1]); i++){
+        	this.arrayStore.Selección[i]=["ID"+(i),(i)];
+        }
+        this.Cmp.medio_dia.reset(); /// restablecer el campo evento_medios_dias, cada que se cambia el rango de fechas.
+        this.Cmp.medio_dia.store.loadData(this.arrayStore.Selección);
+        this.Cmp.dias.reset(); /// dias_efectivo
+        this.Cmp.dias.setValue(this.Cmp.dias_efectivo.getValue()); //diasdias_efectivo; dias
+
 
     },
+
+    /// Calculo de dias efectivos, restando los medios dias de los dias posibles.
+    diasEfectivo:function () {
+        this.Cmp.medio_dia.on('select', function (Fecha, dato) {
+            this.Cmp.dias.reset();     //restablecer el campo dias_efectivo    //dias_efectivo
+            var medio = dato.data.valor / 2;    //obteniendo el valor de data y dividiendo entre 2.
+            var resultado = this.Cmp.dias_efectivo.getValue() - medio;  //dias
+            this.Cmp.dias.setValue(resultado);  //dias_efectivo
+
+        }, this);
+    },
+    ///
+
+
+
 	Atributos:[
 		{
 			//configuracion del componente
@@ -210,6 +229,7 @@ Phx.vista.Vacacion=Ext.extend(Phx.gridInterfaz,{
 				anchor: '70%',
 				gwidth: 100,
                 format: 'd/m/Y',
+                disabledDays:  [0, 6],
 				renderer:function (value,p,record){return value?value.dateFormat('d/m/Y'):''}
 			},
 				type:'DateField',
@@ -226,6 +246,7 @@ Phx.vista.Vacacion=Ext.extend(Phx.gridInterfaz,{
 				anchor: '70%',
 				gwidth: 100,
                 format: 'd/m/Y',
+                disabledDays:  [0, 6],
 				renderer:function (value,p,record){return value?value.dateFormat('d/m/Y'):''}
 			},
 				type:'DateField',
@@ -238,7 +259,8 @@ Phx.vista.Vacacion=Ext.extend(Phx.gridInterfaz,{
 
 
 
-        {
+        /*{
+            
             config:{
                 name: 'medio_dia',
                 fieldLabel: 'Medios Días',
@@ -259,7 +281,8 @@ Phx.vista.Vacacion=Ext.extend(Phx.gridInterfaz,{
             id_grupo:1,
             grid:true,
             form:true
-        },
+        },*/
+
 
 
 
@@ -267,19 +290,58 @@ Phx.vista.Vacacion=Ext.extend(Phx.gridInterfaz,{
 
 		{
 			config:{
-				name: 'dias',
-				fieldLabel: 'Días',
+				name: 'dias_efectivo',   // Dias posibles para tomar vacaciones.
+				fieldLabel: 'Días Calendario',  //Campo
+                // Días totales para tomar vacaciones.
 				allowBlank: false,
 				anchor: '23%',
 				gwidth: 100,
 				maxLength:4
 			},
 				type:'NumberField',
-				filters:{pfiltro:'vac.dias',type:'numeric'},
+				filters:{pfiltro:'vac.dias_efectivo',type:'numeric'},
 				id_grupo:1,
 				grid:true,
 				form:true
 		},
+        { //#16
+            config : {
+                name : 'medio_dia',   //Nombre anterior: evento.
+                fieldLabel : 'Medios Días',     // Descripción del evento.
+                //labelStyle: 'width:150px; margin: 5;',
+                emptyText : 'Seleccione Opcion...',
+                width : 450,
+                mode : 'local',
+                store : new Ext.data.ArrayStore({fields : ['ID', 'valor']}),
+                triggerAction : 'all',
+                valueField : 'valor',
+                displayField : 'valor',
+                forceSelection: true,
+                editable: false,
+                gwidth: 100,
+            },
+            type : 'ComboBox',
+            id_grupo : 2,
+            grid : true,
+            form : true
+        },//#16
+        {
+
+            config:{
+                name: 'dias',
+                fieldLabel: 'Dias Efectivos',
+                allowBlank: true,
+                anchor: '23%',
+                gwidth: 100,
+                disabled: true
+            },
+            type:'NumberField',
+            filters:{pfiltro:'vac.dias',type:'numeric'},
+            id_grupo:1,
+            grid:true,
+            form:true,
+
+        },
 
 		{
 			config:{
@@ -416,7 +478,8 @@ Phx.vista.Vacacion=Ext.extend(Phx.gridInterfaz,{
         {name:'id_estado_wf', type: 'numeric'},
         {name:'estado', type: 'string'},
         {name:'nro_tramite', type: 'string'},
-        {name:'medio_dia', type: 'string'}
+        {name:'medio_dia', type: 'numeric'},
+        {name:'dias_efectivo', type: 'numeric'}
     ],
 	sortInfo:{
 		field: 'id_vacacion',
@@ -424,7 +487,7 @@ Phx.vista.Vacacion=Ext.extend(Phx.gridInterfaz,{
 	},
 	bdel:true,
 	bsave:true,
-    fwidth: '35%',
+    fwidth: '45%',
     fheight: '36%',
     onButtonNew:function(){
         Phx.vista.Vacacion.superclass.onButtonNew.call(this);//habilita el boton y se abre
@@ -433,11 +496,9 @@ Phx.vista.Vacacion=Ext.extend(Phx.gridInterfaz,{
             callback : function (r) {
                 console.log(r[0]);
                 if (r.length === 1 ) {
-
                     this.Cmp.id_funcionario.setValue(r[0].data.id_funcionario);
                     this.Cmp.id_funcionario.fireEvent('select', this.Cmp.id_funcionario, r[0]);
                 }
-
             }, scope : this
         });
     },
@@ -445,18 +506,18 @@ Phx.vista.Vacacion=Ext.extend(Phx.gridInterfaz,{
 
         Phx.vista.Vacacion.superclass.onButtonEdit.call(this);
         var inicio;
-        
-         
-        if(this.sm.selections.items[0].data.medio_dia=='t'){
-           this.Cmp.medio_dia.setValue(true);
-        }
+
         this.Cmp.fecha_inicio.on('select', function(menu, record){
             inicio = record;
         },this);
 
-        /*this.Cmp.fecha_fin.on('select', function(menu, record){
-            this.Cmp.dias.setValue(this.calcularDiferenciasDias(inicio,record));
-        },this);*/
+
+        this.arrayStore.Selección=[];
+        this.arrayStore.Selección=['',''];
+        for(var i=0; i<=parseInt(this.Cmp.dias.getValue()); i++){
+            this.arrayStore.Selección[i]=["ID"+(i),(i)];
+        }
+        this.Cmp.medio_dia.store.loadData(this.arrayStore.Selección);
     },
     onAtras :function (res) {
         var rec=this.sm.getSelected();

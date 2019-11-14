@@ -46,7 +46,8 @@ class MODVacacion extends MODbase{
         $this->captura('id_estado_wf','int4');
         $this->captura('estado','varchar');
         $this->captura('nro_tramite','varchar');
-        $this->captura('medio_dia','bool');
+        $this->captura('medio_dia','integer');
+        $this->captura('dias_efectivo', 'numeric');
 // medio_dia
         //Ejecuta la instruccion
 		$this->armarConsulta();
@@ -70,7 +71,8 @@ class MODVacacion extends MODbase{
 		$this->setParametro('fecha_fin','fecha_fin','date');
 		$this->setParametro('dias','dias','numeric');
 		$this->setParametro('descripcion','descripcion','text');
-		$this->setParametro('medio_dia','medio_dia','bool');   //medio_dia
+		$this->setParametro('medio_dia','medio_dia','integer');   //medio_dia
+        $this->setParametro('dias_efectivo','dias_efectivo','numeric');
 
 
 		//Ejecuta la instruccion
@@ -95,7 +97,9 @@ class MODVacacion extends MODbase{
 		$this->setParametro('fecha_fin','fecha_fin','date');
 		$this->setParametro('dias','dias','numeric');
 		$this->setParametro('descripcion','descripcion','text');
-        $this->setParametro('medio_dia','medio_dia','bool');
+        $this->setParametro('medio_dia','medio_dia','integer');
+        $this->setParametro('dias_efectivo','dias_efectivo', 'numeric');
+
 // medio_dia
 
 		//Ejecuta la instruccion
@@ -169,6 +173,7 @@ class MODVacacion extends MODbase{
         $this->setParametro('fecha_inicio','fecha_inicio','date');
         $this->setParametro('dias','dias','numeric');
         $this->setParametro('medios_dias','medios_dias','bool');
+        $this->setParametro('dias_efectivo', 'dias_efectivo', 'numeric');
 
         //Ejecuta la instruccion
         $this->armarConsulta();

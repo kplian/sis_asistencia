@@ -10,7 +10,6 @@ header("content-type: text/javascript; charset=UTF-8");
 ?>
 <script>
     Phx.vista.TransaccionBio=Ext.extend(Phx.gridInterfaz,{
-
             constructor:function(config){
                 this.initButtons=[this.cmbGestion, this.cmbPeriodo];
                 this.maestro=config.maestro;
@@ -36,19 +35,10 @@ header("content-type: text/javascript; charset=UTF-8");
                     this.capturaFiltros();
                 },this);
                 this.init();
-
-                this.addButton('btnMigracion',{
-                        text: 'Traer Marcados',
-                        iconCls: 'bchecklist',
-                        disabled: false,
-                        handler: this.migrarMarcas,
-                        tooltip: '<b>Traer Marcados</b><br/>Trae los marcados segun periodo seleccionado'
-                    }
-                );
                 this.addButton('btnReporte',
                     {
-                        text :'Reporte',
-                        iconCls : 'bpdf32',
+                        text :'Exportar',
+                        iconCls : 'bexport',
                         disabled: false,
                         handler : this.onButtonReporte,
                         tooltip : '<b>Reporte</b><br/><b>De mis marcados</b>'
@@ -62,7 +52,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     config:{
                         labelSeparator:'',
                         inputType:'hidden',
-                        name: 'id_transaccion_bio'
+                        name: 'id'
                     },
                     type:'Field',
                     form:true
@@ -72,7 +62,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     config:{
                         labelSeparator:'',
                         inputType:'hidden',
-                        name: 'id_periodo'
+                        name: 'periodo'
                     },
                     type:'Field',
                     form:true
@@ -88,16 +78,6 @@ header("content-type: text/javascript; charset=UTF-8");
                     form:true
                 },
                 {
-                    //configuracion del componente
-                    config:{
-                        labelSeparator:'',
-                        inputType:'hidden',
-                        name: 'id_rango_horario'
-                    },
-                    type:'Field',
-                    form:true
-                },
-                {
                     config:{
                         name: 'dia',
                         fieldLabel: 'Dia',
@@ -106,7 +86,6 @@ header("content-type: text/javascript; charset=UTF-8");
                         gwidth: 50
                     },
                     type:'TextField',
-                    filters:{pfiltro:'bio.obs',type:'string'},
                     id_grupo:1,
                     grid:true,
                     form:true
@@ -117,16 +96,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         fieldLabel: 'Hora',
                         allowBlank: true,
                         anchor: '80%',
-                        gwidth: 60,
-                        renderer:function(value, p, record){
-                            var color;
-                            if (record.data.id_rango_horario === null){
-                                color = '#b8271d';
-                            }else{
-                                color = '#2e8e10';
-                            }
-                            return String.format('<b><font size = 1 color="'+color+'" >{0}</font></b>', value);
-                        }
+                        gwidth: 100
                     },
                     type:'TextField',
                     filters:{pfiltro:'bio.hora',type:'string'},
@@ -140,7 +110,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         fieldLabel: 'Evento',
                         allowBlank: true,
                         anchor: '80%',
-                        gwidth: 70
+                        gwidth: 210
                     },
                     type:'TextField',
                     filters:{pfiltro:'bio.evento',type:'string'},
@@ -150,11 +120,11 @@ header("content-type: text/javascript; charset=UTF-8");
                 },
                 {
                     config:{
-                        name: 'tipo_verificacion',
+                        name: 'verificacion',
                         fieldLabel: 'Tipo Verificacion',
                         allowBlank: true,
                         anchor: '80%',
-                        gwidth: 200,
+                        gwidth: 100,
                         maxLength:10
                     },
                     type:'TextField',
@@ -165,11 +135,20 @@ header("content-type: text/javascript; charset=UTF-8");
                 },
                 {
                     config:{
-                        name: 'acceso',
+                        name: 'accion',
                         fieldLabel: 'Acceso',
                         allowBlank: true,
                         anchor: '80%',
-                        gwidth: 70
+                        gwidth: 100,
+                        renderer:function(value, p, record){
+                            var color;
+                            if (value === 'Salida'){
+                                color = '#b8271d';
+                            }else{
+                                color = '#2e8e10';
+                            }
+                            return String.format('<b><font size = 1 color="'+color+'" >{0}</font></b>', value);
+                        }
                     },
                     type:'TextField',
                     filters:{pfiltro:'bio.acceso',type:'string'},
@@ -179,24 +158,11 @@ header("content-type: text/javascript; charset=UTF-8");
                 },
                 {
                     config:{
-                        name: 'rango',
-                        fieldLabel: 'Rango',
-                        allowBlank: true,
-                        anchor: '80%',
-                        gwidth: 100
-                    },
-                    type:'TextField',
-                    filters:{pfiltro:'rh.descripcion',type:'string'},
-                    id_grupo:1,
-                    grid:true,
-                    form:true
-                },
-                {
-                    config:{
-                        name: 'area',
+                        name: 'nombre_area',
                         fieldLabel: 'Area',
                         allowBlank: true,
-                        anchor: '80%'
+                        anchor: '80%',
+                        gwidth: 120
                     },
                     type:'TextField',
                     filters:{pfiltro:'bio.area',type:'string'},
@@ -206,7 +172,20 @@ header("content-type: text/javascript; charset=UTF-8");
                 },
                 {
                     config:{
-                        name: 'desc_funcionario',
+                        name: 'dispocitvo',
+                        fieldLabel: 'Dispocitvo',
+                        allowBlank: true,
+                        anchor: '80%',
+                        gwidth: 180
+                    },
+                    type:'TextField',
+                    id_grupo:1,
+                    grid:true,
+                    form:true
+                },
+                {
+                    config:{
+                        name: 'desc_funcionario1',
                         fieldLabel: 'Funcionario',
                         allowBlank: true,
                         anchor: '80%',
@@ -220,27 +199,15 @@ header("content-type: text/javascript; charset=UTF-8");
                 },
                 {
                     config:{
-                        name: 'obs',
-                        fieldLabel: 'Obs',
-                        allowBlank: true,
-                        anchor: '80%',
-                        gwidth: 200
-                    },
-                    type:'TextField',
-                    filters:{pfiltro:'bio.obs',type:'string'},
-                    id_grupo:1,
-                    grid:true,
-                    form:true
-                },
-                {
-                    config:{
-                        name: 'fecha_marcado',
+                        name: 'fecha_registro',
                         fieldLabel: 'Fecha Marcado',
                         allowBlank: false,
                         anchor: '80%',
                         gwidth: 100,
                         format: 'd/m/Y',
-                        renderer:function (value,p,record){return value?value.dateFormat('d/m/Y'):''}
+                        renderer:function (value,p,record){
+                            return value?value.dateFormat('d/m/Y'):''
+                        }
                     },
                     type:'DateField',
                     id_grupo:1,
@@ -360,34 +327,27 @@ header("content-type: text/javascript; charset=UTF-8");
             ActSave:'../../sis_asistencia/control/TransaccionBio/insertarTransaccionBio',
             ActDel:'../../sis_asistencia/control/TransaccionBio/eliminarTransaccionBio',
             ActList:'../../sis_asistencia/control/TransaccionBio/listarTransaccionBio',
-            id_store:'id_transaccion_bio',
+            id_store:'id',
             fields: [
-                {name:'id_transaccion_bio', type: 'numeric'},
-                {name:'obs', type: 'string'},
-                {name:'estado_reg', type: 'string'},
-                {name:'id_periodo', type: 'numeric'},
-                {name:'hora', type: 'string'},
+                {name:'id', type: 'numeric'},
                 {name:'id_funcionario', type: 'numeric'},
-                {name:'fecha_marcado', type: 'date',dateFormat:'Y-m-d'},
-                {name:'id_rango_horario', type: 'numeric'},
-                {name:'id_usuario_reg', type: 'numeric'},
-                {name:'usuario_ai', type: 'string'},
-                {name:'fecha_reg', type: 'date',dateFormat:'Y-m-d H:i:s.u'},
-                {name:'id_usuario_ai', type: 'numeric'},
-                {name:'id_usuario_mod', type: 'numeric'},
-                {name:'fecha_mod', type: 'date',dateFormat:'Y-m-d H:i:s.u'},
-                {name:'usr_reg', type: 'string'},
-                {name:'usr_mod', type: 'string'},
+                {name:'codigo_funcionario', type: 'string'},
+                {name:'nombre_area', type: 'string'},
+                {name:'verificacion', type: 'string'},
                 {name:'evento', type: 'string'},
-                {name:'tipo_verificacion', type: 'string'},
-                {name:'area', type: 'string'},
+                {name:'pivot', type: 'numeric'},
                 {name:'rango', type: 'string'},
-                {name:'dia', type: 'string'},
-                {name:'acceso', type: 'string'},
-                {name:'desc_funcionario', type: 'string'}
+                {name:'desc_funcionario1', type: 'string'},
+                {name:'periodo', type: 'numeric'},
+                {name:'fecha_registro', type: 'date',dateFormat:'Y-m-d'},
+                {name:'hora', type: 'string'},
+                {name:'dia', type: 'numeric'},
+                {name:'accion', type: 'string'},
+                {name:'dispocitvo', type: 'string'}
+
             ],
             sortInfo:{
-                field: 'fecha_marcado',
+                field: 'dia',
                 direction: 'ASC'
             },
             onButtonAct:function(){
@@ -442,7 +402,7 @@ header("content-type: text/javascript; charset=UTF-8");
             },
             tipoStore: 'GroupingStore',//GroupingStore o JsonStore #
             remoteGroup: true,
-            groupField: 'fecha_marcado',
+            groupField: 'fecha_registro',
             viewGrid: new Ext.grid.GroupingView({
                 forceFit: false
             }),
@@ -464,6 +424,7 @@ header("content-type: text/javascript; charset=UTF-8");
             bsave:false,
             bedit:false,
             bnew:false,
+            bexcel:false,
             cmbGestion: new Ext.form.ComboBox({
                 fieldLabel: 'Gestion',
                 allowBlank: false,
@@ -514,7 +475,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         remoteSort: true,
                         baseParams:{par_filtro:'gestion'}
                     }),
-                valueField: 'id_periodo',
+                valueField: 'periodo',
                 triggerAction: 'all',
                 displayField: 'literal',
                 hiddenName: 'id_periodo',
