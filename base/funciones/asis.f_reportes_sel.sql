@@ -17,8 +17,8 @@ $body$
  HISTORIAL DE MODIFICACIONES:
 #ISSUE				FECHA				AUTOR				DESCRIPCION
 #15		etr			02-09-2019			MMV               	Reporte Transacción marcados ASIS_RET_SEL
-#16		etr			04-09-2019			MMV               	Medicaciones reporte marcados ASIS_REF_SEL
- #18	ERT			26/09/2019 				 MMV			Filtra codigo fun
+#16		etr			04-09-2019			MMV               	Modificaciones reporte marcados ASIS_REF_SEL
+#0		etr			15-11-2019			SAZP               	Modificaciones reporte marcados ASIS_RPT_MAR_GRAL
 
  ***************************************************************************/
 
@@ -34,6 +34,9 @@ DECLARE
     v_filtro			varchar;
     v_fil				varchar;
     v_marcado			record;
+    v_id_funcionario	integer;
+    v_fecha_ini         date;
+    v_fecha_fin         date; 
 
 BEGIN
 
@@ -235,11 +238,9 @@ BEGIN
                             ma.codigo_evento,
                             ma.tipo_evento,
                             ma.modo_verificacion,
-                            asis.f_estraer_palabra(ma.nombre_dispositivo,'Entrada','Salida') as nombre_dispositivo
+                            ma.nombre_dispositivo
                   from funcionario fu
-                  inner join marcador ma on ma.codigo_funcionario = fu.codigo or ma.codigo_funcionario = (select co.codigo
-                                                                                                          from orga.tcodigo_funcionario co --18
-                                                                                                          where co.id_funcionario =  fu.id_funcionario)) loop
+                  inner join marcador ma on ma.codigo_funcionario = fu.codigo) loop
 
         					insert into tmp_retr ( 	dia,
                                                     fecha_marcado,
@@ -317,6 +318,71 @@ BEGIN
         end if;
         return v_consulta;
     end;
+    /*********************************
+ 	#TRANSACCION:  'ASIS_RPT_MAR'
+ 	#DESCRIPCION:	Reporte de marcado de funcionarios
+ 	#AUTOR:		szambrana
+ 	#FECHA:		02/10/2019
+	***********************************/    
+    elseif (p_transaccion='ASIS_RPT_MAR') then
+		begin
+        
+    		--Sentencia de la consulta
+   			v_consulta:= 'SELECT 
+                            bio.id_transaccion_bio,
+                            bio.fecha_marcado,
+                            bio.hora,
+                            bio.id_funcionario,
+                            vfu.desc_funcionario1 AS nombre_funcionario,
+                            --bio.id_periodo,
+                            per.periodo AS mes,
+                            bio.obs,
+                            --bio.id_rango_horario,
+                            bio.evento
+                            --bio.tipo_verificacion,
+                            --bio.area,
+                            --bio.codigo_evento,
+                            --bio.codigo_verificacion,
+                            --bio.acceso
+                            FROM asis.ttransaccion_bio bio
+                            INNER JOIN orga.vfuncionario_cargo vfu ON bio.id_funcionario = vfu.id_funcionario
+                            INNER JOIN param.tperiodo per ON bio.id_periodo = per.id_periodo
+                            WHERE bio.id_funcionario = '||v_parametros.id_funcionario||' AND bio.fecha_marcado::date BETWEEN '''|| v_parametros.fecha_ini ||''' AND '''||v_parametros.fecha_fin||''' '; 
+    
+			--Devuelve la respuesta
+			return v_consulta;
+		end;
+    /*********************************
+ 	#TRANSACCION:  'ASIS_RPT_MAR_GRAL'
+ 	#DESCRIPCION:	Reporte de marcado de funcionarios por columnas
+ 	#AUTOR:		szambrana
+ 	#FECHA:		02/10/2019
+	***********************************/    
+    elseif (p_transaccion='ASIS_RPT_MAR_GRAL') then
+		begin
+    		--Sentencia de la consulta
+			v_consulta:= 'SELECT * 
+            				FROM crosstab($$ 
+                            SELECT 
+                                  bio.fecha ||'' | ''|| vfu.desc_funcionario1 ||'' | ''|| ger.nombre_unidad::varchar AS fecha_usr,
+                                  bio.pivot,
+                                  bio.hora 
+                            FROM asis.ttransacc_zkb_etl bio 
+                            INNER JOIN orga.vfuncionario_cargo vfu ON bio.id_funcionario = vfu.id_funcionario
+                            INNER JOIN orga.tuo ger on ger.id_uo = orga.f_get_uo_departamento(vfu.id_uo, NULL::integer, NULL::date)
+                            WHERE bio.id_funcionario = '||v_parametros.id_funcionario||' AND bio.rango = ''si''   AND bio.fecha::date BETWEEN '''|| v_parametros.fecha_ini ||''' AND '''||v_parametros.fecha_fin||'''  
+                            GROUP BY bio.fecha,1,2,3 ORDER BY bio.fecha, bio.pivot 
+                            $$,$$ 
+                            SELECT DISTINCT pivot 
+                            FROM asis.ttransacc_zkb_etl 
+                            WHERE pivot <> 0 ORDER BY pivot 
+                            $$)
+                          	AS (detalles text, hra1 time, hra2 time, hra3 time, hra4 time)';
+
+    		raise notice '%',v_consulta;
+			--Devuelve la respuesta
+			return v_consulta;
+		end;        
 	else
 
 		raise exception 'Transaccion inexistente';
