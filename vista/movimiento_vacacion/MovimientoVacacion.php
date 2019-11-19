@@ -21,9 +21,10 @@ Phx.vista.MovimientoVacacion=Ext.extend(Phx.gridInterfaz,{
 	constructor:function(config){
 		this.maestro=config.maestro;
     	//llama al constructor de la clase padre
+    //    this.initButtons=[this.cmbFuncionario];  // inicializando combo del funcionario.
 		Phx.vista.MovimientoVacacion.superclass.constructor.call(this,config);
 		this.init();
-		this.load({params:{start:0, limit:this.tam_pag}})
+		// this.load({params:{start:0, limit:this.tam_pag}})
 	},
 			
 	Atributos:[

@@ -23,6 +23,10 @@ class ACTMovimientoVacacion extends ACTbase{
         else{
             $this->objParam->defecto('ordenacion','id_movimiento_vacacion');
             $this->objParam->defecto('dir_ordenacion','asc');
+
+            if($this->objParam->getParametro('id_funcionarios') != ''){
+                $this->objParam->addFiltro("mvs.id_funcionario = ".$this->objParam->getParametro('id_funcionarios'));
+            }
         }
         //var_dump($this->objParam);
 		if($this->objParam->getParametro('tipoReporte')=='excel_grid' || $this->objParam->getParametro('tipoReporte')=='pdf_grid'){

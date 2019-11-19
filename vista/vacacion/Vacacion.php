@@ -46,8 +46,8 @@ Phx.vista.Vacacion=Ext.extend(Phx.gridInterfaz,{
     },
 
     iniciarEventos: function(){
+
         this.Cmp.fecha_inicio.on('select', function (Fecha, dato) {
-            /// alert('Llego fecha fin'+Fecha.getValue()+' ---- '+this.Cmp.fecha_inicio.getValue());
             Ext.Ajax.request({
                 url: '../../sis_asistencia/control/Vacacion/getDias', //llamando a la funcion getDias.
                 params: {
@@ -216,10 +216,11 @@ Phx.vista.Vacacion=Ext.extend(Phx.gridInterfaz,{
             },
             type:'ComboRec',//ComboRec
             id_grupo:0,
-            filters:{pfiltro:'fun.desc_funcionario1',type:'string'},
+            filters:{pfiltro:'vf.desc_funcionario1',type:'string'},
             bottom_filter:true,
             grid:true,
-            form:true
+            form:true,
+            
         },
 		{
 			config:{
@@ -255,39 +256,6 @@ Phx.vista.Vacacion=Ext.extend(Phx.gridInterfaz,{
 				grid:true,
 				form:true
 		},
-
-
-
-
-        /*{
-            
-            config:{
-                name: 'medio_dia',
-                fieldLabel: 'Medios Días',
-                allowBlank: true,
-                anchor: '80%',
-                gwidth: 100,
-                renderer: function (value, p, record, rowIndex, colIndex){
-                    if(record.data.medio_dia =='t'){
-                        return  String.format('<div style="vertical-align:middle;text-align:center;"><input style="height:37px;width:37px;" type="checkbox"  {0} {1}></div>','checked', 'disabled');
-                    }
-                    else{
-                        return  String.format('<div style="vertical-align:middle;text-align:center;"><input style="height:37px;width:37px;" type="checkbox"  {0} {1}></div>','', 'disabled');
-                    }
-                }
-            },
-            type:'Checkbox',
-            filters:{pfiltro:'vac.medio_dia',type:'boolean'},
-            id_grupo:1,
-            grid:true,
-            form:true
-        },*/
-
-
-
-
-
-
 		{
 			config:{
 				name: 'dias_efectivo',   // Dias posibles para tomar vacaciones.
@@ -310,7 +278,7 @@ Phx.vista.Vacacion=Ext.extend(Phx.gridInterfaz,{
                 fieldLabel : 'Medios Días',     // Descripción del evento.
                 //labelStyle: 'width:150px; margin: 5;',
                 emptyText : 'Seleccione Opcion...',
-                width : 450,
+                // width : 340,
                 mode : 'local',
                 store : new Ext.data.ArrayStore({fields : ['ID', 'valor']}),
                 triggerAction : 'all',
@@ -319,6 +287,7 @@ Phx.vista.Vacacion=Ext.extend(Phx.gridInterfaz,{
                 forceSelection: true,
                 editable: false,
                 gwidth: 100,
+                anchor: '70%'
             },
             type : 'ComboBox',
             id_grupo : 2,
@@ -488,19 +457,19 @@ Phx.vista.Vacacion=Ext.extend(Phx.gridInterfaz,{
 	bdel:true,
 	bsave:true,
     fwidth: '45%',
-    fheight: '36%',
+    fheight: '60%',
     onButtonNew:function(){
         Phx.vista.Vacacion.superclass.onButtonNew.call(this);//habilita el boton y se abre
         
-       this.Cmp.id_funcionario.store.load({params:{start:0, limit:this.tam_pag },
+        this.Cmp.id_funcionario.store.load({params:{start:0,limit:this.tam_pag},
             callback : function (r) {
-                console.log(r[0]);
-                if (r.length === 1 ) {
+                if (r.length == 1 ) {
                     this.Cmp.id_funcionario.setValue(r[0].data.id_funcionario);
                     this.Cmp.id_funcionario.fireEvent('select', this.Cmp.id_funcionario, r[0]);
                 }
+                this.Cmp.id_funcionario.collapse();
             }, scope : this
-        });
+        });  
     },
     onButtonEdit:function(){
 
