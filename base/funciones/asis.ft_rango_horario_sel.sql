@@ -17,7 +17,7 @@ $body$
  HISTORIAL DE MODIFICACIONES:
 #ISSUE				FECHA				AUTOR				DESCRIPCION
  #0				19-08-2019 15:28:39								Funcion que devuelve conjuntos de registros de las consultas relacionadas con la tabla 'asis.trango_horario'
- #23			14-08-2020 15:28:39								Refactorizacion rango horadio
+ #23			14-08-2020 								Refactorizacion rango horadio
  ***************************************************************************/
 
 DECLARE
