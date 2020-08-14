@@ -17,7 +17,7 @@ $body$
  HISTORIAL DE MODIFICACIONES:
 #ISSUE				FECHA				AUTOR				DESCRIPCION
  #0				19-08-2019 15:28:39								Funcion que gestiona las operaciones basicas (inserciones, modificaciones, eliminaciones de la tabla 'asis.trango_horario'
- #
+ #23			14-08-2020 15:28:39								Refactorizacion rango horadio
  ***************************************************************************/
 
 DECLARE
@@ -72,6 +72,7 @@ BEGIN
 			jueves,
 			viernes,
 			sabado,
+            domingo,
 			id_usuario_reg,
 			fecha_reg,
 			id_usuario_ai,
@@ -88,25 +89,23 @@ BEGIN
 			v_parametros.rango_entrada_fin,
 			v_parametros.rango_salida_ini,
 			v_parametros.rango_salida_fin,
-		now()::date,--	v_parametros.fecha_desde,
-		now()::date,--	v_parametros.fecha_hasta,
-		null,--v_parametros.tolerancia_retardo,
-		null,--v_parametros.jornada_laboral,
+            now()::date,--	v_parametros.fecha_desde,
+            now()::date,--	v_parametros.fecha_hasta,
+            null,
+            null,
 			v_parametros.lunes,
 			v_parametros.martes,
 			v_parametros.miercoles,
 			v_parametros.jueves,
 			v_parametros.viernes,
 			v_parametros.sabado,
+            v_parametros.domingo,
 			p_id_usuario,
 			now(),
 			v_parametros._id_usuario_ai,
 			v_parametros._nombre_usuario_ai,
 			null,
 			null
-
-
-
 			)RETURNING id_rango_horario into v_id_rango_horario;
 
 			--Definicion de la respuesta
@@ -138,16 +137,6 @@ BEGIN
 			rango_entrada_fin = v_parametros.rango_entrada_fin,
 			rango_salida_ini = v_parametros.rango_salida_ini,
 			rango_salida_fin = v_parametros.rango_salida_fin,
-	--		fecha_desde = v_parametros.fecha_desde,
-	--		fecha_hasta = v_parametros.fecha_hasta,
-		--	tolerancia_retardo = v_parametros.tolerancia_retardo,
-		--	jornada_laboral = v_parametros.jornada_laboral,
-		--	lunes = v_parametros.lunes,
-		--	martes = v_parametros.martes,
-		--	miercoles = v_parametros.miercoles,
-		--	jueves = v_parametros.jueves,
-		--	viernes = v_parametros.viernes,
-		--	sabado = v_parametros.sabado,
 			id_usuario_mod = p_id_usuario,
 			fecha_mod = now(),
 			id_usuario_ai = v_parametros._id_usuario_ai,
