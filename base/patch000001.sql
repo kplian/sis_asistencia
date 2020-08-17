@@ -395,19 +395,17 @@ ALTER TABLE asis.ttransaccion_bio
 ALTER TABLE asis.ttransaccion_bio
   OWNER TO dbaamamani;
 
-  CREATE TABLE asis.ttipo_permiso (
+CREATE TABLE asis.ttipo_permiso (
   id_tipo_permiso SERIAL,
   codigo VARCHAR(20) NOT NULL,
   nombre VARCHAR(100) NOT NULL,
   tiempo TIME WITHOUT TIME ZONE DEFAULT '00:00:00'::time without time zone,
   documento VARCHAR(5) DEFAULT 'no'::character varying,
-  asignar_rango VARCHAR(5) DEFAULT 'no'::character varying,
+  reposcion VARCHAR(5) DEFAULT 'no'::character varying,
+  rango VARCHAR(5) DEFAULT 'no'::character varying,
   CONSTRAINT ttipo_permiso_pkey PRIMARY KEY(id_tipo_permiso)
 ) INHERITS (pxp.tbase)
 WITH (oids = false);
-
-ALTER TABLE asis.ttipo_permiso
-  OWNER TO postgres;
 
   CREATE TABLE asis.tpermiso (
   id_permiso SERIAL,

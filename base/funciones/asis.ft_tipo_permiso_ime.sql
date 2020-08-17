@@ -17,7 +17,7 @@ $body$
  HISTORIAL DE MODIFICACIONES:
 #ISSUE				FECHA				AUTOR				DESCRIPCION
  #0				16-10-2019 13:14:01								Funcion que gestiona las operaciones basicas (inserciones, modificaciones, eliminaciones de la tabla 'asis.ttipo_permiso'
- #
+ #24			14-08-2020 15:28:39		MMV						Refactorizacion tipo permiso
  ***************************************************************************/
 
 DECLARE
@@ -58,7 +58,8 @@ BEGIN
 			id_usuario_mod,
 			fecha_mod,
             documento,
-            asignar_rango
+            reposcion,
+            rango
           	) values(
 			'activo',
 			v_parametros.codigo,
@@ -71,7 +72,8 @@ BEGIN
 			null,
 			null,
             v_parametros.documento,
-            v_parametros.asignar_rango
+            v_parametros.reposcion,
+            v_parametros.rango
 			)RETURNING id_tipo_permiso into v_id_tipo_permiso;
 
 			--Definicion de la respuesta
@@ -103,7 +105,8 @@ BEGIN
 			id_usuario_ai = v_parametros._id_usuario_ai,
 			usuario_ai = v_parametros._nombre_usuario_ai,
             documento = v_parametros.documento,
-            asignar_rango = v_parametros.asignar_rango
+            reposcion = v_parametros.reposcion,
+            rango = v_parametros.rango
 			where id_tipo_permiso=v_parametros.id_tipo_permiso;
 
 			--Definicion de la respuesta

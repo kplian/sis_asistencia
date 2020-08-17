@@ -17,7 +17,8 @@ $body$
  HISTORIAL DE MODIFICACIONES:
 #ISSUE				FECHA				AUTOR				DESCRIPCION
  #0				16-10-2019 13:14:01								Funcion que devuelve conjuntos de registros de las consultas relacionadas con la tabla 'asis.ttipo_permiso'
- #
+  #24			14-08-2020 15:28:39		MMV						Refactorizacion tipo permiso
+
  ***************************************************************************/
 
 DECLARE
@@ -58,7 +59,8 @@ BEGIN
 						usu1.cuenta as usr_reg,
 						usu2.cuenta as usr_mod,
                         tpo.documento,
-                        tpo.asignar_rango
+                        tpo.reposcion,
+                        tpo.rango
 						from asis.ttipo_permiso tpo
 						inner join segu.tusuario usu1 on usu1.id_usuario = tpo.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = tpo.id_usuario_mod
