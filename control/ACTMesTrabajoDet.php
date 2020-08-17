@@ -186,6 +186,7 @@ class ACTMesTrabajoDet extends ACTbase{
             }
            // var_dump($arra_excel_detalle);exit;
             $json = json_encode($arra_excel_detalle);
+            // var_dump($json);exit;
             $this->objParam->addParametro('mes_trabajo_json',$json);
             $this->objFunc=$this->create('MODMesTrabajoDet');
             $this->res=$this->objFunc->insertarMesTrabajoSon($this->objParam);

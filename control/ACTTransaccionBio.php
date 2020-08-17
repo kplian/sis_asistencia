@@ -6,7 +6,8 @@
 *@date 06-09-2019 13:08:03
 *@description Clase que recibe los parametros enviados por la vista para mandar a la capa de Modelo
 */
-require_once(dirname(__FILE__).'/../reportes/RTusMarcados.php');
+// require_once(dirname(__FILE__).'/../reportes/RTusMarcados.php');
+require_once(dirname(__FILE__).'/../reportes/RTest.php');
 class ACTTransaccionBio extends ACTbase{
 			
 	function listarTransaccionBio(){
@@ -58,7 +59,8 @@ class ACTTransaccionBio extends ACTbase{
         $nombreArchivo.='.xls';
         $this->objParam->addParametro('nombre_archivo', $nombreArchivo);
         $this->objParam->addParametro('datos', $this->res->datos);
-        $this->objReporteFormato = new RTusMarcados($this->objParam);
+        $this->objReporteFormato = new RTest($this->objParam);
+        // $this->objReporteFormato = new RTusMarcados($this->objParam);
         $this->objReporteFormato->generarDatos();
         $this->objReporteFormato->generarReporte();
         $this->mensajeExito = new Mensaje();

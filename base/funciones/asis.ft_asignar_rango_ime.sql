@@ -17,7 +17,8 @@ $body$
  HISTORIAL DE MODIFICACIONES:
 #ISSUE				FECHA				AUTOR				DESCRIPCION
  #0				05-09-2019 21:07:38								Funcion que gestiona las operaciones basicas (inserciones, modificaciones, eliminaciones de la tabla 'asis.tasignar_rango'
- #
+  #23			14-08-2020 15:28:39								Refactorizacion rango horadio
+
  ***************************************************************************/
 
 DECLARE
@@ -46,6 +47,18 @@ BEGIN
 
         begin
         	--Sentencia de la insercion
+
+
+        	if exists ( select 1
+                        from asis.tasignar_rango ss
+                        where ss.id_rango_horario = v_parametros.id_rango_horario
+                        and (ss.id_uo = v_parametros.id_uo or ss.id_funcionario = v_parametros.id_funcionario)
+                        and ss.hasta is null) then
+
+            	raise exception 'Ya esta registado';
+
+        	end if;
+
         	insert into asis.tasignar_rango(
 			id_rango_horario,
 			estado_reg,
@@ -58,7 +71,8 @@ BEGIN
 			usuario_ai,
 			id_usuario_ai,
 			fecha_mod,
-			id_usuario_mod
+			id_usuario_mod,
+            id_grupo_asig
           	) values(
 			v_parametros.id_rango_horario,
 			'activo',
@@ -71,11 +85,9 @@ BEGIN
 			v_parametros._nombre_usuario_ai,
 			v_parametros._id_usuario_ai,
 			null,
-			null
-
-
-
-			)RETURNING asignar_rango into v_asignar_rango;
+			null,
+            v_parametros.id_grupo_asig
+            )RETURNING asignar_rango into v_asignar_rango;
 
 			--Definicion de la respuesta
 			v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Asignar Rango almacenado(a) con exito (asignar_rango'||v_asignar_rango||')');
@@ -106,7 +118,8 @@ BEGIN
 			fecha_mod = now(),
 			id_usuario_mod = p_id_usuario,
 			id_usuario_ai = v_parametros._id_usuario_ai,
-			usuario_ai = v_parametros._nombre_usuario_ai
+			usuario_ai = v_parametros._nombre_usuario_ai,
+            id_grupo_asig = v_parametros.id_grupo_asig
 			where asignar_rango=v_parametros.asignar_rango;
 
 			--Definicion de la respuesta

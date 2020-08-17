@@ -481,7 +481,7 @@ WITH (oids = false);
 ALTER TABLE asis.tpares
   OWNER TO dbaamamani;
 
-  CREATE TABLE asis.trango_horario (
+ CREATE TABLE asis.trango_horario (
   id_rango_horario SERIAL,
   codigo VARCHAR(5) NOT NULL,
   descripcion VARCHAR(50) NOT NULL,
@@ -501,6 +501,8 @@ ALTER TABLE asis.tpares
   jueves VARCHAR(5) DEFAULT 'no'::character varying,
   viernes VARCHAR(5) DEFAULT 'no'::character varying,
   sabado VARCHAR(5) DEFAULT 'no'::character varying,
+  domingo VARCHAR(5) DEFAULT 'no'::character varying,
+  jornada VARCHAR(10),
   CONSTRAINT trango_horario_codigo_key UNIQUE(codigo),
   CONSTRAINT trango_horario_pkey PRIMARY KEY(id_rango_horario)
 ) INHERITS (pxp.tbase)
@@ -575,9 +577,6 @@ IS 'Si el valor es verdadero, el horario considera el día viernes';
 
 COMMENT ON COLUMN asis.trango_horario.sabado
 IS 'Si el valor es verdadero, el horario considera el día sábado';
-
-ALTER TABLE asis.trango_horario
-  OWNER TO dbaamamani;
 /***********************************F-SCP-MAM-ASIS-20-21/10/2019****************************************/
 
 /***********************************I-SCP-AUG-ASIS-1-23/10/2019****************************************/
@@ -623,6 +622,7 @@ CREATE TABLE asis.tasignar_rango (
   id_uo SERIAL,
   desde DATE,
   hasta DATE,
+  id_grupo_asig INTEGER,
   CONSTRAINT tasignar_rango_pkey PRIMARY KEY(asignar_rango)
 ) INHERITS (pxp.tbase)
 WITH (oids = false);
@@ -635,8 +635,40 @@ ALTER TABLE asis.tasignar_rango
 
 ALTER TABLE asis.tasignar_rango
   ALTER COLUMN desde SET STATISTICS 0;
-
-ALTER TABLE asis.tasignar_rango
-  OWNER TO dbaamamani;
 /***********************************F-SCP-MMV-ASIS-1-24/10/2019****************************************/
+/***********************************I-SCP-MMV-ASIS-1-17/08/2020****************************************/
+CREATE TABLE asis.tgrupo_asig (
+  id_grupo_asig SERIAL,
+  codigo VARCHAR(20),
+  descripcion VARCHAR(100),
+  CONSTRAINT tgrupo_asig_tgrupo_pkey PRIMARY KEY(id_grupo_asig)
+) INHERITS (pxp.tbase)
+WITH (oids = false);
+
+ALTER TABLE asis.tgrupo_asig
+  ALTER COLUMN id_grupo_asig SET STATISTICS 0;
+
+ALTER TABLE asis.tgrupo_asig
+  ALTER COLUMN codigo SET STATISTICS 0;
+
+ALTER TABLE asis.tgrupo_asig
+  ALTER COLUMN descripcion SET STATISTICS 0;
+
+CREATE TABLE asis.tgrupo_asig_det (
+  id_id_grupo_asig_det SERIAL,
+  id_grupo_asig INTEGER,
+  id_funcionario INTEGER,
+  CONSTRAINT tgrupo_asig_det_tid_grupo_det_pkey PRIMARY KEY(id_id_grupo_asig_det)
+) INHERITS (pxp.tbase)
+WITH (oids = false);
+
+ALTER TABLE asis.tgrupo_asig_det
+  ALTER COLUMN id_id_grupo_asig_det SET STATISTICS 0;
+
+ALTER TABLE asis.tgrupo_asig_det
+  ALTER COLUMN id_grupo_asig SET STATISTICS 0;
+
+ALTER TABLE asis.tgrupo_asig_det
+  ALTER COLUMN id_funcionario SET STATISTICS 0;
+/***********************************F-SCP-MMV-ASIS-1-17/08/2020****************************************/
 

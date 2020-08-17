@@ -17,7 +17,7 @@ $body$
  HISTORIAL DE MODIFICACIONES:
 #ISSUE				FECHA				AUTOR				DESCRIPCION
  #0				05-09-2019 21:07:38								Funcion que devuelve conjuntos de registros de las consultas relacionadas con la tabla 'asis.tasignar_rango'
- #
+ #23			14-08-2020 15:28:39								Refactorizacion rango horadio
  ***************************************************************************/
 
 DECLARE
@@ -58,13 +58,16 @@ BEGIN
                                 aro.id_usuario_mod,
                                 usu1.cuenta as usr_reg,
                                 usu2.cuenta as usr_mod,
-                                fu.desc_funcionario1 as desc_funcionario,
-                                uo.nombre_unidad as desc_uo
+                                initcap(fu.desc_funcionario1) as desc_funcionario,
+                                initcap(uo.nombre_unidad) as desc_uo,
+                                gra.descripcion ||'' (''||gra.codigo||'')'' as desc_grupos,
+                                aro.id_grupo_asig
                                 from asis.tasignar_rango aro
                                 inner join segu.tusuario usu1 on usu1.id_usuario = aro.id_usuario_reg
                                 left join segu.tusuario usu2 on usu2.id_usuario = aro.id_usuario_mod
                                 left join orga.vfuncionario fu on fu.id_funcionario = aro.id_funcionario
                                 left join orga.tuo uo on uo.id_uo = aro.id_uo
+                                left join asis.tgrupo_asig gra on gra.id_grupo_asig = aro.id_grupo_asig
                                 where  ';
 
 			--Definicion de la respuesta
@@ -93,7 +96,65 @@ BEGIN
                         left join segu.tusuario usu2 on usu2.id_usuario = aro.id_usuario_mod
                         left join orga.vfuncionario fu on fu.id_funcionario = aro.id_funcionario
                         left join orga.tuo uo on uo.id_uo = aro.id_uo
+                        left join asis.tgrupo_asig gra on gra.id_grupo_asig = aro.id_grupo_asig
 					    where ';
+
+			--Definicion de la respuesta
+			v_consulta:=v_consulta||v_parametros.filtro;
+
+			--Devuelve la respuesta
+			return v_consulta;
+
+		end;
+    /*********************************
+ 	#TRANSACCION:  'ASIS_UO_SEL'
+ 	#DESCRIPCION:	Conteo de registros
+ 	#AUTOR:		miguel.mamani
+ 	#FECHA:		17/02/2020
+	***********************************/
+
+	elsif(p_transaccion='ASIS_UO_SEL')then
+
+		begin
+
+			--Sentencia de la consulta de conteo de registros
+			v_consulta:=' select  uo.id_uo,
+                                  uo.codigo,
+          						  uo.descripcion
+                            from orga.tuo uo
+                            where uo.estado_reg=''activo'' and
+                                  (uo.gerencia = ''si'')
+                                   and uo.gerencia = ''si''
+                                   and uo.id_uo not in (select COALESCE(ar.id_uo,0)
+                                   from asis.tasignar_rango ar
+                                   where ar.id_rango_horario = '||v_parametros.id_rango_horario||') and';
+
+			--Definicion de la respuesta
+			v_consulta:=v_consulta||v_parametros.filtro;
+
+			--Devuelve la respuesta
+			return v_consulta;
+
+		end;
+    /*********************************
+ 	#TRANSACCION:  'ASIS_UO_CONT'
+ 	#DESCRIPCION:	Conteo de registros
+ 	#AUTOR:		miguel.mamani
+ 	#FECHA:		17/02/2020
+	***********************************/
+
+	elsif(p_transaccion='ASIS_UO_CONT')then
+
+		begin
+			--Sentencia de la consulta de conteo de registros
+			v_consulta:=' select count(uo.id_uo)
+                          from orga.tuo uo
+                          where uo.estado_reg=''activo'' and
+                                (uo.gerencia = ''si'')
+                                 and uo.gerencia = ''si''
+                                 and uo.id_uo not in (select COALESCE(ar.id_uo,0)
+                                                       from asis.tasignar_rango ar
+                                                       where ar.id_rango_horario = '||v_parametros.id_rango_horario||' ) and ';
 
 			--Definicion de la respuesta
 			v_consulta:=v_consulta||v_parametros.filtro;
