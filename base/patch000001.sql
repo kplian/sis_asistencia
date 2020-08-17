@@ -595,11 +595,11 @@ CREATE TABLE asis.tvacacion (
   nro_tramite VARCHAR(100),
   solicitud DATE DEFAULT now()::date,
   id_gestion INTEGER,
-  medio_dia BOOLEAN,
+  medio_dia INTEGER,
+  dias_efectivo NUMERIC,
   CONSTRAINT tvacacion_id_proceso_wf_key UNIQUE(id_proceso_wf),
   CONSTRAINT tvacacion_pkey PRIMARY KEY(id_vacacion)
 ) INHERITS (pxp.tbase)
-
 WITH (oids = false);
 
 ALTER TABLE asis.tvacacion
@@ -671,5 +671,17 @@ ALTER TABLE asis.tgrupo_asig_det
 
 ALTER TABLE asis.tgrupo_asig_det
   ALTER COLUMN id_funcionario SET STATISTICS 0;
+
+CREATE TABLE asis.tvacacion_det (
+  id_vacacion_det SERIAL,
+  id_vacacion INTEGER NOT NULL,
+  fecha_dia DATE NOT NULL,
+  tiempo INTEGER DEFAULT 8 NOT NULL,
+  CONSTRAINT tvacacion_det_pkey PRIMARY KEY(id_vacacion_det)
+) INHERITS (pxp.tbase)
+WITH (oids = false);
+
+ALTER TABLE asis.tvacacion_det
+  ALTER COLUMN fecha_dia SET STATISTICS 0;
 /***********************************F-SCP-MMV-ASIS-1-17/08/2020****************************************/
 

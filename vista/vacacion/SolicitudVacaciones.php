@@ -46,8 +46,16 @@ header("content-type: text/javascript; charset=UTF-8");
             this.getBoton('btn_atras').setVisible(false);
             this.finCons = true;
             this.load({params: {start: 0, limit: this.tam_pag}});
-            
-        }
+
+        },
+        tabeast:[
+            {
+                url:'../../../sis_asistencia/vista/vacacion_det/VacacionDet.php',
+                title:'Detalle',
+                width:'40%',
+                cls:'VacacionDet'
+            }
+        ]
     };
 </script>
 
