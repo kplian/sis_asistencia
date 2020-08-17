@@ -17,7 +17,7 @@ $body$
  HISTORIAL DE MODIFICACIONES:
 #ISSUE				FECHA				AUTOR				DESCRIPCION
  #0				16-10-2019 13:14:05								Funcion que gestiona las operaciones basicas (inserciones, modificaciones, eliminaciones de la tabla 'asis.tpermiso'
- #
+#25			14-08-2020 15:28:39		MMV						Refactorizacion permiso
  ***************************************************************************/
 
 DECLARE
@@ -56,7 +56,12 @@ DECLARE
     v_codigo_estado_siguiente	varchar;
     v_tiempo					time;
     v_diferencia				time;
+    v_registro_funcionario		record;
+    v_consulta					varchar;
+    v_consulta_record			record;
 
+    v_inicio	varchar;
+    v_fin		varchar;
 
 
 BEGIN
@@ -114,19 +119,26 @@ BEGIN
                  v_codigo_proceso);
 
       		v_tiempo = null;
+
             select tp.tiempo into v_tiempo
             from asis.ttipo_permiso tp
             where tp.id_tipo_permiso = v_parametros.id_tipo_permiso;
 
-         -- raise exception 'entra la perra %',v_parametros.diferencia_tiempo;
-           if v_parametros.diferencia_tiempo != '0' then
+            v_diferencia = v_parametros.hro_total_permiso::time;
 
-           		v_diferencia = left(v_parametros.diferencia_tiempo,5)::time;
-                   if (v_diferencia > v_tiempo)then
-                    raise exception 'Sobre pasa el limite de tiempo para el permiso';
-                   end if;
+            if (v_diferencia > v_tiempo)then
+                raise exception 'Sobre pasa el limite de tiempo para el permiso (%)',v_tiempo;
+            end if;
 
-           end if;
+            if v_parametros.hro_total_reposicion::time < v_parametros.hro_total_permiso::time then
+           		raise exception 'El tiempo de reposicion es menor al tiempo del permiso';
+            elsif v_parametros.hro_total_reposicion::time  >  v_parametros.hro_total_permiso::time then
+            	raise exception 'El tiempo de reposicion es mayor al tiempo del permiso';
+            elsif v_parametros.hro_total_permiso::time != v_parametros.hro_total_reposicion::time then
+            	raise exception 'El tiempo de la reposición es distinto a tiempo del permiso';
+            end if;
+
+        --  	raise exception 'Exit';
 
         	--Sentencia de la insercion
         	insert into asis.tpermiso(
@@ -146,7 +158,13 @@ BEGIN
 			fecha_mod,
 			id_usuario_mod,
             hro_desde,
-            hro_hasta
+            hro_hasta,
+            fecha_reposicion,  ---nuevo
+            hro_desde_reposicion,
+            hro_hasta_reposicion,
+            reposicion,
+            hro_total_permiso,
+            hro_total_reposicion
           	) values(
 			v_nro_tramite,--v_parametros.nro_tramite,
 			v_parametros.id_funcionario,
@@ -164,7 +182,13 @@ BEGIN
 			null,
 			null,
             v_parametros.hro_desde,
-            v_parametros.hro_hasta
+            v_parametros.hro_hasta,
+            v_parametros.fecha_reposicion,  ---nuevo
+            v_parametros.hro_desde_reposicion,
+            v_parametros.hro_hasta_reposicion,
+            v_parametros.reposicion,
+            v_parametros.hro_total_permiso,
+            v_parametros.hro_total_reposicion
 			)RETURNING id_permiso into v_id_permiso;
 
 			--Definicion de la respuesta
@@ -407,7 +431,66 @@ BEGIN
               --Devuelve la respuesta
                 return v_resp;
  			end;
+	/*********************************
+ 	#TRANSACCION:  'ASIS_RAF_IME'
+ 	#DESCRIPCION:  optener los rango del funcionario
+ 	#AUTOR: MMV
+ 	#FECHA: 23/03/2020
+	***********************************/
+    elsif(p_transaccion='ASIS_RAF_IME')then
 
+		begin
+
+
+       -- raise exception '%',v_parametros.id_funcionario;
+        select distinct on (uof.id_funcionario) uof.id_funcionario, ger.id_uo into v_registro_funcionario
+        from orga.tuo_funcionario uof
+        inner join orga.tuo ger on ger.id_uo = orga.f_get_uo_gerencia(uof.id_uo, NULL::integer, NULL::date)
+        where uof.id_funcionario = v_parametros.id_funcionario and
+        uof.fecha_asignacion <= now()::date and
+        (uof.fecha_finalizacion is null or uof.fecha_finalizacion >= now()::date)
+        order by uof.id_funcionario, uof.fecha_asignacion desc;
+
+
+        if v_registro_funcionario.id_uo is null then
+        	raise exception 'No tiene asigando una uo';
+        end if;
+
+        v_consulta = 'select rh.hora_entrada,
+                              rh.hora_salida
+                      from asis.trango_horario rh
+                      inner join asis.tasignar_rango ar on ar.id_rango_horario = rh.id_rango_horario
+                      where ar.id_uo = '||v_registro_funcionario.id_uo||'and rh.'||asis.f_obtener_dia_literal(now()::date)||' = ''si''
+                       and  '''||now()||'''::date >=ar.desde and ar.hasta is null
+                      order by rh.hora_entrada, ar.hasta asc';
+
+        -- execute (v_consulta) into v_consulta_record;
+         v_inicio = null;
+         v_fin = null;
+
+         for v_consulta_record in execute (v_consulta) loop
+         	if ( now()::time >= v_consulta_record.hora_entrada::time and
+            	 now()::time < v_consulta_record.hora_salida::time ) then
+
+                 v_inicio = v_consulta_record.hora_entrada;
+                 v_fin = v_consulta_record.hora_salida;
+
+                 exit;
+            end if;
+         end loop;
+
+        if v_inicio is not null and v_fin is not null then
+
+           v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Exito');
+           v_resp = pxp.f_agrega_clave(v_resp,'inicio',v_inicio);
+           v_resp = pxp.f_agrega_clave(v_resp,'fin',v_fin);
+
+         return v_resp;
+        else
+        	raise exception 'Fuera de rango de trabajo';
+        end if;
+
+ 		end;
 	else
 
     	raise exception 'Transaccion inexistente: %',p_transaccion;

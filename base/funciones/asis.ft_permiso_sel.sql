@@ -17,7 +17,8 @@ $body$
  HISTORIAL DE MODIFICACIONES:
 #ISSUE				FECHA				AUTOR				DESCRIPCION
  #0				16-10-2019 13:14:05								Funcion que devuelve conjuntos de registros de las consultas relacionadas con la tabla 'asis.tpermiso'
- #
+ #25			14-08-2020 15:28:39		MMV						Refactorizacion permiso
+
  ***************************************************************************/
 
 DECLARE
@@ -47,7 +48,7 @@ BEGIN
             if v_parametros.tipo_interfaz = 'PermisoReg'then
                 v_filtro = '';
                 if p_administrador != 1  then
-                   v_filtro = 'vac.id_usuario_reg =  '||p_id_usuario||' and ';
+                   v_filtro = 'pmo.id_usuario_reg =  '||p_id_usuario||' and ';
                	end if;
             end if;
 
@@ -93,8 +94,14 @@ BEGIN
                                 fun.desc_funcionario1::text as desc_funcionario,
                                 pmo.hro_desde,
                                 pmo.hro_hasta,
-                                tip.asignar_rango,
-                                tip.documento
+                                tip.reposcion as asignar_rango,
+                                tip.documento,
+                                pmo.reposicion,
+                                pmo.fecha_reposicion,
+                                pmo.hro_desde_reposicion,
+                                pmo.hro_hasta_reposicion,
+                                pmo.hro_total_permiso,
+                                pmo.hro_total_reposicion
                                 from asis.tpermiso pmo
                                 inner join segu.tusuario usu1 on usu1.id_usuario = pmo.id_usuario_reg
                                 inner join asis.ttipo_permiso tip on tip.id_tipo_permiso = pmo.id_tipo_permiso
@@ -125,7 +132,7 @@ BEGIN
             if v_parametros.tipo_interfaz = 'PermisoReg'then
                 v_filtro = '';
                 if p_administrador != 1  then
-                   v_filtro = 'vac.id_usuario_reg =  '||p_id_usuario||' and ';
+                   v_filtro = 'pmo.id_usuario_reg =  '||p_id_usuario||' and ';
                	end if;
             end if;
 

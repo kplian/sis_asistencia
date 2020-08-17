@@ -30,7 +30,8 @@ header("content-type: text/javascript; charset=UTF-8");
         gruposBarraTareas:[
             {name:'registro',title:'<h1 align="center"><i></i>Registrado</h1>',grupo:0,height:0},
             {name:'vobo',title:'<h1 align="center"><i></i>VoBo</h1>',grupo:1,height:0},
-            {name:'aprobado',title:'<h1 align="center"><i></i>Aprobado</h1>',grupo:2,height:0}
+            {name:'reposicion',title:'<h1 align="center"><i></i>Reposición Hra</h1>',grupo:2,height:0},
+            {name:'finalizado',title:'<h1 align="center"><i></i>Finalizado</h1>',grupo:2,height:0}
         ],
         bnewGroups:[0],
         bactGroups:[0,1,2],
@@ -43,7 +44,7 @@ header("content-type: text/javascript; charset=UTF-8");
             this.store.baseParams = {tipo_interfaz: this.nombreVista};
             this.store.baseParams.pes_estado = 'registro';
             this.getBoton('btn_atras').setVisible(false);
-           // this.finCons = true;
+            // this.finCons = true;
             this.load({params: {start: 0, limit: this.tam_pag}});
         }
     };

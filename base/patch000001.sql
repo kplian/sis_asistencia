@@ -407,7 +407,7 @@ CREATE TABLE asis.ttipo_permiso (
 ) INHERITS (pxp.tbase)
 WITH (oids = false);
 
-  CREATE TABLE asis.tpermiso (
+ CREATE TABLE asis.tpermiso (
   id_permiso SERIAL,
   id_funcionario INTEGER NOT NULL,
   fecha_solicitud DATE NOT NULL,
@@ -419,6 +419,12 @@ WITH (oids = false);
   nro_tramite VARCHAR(100),
   hro_desde TIME WITHOUT TIME ZONE,
   hro_hasta TIME WITHOUT TIME ZONE,
+  fecha_reposicion DATE,
+  hro_desde_reposicion TIME WITHOUT TIME ZONE,
+  hro_hasta_reposicion TIME WITHOUT TIME ZONE,
+  reposicion VARCHAR(20),
+  hro_total_permiso TIME WITHOUT TIME ZONE,
+  hro_total_reposicion TIME WITHOUT TIME ZONE,
   CONSTRAINT tpermiso_pkey PRIMARY KEY(id_permiso)
 ) INHERITS (pxp.tbase)
 WITH (oids = false);
@@ -449,9 +455,6 @@ ALTER TABLE asis.tpermiso
 
 ALTER TABLE asis.tpermiso
   ALTER COLUMN nro_tramite SET STATISTICS 0;
-
-ALTER TABLE asis.tpermiso
-  OWNER TO dbaamamani;
 
 CREATE TABLE asis.tpares (
   id_pares SERIAL,
