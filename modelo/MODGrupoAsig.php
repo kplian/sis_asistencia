@@ -52,7 +52,7 @@ class MODGrupoAsig extends MODbase{
         $this->tipo_procedimiento='IME';
 
         //Define los parametros para la funcion
-        $this->setParametro('codigo','codigo','varchar');
+       // $this->setParametro('codigo','codigo','varchar');
         $this->setParametro('estado_reg','estado_reg','varchar');
         $this->setParametro('descripcion','descripcion','varchar');
 
@@ -72,7 +72,7 @@ class MODGrupoAsig extends MODbase{
 
         //Define los parametros para la funcion
         $this->setParametro('id_grupo_asig','id_grupo_asig','int4');
-        $this->setParametro('codigo','codigo','varchar');
+        // $this->setParametro('codigo','codigo','varchar');
         $this->setParametro('estado_reg','estado_reg','varchar');
         $this->setParametro('descripcion','descripcion','varchar');
 

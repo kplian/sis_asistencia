@@ -62,6 +62,7 @@ DECLARE
 
     v_inicio	varchar;
     v_fin		varchar;
+    v_record_tipo record;
 
 
 BEGIN
@@ -118,27 +119,43 @@ BEGIN
                  'Permiso',
                  v_codigo_proceso);
 
-      		v_tiempo = null;
+      		/*v_tiempo = null;
 
             select tp.tiempo into v_tiempo
             from asis.ttipo_permiso tp
-            where tp.id_tipo_permiso = v_parametros.id_tipo_permiso;
+            where tp.id_tipo_permiso = v_parametros.id_tipo_permiso;*/
 
-            v_diferencia = v_parametros.hro_total_permiso::time;
+            select  tp.documento,
+                    tp.reposcion,
+                    tp.rango,
+                    tp.tiempo
+                    into
+                    v_record_tipo
+            from asis.ttipo_permiso tp
+            where tp.id_tipo_permiso  = v_parametros.id_tipo_permiso;
 
-            if (v_diferencia > v_tiempo)then
-                raise exception 'Sobre pasa el limite de tiempo para el permiso (%)',v_tiempo;
+
+            if (v_record_tipo.tiempo::time > '00:00:00'::time ) then
+
+                    if (v_record_tipo.reposcion = 'si')then
+
+                       v_diferencia = v_parametros.hro_total_permiso::time;
+
+                       if (v_diferencia::time > v_record_tipo.tiempo::time)then
+                            raise exception 'Sobre pasa el limite de tiempo para el permiso (%)',v_record_tipo.tiempo::time;
+                       end if;
+
+                       if v_parametros.hro_total_reposicion::time < v_parametros.hro_total_permiso::time then
+                          raise exception 'El tiempo de reposicion es menor al tiempo del permiso';
+                      elsif v_parametros.hro_total_reposicion::time  >  v_parametros.hro_total_permiso::time then
+                          raise exception 'El tiempo de reposicion es mayor al tiempo del permiso';
+                      elsif v_parametros.hro_total_permiso::time != v_parametros.hro_total_reposicion::time then
+                          raise exception 'El tiempo de la reposición es distinto a tiempo del permiso';
+                      end if;
+
+
+                    end if;
             end if;
-
-            if v_parametros.hro_total_reposicion::time < v_parametros.hro_total_permiso::time then
-           		raise exception 'El tiempo de reposicion es menor al tiempo del permiso';
-            elsif v_parametros.hro_total_reposicion::time  >  v_parametros.hro_total_permiso::time then
-            	raise exception 'El tiempo de reposicion es mayor al tiempo del permiso';
-            elsif v_parametros.hro_total_permiso::time != v_parametros.hro_total_reposicion::time then
-            	raise exception 'El tiempo de la reposición es distinto a tiempo del permiso';
-            end if;
-
-        --  	raise exception 'Exit';
 
         	--Sentencia de la insercion
         	insert into asis.tpermiso(
@@ -186,7 +203,7 @@ BEGIN
             v_parametros.fecha_reposicion,  ---nuevo
             v_parametros.hro_desde_reposicion,
             v_parametros.hro_hasta_reposicion,
-            v_parametros.reposicion,
+            v_record_tipo.reposcion,
             v_parametros.hro_total_permiso,
             v_parametros.hro_total_reposicion
 			)RETURNING id_permiso into v_id_permiso;
@@ -512,6 +529,7 @@ LANGUAGE 'plpgsql'
 VOLATILE
 CALLED ON NULL INPUT
 SECURITY INVOKER
+PARALLEL UNSAFE
 COST 100;
 
 ALTER FUNCTION asis.ft_permiso_ime (p_administrador integer, p_id_usuario integer, p_tabla varchar, p_transaccion varchar)

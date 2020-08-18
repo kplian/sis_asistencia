@@ -48,16 +48,15 @@ header("content-type: text/javascript; charset=UTF-8");
                     filters:{pfiltro:'gru.codigo',type:'string'},
                     id_grupo:1,
                     grid:true,
-                    form:true
+                    form:false
                 },
                 {
                     config:{
                         name: 'descripcion',
-                        fieldLabel: 'Descripcion',
+                        fieldLabel: 'Nombre',
                         allowBlank: true,
                         anchor: '80%',
-                        gwidth: 100,
-                        maxLength:100
+                        gwidth: 200,
                     },
                     type:'TextField',
                     filters:{pfiltro:'gru.descripcion',type:'string'},

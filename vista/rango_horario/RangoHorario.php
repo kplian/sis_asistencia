@@ -66,10 +66,10 @@ header("content-type: text/javascript; charset=UTF-8");
                 {
                     config:{
                         name: 'descripcion',
-                        fieldLabel: 'Descripción',
+                        fieldLabel: 'Nombre',
                         allowBlank: false,
                         anchor: '80%',
-                        gwidth: 150
+                        gwidth: 200
                     },
                     type:'TextArea',
                     filters:{pfiltro:'rho.descripcion',type:'string'},

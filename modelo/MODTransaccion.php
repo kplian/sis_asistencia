@@ -1,21 +1,21 @@
 <?php
 /**
  *@package pXP
- *@file gen-MODTransaccionBio.php
+ *@file MODTransaccion.php
  *@author  (miguel.mamani)
  *@date 06-09-2019 13:08:03
  *@description Clase que envia los parametros requeridos a la Base de datos para la ejecucion de las funciones, y que recibe la respuesta del resultado de la ejecucion de las mismas
  */
 
-class MODTransaccionBio extends MODbase{
+class MODTransaccion extends MODbase{
 
     function __construct(CTParametro $pParam){
         parent::__construct($pParam);
     }
 
-    function listarTransaccionBio(){
+    function listarTransaccion(){
         //Definicion de variables para ejecucion del procedimientp
-        $this->procedimiento='asis.ft_transaccion_bio_sel';
+        $this->procedimiento='asis.ft_transaccion_sel';
         $this->transaccion='ASIS_BIO_SEL';
         $this->tipo_procedimiento='SEL';//tipo de transaccion
 
@@ -31,11 +31,15 @@ class MODTransaccionBio extends MODbase{
         $this->captura('rango','text');
         $this->captura('desc_funcionario1','text');
         $this->captura('periodo','int4');
-        $this->captura('fecha_registro','date');
+        $this->captura('fecha_registro','text');
         $this->captura('hora','varchar');
         $this->captura('dia','int4');
         $this->captura('accion','varchar');
         $this->captura('dispocitvo','varchar');
+        $this->captura('obs','text');
+        $this->captura('descripcion','varchar');
+        $this->captura('id_rango_horario','int4');
+        $this->captura('reader_name','varchar');
 
         //Ejecuta la instruccion
         $this->armarConsulta();
@@ -45,7 +49,7 @@ class MODTransaccionBio extends MODbase{
         return $this->respuesta;
     }
 
-    function insertarTransaccionBio(){
+    function insertarTransaccion(){
         //Definicion de variables para ejecucion del procedimiento
         $this->procedimiento='asis.ft_transaccion_bio_ime';
         $this->transaccion='ASIS_BIO_INS';
@@ -71,7 +75,7 @@ class MODTransaccionBio extends MODbase{
         return $this->respuesta;
     }
 
-    function modificarTransaccionBio(){
+    function modificarTransaccion(){
         //Definicion de variables para ejecucion del procedimiento
         $this->procedimiento='asis.ft_transaccion_bio_ime';
         $this->transaccion='ASIS_BIO_MOD';
@@ -98,7 +102,7 @@ class MODTransaccionBio extends MODbase{
         return $this->respuesta;
     }
 
-    function eliminarTransaccionBio(){
+    function eliminarTransaccion(){
         //Definicion de variables para ejecucion del procedimiento
         $this->procedimiento='asis.ft_transaccion_bio_ime';
         $this->transaccion='ASIS_BIO_ELI';
@@ -133,7 +137,7 @@ class MODTransaccionBio extends MODbase{
 
     function ReporteTusMarcados(){
         //Definicion de variables para ejecucion del procedimientp
-        $this->procedimiento='asis.ft_transaccion_bio_sel';
+        $this->procedimiento='asis.ft_transaccion_sel';
         $this->transaccion='ASIS_BIORPT_SEL';
         $this->tipo_procedimiento='SEL';//tipo de transaccion
         $this->setCount(false);
@@ -179,7 +183,7 @@ class MODTransaccionBio extends MODbase{
     }
     function listarReporteTranasaccion(){
         //Definicion de variables para ejecucion del procedimientp
-        $this->procedimiento='asis.ft_transaccion_bio_sel';
+        $this->procedimiento='asis.ft_transaccion_sel';
         $this->transaccion='ASIS_RFA_SEL';
         $this->tipo_procedimiento='SEL';//tipo de transaccion
 
@@ -206,6 +210,34 @@ class MODTransaccionBio extends MODbase{
         $this->ejecutarConsulta();
 
         //Devuelve la respuesta
+        return $this->respuesta;
+    }
+    function reporteMarcados(){
+        //Definicion de variables para ejecucion del procedimientp
+        $this->procedimiento='asis.ft_transaccion_sel';
+        $this->transaccion='ASIS_REM_SEL';
+        $this->tipo_procedimiento='SEL';//tipo de transaccion
+        $this->setCount(false);
+        $this->setParametro('id_funcionario','id_funcionario','int4');
+        $this->setParametro('id_periodo','id_periodo','int4');
+
+        //Definicion de la lista del resultado del query
+        $this->captura('funcionario','text');
+        $this->captura('fecha','date');
+        $this->captura('inicio_one','time');
+        $this->captura('fin_one','time');
+        $this->captura('result_one','numeric');
+        $this->captura('inicio_two','time');
+        $this->captura('fin_two','time');
+        $this->captura('result_two','numeric');
+        $this->captura('total','numeric');
+        $this->captura('fecha_ini','date');
+        $this->captura('fecha_fin','date');
+        //Ejecuta la instruccion
+        $this->armarConsulta();
+        $this->ejecutarConsulta();
+        //Devuelve la respuesta
+        // var_dump($this->respuesta);exit;
         return $this->respuesta;
     }
 

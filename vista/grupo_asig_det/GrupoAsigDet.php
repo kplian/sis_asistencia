@@ -21,7 +21,6 @@ header("content-type: text/javascript; charset=UTF-8");
                 //llama al constructor de la clase padre
                 Phx.vista.GrupoAsigDet.superclass.constructor.call(this,config);
                 this.init();
-                // this.load({params:{start:0, limit:this.tam_pag}})
             },
 
             Atributos:[
@@ -53,7 +52,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         fieldLabel:'Funcionario',
                         allowBlank:false,
                         anchor: '70%',
-                        gwidth:200,
+                        gwidth:300,
                         valueField: 'id_funcionario',
                         gdisplayField: 'desc_funcionario1',
                         baseParams: {par_filtro: 'id_funcionario#desc_funcionario1#codigo',es_combo_solicitud : 'si'},

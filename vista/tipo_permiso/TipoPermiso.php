@@ -41,7 +41,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         fieldLabel: 'Codigo',
                         allowBlank: false,
                         width: 250,
-                        gwidth: 50
+                        gwidth: 100
                     },
                     type:'TextField',
                     filters:{pfiltro:'tpo.codigo',type:'string'},
@@ -55,7 +55,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         fieldLabel: 'Nombre',
                         allowBlank: false,
                         width: 250,
-                        gwidth: 200
+                        gwidth: 250
                     },
                     type:'TextField',
                     filters:{pfiltro:'tpo.nombre',type:'string'},
@@ -74,6 +74,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     },
                     type:'TimeField',
                     filters:{pfiltro:'tpo.tiempo',type:'string'},
+                    valorInicial: '00:00:00',
                     id_grupo:0,
                     grid:true,
                     form:true

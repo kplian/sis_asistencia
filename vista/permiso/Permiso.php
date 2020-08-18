@@ -200,7 +200,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     config:{
                         name: 'hro_desde',
                         fieldLabel: 'Desde',
-                        increment: 5,
+                        increment: 10,
                         minValue: '00:00:00',
                         maxValue: '23:55:00',
                         width: 100,
@@ -216,7 +216,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     config:{
                         name: 'hro_hasta',
                         fieldLabel: 'Hasta',
-                        increment: 5,
+                        increment: 10,
                         minValue: '00:00:00',
                         maxValue: '23:55:00',
                         width: 100,
