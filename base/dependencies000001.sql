@@ -108,3 +108,29 @@ select pxp.f_insert_testructura_gui ('INGSAL', 'ASIS');
 select pxp.f_insert_testructura_gui ('VACFUN', 'APR');
 /***********************************F-DEP-APS-ASIS-22-31/10/2019*****************************************/
 
+/***********************************I-DEP-MMV-ASIS-22-18/08/2020*****************************************/
+select pxp.f_insert_testructura_gui ('ASIS', 'SISTEMA');
+select pxp.f_insert_testructura_gui ('PARM', 'ASIS');
+select pxp.f_insert_testructura_gui ('RHO', 'PARM');
+select pxp.f_insert_testructura_gui ('TPS', 'PARM');
+select pxp.f_insert_testructura_gui ('TLS', 'PARM');
+select pxp.f_insert_testructura_gui ('PERMI', 'ASIS');
+select pxp.f_insert_testructura_gui ('SOLVAC', 'ASIS');
+select pxp.f_insert_testructura_gui ('CSA', 'ASIS');
+select pxp.f_insert_testructura_gui ('CON', 'ASIS');
+select pxp.f_insert_testructura_gui ('AREP', 'ASIS');
+select pxp.f_insert_testructura_gui ('HFT', 'ASIS');
+select pxp.f_insert_testructura_gui ('SBO', 'ASIS');
+select pxp.f_insert_testructura_gui ('CONDIA', 'ASIS');
+select pxp.f_insert_testructura_gui ('VACFUN', 'CON');
+select pxp.f_insert_testructura_gui ('PRH', 'CON');
+select pxp.f_insert_testructura_gui ('MAB', 'CON');
+select pxp.f_insert_testructura_gui ('RRET', 'AREP');
+select pxp.f_insert_testructura_gui ('MTO', 'HFT');
+select pxp.f_insert_testructura_gui ('CCT', 'HFT');
+select pxp.f_insert_testructura_gui ('VOB', 'SBO');
+select pxp.f_insert_testructura_gui ('PVO', 'SBO');
+select pxp.f_insert_testructura_gui ('VOM', 'SBO');
+select pxp.f_insert_testructura_gui ('INGSAL', 'CONDIA');
+/***********************************F-DEP-MMV-ASIS-22-18/08/2020*****************************************/
+
