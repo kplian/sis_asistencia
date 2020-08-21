@@ -1,4 +1,4 @@
-CREATE OR REPLACE FUNCTION asis.ft_pares_sel (
+CREATE OR REPLACE FUNCTION asis.ft_permiso_sel (
   p_administrador integer,
   p_id_usuario integer,
   p_tabla varchar,
@@ -8,16 +8,17 @@ RETURNS varchar AS
 $body$
 /**************************************************************************
  SISTEMA:		Sistema de Asistencia
- FUNCION: 		asis.ft_pares_sel
- DESCRIPCION:   Funcion que devuelve conjuntos de registros de las consultas relacionadas con la tabla 'asis.tpares'
- AUTOR: 		 (mgarcia)
- FECHA:	        19-09-2019 16:00:52
+ FUNCION: 		asis.ft_permiso_sel
+ DESCRIPCION:   Funcion que devuelve conjuntos de registros de las consultas relacionadas con la tabla 'asis.tpermiso'
+ AUTOR: 		 (miguel.mamani)
+ FECHA:	        16-10-2019 13:14:05
  COMENTARIOS:
 ***************************************************************************
  HISTORIAL DE MODIFICACIONES:
 #ISSUE				FECHA				AUTOR				DESCRIPCION
- #0				19-09-2019 16:00:52								Funcion que devuelve conjuntos de registros de las consultas relacionadas con la tabla 'asis.tpares'
- #
+ #0				16-10-2019 13:14:05								Funcion que devuelve conjuntos de registros de las consultas relacionadas con la tabla 'asis.tpermiso'
+ #25			14-08-2020 15:28:39		MMV						Refactorizacion permiso
+
  ***************************************************************************/
 
 DECLARE
@@ -26,134 +27,142 @@ DECLARE
 	v_parametros  		record;
 	v_nombre_funcion   	text;
 	v_resp				varchar;
+    v_filtro			varchar;
+    v_id_funcionario	integer;
 
 BEGIN
 
-	v_nombre_funcion = 'asis.ft_pares_sel';
+	v_nombre_funcion = 'asis.ft_permiso_sel';
     v_parametros = pxp.f_get_record(p_tabla);
 
 	/*********************************
- 	#TRANSACCION:  'ASIS_PAR_SEL'
+ 	#TRANSACCION:  'ASIS_PMO_SEL'
  	#DESCRIPCION:	Consulta de datos
- 	#AUTOR:		mgarcia
- 	#FECHA:		19-09-2019 16:00:52
+ 	#AUTOR:		miguel.mamani
+ 	#FECHA:		16-10-2019 13:14:05
 	***********************************/
 
-	if(p_transaccion='ASIS_PAR_SEL')then
+	if(p_transaccion='ASIS_PMO_SEL')then
 
     	begin
-    		--Sentencia de la consulta
-
-            if v_parametros.id_funcionario is null then
-                  raise exception 'Usted no esta registrado como funcionario';
+            if v_parametros.tipo_interfaz = 'PermisoReg'then
+                v_filtro = '';
+                if p_administrador != 1  then
+                   v_filtro = 'pmo.id_usuario_reg =  '||p_id_usuario||' and ';
+               	end if;
             end if;
-			v_consulta:='select	  par.id_pares,
-                                  par.estado_reg,
-                                  par.id_transaccion_ini,
-                                  par.id_transaccion_fin,
-                                  par.fecha_marcado,
-                                  par.id_funcionario,
-                                  par.id_permiso,
-                                  par.id_vacacion,
-                                  par.id_viatico,
-                                  par.id_usuario_reg,
-                                  par.fecha_reg,
-                                  par.id_usuario_ai,
-                                  par.usuario_ai,
-                                  par.id_usuario_mod,
-                                  par.fecha_mod,
-                                  usu1.cuenta as usr_reg,
-                                  usu2.cuenta as usr_mod,
-                                  (case
-                                      when to_char(te.fecha, ''DD''::text) is not null then
-                                       to_char(te.fecha, ''DD''::text)
-                                      else
-                                      to_char(ts.fecha, ''DD''::text)
-                                      end )::integer as dia,
-                                  (case
-                                     when te.hora is not null and ts.hora is not null then
-                                      	  ts.hora::varchar||'' - ''||te.hora::varchar
-                                      when te.hora is not null then
-                                      te.hora::varchar
-                                      else
-                                       ts.hora::varchar
-                                       end )::varchar as hora,
-                                       (case
 
-                                          when te.hora is not null and ts.hora is not null then
-                                      			ts.acceso ||'' - ''||te.acceso
-                                           when te.acceso is not null then
-                                          		te.acceso
-                                          else
-                                          ts.acceso
-                                          end)::varchar as evento,
-                                           (case
-                                          when te.acceso is not null then
-                                          te.verify_mode_name
-                                          else
-                                          ts.verify_mode_name
-                                          end)::varchar as tipo_verificacion,
-                                          (case
-                                           when te.hora is not null and ts.hora is not null then
-                                           ''JUSTIFICAR''::varchar
-                                          when te.acceso is not null then
-                                          ''''
-                                          else
-                                          ''''
-                                          end)::varchar as obs,
-                                          (case
-                                            when te.acceso is not null then
-                                          re.descripcion
-                                          else
-                                          rs.descripcion
-                                          end)::varchar as rango,
-                                          par.rango as tdo,
-                                          vfun.desc_funcionario1 as desc_funcionario
-                                  from asis.tpares par
-                                  inner join segu.tusuario usu1 on usu1.id_usuario = par.id_usuario_reg
-                                  inner join orga.vfuncionario vfun on vfun.id_funcionario = par.id_funcionario
-                                  left join segu.tusuario usu2 on usu2.id_usuario = par.id_usuario_mod
-                                  left join asis.ttransacc_zkb_etl te on te.id = par.id_transaccion_ini
-                                  left join asis.trango_horario re on re.id_rango_horario = te.id_rango_horario
-                                  left join asis.ttransacc_zkb_etl ts on ts.id = par.id_transaccion_fin
-                                  left join asis.trango_horario rs on rs.id_rango_horario = ts.id_rango_horario
-				        		  where  par.id_funcionario ='||v_parametros.id_funcionario||' and par.fecha_marcado is not null and ';
+            if v_parametros.tipo_interfaz = 'PermisoVoBo'then
+               v_filtro = '';
+                if p_administrador != 1  then
+
+                	select f.id_funcionario into v_id_funcionario
+                    from segu.vusuario u
+                	inner join orga.vfuncionario_persona f on f.id_persona = u.id_persona
+                    where u.id_usuario = p_id_usuario;
+
+                     if v_id_funcionario is not null then
+                    	v_filtro = 'wet.id_funcionario =  '||v_id_funcionario||' and ';
+                     end if;
+               	end if;
+            end if;
+            if v_parametros.tipo_interfaz = 'PermisoRRHH'then
+                v_filtro = '';
+            end if;
+
+
+    		--Sentencia de la consulta
+			v_consulta:='select	pmo.id_permiso,
+                                pmo.nro_tramite,
+                                pmo.id_funcionario,
+                                pmo.id_estado_wf,
+                                pmo.fecha_solicitud,
+                                pmo.id_tipo_permiso,
+                                pmo.motivo,
+                                pmo.estado_reg,
+                                pmo.estado,
+                                pmo.id_proceso_wf,
+                                pmo.id_usuario_ai,
+                                pmo.id_usuario_reg,
+                                pmo.usuario_ai,
+                                pmo.fecha_reg,
+                                pmo.fecha_mod,
+                                pmo.id_usuario_mod,
+                                usu1.cuenta as usr_reg,
+                                usu2.cuenta as usr_mod,
+                                tip.nombre ||'' (''||tip.codigo||'')''::text as desc_tipo_permiso,
+                                fun.desc_funcionario1::text as desc_funcionario,
+                                pmo.hro_desde,
+                                pmo.hro_hasta,
+                                tip.reposcion as asignar_rango,
+                                tip.documento,
+                                pmo.reposicion,
+                                pmo.fecha_reposicion,
+                                pmo.hro_desde_reposicion,
+                                pmo.hro_hasta_reposicion,
+                                pmo.hro_total_permiso,
+                                pmo.hro_total_reposicion,
+                                pmo.jornada
+                                from asis.tpermiso pmo
+                                inner join segu.tusuario usu1 on usu1.id_usuario = pmo.id_usuario_reg
+                                inner join asis.ttipo_permiso tip on tip.id_tipo_permiso = pmo.id_tipo_permiso
+                                inner join orga.vfuncionario fun on fun.id_funcionario = pmo.id_funcionario
+                                inner join wf.testado_wf wet on wet.id_estado_wf = pmo.id_estado_wf
+                                left join segu.tusuario usu2 on usu2.id_usuario = pmo.id_usuario_mod
+                                where  '||v_filtro;
 
 			--Definicion de la respuesta
 			v_consulta:=v_consulta||v_parametros.filtro;
-			v_consulta:=v_consulta||' order by ' ||v_parametros.ordenacion|| ', dia, hora ' || v_parametros.dir_ordenacion || ' limit ' || v_parametros.cantidad || ' offset ' || v_parametros.puntero;
-			raise notice  '%',v_consulta;
+			v_consulta:=v_consulta||' order by ' ||v_parametros.ordenacion|| ' ' || v_parametros.dir_ordenacion || ' limit ' || v_parametros.cantidad || ' offset ' || v_parametros.puntero;
+
 			--Devuelve la respuesta
 			return v_consulta;
 
 		end;
 
 	/*********************************
- 	#TRANSACCION:  'ASIS_PAR_CONT'
+ 	#TRANSACCION:  'ASIS_PMO_CONT'
  	#DESCRIPCION:	Conteo de registros
- 	#AUTOR:		mgarcia
- 	#FECHA:		19-09-2019 16:00:52
+ 	#AUTOR:		miguel.mamani
+ 	#FECHA:		16-10-2019 13:14:05
 	***********************************/
 
-	elsif(p_transaccion='ASIS_PAR_CONT')then
+	elsif(p_transaccion='ASIS_PMO_CONT')then
 
 		begin
-			--Sentencia de la consulta de conteo de registros
-
-            if v_parametros.id_funcionario is null then
-                raise exception 'Usted no esta registrado como funcionario';
+            if v_parametros.tipo_interfaz = 'PermisoReg'then
+                v_filtro = '';
+                if p_administrador != 1  then
+                   v_filtro = 'pmo.id_usuario_reg =  '||p_id_usuario||' and ';
+               	end if;
             end if;
 
-			v_consulta:='select count(id_pares)
-					    from asis.tpares par
-					    inner join segu.tusuario usu1 on usu1.id_usuario = par.id_usuario_reg
-                        inner join orga.vfuncionario vfun on vfun.id_funcionario = par.id_funcionario
-                        left join segu.tusuario usu2 on usu2.id_usuario = par.id_usuario_mod
-                        left join asis.ttransacc_zkb_etl te on te.id = par.id_transaccion_ini
-                        left join asis.trango_horario re on re.id_rango_horario = te.id_rango_horario
-                        left join asis.ttransacc_zkb_etl ts on ts.id = par.id_transaccion_fin
-                        left join asis.trango_horario rs on rs.id_rango_horario = ts.id_rango_horario
-					    where  par.id_funcionario ='||v_parametros.id_funcionario||' and par.fecha_marcado is not null and';
+            if v_parametros.tipo_interfaz = 'PermisoVoBo'then
+               v_filtro = '';
+                if p_administrador != 1  then
+
+                	select f.id_funcionario into v_id_funcionario
+                    from segu.vusuario u
+                	inner join orga.vfuncionario_persona f on f.id_persona = u.id_persona
+                    where u.id_usuario = p_id_usuario;
+
+                     if v_id_funcionario is not null then
+                    	v_filtro = 'wet.id_funcionario =  '||v_id_funcionario||' and ';
+                     end if;
+               	end if;
+            end if;
+            if v_parametros.tipo_interfaz = 'PermisoRRHH'then
+                v_filtro = '';
+            end if;
+			--Sentencia de la consulta de conteo de registros
+			v_consulta:='select count(id_permiso)
+					    from asis.tpermiso pmo
+					    inner join segu.tusuario usu1 on usu1.id_usuario = pmo.id_usuario_reg
+                        inner join asis.ttipo_permiso tip on tip.id_tipo_permiso = pmo.id_tipo_permiso
+                        inner join orga.vfuncionario fun on fun.id_funcionario = pmo.id_funcionario
+                        inner join wf.testado_wf wet on wet.id_estado_wf = pmo.id_estado_wf
+                        left join segu.tusuario usu2 on usu2.id_usuario = pmo.id_usuario_mod
+					    where '||v_filtro;
 
 			--Definicion de la respuesta
 			v_consulta:=v_consulta||v_parametros.filtro;
@@ -183,7 +192,8 @@ LANGUAGE 'plpgsql'
 VOLATILE
 CALLED ON NULL INPUT
 SECURITY INVOKER
+PARALLEL UNSAFE
 COST 100;
 
-ALTER FUNCTION asis.ft_pares_sel (p_administrador integer, p_id_usuario integer, p_tabla varchar, p_transaccion varchar)
+ALTER FUNCTION asis.ft_permiso_sel (p_administrador integer, p_id_usuario integer, p_tabla varchar, p_transaccion varchar)
   OWNER TO postgres;

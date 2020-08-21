@@ -58,6 +58,7 @@ class MODPermiso extends MODbase{
 
         $this->captura('hro_total_permiso','time');
         $this->captura('hro_total_reposicion','time');
+        $this->captura('jornada','varchar');
 
         //Ejecuta la instruccion
         $this->armarConsulta();
@@ -95,7 +96,7 @@ class MODPermiso extends MODbase{
 
         $this->setParametro('hro_total_permiso','hro_total_permiso','time');
         $this->setParametro('hro_total_reposicion','hro_total_reposicion','time');
-
+        $this->setParametro('jornada','jornada','varchar');
 
         //Ejecuta la instruccion
         $this->armarConsulta();
@@ -128,6 +129,8 @@ class MODPermiso extends MODbase{
 
         $this->setParametro('hro_total_permiso','hro_total_permiso','varchar');
         $this->setParametro('hro_total_reposicion','hro_total_reposicion','varchar');
+
+        $this->setParametro('jornada','jornada','varchar');
         //Ejecuta la instruccion
         $this->armarConsulta();
         $this->ejecutarConsulta();
@@ -195,6 +198,8 @@ class MODPermiso extends MODbase{
         $this->tipo_procedimiento = 'IME';
         //Define los parametros para la funcion
         $this->setParametro('id_funcionario', 'id_funcionario', 'int4');
+        $this->setParametro('fecha_solicitud','fecha_solicitud','date');
+        $this->setParametro('jornada','jornada','varchar');
         //Ejecuta la instruccion
         $this->armarConsulta();
         $this->ejecutarConsulta();
