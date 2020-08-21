@@ -123,7 +123,7 @@ BEGIN
 	/*********************************
  	#TRANSACCION:  'ASIS_PMO_CONT'
  	#DESCRIPCION:	Conteo de registros
- 	#AUTOR:		miguel.mamani
+ 	#AUTOR:		MMV
  	#FECHA:		16-10-2019 13:14:05
 	***********************************/
 
