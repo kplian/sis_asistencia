@@ -54,7 +54,7 @@ class RTusMarcados{
         $this->docexcel->getActiveSheet()->setTitle('transacciones');
         $this->docexcel->setActiveSheetIndex(0);
 		
-		/*$objDrawing = new PHPExcel_Worksheet_Drawing();
+		$objDrawing = new PHPExcel_Worksheet_Drawing(); 
 		$objDrawing->setName('test_img'); 
 		$objDrawing->setDescription('test_img'); 
 		$objDrawing->setPath(dirname(__FILE__) . '/../../pxp/lib' . $_SESSION['_DIR_LOGO']); 
@@ -62,8 +62,8 @@ class RTusMarcados{
 		$objDrawing->setOffsetX(5); 
 		$objDrawing->setOffsetY(5); //set width, height 
 		$objDrawing->setWidth(250); 
-		$objDrawing->setHeight(87);
-		$objDrawing->setWorksheet($this->docexcel->getActiveSheet()); */
+		$objDrawing->setHeight(87); 
+		$objDrawing->setWorksheet($this->docexcel->getActiveSheet()); 
 
         $tituloscabezera = array(
             'font'  => array(

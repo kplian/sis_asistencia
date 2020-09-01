@@ -60,7 +60,13 @@ class MODMesTrabajoDet extends MODbase{
         $this->captura('tipo_dos','varchar');
         $this->captura('tipo_tres','varchar');
         $this->captura('total_comp','numeric'); //#12
-		//Ejecuta la instruccion
+        $this->captura('estado','varchar');
+        $this->captura('extra','varchar');
+
+        $this->captura('fecha','date');
+        $this->captura('literal','varchar');
+
+        //Ejecuta la instruccion
 		$this->armarConsulta();
 		$this->ejecutarConsulta();
 		
@@ -207,6 +213,56 @@ class MODMesTrabajoDet extends MODbase{
         //Devuelve la respuesta
         return $this->respuesta;
     }//#18
+    function insertarCentro(){
+        //Definicion de variables para ejecucion del procedimiento
+        $this->procedimiento='asis.ft_mes_trabajo_det_ime';
+        $this->transaccion='ASIS_ICC_INS';
+        $this->tipo_procedimiento='IME';
+
+        //Define los parametros para la funcion
+        $this->setParametro('id_mes_trabajo_det','id_mes_trabajo_det','text');
+        $this->setParametro('id_centro_costo','id_centro_costo','int4');
+
+        //Ejecuta la instruccion
+        $this->armarConsulta();
+        $this->ejecutarConsulta();
+
+        //Devuelve la respuesta
+        return $this->respuesta;
+    }
+    function insertarExtra(){
+        //Definicion de variables para ejecucion del procedimiento
+        $this->procedimiento='asis.ft_mes_trabajo_det_ime';
+        $this->transaccion='ASIS_IEX_INS';
+        $this->tipo_procedimiento='IME';
+
+        //Define los parametros para la funcion
+        $this->setParametro('id_mes_trabajo_det','id_mes_trabajo_det','text');
+        $this->setParametro('justificar','justificar','text');
+
+        //Ejecuta la instruccion
+        $this->armarConsulta();
+        $this->ejecutarConsulta();
+
+        //Devuelve la respuesta
+        return $this->respuesta;
+    }
+    function autorizarHorasExtras(){
+        //Definicion de variables para ejecucion del procedimiento
+        $this->procedimiento='asis.ft_mes_trabajo_det_ime';
+        $this->transaccion='ASIS_AUT_MOD';
+        $this->tipo_procedimiento='IME';
+
+        //Define los parametros para la funcion
+        $this->setParametro('id_mes_trabajo_det','id_mes_trabajo_det','int4');
+
+        //Ejecuta la instruccion
+        $this->armarConsulta();
+        $this->ejecutarConsulta();
+
+        //Devuelve la respuesta
+        return $this->respuesta;
+    }
 			
 }
 ?>

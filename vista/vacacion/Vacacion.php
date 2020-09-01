@@ -36,9 +36,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 handler:this.onSiguiente,
                 tooltip: '<b>Siguiente</b><p>Hola</p>'});
             this.addBotonesGantt();
-
             this.iniciarEventos();
-
             // this.diasEfectivo(); //-->Función definida para el calculo de los dias efectivos
         },
 
@@ -64,7 +62,6 @@ header("content-type: text/javascript; charset=UTF-8");
 
             }, this);
             this.Cmp.fecha_fin.on('select', function (Fecha, dato) {
-                // alert('Llego fecha fin'+Fecha.getValue()+' ---- '+this.Cmp.fecha_inicio.getValue());
                 Ext.Ajax.request({
                     url: '../../sis_asistencia/control/Vacacion/getDias', //llamando a la funcion getDias.
                     params: {
@@ -111,20 +108,6 @@ header("content-type: text/javascript; charset=UTF-8");
 
 
         },
-
-        /// Calculo de dias efectivos, restando los medios dias de los dias posibles.
-        /*diasEfectivo:function () {
-            this.Cmp.medio_dia.on('select', function (Fecha, dato) {
-                this.Cmp.dias.reset();     //restablecer el campo dias_efectivo    //dias_efectivo
-                var medio = dato.data.valor / 2;    //obteniendo el valor de data y dividiendo entre 2.
-                var resultado = this.Cmp.dias_efectivo.getValue() - medio;  //dias
-                this.Cmp.dias.setValue(resultado);  //dias_efectivo
-            }, this);
-        },*/
-        ///
-
-
-
         Atributos:[
             {
                 //configuracion del componente
@@ -185,6 +168,40 @@ header("content-type: text/javascript; charset=UTF-8");
             },
             {
                 config:{
+                    name: 'evento',
+                    fieldLabel: 'Evento',
+                    allowBlank: true,
+                    anchor: '70%',
+                    gwidth: 100,
+                    readOnly :true,
+                    style: 'background-color: #F2F1F0; background-image: none;',
+                    renderer:function (value,p,record){
+                        return String.format('{0}', value);
+                    }
+                },
+                type:'TextField',
+                id_grupo:0,
+                grid:false,
+                form:true
+            },
+            {
+
+                config:{
+                    name: 'saldo',
+                    fieldLabel: 'Saldo',
+                    allowBlank: true,
+                    anchor: '40%',
+                    gwidth: 100,
+                    readOnly :true,
+                    style: 'background-color: #F2F1F0; background-image: none;'
+                },
+                type:'NumberField',
+                id_grupo:0,
+                grid:false,
+                form:true,
+            },
+            {
+                config:{
                     name:'id_funcionario',
                     hiddenName: 'id_funcionario',
                     origen:'FUNCIONARIOCAR',
@@ -198,7 +215,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     renderer:function(value, p, record){return String.format('{0}', record.data['desc_funcionario1']);}
                 },
                 type:'ComboRec',//ComboRec
-                id_grupo:0,
+                id_grupo:1,
                 filters:{pfiltro:'vf.desc_funcionario1',type:'string'},
                 bottom_filter:true,
                 grid:true,
@@ -241,13 +258,16 @@ header("content-type: text/javascript; charset=UTF-8");
             },
             {
                 config:{
-                    name: 'dias_efectivo',   // Dias posibles para tomar vacaciones.
-                    fieldLabel: 'Días Calendario',  //Campo
-                    // Días totales para tomar vacaciones.
-                    allowBlank: false,
-                    anchor: '23%',
+                    name: 'dias_efectivo',
+                    fieldLabel: 'Días Calendario',
+                    allowBlank: true,
+                    anchor: '35%',
                     gwidth: 100,
-                    maxLength:4
+                    maxLength:4,
+                    readOnly :true,
+                    style: 'background-color: #F2F1F0; background-image: none;',
+                    renderer:function (value,p,record){return String.format('<b>{0}</b>',value)}
+
                 },
                 type:'NumberField',
                 filters:{pfiltro:'vac.dias_efectivo',type:'numeric'},
@@ -255,45 +275,23 @@ header("content-type: text/javascript; charset=UTF-8");
                 grid:true,
                 form:true
             },
-            /* { //#16
-                 config : {
-                     name : 'medio_dia',   //Nombre anterior: evento.
-                     fieldLabel : 'Medios Días',     // Descripción del evento.
-                     //labelStyle: 'width:150px; margin: 5;',
-                     emptyText : 'Seleccione Opcion...',
-                     width : 450,
-                     mode : 'local',
-                     store : new Ext.data.ArrayStore({fields : ['ID', 'valor']}),
-                     triggerAction : 'all',
-                     valueField : 'valor',
-                     displayField : 'valor',
-                     forceSelection: true,
-                     editable: false,
-                     gwidth: 100,
-                 },
-                 type : 'ComboBox',
-                 id_grupo : 2,
-                 grid : true,
-                 form : true
-             },//#16*/
             {
 
                 config:{
                     name: 'dias',
                     fieldLabel: 'Dias Efectivos',
                     allowBlank: true,
-                    anchor: '23%',
+                    anchor: '35%',
                     gwidth: 100,
-                    disabled: true
+                    readOnly :true,
+                    style: 'background-color: #F2F1F0; background-image: none;'
                 },
                 type:'NumberField',
                 filters:{pfiltro:'vac.dias',type:'numeric'},
                 id_grupo:1,
                 grid:true,
                 form:true,
-
             },
-
             {
                 config:{
                     name: 'descripcion',
@@ -452,11 +450,50 @@ header("content-type: text/javascript; charset=UTF-8");
         },
         bdel:true,
         bsave:false,
-        fwidth: '50%',
-        fheight: '50%',
+        fwidth: '35%',
+        fheight: '70%',
+        Grupos: [
+            {
+                layout: 'form',
+                border: false,
+                defaults: {
+                    border: false
+                },
+
+                items: [
+                    {
+                        items: [
+
+                            {
+                                xtype: 'fieldset',
+                                title: '  Movimiento Vacacion ',
+                                autoHeight: true,
+                                items: [],
+                                id_grupo: 0
+                            }
+
+                        ]
+                    },
+                    {
+                        items: [
+                            {
+                                xtype: 'fieldset',
+                                title: ' Datos Generales ',
+                                autoHeight: true,
+                                items: [],
+                                id_grupo: 1
+                            }
+
+
+                        ]
+                    }
+                ]
+            }
+        ],
+
         onButtonNew:function(){
             Phx.vista.Vacacion.superclass.onButtonNew.call(this);//habilita el boton y se abre
-
+            this.movimientoVacacion(Phx.CP.config_ini.id_funcionario);
             this.Cmp.id_funcionario.store.load({params:{start:0,limit:this.tam_pag},
                 callback : function (r) {
                     //  if (r.length == 1 ) {
@@ -627,6 +664,20 @@ header("content-type: text/javascript; charset=UTF-8");
                 this.getBoton('diagrama_gantt').disable();
                 this.getBoton('btn_siguiente').disable();
             }
+        },
+        movimientoVacacion:function (value) {
+            Ext.Ajax.request({
+                url:'../../sis_asistencia/control/Vacacion/movimientoGet',
+                params:{id_funcionario: value},
+                success:function(resp){
+                    const reg = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));
+                    this.Cmp.evento.setValue(reg.ROOT.datos.tipo); //dias
+                    this.Cmp.saldo.setValue(reg.ROOT.datos.dias_actual); //dias
+                },
+                failure: this.conexionFailure,
+                timeout:this.timeout,
+                scope:this
+            });
         }
     })
 </script>

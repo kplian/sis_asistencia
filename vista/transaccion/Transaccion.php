@@ -129,7 +129,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     remoteSort: true,
                     baseParams:{par_filtro:'gestion'}
                 }),
-            valueField: 'periodo',
+            valueField: 'id_periodo',
             triggerAction: 'all',
             displayField: 'literal',
             hiddenName: 'id_periodo',

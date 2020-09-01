@@ -820,7 +820,24 @@ header("content-type: text/javascript; charset=UTF-8");
                 var horas = Math.floor(minutos/60);
                 minutos = minutos % 60;
                 var resultado = new Date (new Date().toDateString() + ' ' + this.prefijo(horas) + ':' + this.prefijo(minutos));
-                return moment(resultado).format('hh:mm:ss');
+
+
+                let hour = resultado.getHours() + "";
+                let minutes = resultado.getMinutes() + "";
+                let seconds = resultado.getSeconds() + "";
+
+                hour = this.checkZero(hour);
+                minutes = this.checkZero(minutes);
+                seconds = this.checkZero(seconds);
+                console.log(hour + ":" + minutes + ":" + seconds);
+                // moment(resultado).format('hh:mm:ss');
+                return hour + ":" + minutes + ":" + seconds;
+            },
+            checkZero:function(data){
+                if(data.length === 1){
+                    data = "0" + data;
+                }
+                return data;
             },
             prefijo:function (num) {
                 return num < 10 ? ("0" + num) : num;

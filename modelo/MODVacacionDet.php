@@ -62,5 +62,21 @@ class MODVacacionDet extends MODbase{
         //Devuelve la respuesta
         return $this->respuesta;
     }
+    function eliminarVacacionDet(){
+        //Definicion de variables para ejecucion del procedimiento
+        $this->procedimiento='asis.ft_vacacion_det_ime';
+        $this->transaccion='ASIS_VDE_ELI';
+        $this->tipo_procedimiento='IME';
+
+        //Define los parametros para la funcion
+        $this->setParametro('id_vacacion_det','id_vacacion_det','int4');
+
+        //Ejecuta la instruccion
+        $this->armarConsulta();
+        $this->ejecutarConsulta();
+
+        //Devuelve la respuesta
+        return $this->respuesta;
+    }
 }
 ?>

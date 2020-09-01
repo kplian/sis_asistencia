@@ -24,7 +24,7 @@ class MODIngresoSalida extends MODbase{
 	function listarIngresoSalida(){
 		//Definicion de variables para ejecucion del procedimientp
 		$this->procedimiento='asis.ft_ingreso_salida_sel';
-		$this->transaccion='ASIS_CONDIA_SEL';
+		$this->transaccion='ASIS_COND_SEL';
 		$this->tipo_procedimiento='SEL';//tipo de transaccion
 				
 		//Definicion de la lista del resultado del query
@@ -55,7 +55,7 @@ class MODIngresoSalida extends MODbase{
 	function insertarIngresoSalida(){
 		//Definicion de variables para ejecucion del procedimiento
 		$this->procedimiento='asis.ft_ingreso_salida_ime';
-		$this->transaccion='ASIS_CONDIA_INS';
+		$this->transaccion='ASIS_COND_INS';
 		$this->tipo_procedimiento='IME';
 				
 		//Define los parametros para la funcion
@@ -76,7 +76,7 @@ class MODIngresoSalida extends MODbase{
 	function modificarIngresoSalida(){
 		//Definicion de variables para ejecucion del procedimiento
 		$this->procedimiento='asis.ft_ingreso_salida_ime';
-		$this->transaccion='ASIS_CONDIA_MOD';
+		$this->transaccion='ASIS_COND_MOD';
 		$this->tipo_procedimiento='IME';
 				
 		//Define los parametros para la funcion
@@ -98,7 +98,7 @@ class MODIngresoSalida extends MODbase{
 	function eliminarIngresoSalida(){
 		//Definicion de variables para ejecucion del procedimiento
 		$this->procedimiento='asis.ft_ingreso_salida_ime';
-		$this->transaccion='ASIS_CONDIA_ELI';
+		$this->transaccion='ASIS_COND_ELI';
 		$this->tipo_procedimiento='IME';
 				
 		//Define los parametros para la funcion

@@ -34,6 +34,11 @@ class ACTVacacionDet extends ACTbase{
         $this->res=$this->objFunc->cambiarTiempo($this->objParam);
         $this->res->imprimirRespuesta($this->res->generarJson());
     }
+    function eliminarVacacionDet(){
+        $this->objFunc=$this->create('MODVacacionDet');
+        $this->res=$this->objFunc->eliminarVacacionDet($this->objParam);
+        $this->res->imprimirRespuesta($this->res->generarJson());
+    }
 
 }
 
