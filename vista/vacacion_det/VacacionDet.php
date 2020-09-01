@@ -243,7 +243,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 field: 'fecha_dia',
                 direction: 'ASC'
             },
-            bdel:false,
+            bdel:true,
             bsave:false,
             bnew:false,
             bedit:false,

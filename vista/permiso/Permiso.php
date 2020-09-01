@@ -39,10 +39,7 @@ header("content-type: text/javascript; charset=UTF-8");
 
                 this.addBotonesGantt();
 
-                this.ocultarComponente(this.Cmp.fecha_reposicion);
-                this.ocultarComponente(this.Cmp.hro_desde_reposicion);
-                this.ocultarComponente(this.Cmp.hro_hasta_reposicion);
-                this.ocultarComponente(this.Cmp.hro_total_reposicion);
+                this.onFormulario();
                 this.load({params:{start:0, limit:this.tam_pag}})
             },
 
@@ -188,6 +185,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         width: 130,
                         gwidth: 100,
                         format: 'd/m/Y',
+                        disabledDays:  [0, 6],
                         renderer:function (value,p,record){return value?value.dateFormat('d/m/Y'):''}
                     },
                     type:'DateField',
@@ -195,6 +193,24 @@ header("content-type: text/javascript; charset=UTF-8");
                     id_grupo:0,
                     grid:true,
                     form:true
+                },
+                {
+                    config:{
+                        name : 'jornada',
+                        fieldLabel : 'Jornada',
+                        allowBlank: false,
+                        items: [
+                            {boxLabel: 'Mañana', name: 'jornada', inputValue: 'am',checked: true},
+                            {boxLabel: 'Tarde', name: 'jornada', inputValue: 'pm'}
+                        ],
+                        renderer : function(value, p, record) {
+                            return String.format('{0}', record.data['jornada']);
+                        }
+                    },
+                    type : 'RadioGroupField',
+                    id_grupo : 0,
+                    form : true,
+                    grid:true,
                 },
                 {
                     config:{
@@ -468,7 +484,8 @@ header("content-type: text/javascript; charset=UTF-8");
                 {name:'hro_desde_reposicion',type: 'date',dateFormat:'H:i:s'},
                 {name:'hro_hasta_reposicion',type: 'date',dateFormat:'H:i:s'},
                 {name:'hro_total_permiso',type: 'date',dateFormat:'H:i:s'},
-                {name:'hro_total_reposicion',type: 'date',dateFormat:'H:i:s'}
+                {name:'hro_total_reposicion',type: 'date',dateFormat:'H:i:s'},
+                {name:'jornada', type: 'string'}
 
             ],
             sortInfo:{
@@ -479,7 +496,19 @@ header("content-type: text/javascript; charset=UTF-8");
             bsave:false,
             fwidth: '32%',
             // fheight: '80%',
+            onFormulario:function(){
+                this.ocultarComponente(this.Cmp.fecha_reposicion);
+                this.ocultarComponente(this.Cmp.hro_desde_reposicion);
+                this.ocultarComponente(this.Cmp.hro_hasta_reposicion);
+                this.ocultarComponente(this.Cmp.hro_total_reposicion);
 
+                this.ocultarComponente(this.Cmp.jornada);
+
+                this.ocultarComponente(this.Cmp.hro_desde);
+                this.ocultarComponente(this.Cmp.hro_hasta);
+                this.ocultarComponente(this.Cmp.hro_total_permiso);
+                this.ocultarComponente(this.Cmp.motivo);
+            },
             addBotonesGantt: function() {
                 this.menuAdqGantt = new Ext.Toolbar.SplitButton({
                     id: 'b-diagrama_gantt-' + this.idContenedor,
@@ -537,20 +566,49 @@ header("content-type: text/javascript; charset=UTF-8");
                 Phx.vista.Permiso.superclass.onButtonNew.call(this);
                 this.Cmp.fecha_solicitud.setValue(new Date());
                 this.Cmp.fecha_solicitud.fireEvent('change');
+
                 this.Cmp.id_tipo_permiso.on('select', function(combo, record, index){
-                    var ms = this;
-                    if (record.data.rango === 'si'){
-                        var id;
-                        if (Phx.CP.config_ini.id_funcionario !== ''){
-                            id = Phx.CP.config_ini.id_funcionario;
-                        }else {
-                            id = null;
-                        }
+                    // mostrar
+                    this.mostrarComponente(this.Cmp.hro_desde);
+                    this.mostrarComponente(this.Cmp.hro_hasta);
+                    this.mostrarComponente(this.Cmp.hro_total_permiso);
+                    this.mostrarComponente(this.Cmp.motivo);
+                    this.mostrarComponente(this.Cmp.jornada);
+                    const ms = this;
+                    // peticion ajz
+                    Ext.Ajax.request({
+                        url:'../../sis_asistencia/control/Permiso/optenerRango',
+                        params:{
+                            id_funcionario: this.Cmp.id_funcionario.getValue(),
+                            fecha_solicitud: this.Cmp.fecha_solicitud.getValue(),
+                            jornada: this.Cmp.jornada.getValue()
+                        },
+                        success:function(resp){
+                            var reg = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));
+                            console.log(reg.ROOT.datos);
+                            if(!reg.ROOT.error){
+                                ms.Cmp.hro_desde.setMinValue(reg.ROOT.datos.inicio);
+                                ms.Cmp.hro_desde.setMaxValue(reg.ROOT.datos.fin);
+                                ms.Cmp.hro_hasta.setMinValue(reg.ROOT.datos.inicio);
+                                ms.Cmp.hro_hasta.setMaxValue(reg.ROOT.datos.fin);
+                            }
+                        },
+                        failure: this.conexionFailure,
+                        timeout:this.timeout,
+                        scope:this
+                    });
+                    this.Cmp.fecha_solicitud.on('select', function (Fecha, dato) {
+                        console.log(Fecha.getValue());
                         Ext.Ajax.request({
                             url:'../../sis_asistencia/control/Permiso/optenerRango',
-                            params:{id_funcionario: id},
+                            params:{
+                                id_funcionario: this.Cmp.id_funcionario.getValue(),
+                                fecha_solicitud: Fecha.getValue(),
+                                jornada: this.Cmp.jornada.getValue()
+                            },
                             success:function(resp){
                                 var reg = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));
+                                console.log(reg.ROOT.datos);
                                 if(!reg.ROOT.error){
                                     ms.Cmp.hro_desde.setMinValue(reg.ROOT.datos.inicio);
                                     ms.Cmp.hro_desde.setMaxValue(reg.ROOT.datos.fin);
@@ -562,12 +620,39 @@ header("content-type: text/javascript; charset=UTF-8");
                             timeout:this.timeout,
                             scope:this
                         });
+                    }, this);
+                    this.Cmp.jornada.on('change', function(cmp, check){
+                        console.log(check.getRawValue());
+                        Ext.Ajax.request({
+                            url:'../../sis_asistencia/control/Permiso/optenerRango',
+                            params:{
+                                id_funcionario: this.Cmp.id_funcionario.getValue(),
+                                fecha_solicitud: this.Cmp.fecha_solicitud.getValue(),
+                                jornada: check.getRawValue()
+                            },
+                            success:function(resp){
+                                var reg = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));
+                                console.log(reg.ROOT.datos);
+                                if(!reg.ROOT.error){
+                                    ms.Cmp.hro_desde.setMinValue(reg.ROOT.datos.inicio);
+                                    ms.Cmp.hro_desde.setMaxValue(reg.ROOT.datos.fin);
+                                    ms.Cmp.hro_hasta.setMinValue(reg.ROOT.datos.inicio);
+                                    ms.Cmp.hro_hasta.setMaxValue(reg.ROOT.datos.fin);
+                                }
+                            },
+                            failure: this.conexionFailure,
+                            timeout:this.timeout,
+                            scope:this
+                        });
+                    }, this);
+                    /*if (record.data.rango === 'si'){
+
                     }else {
                         ms.Cmp.hro_desde.setMinValue('00:00:00');
                         ms.Cmp.hro_desde.setMaxValue('23:55:00');
                         ms.Cmp.hro_hasta.setMinValue('00:00:00');
                         ms.Cmp.hro_hasta.setMaxValue('23:55:00');
-                    }
+                    }*/
                     if (record.data.reposcion === 'si'){
                         this.window.setSize(490,480);
                         this.mostrarComponente(this.Cmp.fecha_reposicion);
@@ -596,7 +681,6 @@ header("content-type: text/javascript; charset=UTF-8");
                         }
                     }
                 },this);
-
                 this.Cmp.hro_hasta.on('select', function(combo, record){
                     if(record.data.field1 <= this.Cmp.hro_desde.getValue()){
                         this.Cmp.hro_total_permiso.reset();
@@ -610,8 +694,6 @@ header("content-type: text/javascript; charset=UTF-8");
                     }
 
                 },this);
-
-
                 ///nuevo
                 this.Cmp.hro_desde_reposicion.on('select', function(combo, record, index){
                     if (String(this.Cmp.hro_hasta_reposicion.getValue()) !== '') {
@@ -620,19 +702,15 @@ header("content-type: text/javascript; charset=UTF-8");
                                 .toString());
                     }
                 },this);
-
                 this.Cmp.hro_hasta_reposicion.on('select', function(combo, record, index){
                     this.Cmp.hro_total_reposicion.setValue(
                         this.calcularDiferenciaHora(this.Cmp.hro_desde_reposicion.getValue(),record.data.field1)
                             .toString());
                 },this);
-
                 this.Cmp.id_funcionario.store.load({params:{start:0,limit:this.tam_pag},
                     callback : function (r) {
-                        //if (r.length === 1 ) {
                         this.Cmp.id_funcionario.setValue(r[0].data.id_funcionario);
                         this.Cmp.id_funcionario.fireEvent('select', this.Cmp.id_funcionario, r[0]);
-                        // }
                         this.Cmp.id_funcionario.collapse();
 
                     }, scope : this
@@ -742,7 +820,24 @@ header("content-type: text/javascript; charset=UTF-8");
                 var horas = Math.floor(minutos/60);
                 minutos = minutos % 60;
                 var resultado = new Date (new Date().toDateString() + ' ' + this.prefijo(horas) + ':' + this.prefijo(minutos));
-                return moment(resultado).format('hh:mm:ss');
+
+
+                let hour = resultado.getHours() + "";
+                let minutes = resultado.getMinutes() + "";
+                let seconds = resultado.getSeconds() + "";
+
+                hour = this.checkZero(hour);
+                minutes = this.checkZero(minutes);
+                seconds = this.checkZero(seconds);
+                console.log(hour + ":" + minutes + ":" + seconds);
+                // moment(resultado).format('hh:mm:ss');
+                return hour + ":" + minutes + ":" + seconds;
+            },
+            checkZero:function(data){
+                if(data.length === 1){
+                    data = "0" + data;
+                }
+                return data;
             },
             prefijo:function (num) {
                 return num < 10 ? ("0" + num) : num;

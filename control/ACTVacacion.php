@@ -81,6 +81,12 @@ class ACTVacacion extends ACTbase{
         $this->res->imprimirRespuesta($this->res->generarJson());
 
     }
+    function movimientoGet(){
+        $this->objFunc=$this->create('MODVacacion');
+        $this->res=$this->objFunc->movimientoGet($this->objParam);
+        $this->res->imprimirRespuesta($this->res->generarJson());
+
+    }
 			
 }
 

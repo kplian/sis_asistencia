@@ -27,7 +27,7 @@ header("content-type: text/javascript; charset=UTF-8");
             this.idContenedor = config.idContenedor;
             this.maestro = config;
             this.id_periodo = this.maestro.id_periodo;
-            periodo = this.maestro.periodo;
+            periodo = this.maestro.id_periodo;
             this.Atributos.unshift({
                 config: {
                     name: 'rango',
@@ -64,20 +64,20 @@ header("content-type: text/javascript; charset=UTF-8");
             this.load({params:{start:0, limit:this.tam_pag}});
             this.grid.addListener('cellclick', this.oncellclick,this);
             this.addBotones();
-            this.addButton('btnReporte', {
+            /*this.addButton('btnReporte', {
                 text: 'Reporte',
                 iconCls: 'bpdf32',
                 disabled: false,
                 handler: this.onReporte,
                 tooltip: '<b>Reporte</b><br/> Este reporte calcula las hora de trabajo'
-            });
-            /*this.addButton('btnReprocesar', {
+            });*/
+            this.addButton('btnReprocesar', {
                 text: 'Reprocesar',
                 iconCls: 'bsee',
                 disabled: false,
                 handler: this.onReprecesar,
                 tooltip: '<b>Reprocesar</b><br/> Genera tus pares de tus marcaciones'
-            });*/
+            });
         },
         addBotones: function() {
             this.menuAdq = new Ext.Toolbar.SplitButton({

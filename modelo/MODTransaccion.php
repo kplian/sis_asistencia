@@ -20,6 +20,7 @@ class MODTransaccion extends MODbase{
         $this->tipo_procedimiento='SEL';//tipo de transaccion
 
         $this->setParametro('id_funcionario','id_funcionario','int4');
+        $this->setParametro('id_periodo','id_periodo','int4');
         //Definicion de la lista del resultado del query
         $this->captura('id','int4');
         $this->captura('id_funcionario','int4');

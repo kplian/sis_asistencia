@@ -75,6 +75,7 @@ DECLARE
 	v_record_dm				record;
     v_funcionario			integer;
 
+
 BEGIN
 
     v_nombre_funcion = 'asis.ft_mes_trabajo_det_ime';
@@ -711,6 +712,117 @@ BEGIN
         --Devuelve la respuesta
         return v_resp;
     end;
+
+    /*********************************
+ 	#TRANSACCION:  'ASIS_ICC_INS'
+ 	#DESCRIPCION:	Modificacion de registros
+ 	#AUTOR:		miguel.mamani
+ 	#FECHA:		31-01-2019 16:36:51
+	***********************************/
+
+	elsif(p_transaccion='ASIS_ICC_INS')then
+
+		begin
+			--Sentencia de la modificacion
+
+
+             foreach v_id_mes_trabajo_det in array string_to_array(v_parametros.id_mes_trabajo_det,',') loop
+                  update asis.tmes_trabajo_det set
+                  id_centro_costo = v_parametros.id_centro_costo,
+                  fecha_mod = now(),
+                  id_usuario_mod = p_id_usuario,
+                  id_usuario_ai = v_parametros._id_usuario_ai,
+                  usuario_ai = v_parametros._nombre_usuario_ai
+                  where id_mes_trabajo_det = v_id_mes_trabajo_det;
+             end loop;
+
+			--Definicion de la respuesta
+            v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Mes trabajo detalle modificado(a)');
+            v_resp = pxp.f_agrega_clave(v_resp,'id_mes_trabajo_det',v_parametros.id_mes_trabajo_det::varchar);
+
+            --Devuelve la respuesta
+            return v_resp;
+
+		end;
+     /*********************************
+ 	#TRANSACCION:  'ASIS_IEX_INS'
+ 	#DESCRIPCION:	Modificacion de registros
+ 	#AUTOR:		miguel.mamani
+ 	#FECHA:		31-01-2019 16:36:51
+	***********************************/
+
+	elsif(p_transaccion='ASIS_IEX_INS')then
+
+		begin
+			--Sentencia de la modificacion
+
+
+             foreach v_id_mes_trabajo_det in array string_to_array(v_parametros.id_mes_trabajo_det,',') loop
+                  update asis.tmes_trabajo_det set
+                  justificacion_extra = v_parametros.justificar,
+                  fecha_mod = now(),
+                  id_usuario_mod = p_id_usuario,
+                  id_usuario_ai = v_parametros._id_usuario_ai,
+                  usuario_ai = v_parametros._nombre_usuario_ai
+                  where id_mes_trabajo_det = v_id_mes_trabajo_det;
+             end loop;
+
+			--Definicion de la respuesta
+            v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Mes trabajo detalle modificado(a)');
+            v_resp = pxp.f_agrega_clave(v_resp,'id_mes_trabajo_det',v_parametros.id_mes_trabajo_det::varchar);
+
+            --Devuelve la respuesta
+            return v_resp;
+
+		end;
+
+    /*********************************
+ 	#TRANSACCION:  'ASIS_AUT_MOD'
+ 	#DESCRIPCION:	Autorizar horaz extraz
+ 	#AUTOR:		miguel.mamani
+ 	#FECHA:		31-01-2019 16:36:51
+	***********************************/
+
+	elsif(p_transaccion='ASIS_AUT_MOD')then
+
+		begin
+			--Sentencia de la modificacion
+
+            select md.id_mes_trabajo_det,
+            	   md.total_extra,
+                   md.extra
+                   into
+                   v_record_dm
+            from asis.tmes_trabajo_det md
+            where md.id_mes_trabajo_det = v_parametros.id_mes_trabajo_det;
+
+            if v_record_dm.extra = 'si'then
+
+            	update asis.tmes_trabajo_det set
+                extra = 'no',
+                extra_autorizada = 0
+                where id_mes_trabajo_det = v_parametros.id_mes_trabajo_det;
+
+            end if;
+
+            if v_record_dm.extra = 'no'then
+
+                update asis.tmes_trabajo_det set
+                extra = 'si',
+                extra_autorizada = v_record_dm.total_extra
+                where id_mes_trabajo_det = v_parametros.id_mes_trabajo_det;
+
+            end if;
+
+
+			--Definicion de la respuesta
+            v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Mes trabajo detalle modificado(a)');
+            v_resp = pxp.f_agrega_clave(v_resp,'id_mes_trabajo_det',v_parametros.id_mes_trabajo_det::varchar);
+
+            --Devuelve la respuesta
+            return v_resp;
+
+		end;
 	else
 
     	raise exception 'Transaccion inexistente: %',p_transaccion;

@@ -21,7 +21,7 @@ class MODReportes extends MODbase{
     function listarReporteRetrasos(){
         //Definicion de variables para ejecucion del procedimientp
         $this->procedimiento='asis.f_reportes_sel';
-        $this->transaccion='ASIS_RET_SEL';
+        $this->transaccion='ASIS_RETO_SEL';
         $this->tipo_procedimiento='SEL';//tipo de transaccion
         $this->setCount(false);
 

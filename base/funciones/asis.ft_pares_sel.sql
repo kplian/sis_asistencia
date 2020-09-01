@@ -27,6 +27,8 @@ DECLARE
 	v_nombre_funcion   	text;
 	v_resp				varchar;
 
+
+
 BEGIN
 
 	v_nombre_funcion = 'asis.ft_pares_sel';
@@ -51,7 +53,7 @@ BEGIN
                                   par.estado_reg,
                                   par.id_transaccion_ini,
                                   par.id_transaccion_fin,
-                                  par.fecha_marcado,
+                                  to_char(par.fecha_marcado,''DD/MM/YYYY'') || '' - ''||initcap (asis.f_obtener_dia_literal(par.fecha_marcado)) || '' -- ''||asis.f_calcular_total_hora (503,par.fecha_marcado)|| '' hrs.''  ::text as fecha_marcado,
                                   par.id_funcionario,
                                   par.id_permiso,
                                   par.id_vacacion,
@@ -64,60 +66,45 @@ BEGIN
                                   par.fecha_mod,
                                   usu1.cuenta as usr_reg,
                                   usu2.cuenta as usr_mod,
+                                  to_char(par.fecha_marcado,''DD'')::integer as dia,
                                   (case
-                                      when to_char(te.fecha, ''DD''::text) is not null then
-                                       to_char(te.fecha, ''DD''::text)
-                                      else
-                                      to_char(ts.fecha, ''DD''::text)
-                                      end )::integer as dia,
-                                  (case
-                                     when te.hora is not null and ts.hora is not null then
-                                      	  ts.hora::varchar||'' - ''||te.hora::varchar
-                                      when te.hora is not null then
-                                      te.hora::varchar
-                                      else
-                                       ts.hora::varchar
-                                       end )::varchar as hora,
-                                       (case
-
-                                          when te.hora is not null and ts.hora is not null then
-                                      			ts.acceso ||'' - ''||te.acceso
-                                           when te.acceso is not null then
-                                          		te.acceso
-                                          else
-                                          ts.acceso
-                                          end)::varchar as evento,
-                                           (case
-                                          when te.acceso is not null then
-                                          te.verify_mode_name
-                                          else
-                                          ts.verify_mode_name
-                                          end)::varchar as tipo_verificacion,
-                                          (case
-                                           when te.hora is not null and ts.hora is not null then
-                                           ''JUSTIFICAR''::varchar
-                                          when te.acceso is not null then
-                                          ''''
-                                          else
-                                          ''''
-                                          end)::varchar as obs,
-                                          (case
-                                            when te.acceso is not null then
-                                          re.descripcion
-                                          else
-                                          rs.descripcion
-                                          end)::varchar as rango,
-                                          par.rango as tdo,
-                                          vfun.desc_funcionario1 as desc_funcionario
+                                   when par.hora_ini is not null and par.hora_fin is not null then
+                                        to_char( par.hora_ini, ''HH24:MI'')::varchar||'' - ''||to_char( par.hora_fin, ''HH24:MI'')::varchar
+                                   when par.hora_ini is not null then
+                                   to_char( par.hora_ini, ''HH24:MI'')::varchar
+                                   else
+                                    to_char( par.hora_fin, ''HH24:MI'')::varchar
+                                   end)::varchar as hora,
+                                   par.acceso as evento,
+                                   par.lector::varchar as tipo_verificacion,
+                                   '' ''::varchar as obs,
+                                   ran.descripcion,
+                                   par.rango,
+                                   initcap(vfun.desc_funcionario1) as desc_funcionario,
+                                    (case
+                                        when par.id_vacacion is not null then
+                                        	 vac.descripcion  ||'' - ''|| vac.nro_tramite
+                                        when par.id_permiso is not null then
+                                        	 per.motivo ||'' - ''|| per.nro_tramite
+                                        when par.id_feriado is not null then
+                                        	 fer.descripcion
+                                        when par.id_viatico is not null then
+                                         	 cdd.motivo ||'' - ''|| cdd.nro_tramite
+                                        else
+                                         	''Biometrico''
+                                     end
+                                   )::text as desc_motivo,
+                                  extract(dow from par.fecha_marcado)::integer  as desc_dia
                                   from asis.tpares par
                                   inner join segu.tusuario usu1 on usu1.id_usuario = par.id_usuario_reg
                                   inner join orga.vfuncionario vfun on vfun.id_funcionario = par.id_funcionario
+                                  left join asis.trango_horario ran on ran.id_rango_horario = par.id_rango_horario
                                   left join segu.tusuario usu2 on usu2.id_usuario = par.id_usuario_mod
-                                  left join asis.ttransacc_zkb_etl te on te.id = par.id_transaccion_ini
-                                  left join asis.trango_horario re on re.id_rango_horario = te.id_rango_horario
-                                  left join asis.ttransacc_zkb_etl ts on ts.id = par.id_transaccion_fin
-                                  left join asis.trango_horario rs on rs.id_rango_horario = ts.id_rango_horario
-				        		  where  par.id_funcionario ='||v_parametros.id_funcionario||' and par.fecha_marcado is not null and ';
+                                  left join asis.tpermiso per on per.id_permiso = par.id_permiso
+                                  left join asis.tvacacion vac on vac.id_vacacion= par.id_vacacion
+                                  left join cd.tcuenta_doc cdd on cdd.id_cuenta_doc = par.id_viatico
+                                  left join param.tferiado fer on fer.id_feriado = par.id_feriado
+				        		  where par.id_funcionario ='||v_parametros.id_funcionario||' and';
 
 			--Definicion de la respuesta
 			v_consulta:=v_consulta||v_parametros.filtro;
@@ -145,15 +132,16 @@ BEGIN
             end if;
 
 			v_consulta:='select count(id_pares)
-					    from asis.tpares par
-					    inner join segu.tusuario usu1 on usu1.id_usuario = par.id_usuario_reg
-                        inner join orga.vfuncionario vfun on vfun.id_funcionario = par.id_funcionario
-                        left join segu.tusuario usu2 on usu2.id_usuario = par.id_usuario_mod
-                        left join asis.ttransacc_zkb_etl te on te.id = par.id_transaccion_ini
-                        left join asis.trango_horario re on re.id_rango_horario = te.id_rango_horario
-                        left join asis.ttransacc_zkb_etl ts on ts.id = par.id_transaccion_fin
-                        left join asis.trango_horario rs on rs.id_rango_horario = ts.id_rango_horario
-					    where  par.id_funcionario ='||v_parametros.id_funcionario||' and par.fecha_marcado is not null and';
+                                from asis.tpares par
+                                inner join segu.tusuario usu1 on usu1.id_usuario = par.id_usuario_reg
+                                inner join orga.vfuncionario vfun on vfun.id_funcionario = par.id_funcionario
+                                left join asis.trango_horario ran on ran.id_rango_horario = par.id_rango_horario
+                                left join segu.tusuario usu2 on usu2.id_usuario = par.id_usuario_mod
+                                left join asis.tpermiso per on per.id_permiso = par.id_permiso
+                                left join asis.tvacacion vac on vac.id_vacacion= par.id_vacacion
+                                left join cd.tcuenta_doc cdd on cdd.id_cuenta_doc = par.id_viatico
+                                left join param.tferiado fer on fer.id_feriado = par.id_feriado
+                                where  par.id_funcionario ='||v_parametros.id_funcionario||' and';
 
 			--Definicion de la respuesta
 			v_consulta:=v_consulta||v_parametros.filtro;
@@ -162,6 +150,7 @@ BEGIN
 			return v_consulta;
 
 		end;
+
 
 	else
 
@@ -183,6 +172,7 @@ LANGUAGE 'plpgsql'
 VOLATILE
 CALLED ON NULL INPUT
 SECURITY INVOKER
+PARALLEL UNSAFE
 COST 100;
 
 ALTER FUNCTION asis.ft_pares_sel (p_administrador integer, p_id_usuario integer, p_tabla varchar, p_transaccion varchar)

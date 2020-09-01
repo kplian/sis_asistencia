@@ -134,6 +134,7 @@ BEGIN
 			v_consulta:=v_consulta||v_parametros.filtro;
 			v_consulta:=v_consulta||' order by fun.id_funcionario, fun.fecha_asignacion desc, ' ||v_parametros.ordenacion|| ' ' || v_parametros.dir_ordenacion || ' limit ' || v_parametros.cantidad || ' offset ' || v_parametros.puntero;
             --Devuelve la respuesta
+            raise notice '%',v_consulta;
 			return v_consulta;
 
 		end;
@@ -325,6 +326,90 @@ BEGIN
 			return v_consulta;
 
 		end;
+    /*********************************
+ 	#TRANSACCION:  'ASIS_VBO_SEL'
+ 	#DESCRIPCION:	Consulta de datos
+ 	#AUTOR:		miguel.mamani
+ 	#FECHA:
+	***********************************/
+    elsif(p_transaccion='ASIS_VBO_SEL')then
+    	begin
+    		--Sentencia de la consulta
+			v_consulta:='select	hta.id_mes_trabajo,
+                                hta.estado_reg,
+                                hta.id_proceso_wf,
+                                hta.id_estado_wf,
+                                hta.id_periodo,
+                                hta.estado,
+                                hta.nro_tramite,
+                                hta.id_funcionario,
+                                hta.id_usuario_reg,
+                                hta.fecha_reg,
+                                hta.id_usuario_ai,
+                                hta.usuario_ai,
+                                hta.id_usuario_mod,
+                                hta.fecha_mod,
+                                usu1.cuenta as usr_reg,
+                                usu2.cuenta as usr_mod,
+                                fun.desc_funcionario1,
+                                (select sum(hc.total_comp)
+                                from asis.tmes_trabajo_det hc
+                                where hc.id_mes_trabajo = hta.id_mes_trabajo)::numeric as total_comp,
+                                (select sum(hc.total_normal)
+                                from asis.tmes_trabajo_det hc
+                                where hc.id_mes_trabajo = hta.id_mes_trabajo)::numeric as total_normal,
+                                (select sum(hc.total_extra)
+                                from asis.tmes_trabajo_det hc
+                                where hc.id_mes_trabajo = hta.id_mes_trabajo)::numeric as total_extra,
+                                  (select sum(hc.total_nocturna)
+                                from asis.tmes_trabajo_det hc
+                                where hc.id_mes_trabajo = hta.id_mes_trabajo)::numeric as total_nocturna,
+                                 (select sum(hc.extra_autorizada)
+                                from asis.tmes_trabajo_det hc
+                                where hc.id_mes_trabajo = hta.id_mes_trabajo)::numeric as extra_autorizada,
+                                pe.periodo,
+                                ge.gestion
+                                from asis.tmes_trabajo hta
+                                inner join segu.tusuario usu1 on usu1.id_usuario = hta.id_usuario_reg
+                                inner join orga.vfuncionario fun on fun.id_funcionario = hta.id_funcionario
+                                inner join param.tperiodo pe on pe.id_periodo = hta.id_periodo
+                                inner join param.tgestion ge on ge.id_gestion = pe.id_gestion
+                                left join segu.tusuario usu2 on usu2.id_usuario = hta.id_usuario_mod
+                                where';
+			--Definicion de la respuesta
+			v_consulta:=v_consulta||v_parametros.filtro;
+			v_consulta:=v_consulta||' order by ' ||v_parametros.ordenacion|| ' ' || v_parametros.dir_ordenacion || ' limit ' || v_parametros.cantidad || ' offset ' || v_parametros.puntero;
+            --Devuelve la respuesta
+			return v_consulta;
+
+		end;
+    	/*********************************
+ 	#TRANSACCION:  'ASIS_VBO_CONT'
+ 	#DESCRIPCION:	Conteo de registros
+ 	#AUTOR:		miguel.mamani
+ 	#FECHA:
+	***********************************/
+
+	elsif(p_transaccion='ASIS_VBO_CONT')then
+
+		begin
+			--Sentencia de la consulta de conteo de registros
+			v_consulta:='select count(hta.id_mes_trabajo)
+                                from asis.tmes_trabajo hta
+                                inner join segu.tusuario usu1 on usu1.id_usuario = hta.id_usuario_reg
+                                inner join orga.vfuncionario fun on fun.id_funcionario = hta.id_funcionario
+                                inner join param.tperiodo pe on pe.id_periodo = hta.id_periodo
+                                inner join param.tgestion ge on ge.id_gestion = pe.id_gestion
+                                left join segu.tusuario usu2 on usu2.id_usuario = hta.id_usuario_mod
+                                where ';
+
+			--Definicion de la respuesta
+			v_consulta:=v_consulta||v_parametros.filtro;
+			--Devuelve la respuesta
+			return v_consulta;
+
+		end;
+
 	else
 
 		raise exception 'Transaccion inexistente';
@@ -346,3 +431,6 @@ VOLATILE
 CALLED ON NULL INPUT
 SECURITY INVOKER
 COST 100;
+
+ALTER FUNCTION asis.ft_mes_trabajo_sel (p_administrador integer, p_id_usuario integer, p_tabla varchar, p_transaccion varchar)
+  OWNER TO postgres;
