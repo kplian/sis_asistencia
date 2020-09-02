@@ -1,4 +1,4 @@
-CREATE OR REPLACE FUNCTION asis.ft_vacacion_ime (
+CREATE OR REPLACE FUNCTION asis.ft_permiso_ime (
   p_administrador integer,
   p_id_usuario integer,
   p_tabla varchar,
@@ -8,16 +8,16 @@ RETURNS varchar AS
 $body$
 /**************************************************************************
  SISTEMA:		Sistema de Asistencia
- FUNCION: 		asis.ft_vacacion_ime
- DESCRIPCION:   Funcion que gestiona las operaciones basicas (inserciones, modificaciones, eliminaciones de la tabla 'asis.tvacacion'
- AUTOR: 		 (apinto)
- FECHA:	        01-10-2019 15:29:35
+ FUNCION: 		asis.ft_permiso_ime
+ DESCRIPCION:   Funcion que gestiona las operaciones basicas (inserciones, modificaciones, eliminaciones de la tabla 'asis.tpermiso'
+ AUTOR: 		 (miguel.mamani)
+ FECHA:	        16-10-2019 13:14:05
  COMENTARIOS:
 ***************************************************************************
  HISTORIAL DE MODIFICACIONES:
 #ISSUE				FECHA				AUTOR				DESCRIPCION
- #0				01-10-2019 15:29:35								Funcion que gestiona las operaciones basicas (inserciones, modificaciones, eliminaciones de la tabla 'asis.tvacacion'
-#25			14-08-2020 15:28:39		MMV						Refactorizacion vacaciones
+ #0				16-10-2019 13:14:05								Funcion que gestiona las operaciones basicas (inserciones, modificaciones, eliminaciones de la tabla 'asis.tpermiso'
+#25			14-08-2020 15:28:39		MMV						Refactorizacion permiso
  ***************************************************************************/
 
 DECLARE
@@ -28,14 +28,15 @@ DECLARE
 	v_resp		            varchar;
 	v_nombre_funcion        text;
 	v_mensaje_error         text;
-	v_id_vacacion			integer;
+	v_id_permiso			integer;
     v_id_gestion			integer;
     v_codigo_proceso		varchar;
     v_id_macro_proceso		integer;
     v_nro_tramite			varchar;
     v_id_proceso_wf			integer;
-	v_id_estado_wf			integer;
+    v_id_estado_wf			integer;
     v_codigo_estado			varchar;
+
     v_record				record;
     v_id_tipo_estado		integer;
     v_pedir_obs				varchar;
@@ -49,43 +50,39 @@ DECLARE
     v_id_estado_actual		integer;
 	v_operacion				varchar;
     v_id_funcionario		integer;
-    v_nombre_funcionario	varchar;
+
     v_id_usuario_reg			integer;
     v_id_estado_wf_ant			integer;
     v_codigo_estado_siguiente	varchar;
-    v_cant_dias					numeric=0;
-    v_fecha_inicial				date;
-    v_fecha_final				date;
-    v_incremento_fecha      	date;
-    v_valor_incremento			varchar;
-    v_domingo 					INTEGER = 0;
-    v_sabado 					INTEGER = 6;
-    v_parte_decimal				varchar;
-    v_mensaje					varchar;
-    v_fecha_aux					date;
-    v_lugar						varchar;
-    v_id_gestion_actual         integer;
-    v_record_det                record;
-    v_movimiento				record;
-    v_prestado					varchar;
+    v_tiempo					time;
+    v_diferencia				time;
+    v_registro_funcionario		record;
+    v_consulta					varchar;
+    v_consulta_record			record;
+
+    v_inicio	varchar;
+    v_fin		varchar;
+    v_record_tipo record;
 
 
 BEGIN
 
-    v_nombre_funcion = 'asis.ft_vacacion_ime';
+    v_nombre_funcion = 'asis.ft_permiso_ime';
     v_parametros = pxp.f_get_record(p_tabla);
 
 	/*********************************
- 	#TRANSACCION:  'ASIS_VAC_INS'
+ 	#TRANSACCION:  'ASIS_PMO_INS'
  	#DESCRIPCION:	Insercion de registros
- 	#AUTOR:		apinto
- 	#FECHA:		01-10-2019 15:29:35
+ 	#AUTOR:		miguel.mamani
+ 	#FECHA:		16-10-2019 13:14:05
 	***********************************/
 
-	if(p_transaccion='ASIS_VAC_INS')then
+	if(p_transaccion='ASIS_PMO_INS')then
 
         begin
-          --Obtenemos la gestion
+
+        -- raise exception '%',v_parametros.jornada;
+
            select  g.id_gestion
                    into
                    v_id_gestion
@@ -100,13 +97,11 @@ BEGIN
                     v_id_macro_proceso
            from  wf.tproceso_macro pm
            inner join wf.ttipo_proceso tp on tp.id_proceso_macro = pm.id_proceso_macro
-           where pm.codigo = 'VAC' and tp.estado_reg = 'activo' and tp.inicio = 'si';
+           where pm.codigo = 'PER' and tp.estado_reg = 'activo' and tp.inicio = 'si';
 
-
-           -- inciar el tramite en el sistema de WF
-
+                 -- inciar el tramite en el sistema de WF
            SELECT
-                 ps_num_tramite ,
+                 ps_num_tramite,
                  ps_id_proceso_wf,
                  ps_id_estado_wf,
                  ps_codigo_estado
@@ -122,333 +117,143 @@ BEGIN
                  v_id_gestion,
                  v_codigo_proceso,
                  v_parametros.id_funcionario,
-                 null,
-                 'Vacaciones',
+                 NULL,
+                 'Permiso',
                  v_codigo_proceso);
 
-
-        	--validar si tiene vacacione
-
-        	--Sentencia de la insercion
-
-            v_fecha_aux = v_parametros.fecha_inicio;
-            IF v_fecha_aux::DATE > v_parametros.fecha_fin::DATE THEN
-	            RAISE EXCEPTION 'ERROR: FECHA INICIO MAYOR A FECHA FIN.';
-            END IF;
-
-            v_valor_incremento := '1' || ' DAY';
-
-            SELECT g.id_gestion
-            INTO
-            v_id_gestion_actual
-            FROM param.tgestion g
-            WHERE now() BETWEEN g.fecha_ini and g.fecha_fin;
-
-            WHILE (SELECT v_fecha_aux::date <= v_parametros.fecha_fin::date ) loop
-            	IF(select extract(dow from v_fecha_aux::date)not in (v_sabado, v_domingo)) THEN
-                	IF NOT EXISTS(select * from param.tferiado f
-                                          JOIN param.tlugar l on l.id_lugar = f.id_lugar
-                                          WHERE l.codigo='BO' AND (EXTRACT(MONTH from f.fecha))::integer = (EXTRACT(MONTH from v_fecha_aux::date))::integer
-                                          AND (EXTRACT(DAY from f.fecha))::integer = (EXTRACT(DAY from v_fecha_aux)) AND f.id_gestion=v_id_gestion_actual )THEN
-                                          v_cant_dias=v_cant_dias+1;
-
-                	END IF;
+            select  tp.documento,
+                    tp.reposcion,
+                    tp.rango,
+                    tp.tiempo
+                    into
+                    v_record_tipo
+            from asis.ttipo_permiso tp
+            where tp.id_tipo_permiso  = v_parametros.id_tipo_permiso;
 
 
-                END IF;
+            if (v_record_tipo.tiempo::time > '00:00:00'::time ) then
 
-                v_incremento_fecha=(SELECT v_fecha_aux::date + CAST(v_valor_incremento AS INTERVAL));
-                v_fecha_aux = v_incremento_fecha;
-            end loop;
+                    if (v_record_tipo.reposcion = 'si')then
 
-            IF v_cant_dias = 0 OR v_parametros.dias = 0 THEN-- contador de dias
-	           RAISE EXCEPTION 'ERROR: DIA NO PERMITIDO.';
-            END IF;
+                       v_diferencia = v_parametros.hro_total_permiso::time;
 
-            IF v_cant_dias < v_parametros.dias::numeric AND v_parametros.dias::numeric >= 0.5 then
-	            RAISE EXCEPTION 'ERROR: CANTIDAD DE DIAS MAXIMO PERMITIDO: %', v_cant_dias ;
-            END IF;
+                       if (v_diferencia::time > v_record_tipo.tiempo::time)then
+                            raise exception 'Sobre pasa el limite de tiempo para el permiso (%)',v_record_tipo.tiempo::time;
+                       end if;
 
-            --v_parte_decimal = SELECT split_part(v_parametros.dias, '.', 2);
-            IF((SELECT split_part(v_parametros.dias::varchar, '.', 2))::varchar != '5' AND (SELECT split_part(v_parametros.dias::varchar, '.', 2))::varchar != '')THEN
-            	RAISE EXCEPTION 'ERROR, DECIMAL NO PERMITIDO! %', v_parte_decimal ;
-            END IF;
-
-
-              select va.id_movimiento_vacacion,
-                     va.id_funcionario,
-                     va.dias_actual,
-                     va.codigo
-                     into
-                     v_movimiento
-              from asis.tmovimiento_vacacion va
-              where va.id_funcionario = v_parametros.id_funcionario
-              		and va.activo = 'activo';
-
-             v_prestado = 'no';
-
-             if v_movimiento.dias_actual < v_parametros.dias then
-
-                 if not exists (select 1
-                                 from orga.vfuncionario_cargo f
-                                 where f.id_funcionario = v_parametros.id_funcionario
-                                        and f.fecha_finalizacion is null) then
-
-                 	raise exception 'No tienes saldo';
-
-                 end if;
-
-             	  v_prestado = 'si';
-
-             end if;
+                       if v_parametros.hro_total_reposicion::time < v_parametros.hro_total_permiso::time then
+                          raise exception 'El tiempo de reposicion es menor al tiempo del permiso';
+                      elsif v_parametros.hro_total_reposicion::time  >  v_parametros.hro_total_permiso::time then
+                          raise exception 'El tiempo de reposicion es mayor al tiempo del permiso';
+                      elsif v_parametros.hro_total_permiso::time != v_parametros.hro_total_reposicion::time then
+                          raise exception 'El tiempo de la reposición es distinto a tiempo del permiso';
+                      end if;
 
 
+                    end if;
+            end if;
 
+            -- validar si tiene una vacacion registrada el dia
 
-            insert into asis.tvacacion( estado_reg,
-                                        id_funcionario,
-                                        fecha_inicio,
-                                        fecha_fin,
-                                        dias,
-                                        descripcion,
-                                        id_usuario_reg,
-                                        fecha_reg,
-                                        id_usuario_ai,
-                                        usuario_ai,
-                                        id_usuario_mod,
-                                        fecha_mod,
-                                        id_proceso_wf, --campo wf
-                                        id_estado_wf,--campo wf
-                                        estado,--campo wf
-                                        nro_tramite,--campo wf
-                                        medio_dia,-- medio_dia
-                                        dias_efectivo,
-                                        prestado
-                                        ) values(
-                                        'activo',
-                                        v_parametros.id_funcionario,
-                                        v_parametros.fecha_inicio,
-                                        v_parametros.fecha_fin,
-                                        v_parametros.dias,
-                                        v_parametros.descripcion,
-                                        p_id_usuario,
-                                        now(),
-                                        v_parametros._id_usuario_ai,
-                                        v_parametros._nombre_usuario_ai,
-                                        null,
-                                        null,
-                                        v_id_proceso_wf,
-                                        v_id_estado_wf,
-                                        v_codigo_estado,
-                                        v_nro_tramite,
-                                        0,--v_parametros.medio_dia,
-                                        v_parametros.dias_efectivo,
-                                        v_prestado)RETURNING id_vacacion into v_id_vacacion;
+            if exists ( select 1
+                        from asis.tvacacion v
+                        inner join asis.tvacacion_det d on d.id_vacacion = v.id_vacacion
+                        where v.id_funcionario = v_parametros.id_funcionario
+                         and d.fecha_dia = v_parametros.fecha_solicitud) then
 
-            --Insertar detalle dias de la solicitud de vacion
-
-            for v_record_det in (select dia::date as dia
-                                  from generate_series(v_parametros.fecha_inicio,v_parametros.fecha_fin, '1 day'::interval) dia)loop
-
-			if exists (select 1
-                from asis.tpermiso p
-                where p.id_funcionario = v_parametros.id_funcionario
-                        and p.fecha_solicitud = v_record_det.dia
-                        and p.estado <> 'registro' )then
-
-            	raise exception 'Tienes un registro en permiso con esta fecha (%)',v_record_det.dia;
+            	raise exception 'Tienes programado una vacacion el dia %',v_parametros.fecha_solicitud;
 
             end if;
 
-
-                if extract(dow from v_record_det.dia::date) <> 0 then
-                    if extract(dow from v_record_det.dia::date) <> 6 then
-                    INSERT INTO
-                                  asis.tvacacion_det
-                                (
-                                  id_usuario_reg,
-                                  id_usuario_mod,
-                                  fecha_reg,
-                                  fecha_mod,
-                                  id_usuario_ai,
-                                  usuario_ai,
-                                  id_vacacion,
-                                  fecha_dia
-                                )
-                                VALUES (
-                                  p_id_usuario,
-                                  null,
-                                  now(),
-                                  null,
-                                  v_parametros._id_usuario_ai,
-                                  v_parametros._nombre_usuario_ai,
-                                  v_id_vacacion,
-                                  v_record_det.dia
-                                );
-                        end if;
-                    end if;
-                end loop;
-
-
-			--Definicion de la respuesta
-			v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Vacación almacenado(a) con exito (id_vacacion'||v_id_vacacion||')');
-            v_resp = pxp.f_agrega_clave(v_resp,'id_vacacion',v_id_vacacion::varchar);
-
-            --Devuelve la respuesta
-            return v_resp;
-
-		end;
-
-    /*********************************
- 	#TRANSACCION:  'ASIS_VAC_VALID'
- 	#DESCRIPCION:	VALIDACION DE DATOS VACACIÓN.
- 	#AUTOR:		apinto
- 	#FECHA:		15-10-2019 15:29:35
-	***********************************/
-
-	elsif(p_transaccion='ASIS_VAC_VALID')then
-
-        begin
-        	--Raise exception '%', p_id_usuario;
-         	select
-            l.codigo
-            into v_lugar
-            from segu.tusuario us
-            join segu.tpersona p on p.id_persona=us.id_persona
-            join orga.tfuncionario f on f.id_persona = p.id_persona
-            join orga.tuo_funcionario uf on uf.id_funcionario=f.id_funcionario
-            join orga.tcargo c on c.id_cargo=uf.id_cargo
-            join param.tlugar l on l.id_lugar=c.id_lugar
-            where uf.estado_reg = 'activo' and uf.tipo = 'oficial' and uf.fecha_asignacion<=now() and coalesce(uf.fecha_finalizacion, now())>=now() and us.id_usuario=p_id_usuario;
-
         	--Sentencia de la insercion
-            IF v_parametros.fecha_inicio::DATE > v_parametros.fecha_fin::DATE THEN
-            	v_mensaje = 'ERROR: FECHA INICIO MAYOR A FECHA FIN.';
-            END IF;
-
-            v_fecha_aux := v_parametros.fecha_inicio;
-            v_valor_incremento := '1' || ' DAY';
-
-            SELECT g.id_gestion
-            INTO
-            v_id_gestion_actual
-            FROM param.tgestion g
-            WHERE v_fecha_aux BETWEEN g.fecha_ini and g.fecha_fin;
-
-            WHILE (SELECT (v_fecha_aux::date) <= v_parametros.fecha_fin::date ) loop
-            	IF(select extract(dow from v_fecha_aux::date)not in (v_sabado, v_domingo) ) THEN
-                	IF NOT EXISTS(select * from param.tferiado f
-                                          JOIN param.tlugar l on l.id_lugar = f.id_lugar
-                                          WHERE l.codigo in ('BO',v_lugar)
-                                          AND (EXTRACT(MONTH from f.fecha))::integer = (EXTRACT(MONTH from v_fecha_aux::date))::integer
-                                          AND (EXTRACT(DAY from f.fecha))::integer = (EXTRACT(DAY from v_fecha_aux)) AND f.id_gestion=v_id_gestion_actual )THEN
-                                          	v_cant_dias=v_cant_dias+1;
-
-                	END IF;
-                END IF;
-                v_incremento_fecha = v_fecha_aux::date + v_valor_incremento::INTERVAL;
-                v_fecha_aux := v_incremento_fecha;
-            end loop;
-
-
-            IF v_cant_dias = 0 then -- contador de dias
-            	v_mensaje = 'ERROR: DIA NO PERMITIDO.';
-            END IF;
-
-            IF(v_parametros.medios_dias = TRUE)THEN
-            	v_cant_dias = v_cant_dias/2;
-            END IF;
+        	insert into asis.tpermiso(
+			nro_tramite,
+			id_funcionario,
+			id_estado_wf,
+			fecha_solicitud,
+			id_tipo_permiso,
+			motivo,
+			estado_reg,
+			estado,
+			id_proceso_wf,
+			id_usuario_ai,
+			id_usuario_reg,
+			usuario_ai,
+			fecha_reg,
+			fecha_mod,
+			id_usuario_mod,
+            hro_desde,
+            hro_hasta,
+            fecha_reposicion,  ---nuevo
+            hro_desde_reposicion,
+            hro_hasta_reposicion,
+            reposicion,
+            hro_total_permiso,
+            hro_total_reposicion,
+            jornada
+          	) values(
+			v_nro_tramite,--v_parametros.nro_tramite,
+			v_parametros.id_funcionario,
+			v_id_estado_wf,--v_parametros.id_estado_wf,
+			v_parametros.fecha_solicitud,
+			v_parametros.id_tipo_permiso,
+			v_parametros.motivo,
+			'activo',
+			v_codigo_estado,--v_parametros.estado,
+			v_id_proceso_wf,--v_parametros.id_proceso_wf,
+			v_parametros._id_usuario_ai,
+			p_id_usuario,
+			v_parametros._nombre_usuario_ai,
+			now(),
+			null,
+			null,
+            v_parametros.hro_desde,
+            v_parametros.hro_hasta,
+            v_parametros.fecha_reposicion,  ---nuevo
+            v_parametros.hro_desde_reposicion,
+            v_parametros.hro_hasta_reposicion,
+            v_record_tipo.reposcion,
+            v_parametros.hro_total_permiso,
+            v_parametros.hro_total_reposicion,
+            v_parametros.jornada
+			)RETURNING id_permiso into v_id_permiso;
 
 			--Definicion de la respuesta
-
-			v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Vacación almacenado(a) con exito (id_vacacion'||v_id_vacacion||')');
-            v_resp = pxp.f_agrega_clave(v_resp,'v_cant_dias','%'||v_cant_dias||'%'::varchar);
+			v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Permiso almacenado(a) con exito (id_permiso'||v_id_permiso||')');
+            v_resp = pxp.f_agrega_clave(v_resp,'id_permiso',v_id_permiso::varchar);
 
             --Devuelve la respuesta
             return v_resp;
 
 		end;
-
 
 	/*********************************
- 	#TRANSACCION:  'ASIS_VAC_MOD'
+ 	#TRANSACCION:  'ASIS_PMO_MOD'
  	#DESCRIPCION:	Modificacion de registros
- 	#AUTOR:		apinto
- 	#FECHA:		01-10-2019 15:29:35
+ 	#AUTOR:		miguel.mamani
+ 	#FECHA:		16-10-2019 13:14:05
 	***********************************/
 
-	elsif(p_transaccion='ASIS_VAC_MOD')then
+	elsif(p_transaccion='ASIS_PMO_MOD')then
 
 		begin
 			--Sentencia de la modificacion
-			update asis.tvacacion set
+			update asis.tpermiso set
 			id_funcionario = v_parametros.id_funcionario,
-			fecha_inicio = v_parametros.fecha_inicio,
-			fecha_fin = v_parametros.fecha_fin,
-			dias = v_parametros.dias,
-			descripcion = v_parametros.descripcion,
-			id_usuario_mod = p_id_usuario,
+			fecha_solicitud = v_parametros.fecha_solicitud,
+			id_tipo_permiso = v_parametros.id_tipo_permiso,
+			motivo = v_parametros.motivo,
 			fecha_mod = now(),
+			id_usuario_mod = p_id_usuario,
 			id_usuario_ai = v_parametros._id_usuario_ai,
 			usuario_ai = v_parametros._nombre_usuario_ai,
-            dias_efectivo = v_parametros.dias_efectivo
-			where id_vacacion=v_parametros.id_vacacion;
-
-
-            delete from asis.tvacacion_det vd
-            where vd.id_vacacion = v_parametros.id_vacacion;
-
-            for v_record_det in (select dia::date as dia
-                                  from generate_series(v_parametros.fecha_inicio,v_parametros.fecha_fin, '1 day'::interval) dia)loop
-
-			if exists (select 1
-                from asis.tpermiso p
-                where p.id_funcionario = v_parametros.id_funcionario
-                        and p.fecha_solicitud = v_record_det.dia
-                        and p.estado <> 'registro' )then
-
-            	raise exception 'Tienes un registro en permiso con esta fecha (%)',v_record_det.dia;
-
-            end if;
-
-
-                if extract(dow from v_record_det.dia::date) <> 0 then
-                    if extract(dow from v_record_det.dia::date) <> 6 then
-                    INSERT INTO
-                                  asis.tvacacion_det
-                                (
-                                  id_usuario_reg,
-                                  id_usuario_mod,
-                                  fecha_reg,
-                                  fecha_mod,
-                                  id_usuario_ai,
-                                  usuario_ai,
-                                  id_vacacion,
-                                  fecha_dia
-                                )
-                                VALUES (
-                                  p_id_usuario,
-                                  null,
-                                  now(),
-                                  null,
-                                  v_parametros._id_usuario_ai,
-                                  v_parametros._nombre_usuario_ai,
-                                  v_parametros.id_vacacion,
-                                  v_record_det.dia
-                                );
-                        end if;
-                    end if;
-                end loop;
-
-
-
-
-
-
+            hro_desde = v_parametros.hro_desde,
+            hro_hasta  = v_parametros.hro_hasta
+			where id_permiso=v_parametros.id_permiso;
 
 			--Definicion de la respuesta
-            v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Vacación modificado(a)');
-            v_resp = pxp.f_agrega_clave(v_resp,'id_vacacion',v_parametros.id_vacacion::varchar);
+            v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Permiso modificado(a)');
+            v_resp = pxp.f_agrega_clave(v_resp,'id_permiso',v_parametros.id_permiso::varchar);
 
             --Devuelve la respuesta
             return v_resp;
@@ -456,25 +261,22 @@ BEGIN
 		end;
 
 	/*********************************
- 	#TRANSACCION:  'ASIS_VAC_ELI'
+ 	#TRANSACCION:  'ASIS_PMO_ELI'
  	#DESCRIPCION:	Eliminacion de registros
- 	#AUTOR:		apinto
- 	#FECHA:		01-10-2019 15:29:35
+ 	#AUTOR:		miguel.mamani
+ 	#FECHA:		16-10-2019 13:14:05
 	***********************************/
 
-	elsif(p_transaccion='ASIS_VAC_ELI')then
+	elsif(p_transaccion='ASIS_PMO_ELI')then
 
 		begin
 			--Sentencia de la eliminacion
-            delete from asis.tvacacion_det
-			where id_vacacion = v_parametros.id_vacacion;
-
-			delete from asis.tvacacion
-            where id_vacacion=v_parametros.id_vacacion;
+			delete from asis.tpermiso
+            where id_permiso=v_parametros.id_permiso;
 
             --Definicion de la respuesta
-            v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Vacación eliminado(a)');
-            v_resp = pxp.f_agrega_clave(v_resp,'id_vacacion',v_parametros.id_vacacion::varchar);
+            v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Permiso eliminado(a)');
+            v_resp = pxp.f_agrega_clave(v_resp,'id_permiso',v_parametros.id_permiso::varchar);
 
             --Devuelve la respuesta
             return v_resp;
@@ -482,23 +284,23 @@ BEGIN
 		end;
 
      /*********************************
- 	#TRANSACCION:  'ASIS_SIGAV_IME'
+ 	#TRANSACCION:  'ASIS_SIGPMO_IME'
  	#DESCRIPCION:	siguiente
  	#AUTOR:		miguel.mamani
  	#FECHA:		31-01-2019 13:53:10
 	***********************************/
 
-	elsif(p_transaccion='ASIS_SIGAV_IME')then
+	elsif(p_transaccion='ASIS_SIGPMO_IME')then
 
 		begin
-
-        	select 	me.id_vacacion,
+			--raise exception 'entra';
+        	select 	me.id_permiso,
             		me.id_estado_wf,
                     me.estado,
                     me.nro_tramite
                     into
                     v_record
-            from asis.tvacacion me
+            from asis.tpermiso me
             where me.id_proceso_wf = v_parametros.id_proceso_wf_act;
 
 
@@ -553,16 +355,14 @@ BEGIN
                                                          v_tipo_noti,
                                                          v_titulo);
 
-           		IF NOT asis.f_procesar_estado_vacacion(  p_id_usuario,
-                                                        v_parametros._id_usuario_ai,
-                                                        v_parametros._nombre_usuario_ai,
-                                                        v_id_estado_actual,
-                                                        v_parametros.id_proceso_wf_act,
-                                                        v_codigo_estado_siguiente) THEN
-
-         			RAISE NOTICE 'PASANDO DE ESTADO';
-
-          		END IF;
+                 update asis.tpermiso set
+                  id_estado_wf =  v_id_estado_actual,
+                  estado = v_codigo_estado_siguiente,
+                  id_usuario_mod = p_id_usuario,
+                  id_usuario_ai = v_parametros._id_usuario_ai,
+                  usuario_ai = v_parametros._nombre_usuario_ai,
+                  fecha_mod = now()
+                  where id_proceso_wf = v_parametros.id_proceso_wf_act;
 
             --Definicion de la respuesta
             v_resp = pxp.f_agrega_clave(v_resp,'mensaje','mes trabajo cambio de estado (a)');
@@ -573,12 +373,12 @@ BEGIN
 
 		end;
      /*********************************
- 	#TRANSACCION:  'ASIS_ANTV_IME'
+ 	#TRANSACCION:  'ASIS_ANTPMO_IME'
  	#DESCRIPCION:	Estado Anterior
  	#AUTOR: MMV
  	#FECHA: 07/10/2019
 	***********************************/
-    elsif(p_transaccion='ASIS_ANTV_IME')then
+    elsif(p_transaccion='ASIS_ANTPMO_IME')then
 
 		begin
 
@@ -586,21 +386,18 @@ BEGIN
                v_operacion = v_parametros.estado_destino;
             end if;
 
-			select me.id_vacacion,
+			select me.id_permiso,
             		me.id_estado_wf,
                     me.estado,
                     me.id_proceso_wf,
                     pwf.id_tipo_proceso
                     into
                     v_record
-            from asis.tvacacion me
+            from asis.tpermiso me
             inner join wf.tproceso_wf pwf on pwf.id_proceso_wf = me.id_proceso_wf
             where me.id_proceso_wf = v_parametros.id_proceso_wf;
 
 			v_id_proceso_wf = v_record.id_proceso_wf;
-
-
-
 
           SELECT
 
@@ -644,7 +441,7 @@ BEGIN
                                                               v_tipo_noti,
                                                               v_titulo);
 
-                  update asis.tvacacion set
+                  update asis.tpermiso set
                   id_estado_wf =  v_id_estado_actual,
                   estado = v_codigo_estado,
                   id_usuario_mod = p_id_usuario,
@@ -661,38 +458,62 @@ BEGIN
               --Devuelve la respuesta
                 return v_resp;
  			end;
-    	/*********************************
- 	#TRANSACCION:  'ASIS_VM_GET'
- 	#DESCRIPCION:	Modificacion de registros
- 	#AUTOR:		MMV
- 	#FECHA:		01-10-2019 15:29:35
+	/*********************************
+ 	#TRANSACCION:  'ASIS_RAF_IME'
+ 	#DESCRIPCION:  optener los rango del funcionario
+ 	#AUTOR: MMV
+ 	#FECHA: 23/03/2020
 	***********************************/
-
-	elsif(p_transaccion='ASIS_VM_GET')then
+    elsif(p_transaccion='ASIS_RAF_IME')then
 
 		begin
-			--Sentencia de la modificacion
 
 
-            select v.tipo,
-                   v.dias_actual
-                   into
-                   v_movimiento
-            from asis.tmovimiento_vacacion v
-            where v.id_funcionario = v_parametros.id_funcionario
-            		and v.activo = 'activo';
 
-			--Definicion de la respuesta
-            v_resp = pxp.f_agrega_clave(v_resp,'mensaje','El existo papu');
-            v_resp = pxp.f_agrega_clave(v_resp,'id_funcionario',v_parametros.id_funcionario::varchar);
-            v_resp = pxp.f_agrega_clave(v_resp,'tipo',v_movimiento.tipo::varchar);
-            v_resp = pxp.f_agrega_clave(v_resp,'dias_actual',v_movimiento.dias_actual::varchar);
+        select distinct on (uof.id_funcionario) uof.id_funcionario, ger.id_uo into v_registro_funcionario
+        from orga.tuo_funcionario uof
+        inner join orga.tuo ger on ger.id_uo = orga.f_get_uo_gerencia(uof.id_uo, NULL::integer, NULL::date)
+        where uof.id_funcionario = v_parametros.id_funcionario and
+        uof.fecha_asignacion <= v_parametros.fecha_solicitud and
+        (uof.fecha_finalizacion is null or uof.fecha_finalizacion >= v_parametros.fecha_solicitud)
+        order by uof.id_funcionario, uof.fecha_asignacion desc;
 
-            --Devuelve la respuesta
-            return v_resp;
+    	-- raise exception '%',v_parametros.id_funcionario;
 
-		end;
+        if v_registro_funcionario.id_uo is null then
+        	raise exception 'No tiene asigando una uo';
+        end if;
 
+        v_consulta = 'select rh.hora_entrada,
+                              rh.hora_salida
+                      from asis.trango_horario rh
+                      inner join asis.tasignar_rango ar on ar.id_rango_horario = rh.id_rango_horario
+                      where ar.id_uo = '||v_registro_funcionario.id_uo||'and rh.'||asis.f_obtener_dia_literal(v_parametros.fecha_solicitud)||' = ''si''
+                       and  '''||v_parametros.fecha_solicitud||''' >=ar.desde and ar.hasta is null
+                       and rh.jornada = '''||v_parametros.jornada||'''
+                      order by rh.hora_entrada, ar.hasta asc';
+
+
+        v_inicio = null;
+        v_fin = null;
+
+
+       --  raise notice '%',v_consulta;
+        	execute (v_consulta) into  v_inicio, v_fin;
+
+       		if (v_inicio is null and v_fin is null )then
+
+            	raise exception 'Esta en horario continuo';
+
+            end if;
+
+           v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Exito');
+           v_resp = pxp.f_agrega_clave(v_resp,'inicio',v_inicio);
+           v_resp = pxp.f_agrega_clave(v_resp,'fin',v_fin);
+
+         return v_resp;
+
+ 		end;
 	else
 
     	raise exception 'Transaccion inexistente: %',p_transaccion;
@@ -717,5 +538,5 @@ SECURITY INVOKER
 PARALLEL UNSAFE
 COST 100;
 
-ALTER FUNCTION asis.ft_vacacion_ime (p_administrador integer, p_id_usuario integer, p_tabla varchar, p_transaccion varchar)
+ALTER FUNCTION asis.ft_permiso_ime (p_administrador integer, p_id_usuario integer, p_tabla varchar, p_transaccion varchar)
   OWNER TO postgres;
