@@ -27,7 +27,7 @@ DECLARE
 	v_nombre_funcion   	text;
 	v_resp				varchar;
 
-     v_fecha_ini			date;
+    v_fecha_ini			date;
     v_fecha_fin			date;
     v_record			record;
     v_time				timestamp;
@@ -56,6 +56,12 @@ BEGIN
         	raise exception 'Usted no esta registrado como funcionario';
         end if;*/
 
+
+        select p.fecha_ini, p.fecha_fin into v_fecha_ini,v_fecha_fin
+        from param.tperiodo p
+        where p.id_periodo = v_parametros.id_periodo;
+
+ 		-- raise exception '% -> %',v_fecha_ini,v_fecha_fin;
     		--Sentencia de la consulta
 			v_consulta:='select
                               bio.id,
@@ -81,13 +87,14 @@ BEGIN
                             asis.ttransacc_zkb_etl bio
                             inner join orga.vfuncionario fun on fun.id_funcionario = bio.id_funcionario
                             left join asis.trango_horario ran on ran.id_rango_horario = bio.id_rango_horario
-                            where bio.id_funcionario = '||v_parametros.id_funcionario||' and  bio.reader_name not in (select rn.name
-																												      from asis.treader_no rn) and bio.event_name != ''Acceso denegado'' and  ';
+                            where bio.id_funcionario = '||v_parametros.id_funcionario||' and   bio.reader_name not in (select rn.name
+																												      from asis.treader_no rn) and bio.event_name != ''Acceso denegado'' and event_time::date between '''||v_fecha_ini ||'''and '''||v_fecha_fin||''' and' ;
 
 			--Definicion de la respuesta
 			v_consulta:=v_consulta||v_parametros.filtro;
 			v_consulta:=v_consulta||' order by ' ||v_parametros.ordenacion|| ',hora asc ' || v_parametros.dir_ordenacion || ' limit ' || v_parametros.cantidad || ' offset ' || v_parametros.puntero;
 			--Devuelve la respuesta
+            raise notice '%',v_consulta;
 			return v_consulta;
 
 		end;
@@ -113,11 +120,12 @@ BEGIN
                               asis.ttransacc_zkb_etl bio
                               inner join orga.vfuncionario fun on fun.id_funcionario = bio.id_funcionario
                               left join asis.trango_horario ran on ran.id_rango_horario = bio.id_rango_horario
-                         where bio.id_funcionario = '||v_parametros.id_funcionario||' and bio.reader_name not in (select rn.name
-																													from asis.treader_no rn) and';
+                         where bio.id_funcionario = '||v_parametros.id_funcionario||' and   bio.reader_name not in (select rn.name
+																												      from asis.treader_no rn) and bio.event_name != ''Acceso denegado'' and ';
 
 			--Definicion de la respuesta
 			v_consulta:=v_consulta||v_parametros.filtro;
+            raise notice '%',v_consulta;
 
 			--Devuelve la respuesta
 			return v_consulta;

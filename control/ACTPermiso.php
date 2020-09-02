@@ -40,7 +40,7 @@ class ACTPermiso extends ACTbase{
             $this->objParam->addFiltro("pmo.estado = ''vobo''");
         }
         if ($this->objParam->getParametro('tipo_interfaz') == 'PermisoRRHH'){
-            $this->objParam->addFiltro("pmo.estado = ''finalizado''");
+            $this->objParam->addFiltro("pmo.estado <> ''registro''");
         }
         if($this->objParam->getParametro('tipoReporte')=='excel_grid' || $this->objParam->getParametro('tipoReporte')=='pdf_grid'){
             $this->objReporte = new Reporte($this->objParam,$this);

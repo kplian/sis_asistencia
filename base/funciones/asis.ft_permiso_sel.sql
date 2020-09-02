@@ -101,7 +101,8 @@ BEGIN
                                 pmo.hro_desde_reposicion,
                                 pmo.hro_hasta_reposicion,
                                 pmo.hro_total_permiso,
-                                pmo.hro_total_reposicion
+                                pmo.hro_total_reposicion,
+                                pmo.jornada
                                 from asis.tpermiso pmo
                                 inner join segu.tusuario usu1 on usu1.id_usuario = pmo.id_usuario_reg
                                 inner join asis.ttipo_permiso tip on tip.id_tipo_permiso = pmo.id_tipo_permiso
@@ -191,6 +192,7 @@ LANGUAGE 'plpgsql'
 VOLATILE
 CALLED ON NULL INPUT
 SECURITY INVOKER
+PARALLEL UNSAFE
 COST 100;
 
 ALTER FUNCTION asis.ft_permiso_sel (p_administrador integer, p_id_usuario integer, p_tabla varchar, p_transaccion varchar)
