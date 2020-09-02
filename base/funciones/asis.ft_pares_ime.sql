@@ -1697,9 +1697,6 @@ BEGIN
                    /** Feriado (Fin) **/
 
                 if v_record_dia.total_dias = 0 and v_record_dia.horas is null then
-                	-- raise exception 'Entra';
-
-                   -- raise exception '%',v_record_dia.mes;
 
                        v_filtro = asis.f_obtener_rango_asignado_fun (v_parametros.id_funcionario,v_record_dia.mes);
 
@@ -2334,6 +2331,7 @@ BEGIN
                                         and pa.fecha_marcado = v_ht_one.mes
                                         and pa.rango = 'si';
 
+                                        -- raise exception '%', asis.f_obtener_dia_literal(v_ht_one.mes);
                                       if v_quincena_one_dia.hora[1] is not null THEN
 
                                         v_calcular_ma =  COALESCE(round(COALESCE(asis.f_date_diff('minute', v_quincena_one_dia.hora[1]::timestamp, v_quincena_one_dia.hora[2]::timestamp),0)/60::numeric,1),0);
@@ -2404,11 +2402,25 @@ BEGIN
                                                                     v_quincena_one_dia.hora[6]::timestamp,
                                                                     v_calcular_no,--?total_noche,
                                                                     null,
-                                                                    v_resultado_final,--v_calcular,--?total_normal,
+                                                                    (
+                                                                     case
+                                                                     	when asis.f_obtener_dia_literal(v_ht_one.mes) not in  ('sabado','domingo') then
+                                                                         v_resultado_final
+                                                                         else
+                                                                         0
+                                                                         end
+                                                                    ),--v_calcular,--?total_normal,
                                                                     0,--?total_nocturna,
-                                                                    v_calcular_ex,--?total_extra,
+                                                                    (
+                                                                     case
+                                                                     	when asis.f_obtener_dia_literal(v_ht_one.mes) not in  ('sabado','domingo') then
+                                                                         v_calcular_ex
+                                                                         else
+                                                                         v_resultado_final
+                                                                         end
+                                                                    ),--?total_extra,
                                                                     0,--?extra_autorizada,
-                                                                  0,--?total_comp
+                                                                  	0,--?total_comp
                                                                   COALESCE(to_char(v_quincena_one_dia.hora[1]::timestamp, 'HH24:MI'),'00:00')::time,
                                                                   COALESCE(to_char(v_quincena_one_dia.hora[2]::timestamp, 'HH24:MI'),'00:00')::time,
                                                                   COALESCE(to_char(v_quincena_one_dia.hora[3]::timestamp, 'HH24:MI'),'00:00')::time,
@@ -2556,11 +2568,25 @@ BEGIN
                                                                   v_quincena_one_dia.hora[6]::timestamp,
                                                                   v_calcular_no,--?total_noche,
                                                                   null,
-                                                                  v_resultado_final,--v_calcular,--?total_normal,
-                                                                  0,--?total_nocturna,
-                                                                  v_calcular_ex,--?total_extra,
-                                                                  0,--?extra_autorizada,
-                                                                  0,--?total_comp
+                                                                  (
+                                                                     case
+                                                                     	when asis.f_obtener_dia_literal(v_ht_one.mes) not in  ('sabado','domingo') then
+                                                                         v_resultado_final
+                                                                         else
+                                                                         0
+                                                                         end
+                                                                    ),--v_calcular,--?total_normal,
+                                                                    0,--?total_nocturna,
+                                                                    (
+                                                                     case
+                                                                     	when asis.f_obtener_dia_literal(v_ht_one.mes) not in  ('sabado','domingo') then
+                                                                         v_calcular_ex
+                                                                         else
+                                                                         v_resultado_final
+                                                                         end
+                                                                    ),--?total_extra,
+                                                                    0,--?extra_autorizada,
+                                                                    0,--?total_comp
                                                                   COALESCE(to_char(v_quincena_one_dia.hora[1]::timestamp, 'HH24:MI'),'00:00')::time,
                                                                   COALESCE(to_char(v_quincena_one_dia.hora[2]::timestamp, 'HH24:MI'),'00:00')::time,
                                                                   COALESCE(to_char(v_quincena_one_dia.hora[3]::timestamp, 'HH24:MI'),'00:00')::time,

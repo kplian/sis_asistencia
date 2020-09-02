@@ -29,8 +29,11 @@ DECLARE
 	v_resp		            varchar;
 	v_nombre_funcion        text;
 	v_mensaje_error         text;
-	v_id_vacacion_det	integer;
-    v_tiempo            integer;
+	v_id_vacacion_det		integer;
+    v_tiempo            	integer;
+    v_id_vacacion			integer;
+    v_dias					numeric;
+    v_dias_efectivo			numeric;
 
 BEGIN
 
@@ -71,6 +74,48 @@ BEGIN
 
 		end;
 
+    /*********************************
+ 	#TRANSACCION:  'ASIS_VDE_ELI'
+ 	#DESCRIPCION:	Eliminacion de registros
+ 	#AUTOR:		apinto
+ 	#FECHA:		01-10-2019 15:29:35
+	***********************************/
+
+	elsif(p_transaccion='ASIS_VDE_ELI')then
+
+		begin
+
+			--Sentencia de la eliminacion
+
+            select va.id_vacacion into v_id_vacacion
+            from asis.tvacacion_det va
+            where va.id_vacacion_det = v_parametros.id_vacacion_det;
+
+
+            select c.dias_efectivo, c.dias  into v_dias, v_dias_efectivo
+            from asis.tvacacion c
+            where c.id_vacacion = v_id_vacacion;
+
+            update asis.tvacacion set
+            dias_efectivo =  v_dias - 1,
+            dias = v_dias_efectivo - 1
+            where id_vacacion = v_id_vacacion;
+
+
+            delete from asis.tvacacion_det
+			where id_vacacion_det = v_parametros.id_vacacion_det;
+
+
+            --Definicion de la respuesta
+            v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Vacación eliminado(a)');
+            v_resp = pxp.f_agrega_clave(v_resp,'id_vacacion_det',v_parametros.id_vacacion_det::varchar);
+
+            --Devuelve la respuesta
+            return v_resp;
+
+		end;
+
+
 
 	else
 
@@ -93,6 +138,7 @@ LANGUAGE 'plpgsql'
 VOLATILE
 CALLED ON NULL INPUT
 SECURITY INVOKER
+PARALLEL UNSAFE
 COST 100;
 
 ALTER FUNCTION asis.ft_vacacion_det_ime (p_administrador integer, p_id_usuario integer, p_tabla varchar, p_transaccion varchar)

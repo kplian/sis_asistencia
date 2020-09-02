@@ -35,7 +35,7 @@ DECLARE
 BEGIN
   	v_nombre_funcion = 'asis.f_insertar_registro';
 
-    v_resultado = false;
+     v_resultado = false;
      v_filtro = asis.f_obtener_rango_asignado_fun (p_id_funcionario,p_fecha);
 
       v_consulta = 'select rh.id_rango_horario,
@@ -64,6 +64,15 @@ BEGIN
 
 
       end if;
+
+      if p_id_vacacion is not null then
+         v_resultado = true;
+      end if;
+
+      if p_id_permiso is not null then
+         v_resultado = true;
+      else
+
 
       for v_rango in execute (v_consulta)loop
 
@@ -201,7 +210,7 @@ BEGIN
                                     );
             v_resultado = true;
       end loop;
-
+       end if;
 
     return v_resultado;
 EXCEPTION
@@ -218,6 +227,7 @@ VOLATILE
 CALLED ON NULL INPUT
 SECURITY INVOKER
 LEAKPROOF
+PARALLEL UNSAFE
 COST 100;
 
 ALTER FUNCTION asis.f_insertar_registro (p_id_funcionario integer, p_id_permiso integer, p_id_cuenta_doc integer, p_id_vacacion integer, p_id_feriado integer, p_fecha date, p_dia_literal varchar, p_id_usuario integer, p_id_periodo integer)

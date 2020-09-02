@@ -22,7 +22,7 @@ header("content-type: text/javascript; charset=UTF-8");
             Phx.vista.Vacacion.superclass.constructor.call(this,config);
             this.init();
             this.finCons = true;
-            this.addButton('btn_atras',{    grupo:[2,3],
+            this.addButton('btn_atras',{    grupo:[3],
                 argument: { estado: 'anterior'},
                 text:'Anterior',
                 iconCls: 'batras',
@@ -34,8 +34,14 @@ header("content-type: text/javascript; charset=UTF-8");
                 iconCls: 'badelante',
                 disabled:true,
                 handler:this.onSiguiente,
-                tooltip: '<b>Siguiente</b><p>Hola</p>'});
+                tooltip: '<b>Siguiente</b><p>cambia de estado</p>'});
             this.addBotonesGantt();
+            this.addButton('btn_cancelar',{grupo:[2],
+                text:'Cancelar',
+                iconCls: 'bassign',
+                disabled:true,
+                handler:this.onCancelar,
+                tooltip: '<b>Cancelar</b><p>la vacacion en caso que no tomara </p>'});
             this.iniciarEventos();
             // this.diasEfectivo(); //-->Función definida para el calculo de los dias efectivos
         },
@@ -656,6 +662,7 @@ header("content-type: text/javascript; charset=UTF-8");
             this.getBoton('btn_atras').enable();
             this.getBoton('diagrama_gantt').enable();
             this.getBoton('btn_siguiente').enable();
+            this.getBoton('btn_cancelar').enable();
         },
         liberaMenu:function() {
             var tb = Phx.vista.Vacacion.superclass.liberaMenu.call(this);
@@ -663,6 +670,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 this.getBoton('btn_atras').disable();
                 this.getBoton('diagrama_gantt').disable();
                 this.getBoton('btn_siguiente').disable();
+                this.getBoton('btn_cancelar').disable();
             }
         },
         movimientoVacacion:function (value) {
@@ -678,7 +686,27 @@ header("content-type: text/javascript; charset=UTF-8");
                 timeout:this.timeout,
                 scope:this
             });
-        }
+        },
+        onCancelar:function () {
+            const data = this.sm.getSelected().data;
+            console.log(data.id_vacacion)
+            Phx.CP.loadingShow();
+            Ext.Ajax.request({
+                url:'../../sis_asistencia/control/Vacacion/cancelarVacacion',
+                params:{
+                    id_vacacion:  data.id_vacacion
+                },
+                success: this.succesNew,
+                failure: this.conexionFailure,
+                timeout: this.timeout,
+                scope: this
+            });
+        },
+        succesNew: function(resp){
+            Phx.CP.loadingHide();
+            const reg = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));
+            this.load({params:{start:0, limit:this.tam_pag}});
+        },
     })
 </script>
 		

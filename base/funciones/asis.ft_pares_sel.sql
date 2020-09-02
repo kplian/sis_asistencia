@@ -85,7 +85,7 @@ BEGIN
                                         when par.id_vacacion is not null then
                                         	 vac.descripcion  ||'' - ''|| vac.nro_tramite
                                         when par.id_permiso is not null then
-                                        	 per.motivo ||'' - ''|| per.nro_tramite
+                                        	''(''||per.hro_desde ||'' - ''|| per.hro_hasta ||'') - ''|| per.nro_tramite
                                         when par.id_feriado is not null then
                                         	 fer.descripcion
                                         when par.id_viatico is not null then
