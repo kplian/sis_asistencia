@@ -21,9 +21,15 @@ Phx.vista.MovimientoVacacion=Ext.extend(Phx.gridInterfaz,{
 	constructor:function(config){
 		this.maestro=config.maestro;
     	//llama al constructor de la clase padre
-    //    this.initButtons=[this.cmbFuncionario];  // inicializando combo del funcionario.
 		Phx.vista.MovimientoVacacion.superclass.constructor.call(this,config);
 		this.init();
+        this.addButton('btnReporte',{
+            text :'Reporte',
+            iconCls : 'bpdf32',
+            disabled: false,
+            handler : this.onButtonGenerarReporte,
+            tooltip : '<b>Reporte </b><br/><b>Historico de vacaciones</b>'
+        });
 		// this.load({params:{start:0, limit:this.tam_pag}})
 	},
 			
@@ -355,10 +361,25 @@ Phx.vista.MovimientoVacacion=Ext.extend(Phx.gridInterfaz,{
 		field: 'desde',
 		direction: 'DESC'
 	},
-	bdel:false,
-	bsave:false,
-    bnew:false,
-    bedit:false
+        bdel:false,
+        bsave:false,
+        bnew:false,
+        bedit:false,
+        onButtonGenerarReporte:function(){
+
+            Ext.Ajax.request({
+                url:'../../sis_asistencia/control/Reporte/listarReporteHistoricoVacaciones',
+                params:{'id_funcionario': Phx.CP.config_ini.id_funcionario},
+                success: this.successExport,
+                failure: function() {
+                    console.log("fail");
+                },
+                timeout: function() {
+                    console.log("timeout");
+                },
+                scope:this
+            });
+        },
 	}
 )
 </script>
