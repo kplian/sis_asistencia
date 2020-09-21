@@ -191,9 +191,148 @@ class MODReportes extends MODbase{
         //Devuelve la respuesta
         return $this->respuesta;
     }
+    function listarReporteHistoricoVacaciones(){
+        //Definicion de variables para ejecucion del procedimientp
+        $this->procedimiento='asis.f_reportes_sel';
+        $this->transaccion='ASIS_AHT_SEL';
+        $this->tipo_procedimiento='SEL';//tipo de transaccion
+        $this->setCount(false);
+
+        $this->setParametro('id_funcionario', 'id_funcionario', 'int4');
+
+        //Definicion de la lista del resultado del query
+
+        $this->captura('id_funcionario','int4');
+        $this->captura('desc_funcionario1','text');
+        $this->captura('descripcion_cargo','varchar');
+        $this->captura('codigo','varchar');
+        $this->captura('tipo','varchar');
+        $this->captura('fecha','text');
+        $this->captura('desde','text');
+        $this->captura('hasta','text');
+        $this->captura('dia','numeric');
+        $this->captura('saldo','numeric');
+        $this->captura('nombre_unidad','varchar');
+        $this->captura('fecha_contrato','date');
+
+        //Ejecuta la instruccion
+        $this->armarConsulta();
+        $this->ejecutarConsulta();
+        // var_dump($this->respuesta);exit;
+        //Devuelve la respuesta
+        return $this->respuesta;
+    }
+    function listarVacacionesPersonal(){
+        //Definicion de variables para ejecucion del procedimientp
+        $this->procedimiento='asis.f_reportes_sel';
+        $this->transaccion='ASIS_VPR_SEL';
+        $this->tipo_procedimiento='SEL';//tipo de transaccion
+        $this->setCount(false);
+        $this->setParametro('fecha_ini', 'fecha_ini', 'date');
+        $this->setParametro('fecha_fin', 'fecha_fin', 'date');
+        $this->setParametro('formato', 'formato', 'varchar');
+        // $this->setParametro('id_funcionario', 'id_funcionario', 'int4');
+
+        //Definicion de la lista del resultado del query
+        $this->captura('gerencia','varchar');
+        $this->captura('departamento','varchar');
+        $this->captura('desc_funcionario1','text');
+        $this->captura('codigo','varchar');
+        $this->captura('dia','numeric');
+        $this->captura('desde','text');
+        $this->captura('hasta','text');
+
+        //Ejecuta la instruccion
+        $this->armarConsulta();
+        $this->ejecutarConsulta();
+       //  var_dump($this->respuesta);exit;
+        //Devuelve la respuesta
+        return $this->respuesta;
+    }
+    function listarVacacionesResumen(){
+        //Definicion de variables para ejecucion del procedimientp
+        $this->procedimiento='asis.f_reportes_sel';
+        $this->transaccion='ASIS_VARU_SEL';
+        $this->tipo_procedimiento='SEL';//tipo de transaccion
 
 
+        $this->setCount(false);
 
+        $this->setParametro('fecha_ini', 'fecha_ini', 'date');
+        $this->setParametro('fecha_fin', 'fecha_fin', 'date');
+
+        //Definicion de la lista del resultado del query
+        $this->captura('codigo','varchar');
+        $this->captura('desc_funcionario1','text');
+        $this->captura('gerencia','varchar');
+        $this->captura('departamento','varchar');
+
+        $this->captura('saldo_acumulado','numeric');
+        $this->captura('saldo_tomada','numeric');
+        $this->captura('saldo_caducado','numeric');
+        $this->captura('saldo_anticipo','numeric');
+        $this->captura('saldo_pagado','numeric');
+        $this->captura('saldo','numeric');
+
+        //Ejecuta la instruccion
+        $this->armarConsulta();
+        $this->ejecutarConsulta();
+         // var_dump($this->respuesta);exit;
+        //Devuelve la respuesta
+        return $this->respuesta;
+    }
+
+    function listarVacacionesSaldo(){
+        //Definicion de variables para ejecucion del procedimientp
+        $this->procedimiento='asis.f_reportes_sel';
+        $this->transaccion='ASIS_SAL_SEL';
+        $this->tipo_procedimiento='SEL';//tipo de transaccion
+
+
+        $this->setCount(false);
+
+        $this->setParametro('id_gestion', 'id_gestion', 'int4');
+        $this->setParametro('formato', 'formato', 'varchar');
+        $this->setParametro('reporte', 'reporte', 'varchar');
+
+        //Definicion de la lista del resultado del query
+        $this->captura('codigo','varchar');
+        $this->captura('desc_funcionario1','varchar');
+        $this->captura('fecha_contrato','text');
+        $this->captura('gerencia','varchar');
+        $this->captura('departamento','varchar');
+        $this->captura('gestion','int4');
+        $this->captura('saldo','numeric');
+        $this->captura('ordenar','varchar');
+        //Ejecuta la instruccion
+        $this->armarConsulta();
+        $this->ejecutarConsulta();
+       // var_dump($this->respuesta);exit;
+        //Devuelve la respuesta
+        return $this->respuesta;
+    }
+    function listarVacacionesAnticipados(){
+        //Definicion de variables para ejecucion del procedimientp
+        $this->procedimiento='asis.f_reportes_sel';
+        $this->transaccion='ASIS_ANT_SEL';
+        $this->tipo_procedimiento='SEL';//tipo de transaccion
+        $this->setCount(false);
+        $this->setParametro('id_gestion', 'id_gestion', 'int4');
+        $this->setParametro('formato', 'formato', 'varchar');
+        $this->setParametro('reporte', 'reporte', 'varchar');
+        //Definicion de la lista del resultado del query
+        $this->captura('desc_funcionario2','text');
+        $this->captura('codigo','varchar');
+        $this->captura('gerencia','varchar');
+        $this->captura('departamento','varchar');
+        $this->captura('anticipo','numeric');
+        //Ejecuta la instruccion
+        $this->armarConsulta();
+        $this->ejecutarConsulta();
+        // var_dump($this->respuesta);exit;
+        //Devuelve la respuesta
+        return $this->respuesta;
+    }
 
 
 
