@@ -228,10 +228,12 @@ class MODReportes extends MODbase{
         $this->transaccion='ASIS_VPR_SEL';
         $this->tipo_procedimiento='SEL';//tipo de transaccion
         $this->setCount(false);
+        $this->setParametro('tipo', 'tipo', 'varchar');
         $this->setParametro('fecha_ini', 'fecha_ini', 'date');
         $this->setParametro('fecha_fin', 'fecha_fin', 'date');
+        $this->setParametro('id_funcionario', 'id_funcionario', 'int4');
+        $this->setParametro('id_uo', 'id_uo', 'int4');
         $this->setParametro('formato', 'formato', 'varchar');
-        // $this->setParametro('id_funcionario', 'id_funcionario', 'int4');
 
         //Definicion de la lista del resultado del query
         $this->captura('gerencia','varchar');
@@ -245,7 +247,7 @@ class MODReportes extends MODbase{
         //Ejecuta la instruccion
         $this->armarConsulta();
         $this->ejecutarConsulta();
-       //  var_dump($this->respuesta);exit;
+        // var_dump($this->respuesta);exit;
         //Devuelve la respuesta
         return $this->respuesta;
     }
@@ -287,8 +289,7 @@ class MODReportes extends MODbase{
         $this->procedimiento='asis.f_reportes_sel';
         $this->transaccion='ASIS_SAL_SEL';
         $this->tipo_procedimiento='SEL';//tipo de transaccion
-
-
+        
         $this->setCount(false);
 
         $this->setParametro('id_gestion', 'id_gestion', 'int4');

@@ -590,6 +590,22 @@ BEGIN
     	begin
         --Sentencia de la consulta
 
+        	v_filtro = '';
+
+
+            if (v_parametros.id_funcionario is not null) then
+
+            	v_filtro = 'and fu.id_funcionario = '||v_parametros.id_funcionario;
+
+            end if;
+
+
+            if (v_parametros.id_uo is not null) then
+
+            	 v_filtro = ' and (ger.id_uo = ' || v_parametros.id_uo || 'or dep.id_uo ='||v_parametros.id_uo||')';
+
+            end if;
+
          	v_consulta:='select   ger.nombre_unidad as gerencia,
             					  dep.nombre_unidad as departamento,
                                   fu.desc_funcionario2 as desc_funcionario1,
@@ -606,10 +622,12 @@ BEGIN
                           inner join orga.vfuncionario_cargo fu on fu.id_funcionario = mv.id_funcionario and (fu.fecha_finalizacion is null or fu.fecha_finalizacion >= now()::date)
                           inner join orga.tuo ger ON ger.id_uo = orga.f_get_uo_gerencia(fu.id_uo, NULL::integer, NULL::date)
                           inner join orga.tuo dep ON dep.id_uo = orga.f_get_uo_departamento(fu.id_uo, NULL::integer, NULL::date)
-                          where  mv.tipo = ''TOMADA'' and  mv.desde >= '''||v_parametros.fecha_ini||''' and  mv.hasta <= '''||v_parametros.fecha_fin||'''
+                          where  mv.tipo = ''TOMADA'' '|| v_filtro ||' and  mv.desde >= '''||v_parametros.fecha_ini||''' and  mv.hasta <= '''||v_parametros.fecha_fin||'''
                           order by gerencia, departamento, desc_funcionario1 ';
 
 		   --Devuelve la respuesta
+
+        	raise notice '%',v_consulta;
             return v_consulta;
 
 		end;
