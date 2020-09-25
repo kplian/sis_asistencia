@@ -17,6 +17,7 @@ $body$
  #ISSUE				FECHA				AUTOR				DESCRIPCION
  #5				30/04/2019 				kplian MMV			Validaciones y reporte
  #10 ETR		16/07/2019				MMV					Validar fecha des contrato finalizados y listado uo
+ #29	ERT			25/9/2020 				 MMV			Validar rango horas hoja de tiempo
 
  ***************************************************************************/
 DECLARE
@@ -73,7 +74,7 @@ BEGIN
     inner join param.ttipo_cc tcc on tcc.id_tipo_cc = cec.id_tipo_cc
     where cec.id_centro_costo = p_id_centro_costo;
     if v_autorizado_cont is null then
-    	v_mensaje = ' -> no esta asignado una autorización';
+    	v_mensaje = ' -> el tipo de centro de costo asociado no esta autorizado,'; -- #29
     	return  v_mensaje;
     end if;
 
@@ -112,4 +113,8 @@ LANGUAGE 'plpgsql'
 STABLE
 CALLED ON NULL INPUT
 SECURITY INVOKER
+PARALLEL UNSAFE
 COST 100;
+
+ALTER FUNCTION asis.f_validar_centro_costo (p_id_id_mes_trabajo integer, p_id_periodo integer, p_id_centro_costo integer)
+  OWNER TO postgres;

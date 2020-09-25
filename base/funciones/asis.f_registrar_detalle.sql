@@ -19,6 +19,7 @@ $body$
  #10 ETR		16/07/2019				 MMV			Validar insertado
  #12	ERT			21/08/2019 				 MMV			Nuevo campo COMP detalle hoja de trabajo
  #13	ERT			23/08/2019 				 MMV			Corregir validación insertado comp
+ #29	ERT			25/9/2020 				 MMV			Validar rango horas hoja de tiempo
 
  ***************************************************************************/
 DECLARE
@@ -90,14 +91,15 @@ BEGIN
       v_codigo = v_mes_trabajo::JSON->>'codigo';
       v_orden	= v_mes_trabajo::JSON->>'orden';
       v_pep = v_mes_trabajo::JSON->>'pep';
+
       v_ingreso_ma = v_mes_trabajo::JSON->>'ingreso_manana';
       v_salidad_ma = v_mes_trabajo::JSON->>'salida_manana';
       v_ingreso_ta = v_mes_trabajo::JSON->>'ingreso_tarde';
       v_salidad_ta = v_mes_trabajo::JSON->>'salida_tarde';
       v_ingreso_no = v_mes_trabajo::JSON->>'ingreso_noche';
       v_salidad_no = v_mes_trabajo::JSON->>'salida_noche';
-      v_justificacion = v_mes_trabajo::JSON->>'justificacion_extra';
 
+      v_justificacion = v_mes_trabajo::JSON->>'justificacion_extra';
 
        ---Para en caso que no tenga ninguna hora  asignada
    			if((v_total_normal > 0) or --#10
@@ -117,6 +119,45 @@ BEGIN
               v_centro_costo = v_pep;
             end if;
 
+-- #29
+            if (  v_ingreso_ma != ANY (v_tipo)) then
+                if (v_ingreso_ma = '24:00')then
+                    raise exception 'Rango de horas invalido (%)',v_ingreso_ma;
+                end if;
+            end if;
+
+             --raise exception 'ertasd';
+            if (  v_salidad_ma != ANY (v_tipo)) then
+                if (v_salidad_ma = '24:00')then
+                    raise exception 'Rango de horas invalido (%)',v_salidad_ma;
+                end if;
+            end if;
+
+
+            if (  v_ingreso_ta != ANY (v_tipo)) then
+                if (v_ingreso_ta= '24:00')then
+                    raise exception 'Rango de horas invalido (%)',v_ingreso_ta;
+                end if;
+            end if;
+
+            if (  v_salidad_ta != ANY (v_tipo)) then
+                if (v_salidad_ta = '24:00')then
+                    raise exception 'Rango de horas invalido (%)',v_salidad_ta;
+                end if;
+            end if;
+
+        	if (  v_ingreso_no != ANY (v_tipo)) then
+                if (v_ingreso_no = '24:00')then
+                    raise exception 'Rango de horas invalido (%)',v_ingreso_no;
+                end if;
+            end if;
+
+            if (  v_salidad_no != ANY (v_tipo)) then
+                if (v_salidad_no = '24:00')then
+                    raise exception 'Rango de horas invalido (%)',v_salidad_no;
+                end if;
+            end if;
+-- #29
         if(v_centro_costo != '')then
             v_id_centro_costo = asis.f_centro_validar(v_centro_costo,v_id_gestion);
 
@@ -240,6 +281,7 @@ LANGUAGE 'plpgsql'
 VOLATILE
 CALLED ON NULL INPUT
 SECURITY INVOKER
+PARALLEL UNSAFE
 COST 100;
 
 ALTER FUNCTION asis.f_registrar_detalle (p_id_mes_trabajo integer, p_mes_trabajo_json json, p_id_usuario integer)
