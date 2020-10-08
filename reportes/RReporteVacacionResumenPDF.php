@@ -42,7 +42,7 @@ class RReporteVacacionResumenPDF extends  ReportePDF
         foreach ($this->datos as $value){
 
                 $table .= '<tr>';
-                 if($value['saldo'] != 0)
+                // if($value['saldo'] != 0)
                  $table .= ' <td width="10%" align="center" >' . $value['codigo'] . '</td>
                         <td width="30%" align="left" >' . $value['desc_funcionario1'] . '</td>
                         <td width="10%"  align="right" >' . round($value['saldo_acumulado'], 1) . ' </td>

@@ -129,7 +129,7 @@ class RReporteVacacionResumenXls{
 
         foreach ($datos as $value) {
 
-            if ($value['saldo'] != 0 ){
+            // if ($value['saldo'] != 0 ){
                 $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(0, $fila, $value['codigo']);
                 $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(1, $fila, $value['desc_funcionario1']);
                 $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(2, $fila, $value['saldo_acumulado']);
@@ -141,7 +141,7 @@ class RReporteVacacionResumenXls{
                 $this->docexcel->getActiveSheet()->getStyle("A$fila:A$fila")->applyFromArray($styleTitulos3);
                 $this->docexcel->getActiveSheet()->getStyle("E$fila:E$fila")->applyFromArray($styleTitulos3);
                 $fila++;
-            }
+            // }
         }
     }
     function imprimeSubtitulo($fila, $valor) {
