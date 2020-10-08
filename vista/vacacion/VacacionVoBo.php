@@ -23,6 +23,12 @@ header("content-type: text/javascript; charset=UTF-8");
             Phx.vista.VacacionVoBo.superclass.constructor.call(this, config);
             this.store.baseParams = {tipo_interfaz: this.nombreVista};
             this.load({params: {start: 0, limit: this.tam_pag}});
+        },
+        south:{
+            url:'../../../sis_asistencia/vista/vacacion_det/VacacionDetVoBo.php',
+            title:'Detalle',
+            height:'50%',
+            cls:'VacacionDetVoBo'
         }
     };
 </script>
