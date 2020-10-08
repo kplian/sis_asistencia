@@ -769,7 +769,7 @@ BEGIN
                       left join  caducada cad on cad.id_funcionario = fu.id_funcionario
                       left join  anticipo ant on ant.id_funcionario = fu.id_funcionario
                       left join  pagado pag on pag.id_funcionario = fu.id_funcionario
-                      -- where (fu.fecha_finalizacion is null or fu.fecha_asignacion >= now()::date)
+                      where fu.estado_reg = ''activo''
                       order by  desc_funcionario1 asc';
 
 		   --Devuelve la respuesta

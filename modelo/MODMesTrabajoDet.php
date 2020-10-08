@@ -65,6 +65,7 @@ class MODMesTrabajoDet extends MODbase{
 
         $this->captura('fecha','date');
         $this->captura('literal','varchar');
+        $this->captura('id_periodo','int4');
 
         //Ejecuta la instruccion
 		$this->armarConsulta();

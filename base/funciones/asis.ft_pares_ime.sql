@@ -2323,13 +2323,19 @@ BEGIN
                                                        pa.hora_ini
                                                   when pa.hora_fin is not null then
                                                        pa.hora_fin
-                                                  end::text),',')) as hora
+                                                  end::text),',')) as hora,
+                                                  pa.id_permiso,
+                                                  pa.id_vacacion,
+                                                  pa.id_viatico
                                                   into
                                                   v_quincena_one_dia
                                         from asis.tpares pa
                                         where pa.id_funcionario = v_parametros.id_funcionario
                                         and pa.fecha_marcado = v_ht_one.mes
-                                        and pa.rango = 'si';
+                                        and pa.rango = 'si'
+                                        group by pa.id_permiso,
+                                                  pa.id_vacacion,
+                                                  pa.id_viatico;
 
                                         -- raise exception '%', asis.f_obtener_dia_literal(v_ht_one.mes);
                                       if v_quincena_one_dia.hora[1] is not null THEN
@@ -2379,7 +2385,11 @@ BEGIN
                                                                     ingreso_tarde,
                                                                     salida_tarde,
                                                                     ingreso_noche,
-                                                                    salida_noche
+                                                                    salida_noche,
+                                                                    id_permiso,
+                                                                    id_vacacion,
+                                                                    id_viatico,
+                                                                    id_periodo
                                                                   ) VALUES (
                                                                     p_id_usuario,
                                                                     null,
@@ -2426,8 +2436,11 @@ BEGIN
                                                                   COALESCE(to_char(v_quincena_one_dia.hora[3]::timestamp, 'HH24:MI'),'00:00')::time,
                                                                   COALESCE(to_char(v_quincena_one_dia.hora[4]::timestamp, 'HH24:MI'),'00:00')::time,
                                                                   COALESCE(to_char(v_quincena_one_dia.hora[5]::timestamp, 'HH24:MI'),'00:00')::time,
-                                                                  COALESCE(to_char(v_quincena_one_dia.hora[6]::timestamp, 'HH24:MI'),'00:00')::time
-
+                                                                  COALESCE(to_char(v_quincena_one_dia.hora[6]::timestamp, 'HH24:MI'),'00:00')::time,
+                                                                  v_quincena_one_dia.id_permiso,
+                                                                  v_quincena_one_dia.id_vacacion,
+                                                                  v_quincena_one_dia.id_viatico,
+                                                                	v_periodo_rec.id_periodo
                                                                 );
 
                                       end if;
@@ -2492,13 +2505,19 @@ BEGIN
                                                        pa.hora_ini
                                                   when pa.hora_fin is not null then
                                                        pa.hora_fin
-                                                  end::text),',')) as hora
+                                                  end::text),',')) as hora,
+                                                   pa.id_permiso,
+                                                  pa.id_vacacion,
+                                                  pa.id_viatico
                                                   into
                                                   v_quincena_one_dia
                                         from asis.tpares pa
                                         where pa.id_funcionario = v_parametros.id_funcionario
                                         and pa.fecha_marcado = v_ht_two.mes
-                                        and pa.rango = 'si';
+                                        and pa.rango = 'si'
+                                        group by pa.id_permiso,
+                                                  pa.id_vacacion,
+                                                  pa.id_viatico;
 
                                       if v_quincena_one_dia.hora[1] is not null THEN
 
@@ -2545,7 +2564,11 @@ BEGIN
                                                                   ingreso_tarde,
                                                                   salida_tarde,
                                                                   ingreso_noche,
-                                                                  salida_noche
+                                                                  salida_noche,
+                                                                  id_permiso,
+                                                                  id_vacacion,
+                                                                  id_viatico,
+                                                                  id_periodo
                                                                 ) VALUES (
                                                                   p_id_usuario,
                                                                   null,
@@ -2570,7 +2593,7 @@ BEGIN
                                                                   null,
                                                                   (
                                                                      case
-                                                                     	when asis.f_obtener_dia_literal(v_ht_one.mes) not in  ('sabado','domingo') then
+                                                                     	when asis.f_obtener_dia_literal(v_ht_two.mes) not in  ('sabado','domingo') then
                                                                          v_resultado_final
                                                                          else
                                                                          0
@@ -2579,7 +2602,7 @@ BEGIN
                                                                     0,--?total_nocturna,
                                                                     (
                                                                      case
-                                                                     	when asis.f_obtener_dia_literal(v_ht_one.mes) not in  ('sabado','domingo') then
+                                                                     	when asis.f_obtener_dia_literal(v_ht_two.mes) not in  ('sabado','domingo') then
                                                                          v_calcular_ex
                                                                          else
                                                                          v_resultado_final
@@ -2592,7 +2615,11 @@ BEGIN
                                                                   COALESCE(to_char(v_quincena_one_dia.hora[3]::timestamp, 'HH24:MI'),'00:00')::time,
                                                                   COALESCE(to_char(v_quincena_one_dia.hora[4]::timestamp, 'HH24:MI'),'00:00')::time,
                                                                   COALESCE(to_char(v_quincena_one_dia.hora[5]::timestamp, 'HH24:MI'),'00:00')::time,
-                                                                  COALESCE(to_char(v_quincena_one_dia.hora[6]::timestamp, 'HH24:MI'),'00:00')::time
+                                                                  COALESCE(to_char(v_quincena_one_dia.hora[6]::timestamp, 'HH24:MI'),'00:00')::time,
+                                                                  v_quincena_one_dia.id_permiso,
+                                                                  v_quincena_one_dia.id_vacacion,
+                                                                  v_quincena_one_dia.id_viatico,
+                                                                  v_periodo_rec.id_periodo
                                                                 );
 
 

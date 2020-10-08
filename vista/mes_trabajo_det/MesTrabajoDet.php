@@ -424,7 +424,7 @@ Phx.vista.MesTrabajoDet=Ext.extend(Phx.gridInterfaz,{
         {
             config:{
                 name: 'tipo',
-                fieldLabel: 'Tipo Mañana',
+                fieldLabel: 'Tipo',
                 allowBlank: false,
                 anchor: '80%',
                 gwidth: 100,
