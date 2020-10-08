@@ -22,14 +22,15 @@ header("content-type: text/javascript; charset=UTF-8");
 
         id_proceso:null,
         id_estado:null,
-
+        id_mes_trabajo:null,
 
         constructor: function(config) {
             this.idContenedor = config.idContenedor;
             this.maestro = config;
-            console.log(this.idContenedor);
+            console.log(this.maestro.data)
             this.id_proceso = this.maestro.data.id_proceso_wf;
             this.id_estado = this.maestro.data.id_estado_wf;
+            this.id_mes_trabajo = this.maestro.data.id_mes_trabajo;
             this.Atributos.unshift({
                 config: {
                     name: 'extra',
@@ -65,7 +66,8 @@ header("content-type: text/javascript; charset=UTF-8");
                 disabled:false,
                 handler:this.fin_registro,
                 tooltip: '<b>Siguiente</b><p>Pasa al siguiente estado</p>'});
-            this.store.baseParams = {tipo_interfaz: this.nombreVista};
+            this.store.baseParams = {tipo_interfaz: this.nombreVista , id_mes_trabajo:this.id_mes_trabajo};
+
             this.load({params:{start:0, limit:this.tam_pag}});
             this.grid.addListener('cellclick', this.oncellclick,this); /// revisar
 

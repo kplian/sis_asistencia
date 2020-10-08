@@ -49,7 +49,7 @@ BEGIN
                                   mtd.id_centro_costo,
                                   mtd.ingreso_tarde,
                                   mtd.extra_autorizada,
-                                  mtd.tipo,
+                                  va.nro_tramite  as tipo,
                                   mtd.ingreso_noche,
                                   mtd.total_normal,
                                   mtd.estado_reg,
@@ -75,12 +75,14 @@ BEGIN
                                   mes.estado,
                                   mtd.extra,
                                   mtd.fecha,
-                                  asis.f_literal_periodo(to_char(mtd.fecha::date,''MM'')::integer) as literal
+                                  asis.f_literal_periodo(to_char(mtd.fecha::date,''MM'')::integer) as literal,
+                                  mtd.id_periodo
                                   from asis.tmes_trabajo_det mtd
                                   inner join segu.tusuario usu1 on usu1.id_usuario = mtd.id_usuario_reg
                                   inner join asis.tmes_trabajo mes on mes.id_mes_trabajo = mtd.id_mes_trabajo
                                   left join param.vcentro_costo cc on cc.id_centro_costo = mtd.id_centro_costo
                                   left join segu.tusuario usu2 on usu2.id_usuario = mtd.id_usuario_mod
+                                   left join asis.tvacacion va on va.id_vacacion = mtd.id_vacacion
                                   where  ';
 
 			--Definicion de la respuesta
@@ -114,6 +116,7 @@ BEGIN
                         inner join asis.tmes_trabajo mes on mes.id_mes_trabajo = mtd.id_mes_trabajo
                         left join param.vcentro_costo cc on cc.id_centro_costo = mtd.id_centro_costo
                         left join segu.tusuario usu2 on usu2.id_usuario = mtd.id_usuario_mod
+                         left join asis.tvacacion va on va.id_vacacion = mtd.id_vacacion
 					    where ';
 
 			--Definicion de la respuesta
@@ -143,6 +146,7 @@ LANGUAGE 'plpgsql'
 VOLATILE
 CALLED ON NULL INPUT
 SECURITY INVOKER
+PARALLEL UNSAFE
 COST 100;
 
 ALTER FUNCTION asis.ft_mes_trabajo_det_sel (p_administrador integer, p_id_usuario integer, p_tabla varchar, p_transaccion varchar)

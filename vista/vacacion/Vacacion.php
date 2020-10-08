@@ -22,7 +22,7 @@ header("content-type: text/javascript; charset=UTF-8");
             Phx.vista.Vacacion.superclass.constructor.call(this,config);
             this.init();
             this.finCons = true;
-            this.addButton('btn_atras',{    grupo:[3],
+            this.addButton('btn_atras',{    grupo:[3,2],
                 argument: { estado: 'anterior'},
                 text:'Anterior',
                 iconCls: 'batras',
@@ -36,7 +36,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 handler:this.onSiguiente,
                 tooltip: '<b>Siguiente</b><p>cambia de estado</p>'});
             this.addBotonesGantt();
-            this.addButton('btn_cancelar',{grupo:[2],
+            this.addButton('btn_cancelar',{grupo:[6],
                 text:'Cancelar',
                 iconCls: 'bassign',
                 disabled:true,

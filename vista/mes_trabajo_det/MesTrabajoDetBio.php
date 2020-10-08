@@ -18,7 +18,7 @@ header("content-type: text/javascript; charset=UTF-8");
         lista:[],
         id_proceso:null,
         id_estado:null,
-
+        id_periodo:null,
         require:'../../../sis_asistencia/vista/mes_trabajo_det/MesTrabajoDet.php',
         requireclase:'Phx.vista.MesTrabajoDet',
         title:'Hoja Tiempo',
@@ -30,12 +30,7 @@ header("content-type: text/javascript; charset=UTF-8");
             {name:'aprobado',title:'<h1 align="center"><i></i>Aprobado</h1>',grupo:0,height:0}
         ],
         tam_pag:50,
-        actualizarSegunTab: function(name, indice){
-            if (this.finCons) {
-                this.store.baseParams.pes_estado = name;
-                this.load({params: {start: 0, limit: this.tam_pag}});
-            }
-        },
+
         bnewGroups:[0],
         bactGroups:[0,1,2],
         bdelGroups:[0],
@@ -50,19 +45,21 @@ header("content-type: text/javascript; charset=UTF-8");
         }),
 
         constructor: function(config) {
+           //  this.Atributos[this.getIndAtributo('tipo')].grid=false;
+            this.Atributos[this.getIndAtributo('tipo_dos')].grid=false;
+            this.Atributos[this.getIndAtributo('tipo_tres')].grid=false;
+
 
             this.idContenedor = config.idContenedor;
             this.maestro = config;
 
             this.id_proceso = this.maestro.proceso_wfID;
             this.id_estado = this.maestro.estado_wfID;
-
+            this.id_periodo = this.maestro.periodoID;
             Phx.vista.MesTrabajoDetBio.superclass.constructor.call(this,config);
             this.crearFormCc();
             this.crearFormExtra();
 
-            //
-            //
 
             this.store.baseParams = {tipo_interfaz: this.nombreVista};
             // this.getBoton('btnTransaccionesUpload').setVisible(false);
@@ -94,7 +91,15 @@ header("content-type: text/javascript; charset=UTF-8");
 
             this.store.baseParams.detalle = 'biometrico';
             this.store.baseParams.pes_estado = 'borrador';
-            this.load({params: {start: 0, limit: this.tam_pag}});
+            // this.store.baseParams.id_periodo = this.id_periodo;
+
+            this.load({params: {start: 0, limit: this.tam_pag, id_periodo : this.id_periodo}});
+        },
+        actualizarSegunTab: function(name, indice){
+            if (this.finCons) {
+                this.store.baseParams.pes_estado = name;
+                this.load({params: {start: 0, limit: this.tam_pag, id_periodo : this.id_periodo}});
+            }
         },
         preparaMenu:function(n){
             var tb =this.tbar;
@@ -218,7 +223,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 }
                 this.lista = [];
                 // var sn = this.sm.getSelections();
-                this.load({params: {start: 0, limit: this.tam_pag}});
+                this.load({params: {start: 0, limit: this.tam_pag, id_periodo : this.id_periodo}});
                 this.cmpCc.setValue(null);
             }else{
                 alert('ocurrio un error durante el proceso')
@@ -298,7 +303,8 @@ header("content-type: text/javascript; charset=UTF-8");
                     this.ventanaExtra.hide();
                 }
                 this.lista = [];
-                this.load({params: {start: 0, limit: this.tam_pag}});
+                this.load({params: {start: 0, limit: this.tam_pag, id_periodo : this.id_periodo}});
+
                 this.cmpjustificar.setValue(null);
             }else{
                 alert('ocurrio un error durante el proceso')
@@ -351,7 +357,7 @@ header("content-type: text/javascript; charset=UTF-8");
         successWizard:function(resp){
             Phx.CP.loadingHide();
             resp.argument.wizard.panel.destroy();
-            this.reload();
+            this.load({params: {start: 0, limit: this.tam_pag, id_periodo : this.id_periodo}});
         }
 
     };

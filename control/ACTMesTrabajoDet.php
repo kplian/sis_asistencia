@@ -39,6 +39,9 @@ class ACTMesTrabajoDet extends ACTbase{
                     $this->objParam->addFiltro("mtd.total_extra > 0");
             }
 
+            if ($this->objParam->getParametro('id_periodo') != ''){
+                $this->objParam->addFiltro("mtd.id_periodo = ".$this->objParam->getParametro('id_periodo') );
+            }
 
             if($this->objParam->getParametro('id_mes_trabajo') != '') {
                 $this->objParam->addFiltro("mtd.id_mes_trabajo = " . $this->objParam->getParametro('id_mes_trabajo'));
