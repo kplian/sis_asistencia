@@ -58,8 +58,8 @@ class MODReportes extends MODbase{
         //Devuelve la respuesta
         return $this->respuesta;
     }
-	//aumentado para listar el usuario
-	function listarSomUsuario(){
+    //aumentado para listar el usuario
+    function listarSomUsuario(){
         //Definicion de variables para ejecucion del procedimiento
         $this->procedimiento='ssom.ft_no_conformidad_sel';
         $this->transaccion='SSOM_USU_SEL';
@@ -82,10 +82,10 @@ class MODReportes extends MODbase{
         $this->captura('email_empresa','varchar');
         $this->captura('estado_reg_fun','varchar');
         $this->captura('estado_reg_asi','varchar');
-		$this->captura('id_cargo','int4');
-		$this->captura('descripcion_cargo','varchar');
-		$this->captura('cargo_codigo','varchar');
-		$this->captura('nombre_unidad','varchar');
+        $this->captura('id_cargo','int4');
+        $this->captura('descripcion_cargo','varchar');
+        $this->captura('cargo_codigo','varchar');
+        $this->captura('nombre_unidad','varchar');
 
         //Ejecuta la instruccion
         $this->armarConsulta();
@@ -126,7 +126,7 @@ class MODReportes extends MODbase{
         $this->captura('gerencia','varchar');
         $this->captura('departamento','varchar');
         $this->captura('nombre_cargo','text');
-        
+
         //Ejecuta la instruccion
         $this->armarConsulta();
         $this->ejecutarConsulta();
@@ -134,7 +134,7 @@ class MODReportes extends MODbase{
         //Devuelve la respuesta
         return $this->respuesta;
     }
-    function ReporteMarcadoFuncionario(){ 
+    function ReporteMarcadoFuncionario(){
         //Definicion de variables para ejecucion del procedimientp
         $this->procedimiento='asis.f_reportes_sel';
         $this->transaccion='ASIS_RPT_MAR';
@@ -156,7 +156,7 @@ class MODReportes extends MODbase{
         $this->captura('obs','text');
         $this->captura('evento','varchar');
 
-        
+
         //Ejecuta la instruccion
         $this->armarConsulta();
         $this->ejecutarConsulta();
@@ -164,8 +164,8 @@ class MODReportes extends MODbase{
         //Devuelve la respuesta
         return $this->respuesta;
     }
-	
-	function ReporteMarcadoFuncGralPDF(){ 
+
+    function ReporteMarcadoFuncGralPDF(){
         //Definicion de variables para ejecucion del procedimientp
         $this->procedimiento='asis.f_reportes_sel';
         $this->transaccion='ASIS_RPT_MAR_GRAL';
@@ -179,11 +179,11 @@ class MODReportes extends MODbase{
         //Definicion de la lista del resultado del query
         // $this->captura('idsolicitudplan','int4');
         $this->captura('detalles','text');
-		$this->captura('hra1','time');
-		$this->captura('hra2','time');
-		$this->captura('hra3','time');
-        $this->captura('hra4','time');		
-    
+        $this->captura('hra1','time');
+        $this->captura('hra2','time');
+        $this->captura('hra3','time');
+        $this->captura('hra4','time');
+
         //Ejecuta la instruccion
         $this->armarConsulta();
         $this->ejecutarConsulta();
@@ -279,7 +279,7 @@ class MODReportes extends MODbase{
         //Ejecuta la instruccion
         $this->armarConsulta();
         $this->ejecutarConsulta();
-         // var_dump($this->respuesta);exit;
+        // var_dump($this->respuesta);exit;
         //Devuelve la respuesta
         return $this->respuesta;
     }
@@ -289,12 +289,14 @@ class MODReportes extends MODbase{
         $this->procedimiento='asis.f_reportes_sel';
         $this->transaccion='ASIS_SAL_SEL';
         $this->tipo_procedimiento='SEL';//tipo de transaccion
-        
+
         $this->setCount(false);
 
         $this->setParametro('id_gestion', 'id_gestion', 'int4');
         $this->setParametro('formato', 'formato', 'varchar');
         $this->setParametro('reporte', 'reporte', 'varchar');
+        $this->setParametro('id_funcionario', 'id_funcionario', 'int4');
+        $this->setParametro('id_uo', 'id_uo', 'int4');
 
         //Definicion de la lista del resultado del query
         $this->captura('codigo','varchar');
@@ -308,7 +310,7 @@ class MODReportes extends MODbase{
         //Ejecuta la instruccion
         $this->armarConsulta();
         $this->ejecutarConsulta();
-       // var_dump($this->respuesta);exit;
+        // var_dump($this->respuesta);exit;
         //Devuelve la respuesta
         return $this->respuesta;
     }
