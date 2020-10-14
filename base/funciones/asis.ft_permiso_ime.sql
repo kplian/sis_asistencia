@@ -70,6 +70,15 @@ DECLARE
 	v_hasta_alm timestamp;
     v_resultado numeric;
     v_almuerzo boolean;
+    v_permiso  record;
+
+    va_id_tipo_estado 	  integer [];
+    va_codigo_estado 		  varchar [];
+    va_disparador 	      varchar [];
+    va_regla 				  varchar [];
+    va_prioridad 		      integer [];
+    
+      v_registro_estado 	  record;
 
 BEGIN
 
@@ -195,7 +204,8 @@ BEGIN
             hro_hasta_reposicion,
             reposicion,
             hro_total_permiso,
-            hro_total_reposicion
+            hro_total_reposicion,
+            id_responsable
             -- jornada
           	) values(
 			v_nro_tramite,--v_parametros.nro_tramite,
@@ -220,7 +230,8 @@ BEGIN
             v_parametros.hro_hasta_reposicion,
             v_record_tipo.reposcion,
             v_parametros.hro_total_permiso,
-            v_parametros.hro_total_reposicion
+            v_parametros.hro_total_reposicion,
+            v_parametros.id_responsable
             --v_parametros.jornada
 			)RETURNING id_permiso into v_id_permiso;
 
@@ -254,7 +265,8 @@ BEGIN
 			id_usuario_ai = v_parametros._id_usuario_ai,
 			usuario_ai = v_parametros._nombre_usuario_ai,
             hro_desde = v_parametros.hro_desde,
-            hro_hasta  = v_parametros.hro_hasta
+            hro_hasta  = v_parametros.hro_hasta,
+            id_responsable = v_parametros.id_responsable
 			where id_permiso=v_parametros.id_permiso;
 
 			--Definicion de la respuesta
@@ -545,7 +557,7 @@ BEGIN
                           raise exception '% esta en rango de almuerzo',v_parametros.hasta;
                       end if ;
                       
-                      if(v_parametros.hasta::time >= '12:30:00'::time and '14:30:00'::time <= v_parametros.hasta::time)then
+                      if(v_parametros.hasta::time >= '12:30:00'::time and  v_parametros.hasta::time <= '14:30:00'::time)then
                            v_almuerzo = true; 
                       end if;
       	            
@@ -554,10 +566,12 @@ BEGIN
                      v_hasta_hrs = now()::date ||' '||v_parametros.hasta;
                        
                      if (v_almuerzo) then
-                     
+                  --   raise exception ' %   -+--   %',v_desde_hrs,v_hasta_hrs;
                          v_resultado = COALESCE(round(COALESCE(asis.f_date_diff('minute', v_desde_hrs, v_hasta_hrs),0)/60::numeric,1) - round(COALESCE(asis.f_date_diff('minute', v_desde_alm, v_hasta_alm),0)/60::numeric,1) ,0);  
 
                      else
+                     
+                     --	raise exception ' %   ---   %',v_desde_hrs,v_hasta_hrs;
                          v_resultado =  COALESCE(round(COALESCE(asis.f_date_diff('minute', v_desde_hrs, v_hasta_hrs),0)/60::numeric,1),0);  
 
                      end if;
@@ -578,6 +592,106 @@ BEGIN
 
 
          return v_resp;
+    
+    end;
+    
+    /****************************************************
+    #TRANSACCION:     'ASIS_VBO_IME'
+    #DESCRIPCION:     Cambiar de estado
+    #AUTOR:           MMV
+    #FECHA:			  31-01-2020 13:53:10
+    ***************************************************/
+    
+    elsif( p_transaccion='ASIS_VBO_IME') then
+    	
+   	 begin
+
+          -- Validar estado
+          select  pw.id_proceso_wf,
+                  ew.id_estado_wf,
+                  te.codigo,
+                  pw.fecha_ini,
+                  te.id_tipo_estado,
+                  te.pedir_obs,
+                  pw.nro_tramite
+                into 
+                  v_registro_estado
+                from wf.tproceso_wf pw
+                inner join wf.testado_wf ew  on ew.id_proceso_wf = pw.id_proceso_wf and ew.estado_reg = 'activo'
+                inner join wf.ttipo_estado te on ew.id_tipo_estado = te.id_tipo_estado
+                where pw.id_proceso_wf =  v_parametros.id_proceso_wf;
+                
+          	
+               select pe.id_permiso,
+                      pe.id_responsable,
+                      pe.motivo
+                      into 
+                      v_permiso
+               from asis.tpermiso pe
+               where pe.id_proceso_wf = v_parametros.id_proceso_wf;
+              
+               select  ps_id_tipo_estado,
+                       ps_codigo_estado,
+                       ps_disparador,
+                       ps_regla,
+                       ps_prioridad
+                   into
+                      va_id_tipo_estado,
+                      va_codigo_estado,
+                      va_disparador,
+                      va_regla,
+                      va_prioridad
+                  from wf.f_obtener_estado_wf(
+                  v_registro_estado.id_proceso_wf,
+                   null,
+                   v_registro_estado.id_tipo_estado,
+                   'siguiente',
+                   p_id_usuario); 
+                       
+                   
+                   
+                      v_acceso_directo = '';
+                      v_clase = '';
+                      v_parametros_ad = '';
+                      v_tipo_noti = 'notificacion';
+                      v_titulo  = 'Aprobado';
+                       
+                       
+                       v_id_estado_actual = wf.f_registra_estado_wf(  va_id_tipo_estado[1]::integer,
+                                                                      v_permiso.id_responsable,--v_parametros.id_funcionario_wf,
+                                                                      v_registro_estado.id_estado_wf,
+                                                                      v_registro_estado.id_proceso_wf,
+                                                                      p_id_usuario,
+                                                                      v_parametros._id_usuario_ai,
+                                                                      v_parametros._nombre_usuario_ai,
+                                                                      null,--v_id_depto,                       --depto del estado anterior
+                                                                      v_permiso.motivo, --obt
+                                                                      v_acceso_directo,
+                                                                      v_clase,
+                                                                      v_parametros_ad,
+                                                                      v_tipo_noti,
+                                                                      v_titulo);
+                                                                      
+                                                                      
+                                                                      
+      		
+                                                                      
+              
+             update asis.tpermiso set
+              id_estado_wf =  v_id_estado_actual,
+              estado = va_codigo_estado[1],
+              id_usuario_mod=p_id_usuario,
+              fecha_mod=now()
+             where id_proceso_wf  = v_parametros.id_proceso_wf;
+             
+            --Definicion de la respuesta
+            v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Exito');
+            v_resp = pxp.f_agrega_clave(v_resp,'id_proceso_wf',v_parametros.id_proceso_wf::varchar);
+
+            --Devuelve la respuesta
+            return v_resp;
+
+   
 
  		end;
 	else

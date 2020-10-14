@@ -60,6 +60,9 @@ class MODPermiso extends MODbase{
         $this->captura('hro_total_reposicion','time');
         $this->captura('jornada','varchar');
 
+        $this->captura('id_responsable','int4');
+        $this->captura('responsable','text');
+
         //Ejecuta la instruccion
         $this->armarConsulta();
         $this->ejecutarConsulta();
@@ -97,6 +100,7 @@ class MODPermiso extends MODbase{
         $this->setParametro('hro_total_permiso','hro_total_permiso','time');
         $this->setParametro('hro_total_reposicion','hro_total_reposicion','time');
         $this->setParametro('jornada','jornada','varchar');
+        $this->setParametro('id_responsable','id_responsable','int4');
 
         //Ejecuta la instruccion
         $this->armarConsulta();
@@ -131,6 +135,9 @@ class MODPermiso extends MODbase{
         $this->setParametro('hro_total_reposicion','hro_total_reposicion','varchar');
 
         $this->setParametro('jornada','jornada','varchar');
+        $this->setParametro('id_responsable','id_responsable','int4');
+
+        
         //Ejecuta la instruccion
         $this->armarConsulta();
         $this->ejecutarConsulta();
@@ -221,8 +228,37 @@ class MODPermiso extends MODbase{
         //Devuelve la respuesta
         return $this->respuesta;
     }
+    function listaResponsable(){
+        //Definicion de variables para ejecucion del procedimientp
+        $this->procedimiento='asis.ft_permiso_sel';
+        $this->transaccion='ASIS_RFL_SEL';
+        $this->tipo_procedimiento='SEL';//tipo de transaccion
+        $this->setParametro('id_funcionario','id_funcionario','int4');
+        //Definicion de la lista del resultado del query
+        $this->captura('id_funcionario','int4');
+        $this->captura('desc_funcionario','text');
+        $this->captura('desc_funcionario_cargo','text');
 
+        //Ejecuta la instruccion
+        $this->armarConsulta();
+        $this->ejecutarConsulta();
 
+        //Devuelve la respuesta
+        return $this->respuesta;
+    }
+    function aprobarEstado(){
+        //Definicion de variables para ejecucion del procedimiento
+        $this->procedimiento='asis.ft_permiso_ime';
+        $this->transaccion='ASIS_VBO_IME';
+        $this->tipo_procedimiento='IME';
+        //Define los parametros para la funcion
+        $this->setParametro('id_proceso_wf','id_proceso_wf','int4');
+        $this->setParametro('id_estado_wf','id_estado_wf','int4');
+        $this->armarConsulta();
+        $this->ejecutarConsulta();
+        //Devuelve la respuesta
+        return $this->respuesta;
+    }
 
 }
 ?>
