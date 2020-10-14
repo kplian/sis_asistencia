@@ -206,6 +206,22 @@ class MODPermiso extends MODbase{
         //Devuelve la respuesta
         return $this->respuesta;
     }
+    function calcularRango(){
+        //Definicion de variables para ejecucion del procedimiento
+        $this->procedimiento = 'asis.ft_permiso_ime';
+        $this->transaccion = 'ASIS_RAN_IME';
+        $this->tipo_procedimiento = 'IME';
+        //Define los parametros para la funcion
+        $this->setParametro('desde', 'desde', 'varchar');
+        $this->setParametro('hasta','hasta','varchar');
+        $this->setParametro('contro','contro','varchar');
+        //Ejecuta la instruccion
+        $this->armarConsulta();
+        $this->ejecutarConsulta();
+        //Devuelve la respuesta
+        return $this->respuesta;
+    }
+
 
 
 }
