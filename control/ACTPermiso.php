@@ -83,6 +83,11 @@ class ACTPermiso extends ACTbase{
         $this->res=$this->objFunc->optenerRango($this->objParam);
         $this->res->imprimirRespuesta($this->res->generarJson());
     }
+    function calcularRango(){
+        $this->objFunc=$this->create('MODPermiso');
+        $this->res=$this->objFunc->calcularRango($this->objParam);
+        $this->res->imprimirRespuesta($this->res->generarJson());
+    }
 
 }
 

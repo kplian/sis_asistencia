@@ -45,6 +45,7 @@ BEGIN
 	if(p_transaccion='ASIS_TPO_INS')then
 
         begin
+        
         	--Sentencia de la insercion
         	insert into asis.ttipo_permiso(
 			estado_reg,
@@ -58,8 +59,8 @@ BEGIN
 			id_usuario_mod,
 			fecha_mod,
             documento,
-            reposcion,
-            rango
+            reposcion
+           -- rango
           	) values(
 			'activo',
 			v_parametros.codigo,
@@ -72,8 +73,8 @@ BEGIN
 			null,
 			null,
             v_parametros.documento,
-            v_parametros.reposcion,
-            v_parametros.rango
+            v_parametros.reposcion
+            --v_parametros.rango
 			)RETURNING id_tipo_permiso into v_id_tipo_permiso;
 
 			--Definicion de la respuesta
@@ -105,8 +106,8 @@ BEGIN
 			id_usuario_ai = v_parametros._id_usuario_ai,
 			usuario_ai = v_parametros._nombre_usuario_ai,
             documento = v_parametros.documento,
-            reposcion = v_parametros.reposcion,
-            rango = v_parametros.rango
+            reposcion = v_parametros.reposcion
+            --rango = v_parametros.rango
 			where id_tipo_permiso=v_parametros.id_tipo_permiso;
 
 			--Definicion de la respuesta
@@ -162,6 +163,7 @@ LANGUAGE 'plpgsql'
 VOLATILE
 CALLED ON NULL INPUT
 SECURITY INVOKER
+PARALLEL UNSAFE
 COST 100;
 
 ALTER FUNCTION asis.ft_tipo_permiso_ime (p_administrador integer, p_id_usuario integer, p_tabla varchar, p_transaccion varchar)

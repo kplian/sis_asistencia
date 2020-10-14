@@ -196,26 +196,9 @@ header("content-type: text/javascript; charset=UTF-8");
                 },
                 {
                     config:{
-                        name : 'jornada',
-                        fieldLabel : 'Jornada',
-                        allowBlank: false,
-                        items: [
-                            {boxLabel: 'Mañana', name: 'jornada', inputValue: 'am',checked: true},
-                            {boxLabel: 'Tarde', name: 'jornada', inputValue: 'pm'}
-                        ],
-                        renderer : function(value, p, record) {
-                            return String.format('{0}', record.data['jornada']);
-                        }
-                    },
-                    type : 'RadioGroupField',
-                    id_grupo : 0,
-                    form : true,
-                    grid:true,
-                },
-                {
-                    config:{
                         name: 'hro_desde',
                         fieldLabel: 'Desde',
+                        allowBlank: false,
                         increment: 10,
                         minValue: '00:00:00',
                         maxValue: '23:55:00',
@@ -232,6 +215,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     config:{
                         name: 'hro_hasta',
                         fieldLabel: 'Hasta',
+                        allowBlank: false,
                         increment: 10,
                         minValue: '00:00:00',
                         maxValue: '23:55:00',
@@ -248,12 +232,12 @@ header("content-type: text/javascript; charset=UTF-8");
                     config:{
                         name: 'hro_total_permiso',
                         fieldLabel: 'Total Hora',
-                        allowBlank: false,
+                        allowBlank: true,
                         anchor: '40%',
                         gwidth: 100,
                         readOnly: true,
                         format: 'H:i:s',
-                        style: 'background-color: #9BF592; background-image: none;',
+                        style: 'background-image: none;',
                         renderer:function (value,p,record){ return String.format('<b><font size=2>{0}</font></b>', value?value.dateFormat('H:i:s'):'')}
 
                     },
@@ -331,7 +315,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         gwidth: 100,
                         readOnly: true,
                         format: 'H:i:s',
-                        style: 'background-color: #9BF592; background-image: none;',
+                        style: 'background-image: none;',
                         renderer:function (value,p,record){return value?value.dateFormat('H:i:s'):''}
                     },
                     type:'TimeField',
@@ -485,7 +469,6 @@ header("content-type: text/javascript; charset=UTF-8");
                 {name:'hro_hasta_reposicion',type: 'date',dateFormat:'H:i:s'},
                 {name:'hro_total_permiso',type: 'date',dateFormat:'H:i:s'},
                 {name:'hro_total_reposicion',type: 'date',dateFormat:'H:i:s'},
-                {name:'jornada', type: 'string'}
 
             ],
             sortInfo:{
@@ -501,9 +484,6 @@ header("content-type: text/javascript; charset=UTF-8");
                 this.ocultarComponente(this.Cmp.hro_desde_reposicion);
                 this.ocultarComponente(this.Cmp.hro_hasta_reposicion);
                 this.ocultarComponente(this.Cmp.hro_total_reposicion);
-
-                this.ocultarComponente(this.Cmp.jornada);
-
                 this.ocultarComponente(this.Cmp.hro_desde);
                 this.ocultarComponente(this.Cmp.hro_hasta);
                 this.ocultarComponente(this.Cmp.hro_total_permiso);
@@ -573,86 +553,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     this.mostrarComponente(this.Cmp.hro_hasta);
                     this.mostrarComponente(this.Cmp.hro_total_permiso);
                     this.mostrarComponente(this.Cmp.motivo);
-                    this.mostrarComponente(this.Cmp.jornada);
-                    const ms = this;
-                    // peticion ajz
-                    Ext.Ajax.request({
-                        url:'../../sis_asistencia/control/Permiso/optenerRango',
-                        params:{
-                            id_funcionario: this.Cmp.id_funcionario.getValue(),
-                            fecha_solicitud: this.Cmp.fecha_solicitud.getValue(),
-                            jornada: this.Cmp.jornada.getValue()
-                        },
-                        success:function(resp){
-                            var reg = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));
-                            console.log(reg.ROOT.datos);
-                            if(!reg.ROOT.error){
-                                ms.Cmp.hro_desde.setMinValue(reg.ROOT.datos.inicio);
-                                ms.Cmp.hro_desde.setMaxValue(reg.ROOT.datos.fin);
-                                ms.Cmp.hro_hasta.setMinValue(reg.ROOT.datos.inicio);
-                                ms.Cmp.hro_hasta.setMaxValue(reg.ROOT.datos.fin);
-                            }
-                        },
-                        failure: this.conexionFailure,
-                        timeout:this.timeout,
-                        scope:this
-                    });
-                    this.Cmp.fecha_solicitud.on('select', function (Fecha, dato) {
-                        console.log(Fecha.getValue());
-                        Ext.Ajax.request({
-                            url:'../../sis_asistencia/control/Permiso/optenerRango',
-                            params:{
-                                id_funcionario: this.Cmp.id_funcionario.getValue(),
-                                fecha_solicitud: Fecha.getValue(),
-                                jornada: this.Cmp.jornada.getValue()
-                            },
-                            success:function(resp){
-                                var reg = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));
-                                console.log(reg.ROOT.datos);
-                                if(!reg.ROOT.error){
-                                    ms.Cmp.hro_desde.setMinValue(reg.ROOT.datos.inicio);
-                                    ms.Cmp.hro_desde.setMaxValue(reg.ROOT.datos.fin);
-                                    ms.Cmp.hro_hasta.setMinValue(reg.ROOT.datos.inicio);
-                                    ms.Cmp.hro_hasta.setMaxValue(reg.ROOT.datos.fin);
-                                }
-                            },
-                            failure: this.conexionFailure,
-                            timeout:this.timeout,
-                            scope:this
-                        });
-                    }, this);
-                    this.Cmp.jornada.on('change', function(cmp, check){
-                        console.log(check.getRawValue());
-                        Ext.Ajax.request({
-                            url:'../../sis_asistencia/control/Permiso/optenerRango',
-                            params:{
-                                id_funcionario: this.Cmp.id_funcionario.getValue(),
-                                fecha_solicitud: this.Cmp.fecha_solicitud.getValue(),
-                                jornada: check.getRawValue()
-                            },
-                            success:function(resp){
-                                var reg = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));
-                                console.log(reg.ROOT.datos);
-                                if(!reg.ROOT.error){
-                                    ms.Cmp.hro_desde.setMinValue(reg.ROOT.datos.inicio);
-                                    ms.Cmp.hro_desde.setMaxValue(reg.ROOT.datos.fin);
-                                    ms.Cmp.hro_hasta.setMinValue(reg.ROOT.datos.inicio);
-                                    ms.Cmp.hro_hasta.setMaxValue(reg.ROOT.datos.fin);
-                                }
-                            },
-                            failure: this.conexionFailure,
-                            timeout:this.timeout,
-                            scope:this
-                        });
-                    }, this);
-                    /*if (record.data.rango === 'si'){
-
-                    }else {
-                        ms.Cmp.hro_desde.setMinValue('00:00:00');
-                        ms.Cmp.hro_desde.setMaxValue('23:55:00');
-                        ms.Cmp.hro_hasta.setMinValue('00:00:00');
-                        ms.Cmp.hro_hasta.setMaxValue('23:55:00');
-                    }*/
+    
                     if (record.data.reposcion === 'si'){
                         this.window.setSize(490,480);
                         this.mostrarComponente(this.Cmp.fecha_reposicion);
@@ -669,50 +570,86 @@ header("content-type: text/javascript; charset=UTF-8");
                 },this);
 
                 this.Cmp.hro_desde.on('select', function(combo, record){
-                    if (String(this.Cmp.hro_hasta.getValue()) !== ''){
-                        if(record.data.field1 >= this.Cmp.hro_hasta.getValue()){
+                        if (this.Cmp.hro_hasta.getValue() !== ''){
                             this.Cmp.hro_total_permiso.reset();
-                            this.onMsj('question','El rango que ingreso es incorrecto.!');
-
-                        }else {
-                            this.Cmp.hro_total_permiso.setValue(
-                                this.calcularDiferenciaHora(record.data.field1, this.Cmp.hro_hasta.getValue())
-                                    .toString());
+                            Ext.Ajax.request({
+                                    url:'../../sis_asistencia/control/Permiso/calcularRango',
+                                    params:{desde : record.data.field1,
+                                            hasta: this.Cmp.hro_hasta.getValue(),
+                                            contro: 'si'},
+                                    success:function(resp){
+                                        const reg = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));
+                                        this.Cmp.hro_total_permiso.setValue(reg.ROOT.datos.resultado);
+                                    },
+                                    failure: this.conexionFailure,
+                                    timeout:this.timeout,
+                                    scope:this
+                            });
                         }
-                    }
                 },this);
+
                 this.Cmp.hro_hasta.on('select', function(combo, record){
-                    if(record.data.field1 <= this.Cmp.hro_desde.getValue()){
+                    if (this.Cmp.hro_desde.getValue() !== ''){
                         this.Cmp.hro_total_permiso.reset();
-                        this.onMsj('question','El rango que ingreso es incorrecto.!');
-
-                    }else {
-                        this.Cmp.hro_total_permiso.setValue(
-                            this.calcularDiferenciaHora(this.Cmp.hro_desde.getValue(),record.data.field1)
-                                .toString()
-                        );
+                        Ext.Ajax.request({
+                                    url:'../../sis_asistencia/control/Permiso/calcularRango',
+                                    params:{desde : this.Cmp.hro_desde.getValue(),
+                                            hasta: record.data.field1,
+                                            contro: 'si'},
+                                    success:function(resp){
+                                        const reg = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));                                      
+                                        this.Cmp.hro_total_permiso.setValue(reg.ROOT.datos.resultado);
+                                    },
+                                    failure: this.conexionFailure,
+                                    timeout:this.timeout,
+                                    scope:this
+                            });
                     }
-
                 },this);
-                ///nuevo
+
                 this.Cmp.hro_desde_reposicion.on('select', function(combo, record, index){
-                    if (String(this.Cmp.hro_hasta_reposicion.getValue()) !== '') {
-                        this.Cmp.hro_total_reposicion.setValue(
-                            this.calcularDiferenciaHora(record.data.field1, this.Cmp.hro_hasta_reposicion.getValue(),)
-                                .toString());
+                    if (this.Cmp.hro_hasta_reposicion.getValue() !== ''){
+                            this.Cmp.hro_total_reposicion.reset();
+                            Ext.Ajax.request({
+                                    url:'../../sis_asistencia/control/Permiso/calcularRango',
+                                    params:{desde : record.data.field1,
+                                            hasta: this.Cmp.hro_hasta_reposicion.getValue(),
+                                            contro: 'no'},
+                                    success:function(resp){
+                                        const reg = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));
+                                        this.Cmp.hro_total_reposicion.setValue(reg.ROOT.datos.resultado);
+                                    },
+                                    failure: this.conexionFailure,
+                                    timeout:this.timeout,
+                                    scope:this
+                            });
+                        }
+                },this);
+
+                this.Cmp.hro_hasta_reposicion.on('select', function(combo, record, index){
+                    if (this.Cmp.hro_desde_reposicion.getValue() !== ''){
+                        this.Cmp.hro_total_reposicion.reset();
+                        Ext.Ajax.request({
+                                    url:'../../sis_asistencia/control/Permiso/calcularRango',
+                                    params:{desde : this.Cmp.hro_desde_reposicion.getValue(),
+                                            hasta: record.data.field1,
+                                            contro: 'no'},
+                                    success:function(resp){
+                                        const reg = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));
+                                        this.Cmp.hro_total_reposicion.setValue(reg.ROOT.datos.resultado);
+                                    },
+                                    failure: this.conexionFailure,
+                                    timeout:this.timeout,
+                                    scope:this
+                            });
                     }
                 },this);
-                this.Cmp.hro_hasta_reposicion.on('select', function(combo, record, index){
-                    this.Cmp.hro_total_reposicion.setValue(
-                        this.calcularDiferenciaHora(this.Cmp.hro_desde_reposicion.getValue(),record.data.field1)
-                            .toString());
-                },this);
+                
                 this.Cmp.id_funcionario.store.load({params:{start:0,limit:this.tam_pag},
                     callback : function (r) {
                         this.Cmp.id_funcionario.setValue(r[0].data.id_funcionario);
                         this.Cmp.id_funcionario.fireEvent('select', this.Cmp.id_funcionario, r[0]);
                         this.Cmp.id_funcionario.collapse();
-
                     }, scope : this
                 });
 
@@ -811,72 +748,6 @@ header("content-type: text/javascript; charset=UTF-8");
                 Phx.CP.loadingHide();
                 resp.argument.wizard.panel.destroy();
                 this.reload();
-            },
-            calcularDiferenciaHora:function (desde,hasta) {
-                var dateDesde = this.newDate(desde.split(":"));
-                var dateHasta = this.newDate(hasta.split(":"));
-
-                var minutos = (dateHasta - dateDesde)/1000/60;
-                var horas = Math.floor(minutos/60);
-                minutos = minutos % 60;
-                var resultado = new Date (new Date().toDateString() + ' ' + this.prefijo(horas) + ':' + this.prefijo(minutos));
-
-
-                let hour = resultado.getHours() + "";
-                let minutes = resultado.getMinutes() + "";
-                let seconds = resultado.getSeconds() + "";
-
-                hour = this.checkZero(hour);
-                minutes = this.checkZero(minutes);
-                seconds = this.checkZero(seconds);
-                console.log(hour + ":" + minutes + ":" + seconds);
-                // moment(resultado).format('hh:mm:ss');
-                return hour + ":" + minutes + ":" + seconds;
-            },
-            checkZero:function(data){
-                if(data.length === 1){
-                    data = "0" + data;
-                }
-                return data;
-            },
-            prefijo:function (num) {
-                return num < 10 ? ("0" + num) : num;
-            },
-            newDate:function (partes) {
-                var date = new Date(0);
-                date.setHours(partes[0]);
-                date.setMinutes(partes[1]);
-                return date;
-            },
-            sumarDias:function(fecha, dias){
-                fecha.setDate(fecha.getDate() + dias);
-                return fecha;
-            },
-            onMsj:function(icono,msj) {
-
-                var resultado;
-
-                if (icono === 'info'){
-                    resultado = Ext.MessageBox.INFO;
-                }
-                if (icono === 'question'){
-                    resultado = Ext.MessageBox.QUESTION;
-                }
-                if (icono === 'warning'){
-                    resultado = Ext.MessageBox.WARNING;
-                }
-                if (icono === 'error'){
-                    resultado = Ext.MessageBox.ERROR;
-                }
-
-                Ext.MessageBox.show({
-                    title: 'Mensaje',
-                    msg: msj,
-                    buttons: Ext.MessageBox.OK,
-                    animEl: 'mb9',
-                    // fn: showResult,
-                    icon: resultado
-                });
             },
         }
     )

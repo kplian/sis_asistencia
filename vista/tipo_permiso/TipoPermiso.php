@@ -136,8 +136,8 @@ header("content-type: text/javascript; charset=UTF-8");
                     id_grupo:1,
                     filters:{pfiltro:'tpo.rango',type:'string'},
                     valorInicial: 'no',
-                    grid:true,
-                    form:true
+                    grid:false,
+                    form:false
                 },
                 {
                     config:{

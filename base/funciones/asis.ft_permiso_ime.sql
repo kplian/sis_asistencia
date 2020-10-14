@@ -63,7 +63,13 @@ DECLARE
     v_inicio	varchar;
     v_fin		varchar;
     v_record_tipo record;
-
+    
+    v_desde_hrs timestamp;
+	v_hasta_hrs timestamp;
+    v_desde_alm timestamp;
+	v_hasta_alm timestamp;
+    v_resultado numeric;
+    v_almuerzo boolean;
 
 BEGIN
 
@@ -80,7 +86,7 @@ BEGIN
 	if(p_transaccion='ASIS_PMO_INS')then
 
         begin
-
+        
         -- raise exception '%',v_parametros.jornada;
 
            select  g.id_gestion
@@ -125,22 +131,22 @@ BEGIN
                     tp.reposcion,
                     tp.rango,
                     tp.tiempo
-                    into
+                    into 
                     v_record_tipo
             from asis.ttipo_permiso tp
             where tp.id_tipo_permiso  = v_parametros.id_tipo_permiso;
 
-
+            
             if (v_record_tipo.tiempo::time > '00:00:00'::time ) then
-
+                     
                     if (v_record_tipo.reposcion = 'si')then
-
+                    
                        v_diferencia = v_parametros.hro_total_permiso::time;
-
+                       
                        if (v_diferencia::time > v_record_tipo.tiempo::time)then
-                            raise exception 'Sobre pasa el limite de tiempo para el permiso (%)',v_record_tipo.tiempo::time;
+                            raise exception 'Excede el limite de tiempo para el permiso (%)',v_record_tipo.tiempo::time;
                        end if;
-
+                       
                        if v_parametros.hro_total_reposicion::time < v_parametros.hro_total_permiso::time then
                           raise exception 'El tiempo de reposicion es menor al tiempo del permiso';
                       elsif v_parametros.hro_total_reposicion::time  >  v_parametros.hro_total_permiso::time then
@@ -148,23 +154,23 @@ BEGIN
                       elsif v_parametros.hro_total_permiso::time != v_parametros.hro_total_reposicion::time then
                           raise exception 'El tiempo de la reposición es distinto a tiempo del permiso';
                       end if;
-
-
+                       
+                    
                     end if;
             end if;
-
-            -- validar si tiene una vacacion registrada el dia
-
+            
+            -- validar si tiene una vacacion registrada el dia 
+            
             if exists ( select 1
                         from asis.tvacacion v
                         inner join asis.tvacacion_det d on d.id_vacacion = v.id_vacacion
                         where v.id_funcionario = v_parametros.id_funcionario
                          and d.fecha_dia = v_parametros.fecha_solicitud) then
-
-            	raise exception 'Tienes programado una vacacion el dia %',v_parametros.fecha_solicitud;
-
+            	
+            	raise exception 'Tienes programado una vacacion el dia %',v_parametros.fecha_solicitud;             
+    
             end if;
-
+                    
         	--Sentencia de la insercion
         	insert into asis.tpermiso(
 			nro_tramite,
@@ -189,8 +195,8 @@ BEGIN
             hro_hasta_reposicion,
             reposicion,
             hro_total_permiso,
-            hro_total_reposicion,
-            jornada
+            hro_total_reposicion
+            -- jornada
           	) values(
 			v_nro_tramite,--v_parametros.nro_tramite,
 			v_parametros.id_funcionario,
@@ -214,8 +220,8 @@ BEGIN
             v_parametros.hro_hasta_reposicion,
             v_record_tipo.reposcion,
             v_parametros.hro_total_permiso,
-            v_parametros.hro_total_reposicion,
-            v_parametros.jornada
+            v_parametros.hro_total_reposicion
+            --v_parametros.jornada
 			)RETURNING id_permiso into v_id_permiso;
 
 			--Definicion de la respuesta
@@ -469,7 +475,7 @@ BEGIN
 		begin
 
 
-
+        
         select distinct on (uof.id_funcionario) uof.id_funcionario, ger.id_uo into v_registro_funcionario
         from orga.tuo_funcionario uof
         inner join orga.tuo ger on ger.id_uo = orga.f_get_uo_gerencia(uof.id_uo, NULL::integer, NULL::date)
@@ -477,7 +483,7 @@ BEGIN
         uof.fecha_asignacion <= v_parametros.fecha_solicitud and
         (uof.fecha_finalizacion is null or uof.fecha_finalizacion >= v_parametros.fecha_solicitud)
         order by uof.id_funcionario, uof.fecha_asignacion desc;
-
+	
     	-- raise exception '%',v_parametros.id_funcionario;
 
         if v_registro_funcionario.id_uo is null then
@@ -493,23 +499,83 @@ BEGIN
                        and rh.jornada = '''||v_parametros.jornada||'''
                       order by rh.hora_entrada, ar.hasta asc';
 
-
+        
         v_inicio = null;
         v_fin = null;
-
-
+         
+        
        --  raise notice '%',v_consulta;
         	execute (v_consulta) into  v_inicio, v_fin;
-
+        
        		if (v_inicio is null and v_fin is null )then
-
+            
             	raise exception 'Esta en horario continuo';
-
+            
             end if;
-
+       
            v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Exito');
            v_resp = pxp.f_agrega_clave(v_resp,'inicio',v_inicio);
            v_resp = pxp.f_agrega_clave(v_resp,'fin',v_fin);
+
+         return v_resp;
+
+ 		end;
+        
+        /*********************************
+ 	#TRANSACCION:  'ASIS_RAN_IME'
+ 	#DESCRIPCION:  optener los rango del funcionario
+ 	#AUTOR: MMV
+ 	#FECHA: 13/10/2020
+	***********************************/
+    elsif(p_transaccion='ASIS_RAN_IME')then
+
+		begin
+        
+       	        if (v_parametros.desde::time > v_parametros.hasta::time)then
+                	raise exception 'Desde % es mayor que %',v_parametros.desde,v_parametros.hasta;
+                end if;
+            
+                if (v_parametros.contro = 'si')then
+                
+                      v_almuerzo = false;        
+                      v_desde_alm = now()::date ||' '||'12:30:00';
+                      v_hasta_alm = now()::date ||' '||'14:30:00';
+                      
+                      if (v_parametros.hasta::time between '12:30:00'::time and  '14:30:00'::time)then
+                          raise exception '% esta en rango de almuerzo',v_parametros.hasta;
+                      end if ;
+                      
+                      if(v_parametros.hasta::time >= '12:30:00'::time and '14:30:00'::time <= v_parametros.hasta::time)then
+                           v_almuerzo = true; 
+                      end if;
+      	            
+                     v_desde_hrs = now()::date ||' '||v_parametros.desde;
+                       
+                     v_hasta_hrs = now()::date ||' '||v_parametros.hasta;
+                       
+                     if (v_almuerzo) then
+                     
+                         v_resultado = COALESCE(round(COALESCE(asis.f_date_diff('minute', v_desde_hrs, v_hasta_hrs),0)/60::numeric,1) - round(COALESCE(asis.f_date_diff('minute', v_desde_alm, v_hasta_alm),0)/60::numeric,1) ,0);  
+
+                     else
+                         v_resultado =  COALESCE(round(COALESCE(asis.f_date_diff('minute', v_desde_hrs, v_hasta_hrs),0)/60::numeric,1),0);  
+
+                     end if;
+                else
+                
+                   v_desde_hrs = now()::date ||' '||v_parametros.desde;
+                   
+                   v_hasta_hrs = now()::date ||' '||v_parametros.hasta;
+                   
+                   v_resultado = COALESCE(round(COALESCE(asis.f_date_diff('minute', v_desde_hrs, v_hasta_hrs),0)/60::numeric,1),0);  
+                
+                end if;
+
+           v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Exito');
+           v_resp = pxp.f_agrega_clave(v_resp,'desde_hrs',v_desde_hrs::varchar);
+           v_resp = pxp.f_agrega_clave(v_resp,'hasta_hrs',v_hasta_hrs::varchar);
+           v_resp = pxp.f_agrega_clave(v_resp,'resultado', to_char(to_timestamp((v_resultado) * 60), 'MI:SS') ::varchar);
+
 
          return v_resp;
 
