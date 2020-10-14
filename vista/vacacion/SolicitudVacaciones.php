@@ -21,7 +21,6 @@ header("content-type: text/javascript; charset=UTF-8");
         tam_pag:50,
         //funcion para mandar el name de tab
         actualizarSegunTab: function(name, indice){
-            console.log(this.finCons);
             if (this.finCons) {
                 this.store.baseParams.pes_estado = name;
                 this.load({params: {start: 0, limit: this.tam_pag}});

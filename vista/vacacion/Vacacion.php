@@ -99,7 +99,7 @@ header("content-type: text/javascript; charset=UTF-8");
             // console.log('Prueba de parametros1', s.responseText);
             var respuesta_valid = s.responseText.split('%');
             //console.log('Prueba de parametros2', respuesta_valid[1]);
-            this.Cmp.dias_efectivo.setValue(respuesta_valid[1]); //dias
+            // this.Cmp.dias_efectivo.setValue(respuesta_valid[1]); //dias
 
             this.arrayStore.Selección=[];
             this.arrayStore.Selección=['',''];
@@ -110,7 +110,7 @@ header("content-type: text/javascript; charset=UTF-8");
             // this.Cmp.medio_dia.reset(); /// restablecer el campo evento_medios_dias, cada que se cambia el rango de fechas.
             // this.Cmp.medio_dia.store.loadData(this.arrayStore.Selección);
             this.Cmp.dias.reset(); /// dias_efectivo
-            this.Cmp.dias.setValue(this.Cmp.dias_efectivo.getValue()); //diasdias_efectivo; dias
+            this.Cmp.dias.setValue(respuesta_valid[1]); //diasdias_efectivo; dias
 
 
         },
@@ -174,40 +174,6 @@ header("content-type: text/javascript; charset=UTF-8");
             },
             {
                 config:{
-                    name: 'evento',
-                    fieldLabel: 'Evento',
-                    allowBlank: true,
-                    anchor: '70%',
-                    gwidth: 100,
-                    readOnly :true,
-                    style: 'background-color: #F2F1F0; background-image: none;',
-                    renderer:function (value,p,record){
-                        return String.format('{0}', value);
-                    }
-                },
-                type:'TextField',
-                id_grupo:0,
-                grid:false,
-                form:true
-            },
-            {
-
-                config:{
-                    name: 'saldo',
-                    fieldLabel: 'Saldo',
-                    allowBlank: true,
-                    anchor: '40%',
-                    gwidth: 100,
-                    readOnly :true,
-                    style: 'background-color: #F2F1F0; background-image: none;'
-                },
-                type:'NumberField',
-                id_grupo:0,
-                grid:false,
-                form:true,
-            },
-            {
-                config:{
                     name:'id_funcionario',
                     hiddenName: 'id_funcionario',
                     origen:'FUNCIONARIOCAR',
@@ -263,23 +229,19 @@ header("content-type: text/javascript; charset=UTF-8");
                 form:true
             },
             {
-                config:{
-                    name: 'dias_efectivo',
-                    fieldLabel: 'Días Calendario',
-                    allowBlank: true,
-                    anchor: '35%',
-                    gwidth: 100,
-                    maxLength:4,
-                    readOnly :true,
-                    style: 'background-color: #F2F1F0; background-image: none;',
-                    renderer:function (value,p,record){return String.format('<b>{0}</b>',value)}
-
-                },
-                type:'NumberField',
-                filters:{pfiltro:'vac.dias_efectivo',type:'numeric'},
-                id_grupo:1,
-                grid:true,
-                form:true
+            config:{
+                name: 'saldo',
+                fieldLabel: 'Saldo',
+                allowBlank: true,
+                anchor: '35%',
+                gwidth: 100,
+                readOnly :true,
+                style: 'background-image: none;'
+            },
+            type:'NumberField',
+            id_grupo:1,
+            grid:false,
+            form:true,
             },
             {
 
@@ -290,7 +252,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     anchor: '35%',
                     gwidth: 100,
                     readOnly :true,
-                    style: 'background-color: #F2F1F0; background-image: none;'
+                    style: 'background-image: none;'
                 },
                 type:'NumberField',
                 filters:{pfiltro:'vac.dias',type:'numeric'},
@@ -457,7 +419,7 @@ header("content-type: text/javascript; charset=UTF-8");
         bdel:true,
         bsave:false,
         fwidth: '35%',
-        fheight: '70%',
+        fheight: '50%',
         Grupos: [
             {
                 layout: 'form',
@@ -467,19 +429,6 @@ header("content-type: text/javascript; charset=UTF-8");
                 },
 
                 items: [
-                    {
-                        items: [
-
-                            {
-                                xtype: 'fieldset',
-                                title: '  Movimiento Vacacion ',
-                                autoHeight: true,
-                                items: [],
-                                id_grupo: 0
-                            }
-
-                        ]
-                    },
                     {
                         items: [
                             {
@@ -679,7 +628,6 @@ header("content-type: text/javascript; charset=UTF-8");
                 params:{id_funcionario: value},
                 success:function(resp){
                     const reg = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));
-                    this.Cmp.evento.setValue(reg.ROOT.datos.tipo); //dias
                     this.Cmp.saldo.setValue(reg.ROOT.datos.dias_actual); //dias
                 },
                 failure: this.conexionFailure,

@@ -30,7 +30,7 @@ class ACTPermiso extends ACTbase{
                     $this->objParam->addFiltro("pmo.estado = ''reposicion''");
                     break;
                 case 'finalizado':
-                    $this->objParam->addFiltro("pmo.estado = ''finalizado''");
+                    $this->objParam->addFiltro("pmo.estado = ''aprobado''");
                     break;
             }
 
@@ -88,7 +88,19 @@ class ACTPermiso extends ACTbase{
         $this->res=$this->objFunc->calcularRango($this->objParam);
         $this->res->imprimirRespuesta($this->res->generarJson());
     }
+    function listaResponsable(){
+        $this->objParam->defecto('ordenacion','id_funcionario');
+        $this->objParam->defecto('dir_ordenacion','asc');
 
+        $this->objFunc=$this->create('MODPermiso');
+        $this->res=$this->objFunc->listaResponsable($this->objParam);
+        $this->res->imprimirRespuesta($this->res->generarJson());
+    }
+    function aprobarEstado(){
+        $this->objFunc=$this->create('MODPermiso');
+        $this->res=$this->objFunc->aprobarEstado($this->objParam);
+        $this->res->imprimirRespuesta($this->res->generarJson());
+    }
 }
 
 ?>

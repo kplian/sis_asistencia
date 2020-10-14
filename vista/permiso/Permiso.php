@@ -21,7 +21,12 @@ header("content-type: text/javascript; charset=UTF-8");
                 Phx.vista.Permiso.superclass.constructor.call(this,config);
                 this.init();
                 this.finCons = true;
-
+                this.addButton('btn_siguiente',{grupo:[0,3],
+                    text:'Enviar',
+                    iconCls: 'bemail',
+                    disabled:true,
+                    handler:this.onSiguiente});
+                    
                 this.addButton('btn_atras',{grupo:[3],
                     argument: { estado: 'anterior'},
                     text:'Anterior',
@@ -30,12 +35,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     handler:this.onAtras,
                     tooltip: '<b>Pasar al Anterior Estado</b>'});
 
-                this.addButton('btn_siguiente',{grupo:[0,3],
-                    text:'Siguiente',
-                    iconCls: 'badelante',
-                    disabled:true,
-                    handler:this.onSiguiente,
-                    tooltip: '<b>Siguiente</b><p>Hola</p>'});
+              
 
                 this.addBotonesGantt();
 
@@ -114,6 +114,48 @@ header("content-type: text/javascript; charset=UTF-8");
                     form:false
                 },
                 {
+                    config: {
+                        name: 'id_responsable',
+                        fieldLabel: 'Responsable',
+                        allowBlank: true,
+                        emptyText: 'Elija una opción...',
+                        store: new Ext.data.JsonStore({
+                            url: '../../sis_asistencia/control/Permiso/listaResponsable',
+                            id: 'id_funcionario',
+                            root: 'datos',
+                            sortInfo: {
+                                field: 'desc_funcionario',
+                                direction: 'ASC'
+                            },
+                            totalProperty: 'total',
+                            fields: ['id_funcionario','desc_funcionario'],
+                            remoteSort: true,
+                            baseParams: {par_filtro: 'fun.desc_funcionario'}
+                        }),
+                        valueField: 'id_funcionario',
+                        displayField: 'desc_funcionario',
+                        gdisplayField: 'responsable',
+                        hiddenName: 'id_responsable',
+                        forceSelection: true,
+                        typeAhead: false,
+                        triggerAction: 'all',
+                        lazyRender: true,
+                        mode: 'remote',
+                        pageSize: 15,
+                        queryDelay: 1000,
+                        width: 300,
+                        gwidth:200,
+                        minChars: 2,
+                        renderer : function(value, p, record) {
+                            return String.format('{0}', record.data['responsable']);
+                        }
+                    },
+                    type: 'ComboBox',
+                    id_grupo: 0,
+                    grid: true,
+                    form: true
+                },
+                {
                     config:{
                         name:'id_funcionario',
                         hiddenName: 'id_funcionario',
@@ -124,7 +166,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         gwidth:200,
                         valueField: 'id_funcionario',
                         gdisplayField: 'desc_funcionario',
-                        baseParams: {par_filtro: 'id_funcionario#desc_funcionario1#codigo',es_combo_solicitud : 'si'},
+                        baseParams: { es_combo_solicitud : 'si' }
                         renderer:function(value, p, record){return String.format('{0}', record.data['desc_funcionario']);}
                     },
                     type:'ComboRec',//ComboRec
@@ -469,7 +511,8 @@ header("content-type: text/javascript; charset=UTF-8");
                 {name:'hro_hasta_reposicion',type: 'date',dateFormat:'H:i:s'},
                 {name:'hro_total_permiso',type: 'date',dateFormat:'H:i:s'},
                 {name:'hro_total_reposicion',type: 'date',dateFormat:'H:i:s'},
-
+                {name:'id_responsable', type: 'numeric'},
+                {name:'responsable', type: 'string'},
             ],
             sortInfo:{
                 field: 'id_permiso',
@@ -597,7 +640,9 @@ header("content-type: text/javascript; charset=UTF-8");
                                             hasta: record.data.field1,
                                             contro: 'si'},
                                     success:function(resp){
-                                        const reg = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));                                      
+                                        const reg = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));     
+                                        
+                                        console.log(reg.ROOT.datos.resultado);
                                         this.Cmp.hro_total_permiso.setValue(reg.ROOT.datos.resultado);
                                     },
                                     failure: this.conexionFailure,
@@ -650,14 +695,35 @@ header("content-type: text/javascript; charset=UTF-8");
                         this.Cmp.id_funcionario.setValue(r[0].data.id_funcionario);
                         this.Cmp.id_funcionario.fireEvent('select', this.Cmp.id_funcionario, r[0]);
                         this.Cmp.id_funcionario.collapse();
+                        this.onCargarResponsable(r[0].data.id_funcionario);
                     }, scope : this
                 });
-
+                this.Cmp.id_funcionario.on('select', function(combo, record, index){
+                     this.Cmp.id_responsable.reset();
+                     this.Cmp.id_responsable.store.baseParams = Ext.apply(this.Cmp.id_responsable.store.baseParams, {id_funcionario: record.data.id_funcionario});
+                     this.Cmp.id_responsable.modificado = true;
+                },this);
+            },
+            onCargarResponsable:function(id){
+                this.Cmp.id_responsable.store.baseParams = Ext.apply(this.Cmp.id_responsable.store.baseParams, {id_funcionario: id});
+                this.Cmp.id_responsable.modificado = true;
+                this.Cmp.id_responsable.store.load({params:{start:0,limit:this.tam_pag ,id_funcionario: id },
+                    callback : function (r) {
+                        this.Cmp.id_responsable.setValue(r[0].data.id_funcionario);
+                        this.Cmp.id_responsable.fireEvent('select', this.Cmp.id_responsable, r[0]);
+                        this.Cmp.id_responsable.collapse();
+                    }, scope : this
+                });
             },
             onButtonEdit:function(){
                 Phx.vista.Permiso.superclass.onButtonEdit.call(this);
                 this.mostrarComponente(this.Cmp.hro_desde);
                 this.mostrarComponente(this.Cmp.hro_hasta);
+                this.Cmp.id_funcionario.on('select', function(combo, record, index){
+                     this.Cmp.id_responsable.reset();
+                     this.Cmp.id_responsable.store.baseParams = Ext.apply(this.Cmp.id_responsable.store.baseParams, {id_funcionario: record.data.id_funcionario});
+                     this.Cmp.id_responsable.modificado = true;
+                },this);
             },
             onAtras :function (res) {
                 var rec=this.sm.getSelected();
@@ -700,8 +766,24 @@ header("content-type: text/javascript; charset=UTF-8");
                 this.reload();
             },
             onSiguiente :function () {
-                var rec = this.sm.getSelected(); //obtine los datos selecionado en la grilla
-                this.objWizard = Phx.CP.loadWindows('../../../sis_workflow/vista/estado_wf/FormEstadoWf.php',
+                Phx.CP.loadingShow();
+                const rec = this.sm.getSelected(); //obtine los datos selecionado en la grilla 
+                if(confirm('¿Enviar solicitud?')) {
+                        Ext.Ajax.request({
+                            url: '../../sis_asistencia/control/Permiso/aprobarEstado',
+                            params: {
+                                id_proceso_wf:  rec.data.id_proceso_wf,
+                                id_estado_wf:  rec.data.id_estado_wf
+                            },
+                            success: this.successWizard,
+                            failure: this.conexionFailure,
+                            timeout: this.timeout,
+                            scope: this
+                        });
+                }
+                Phx.CP.loadingHide();
+
+                /*this.objWizard = Phx.CP.loadWindows('../../../sis_workflow/vista/estado_wf/FormEstadoWf.php',
                     'Estado de Wf',
                     {
                         modal: true,
@@ -721,7 +803,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         }],
                         scope: this
                     }
-                );
+                );*/
             },
             onSaveWizard:function(wizard,resp){
                 var reg = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));
@@ -746,7 +828,7 @@ header("content-type: text/javascript; charset=UTF-8");
             },
             successWizard:function(resp){
                 Phx.CP.loadingHide();
-                resp.argument.wizard.panel.destroy();
+                // resp.argument.wizard.panel.destroy();
                 this.reload();
             },
         }
