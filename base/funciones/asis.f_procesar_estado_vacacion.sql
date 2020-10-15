@@ -33,11 +33,13 @@ DECLARE
     v_positivo						numeric;
     v_evento						varchar;
     v_pares							record;
-
+    
    v_filtro						varchar;
    v_consulta					varchar;
    v_consulta_record			record;
    v_rango						record;
+   v_dias_efectivo				numeric;
+   
 
 BEGIN
   v_nombre_funcion = 'mat.f_procesar_estados_solicitud';
@@ -54,7 +56,31 @@ BEGIN
     where me.id_proceso_wf = p_id_proceso_wf;
 
    if p_codigo_estado = 'vobo' then
+   
+   
+    	select sum(d.dias_efectico) into v_dias_efectivo
+        	from ( 
+            select   
+            	    (case  
+                    				when vd.tiempo  = 'completo' then 
+                                     1
+                                    when vd.tiempo  = 'mañana' then
+                                    0.5
+                                    when vd.tiempo  = 'tarde' then
+                                    0.5
+                                    else
+                                    0 
+                                    end ::numeric ) as dias_efectico 
+                                    
+            from asis.tvacacion_det vd
+            where vd.id_vacacion =  v_registro.id_vacacion ) d;
 
+            update asis.tvacacion  set 
+            dias_efectivo = v_dias_efectivo,
+            dias = v_dias_efectivo
+            where  id_vacacion  =  v_registro.id_vacacion;
+            
+   
       update asis.tvacacion  set
       id_estado_wf =  p_id_estado_wf,
       estado = p_codigo_estado,
@@ -63,7 +89,7 @@ BEGIN
       usuario_ai = p_usuario_ai,
       fecha_mod=now()
       where id_proceso_wf = p_id_proceso_wf;
-
+      
 	end if;
 
     if p_codigo_estado = 'aprobado' then
@@ -76,21 +102,20 @@ BEGIN
               into v_record
         from asis.tmovimiento_vacacion va
         where va.id_funcionario =  v_registro.id_funcionario and va.activo = 'activo';
-
-
-
+    
+    	
         v_evento = 'TOMADA';
         v_resultado =  v_record.dias_actual - v_registro.dias;
-
+        
         if v_registro.prestado = 'si' then
-
+        	
             if v_record.dias_actual < 0 then
                 v_positivo = -1 * v_record.dias_actual;
                 v_resultado =  (v_positivo + v_registro.dias)* -1;
-            end if;
-
+            end if;	
+        
             v_evento = 'PRESTADO';
-
+        
         end if;
 
     	INSERT INTO  asis.tmovimiento_vacacion(
@@ -130,9 +155,9 @@ BEGIN
                           v_registro.id_vacacion
                         )RETURNING id_movimiento_vacacion into v_id_movimiento_vacacion;
 
-        if v_id_movimiento_vacacion is null then
-         raise exception 'Algo salimo mal en calculo operacion';
-        end if;
+          if v_id_movimiento_vacacion is null then
+           raise exception 'Algo salimo mal en calculo operacion';
+          end if;
 
         update asis.tmovimiento_vacacion set
         activo = 'inactivo'
@@ -146,16 +171,26 @@ BEGIN
         usuario_ai = p_usuario_ai,
         fecha_mod=now()
         where id_proceso_wf = p_id_proceso_wf;
-
-
-        for v_pares in (select  vd.fecha_dia,
-                                vd.tiempo
+        
+        
+       /* for v_pares in (select  vd.fecha_dia,
+        							
+        						case  
+                                	when vd.tiempo  = 'completo' then
+                                    8
+                                    when vd.tiempo  = 'mañana' then
+                                    4
+                                    when vd.tiempo  = 'tarde' then
+                                    4
+                                    else
+                                    0 
+                                    end ::integer as tiempo
                         from asis.tvacacion v
                         inner join asis.tvacacion_det vd on vd.id_vacacion = v.id_vacacion
                         where v.id_vacacion = v_registro.id_vacacion) loop
-
+                        
      	  v_filtro = asis.f_obtener_rango_asignado_fun (v_registro.id_funcionario,v_pares.fecha_dia);
-
+                    
           v_consulta = 'select rh.id_rango_horario,
                                 rh.hora_entrada,
                                 rh.hora_salida
@@ -166,9 +201,9 @@ BEGIN
                         order by rh.hora_entrada, ar.hasta asc';
 
           execute (v_consulta) into v_consulta_record;
-
+      
       	 	 if v_consulta_record.id_rango_horario is null then
-
+      
                v_consulta = 'select rh.id_rango_horario,
                                     rh.hora_entrada,
                                     rh.hora_salida
@@ -177,11 +212,11 @@ BEGIN
                             where '||v_filtro||'and rh.'||asis.f_obtener_dia_literal(v_pares.fecha_dia)||' = ''si''
                              and  '''||v_pares.fecha_dia||''' >= ar.desde  and ar.hasta is null
                           order by rh.hora_entrada, ar.hasta asc';
-
-     		 end if;
-
+  
+     		 end if;                   
+  				
           	  for v_rango in execute (v_consulta)loop
-
+    
                   insert into asis.tpares(id_usuario_reg,
                                           id_usuario_mod,
                                           fecha_reg,
@@ -239,7 +274,7 @@ BEGIN
                                           'no',
                                           v_rango.id_rango_horario,
                                           null--p_id_feriado
-                                          );
+                                          ); 
                                   insert into asis.tpares(id_usuario_reg,
                                           id_usuario_mod,
                                           fecha_reg,
@@ -298,12 +333,12 @@ BEGIN
                                           v_rango.id_rango_horario,
                                           null-- p_id_feriado
                                           );
-		      end loop;
-
-
-        end loop;
-
-
+		      end loop;                      
+                        
+        
+        end loop;*/
+    
+        
 	end if;
 
   return true;

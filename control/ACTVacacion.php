@@ -91,6 +91,11 @@ class ACTVacacion extends ACTbase{
         $this->res=$this->objFunc->cancelarVacacion($this->objParam);
         $this->res->imprimirRespuesta($this->res->generarJson());
     }
+    function aprobarEstado(){
+        $this->objFunc=$this->create('MODVacacion');
+        $this->res=$this->objFunc->aprobarEstado($this->objParam);
+        $this->res->imprimirRespuesta($this->res->generarJson());
+    }
 			
 }
 

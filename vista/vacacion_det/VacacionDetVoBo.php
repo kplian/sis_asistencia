@@ -20,9 +20,8 @@ header("content-type: text/javascript; charset=UTF-8");
         bdel:false,
         bsave:false,
         constructor: function(config) {
+            this.Atributos[this.getIndAtributo('tiempo')].grid=false;
             Phx.vista.VacacionDetVoBo.superclass.constructor.call(this, config);
-           // this.store.baseParams = {tipo_interfaz: this.nombreVista};
-           // this.load({params: {start: 0, limit: this.tam_pag}});
         }
     };
 </script>
