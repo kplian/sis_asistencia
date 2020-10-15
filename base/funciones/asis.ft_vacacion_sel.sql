@@ -97,13 +97,15 @@ BEGIN
                         vac.estado,
                         vac.nro_tramite,
                         vac.medio_dia,
-                        vac.dias_efectivo
+                        vac.dias_efectivo,
+                        vac.id_responsable,
+                        rep.desc_funcionario1 as responsable
 						from asis.tvacacion vac
 						inner join segu.tusuario usu1 on usu1.id_usuario = vac.id_usuario_reg
                         inner join wf.testado_wf wet on wet.id_estado_wf = vac.id_estado_wf
+                        inner join orga.vfuncionario rep on rep.id_funcionario = vac.id_responsable
 						left join segu.tusuario usu2 on usu2.id_usuario = vac.id_usuario_mod
-                        join orga.tfuncionario f on f.id_funcionario = vac.id_funcionario
-                        join orga.vfuncionario vf on vf.id_funcionario = f.id_funcionario
+                        join orga.vfuncionario vf on vf.id_funcionario = vac.id_funcionario
 				        where '||v_filtro;
 
 			--Definicion de la respuesta
@@ -152,9 +154,9 @@ BEGIN
 					    from asis.tvacacion vac
 						inner join segu.tusuario usu1 on usu1.id_usuario = vac.id_usuario_reg
                         inner join wf.testado_wf wet on wet.id_estado_wf = vac.id_estado_wf
+                        inner join orga.vfuncionario rep on rep.id_funcionario = vac.id_responsable
 						left join segu.tusuario usu2 on usu2.id_usuario = vac.id_usuario_mod
-                        join orga.tfuncionario f on f.id_funcionario = vac.id_funcionario
-                        join orga.vfuncionario vf on vf.id_funcionario = f.id_funcionario
+                        join orga.vfuncionario vf on vf.id_funcionario = vac.id_funcionario
 					    where '||v_filtro;
 
 			--Definicion de la respuesta
@@ -307,6 +309,7 @@ LANGUAGE 'plpgsql'
 VOLATILE
 CALLED ON NULL INPUT
 SECURITY INVOKER
+PARALLEL UNSAFE
 COST 100;
 
 ALTER FUNCTION asis.ft_vacacion_sel (p_administrador integer, p_id_usuario integer, p_tabla varchar, p_transaccion varchar)

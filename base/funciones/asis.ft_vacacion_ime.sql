@@ -71,6 +71,15 @@ DECLARE
 	v_movimiento_vacacion		record;
     v_id_mov_actual				integer;
     v_vacacion_record			record;
+    v_registro_estado 	  		record;
+    
+    va_id_tipo_estado 	  		integer [];
+    va_codigo_estado 		  	varchar [];
+    va_disparador 	      		varchar [];
+    va_regla 				  	varchar [];
+    va_prioridad 		      	integer [];
+
+    
 
 BEGIN
 
@@ -224,8 +233,9 @@ BEGIN
                                         estado,--campo wf
                                         nro_tramite,--campo wf
                                         medio_dia,-- medio_dia
-                                        dias_efectivo,
-                                        prestado
+                                        ---dias_efectivo,
+                                        prestado,
+                                        id_responsable
                                         ) values(
                                         'activo',
                                         v_parametros.id_funcionario,
@@ -244,23 +254,15 @@ BEGIN
                                         v_codigo_estado,
                                         v_nro_tramite,
                                         0,--v_parametros.medio_dia,
-                                        v_parametros.dias_efectivo,
-                                        v_prestado)RETURNING id_vacacion into v_id_vacacion;
+                                        --v_parametros.dias_efectivo,
+                                        v_prestado,
+                                        v_parametros.id_responsable)RETURNING id_vacacion into v_id_vacacion;
 
             --Insertar detalle dias de la solicitud de vacion
 
             for v_record_det in (select dia::date as dia
                                   from generate_series(v_parametros.fecha_inicio,v_parametros.fecha_fin, '1 day'::interval) dia)loop
 
-			if exists (select 1
-                from asis.tpermiso p
-                where p.id_funcionario = v_parametros.id_funcionario
-                        and p.fecha_solicitud = v_record_det.dia
-                        and p.estado <> 'registro' )then
-
-            	raise exception 'Tienes un registro en permiso con esta fecha (%)',v_record_det.dia;
-
-            end if;
 
 
                 if extract(dow from v_record_det.dia::date) <> 0 then
@@ -393,7 +395,7 @@ BEGIN
 			fecha_mod = now(),
 			id_usuario_ai = v_parametros._id_usuario_ai,
 			usuario_ai = v_parametros._nombre_usuario_ai,
-            dias_efectivo = v_parametros.dias_efectivo
+            id_responsable = v_parametros.id_responsable
 			where id_vacacion=v_parametros.id_vacacion;
 
 
@@ -697,54 +699,54 @@ BEGIN
 
 		begin
 			--Sentencia de la modificacion
-
-
+            
+            
             select v.id_vacacion, v.id_funcionario into v_vacacion_record
             from asis.tvacacion v
             where v.id_vacacion = v_parametros.id_vacacion;
-
-
-
+			
+         
+            
             select m.id_movimiento_vacacion, m.id_funcionario into v_movimiento_vacacion
             from asis.tmovimiento_vacacion m
             where m.id_vacacion = v_parametros.id_vacacion
 				 and m.activo = 'activo';
-
+            
                -- raise exception '%',v_movimiento_vacacion;
-
+            
             delete from asis.tmovimiento_vacacion  mv
             where mv.id_movimiento_vacacion = v_movimiento_vacacion.id_movimiento_vacacion
             	and mv.activo = 'activo';
-
-
+                
+                
            -- raise exception '% -> %',v_parametros.id_vacacion
             delete from asis.tpares pa
             where pa.id_vacacion = v_parametros.id_vacacion
             	and pa.id_funcionario = v_vacacion_record.id_funcionario;
-
-
+            
+            
             select mm.id_movimiento_vacacion into v_id_mov_actual
             from asis.tmovimiento_vacacion mm
             where mm.id_funcionario = v_movimiento_vacacion.id_funcionario
             		and mm.fecha_reg = (select max(m.fecha_reg)
                                         from asis.tmovimiento_vacacion m
                                         where m.id_funcionario = v_movimiento_vacacion.id_funcionario);
-
-
+                             
+               
             update asis.tmovimiento_vacacion set
             activo = 'activo',
             estado_reg = 'activo'
             where id_movimiento_vacacion = v_id_mov_actual;
-
-
+            
+			
             delete from asis.tvacacion  v
             where v.id_vacacion = v_parametros.id_vacacion;
-
+            
             delete from asis.tvacacion_det vd
             where vd.id_vacacion = v_parametros.id_vacacion;
-
-
-
+            
+            
+            
 			--Definicion de la respuesta
             v_resp = pxp.f_agrega_clave(v_resp,'mensaje','El existo papu');
             v_resp = pxp.f_agrega_clave(v_resp,'id_vacacion',v_parametros.id_vacacion::varchar);
@@ -753,6 +755,114 @@ BEGIN
             return v_resp;
 
 		end;
+        
+        /****************************************************
+    #TRANSACCION:     'ASIS_VVB_IME'
+    #DESCRIPCION:     Cambiar de estado
+    #AUTOR:           MMV
+    #FECHA:			  31-01-2020 13:53:10
+    ***************************************************/
+    
+    elsif( p_transaccion='ASIS_VVB_IME') then
+    	
+   	 begin
+
+          -- Validar estado
+          select  pw.id_proceso_wf,
+                  ew.id_estado_wf,
+                  te.codigo,
+                  pw.fecha_ini,
+                  te.id_tipo_estado,
+                  te.pedir_obs,
+                  pw.nro_tramite
+                into 
+                  v_registro_estado
+                from wf.tproceso_wf pw
+                inner join wf.testado_wf ew  on ew.id_proceso_wf = pw.id_proceso_wf and ew.estado_reg = 'activo'
+                inner join wf.ttipo_estado te on ew.id_tipo_estado = te.id_tipo_estado
+                where pw.id_proceso_wf =  v_parametros.id_proceso_wf;
+                
+               
+               select v.id_vacacion,
+               	      v.id_responsable,
+                      v.descripcion
+                      into
+                      v_vacacion_record
+               from  asis.tvacacion v
+               where v.id_proceso_wf = v_parametros.id_proceso_wf;
+              
+               select  ps_id_tipo_estado,
+                       ps_codigo_estado,
+                       ps_disparador,
+                       ps_regla,
+                       ps_prioridad
+                   into
+                      va_id_tipo_estado,
+                      va_codigo_estado,
+                      va_disparador,
+                      va_regla,
+                      va_prioridad
+                  from wf.f_obtener_estado_wf( v_registro_estado.id_proceso_wf,
+                                               null,
+                                               v_registro_estado.id_tipo_estado,
+                                               'siguiente',
+                                               p_id_usuario); 
+                       
+                   
+                   
+                      v_acceso_directo = '';
+                      v_clase = '';
+                      v_parametros_ad = '';
+                      v_tipo_noti = 'notificacion';
+                      v_titulo  = 'Aprobado';
+                       
+                       
+                       v_id_estado_actual = wf.f_registra_estado_wf(  va_id_tipo_estado[1]::integer,
+                                                                      v_vacacion_record.id_responsable,--v_parametros.id_funcionario_wf,
+                                                                      v_registro_estado.id_estado_wf,
+                                                                      v_registro_estado.id_proceso_wf,
+                                                                      p_id_usuario,
+                                                                      v_parametros._id_usuario_ai,
+                                                                      v_parametros._nombre_usuario_ai,
+                                                                      null,--v_id_depto,                       --depto del estado anterior
+                                                                      v_vacacion_record.descripcion, --obt
+                                                                      v_acceso_directo,
+                                                                      v_clase,
+                                                                      v_parametros_ad,
+                                                                      v_tipo_noti,
+                                                                      v_titulo);
+                                                                  
+              
+            /* update asis.tvacacion set
+              id_estado_wf =  v_id_estado_actual,
+              estado = va_codigo_estado[1],
+              id_usuario_mod=p_id_usuario,
+              fecha_mod=now()
+             where id_proceso_wf  = v_parametros.id_proceso_wf;*/
+             
+             
+             
+             	IF NOT asis.f_procesar_estado_vacacion( p_id_usuario,
+                                                        v_parametros._id_usuario_ai,
+                                                        v_parametros._nombre_usuario_ai,
+                                                        v_id_estado_actual,
+                                                        v_parametros.id_proceso_wf,
+                                                        va_codigo_estado[1]) THEN
+
+         			RAISE NOTICE 'PASANDO DE ESTADO';
+
+          		END IF;
+             
+            --Definicion de la respuesta
+            v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Exito');
+            v_resp = pxp.f_agrega_clave(v_resp,'id_proceso_wf',v_parametros.id_proceso_wf::varchar);
+
+            --Devuelve la respuesta
+            return v_resp;
+
+   
+
+ 		end;
 
 	else
 

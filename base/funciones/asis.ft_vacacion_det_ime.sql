@@ -30,10 +30,11 @@ DECLARE
 	v_nombre_funcion        text;
 	v_mensaje_error         text;
 	v_id_vacacion_det		integer;
-    v_tiempo            	integer;
+    v_tiempo            	varchar;
     v_id_vacacion			integer;
     v_dias					numeric;
     v_dias_efectivo			numeric;
+    
 
 BEGIN
 
@@ -54,17 +55,57 @@ BEGIN
         	select va.tiempo into v_tiempo
         	from asis.tvacacion_det va
         	where va.id_vacacion_det = v_parametros.id_vacacion_det;
+                
 
-            if v_tiempo = 8 then
+            if v_tiempo = 'completo' then
                 update asis.tvacacion_det set
-                                            tiempo = 4
+                tiempo = 'mañana'
                 where id_vacacion_det = v_parametros.id_vacacion_det;
             end if;
-        	if v_tiempo = 4 then
+            
+        	if v_tiempo =  'mañana' then
                 update asis.tvacacion_det set
-                                              tiempo = 8
+                tiempo = 'tarde'
         	    where id_vacacion_det = v_parametros.id_vacacion_det;
             end if;
+            
+            if v_tiempo =  'tarde' then
+                update asis.tvacacion_det set
+                tiempo = 'completo'
+        	    where id_vacacion_det = v_parametros.id_vacacion_det;
+            end if;
+            
+            
+            
+      /*      select sum(d.dias_efectico) into v_dias_efectivo
+        	from ( 
+            select   
+            	    (case  
+                    				when vd.tiempo  = 'completo' then 
+                                     1
+                                    when vd.tiempo  = 'mañana' then
+                                    0.5
+                                    when vd.tiempo  = 'tarde' then
+                                    0.5
+                                    else
+                                    0 
+                                    end ::integer )  as dias_efectico 
+                                    
+            from asis.tvacacion_det vd
+            where vd.id_vacacion =  (select va.id_vacacion
+                                    from asis.tvacacion_det va
+                                    where va.id_vacacion_det = v_parametros.id_vacacion_det)) d;
+            
+            
+            raise exception '%',v_dias_efectivo;
+            
+            update asis.tvacacion  set 
+            dias_efectivo = v_dias_efectivo
+            where  id_vacacion  = (select va.id_vacacion
+                                    from asis.tvacacion_det va
+                                    where va.id_vacacion_det = v_parametros.id_vacacion_det);
+                                    */
+            
 			--Definicion de la respuesta
 			v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Vacación detalle almacenado(a) con exito (id_vacacion_det'||v_id_vacacion_det||')');
             v_resp = pxp.f_agrega_clave(v_resp,'id_vacacion_det',v_id_vacacion_det::varchar);
@@ -73,7 +114,7 @@ BEGIN
             return v_resp;
 
 		end;
-
+    
     /*********************************
  	#TRANSACCION:  'ASIS_VDE_ELI'
  	#DESCRIPCION:	Eliminacion de registros
@@ -84,28 +125,28 @@ BEGIN
 	elsif(p_transaccion='ASIS_VDE_ELI')then
 
 		begin
-
+        
 			--Sentencia de la eliminacion
-
+            
             select va.id_vacacion into v_id_vacacion
             from asis.tvacacion_det va
             where va.id_vacacion_det = v_parametros.id_vacacion_det;
-
-
+            
+            
             select c.dias_efectivo, c.dias  into v_dias, v_dias_efectivo
             from asis.tvacacion c
             where c.id_vacacion = v_id_vacacion;
-
+            
             update asis.tvacacion set
             dias_efectivo =  v_dias - 1,
             dias = v_dias_efectivo - 1
             where id_vacacion = v_id_vacacion;
-
-
+            
+            
             delete from asis.tvacacion_det
 			where id_vacacion_det = v_parametros.id_vacacion_det;
 
-
+		
             --Definicion de la respuesta
             v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Vacación eliminado(a)');
             v_resp = pxp.f_agrega_clave(v_resp,'id_vacacion_det',v_parametros.id_vacacion_det::varchar);

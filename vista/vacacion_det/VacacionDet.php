@@ -57,9 +57,11 @@ header("content-type: text/javascript; charset=UTF-8");
                             var result;
                             result = String.format('{0}', "<div style='text-align:center'><img src = '../../../sis_asistencia/media/completo.png' align='center' width='45' height='45' title=''/></div>");
 
-                            if(value == 4){
+                            if(value == 'mañana'){
                                 result = String.format('{0}', "<div style='text-align:center'><img src = '../../../sis_asistencia/media/medio.png' align='center' width='45' height='45' title=''/></div>");
-
+                            }
+                            if(value == 'tarde'){
+                                result = String.format('{0}', "<div style='text-align:center'><img src = '../../../sis_asistencia/media/tarde.png' align='center' width='39' height='39' title=''/></div>");
                             }
 
                             return result;
@@ -73,16 +75,19 @@ header("content-type: text/javascript; charset=UTF-8");
                 {
                     config:{
                         name: 'tiempo',
-                        fieldLabel: 'Hora',
+                        fieldLabel: 'Jornada',
                         allowBlank: false,
                         anchor: '80%',
                         gwidth: 110,
                         renderer: function(value, p, record) {
-                            if (value == 8){
-                                return String.format('<p class="text-align:center"><b>Tiempo Completo</b></p><p><b>({0} hrs)</b></p>',value)
+                            if (value == 'completo'){
+                                return String.format('<p class="text-align:center"><b>Tiempo Completo</b></p>',value)
                             }
-                            if (value == 4){
-                                return String.format('<p class="text-align:center"><b>Medio Tiempo</b></p><p><b>({0} hrs)</b></p>',value)
+                            if (value == 'mañana'){
+                                return String.format('<p class="text-align:center"><b>Mañana</b></p>',value)
+                            }
+                            if (value == 'tarde'){
+                                return String.format('<p class="text-align:center"><b>Tarde</b></p>',value)
                             }
                         }
                     },

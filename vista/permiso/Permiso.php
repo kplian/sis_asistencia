@@ -22,7 +22,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 this.init();
                 this.finCons = true;
                 this.addButton('btn_siguiente',{grupo:[0,3],
-                    text:'Enviar',
+                    text:'Enviar Solicitud',
                     iconCls: 'bemail',
                     disabled:true,
                     handler:this.onSiguiente});
@@ -521,7 +521,7 @@ header("content-type: text/javascript; charset=UTF-8");
             bdel:true,
             bsave:false,
             fwidth: '32%',
-            // fheight: '80%',
+             fheight: '60%',
             onFormulario:function(){
                 this.ocultarComponente(this.Cmp.fecha_reposicion);
                 this.ocultarComponente(this.Cmp.hro_desde_reposicion);
@@ -782,28 +782,6 @@ header("content-type: text/javascript; charset=UTF-8");
                         });
                 }
                 Phx.CP.loadingHide();
-
-                /*this.objWizard = Phx.CP.loadWindows('../../../sis_workflow/vista/estado_wf/FormEstadoWf.php',
-                    'Estado de Wf',
-                    {
-                        modal: true,
-                        width: 700,
-                        height: 450
-                    },
-                    {
-                        data: {
-                            id_estado_wf: rec.data.id_estado_wf,
-                            id_proceso_wf: rec.data.id_proceso_wf
-                        }
-                    }, this.idContenedor, 'FormEstadoWf',
-                    {
-                        config: [{
-                            event: 'beforesave',
-                            delegate: this.onSaveWizard
-                        }],
-                        scope: this
-                    }
-                );*/
             },
             onSaveWizard:function(wizard,resp){
                 var reg = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));

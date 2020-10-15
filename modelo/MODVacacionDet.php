@@ -27,7 +27,7 @@ class MODVacacionDet extends MODbase{
         $this->captura('id_vacacion_det','int4');
         $this->captura('id_vacacion','int4');
         $this->captura('fecha_dia','date');
-        $this->captura('tiempo','int4');
+        $this->captura('tiempo','varchar');
         $this->captura('estado_reg','varchar');
         $this->captura('id_usuario_ai','int4');
         $this->captura('usuario_ai','varchar');

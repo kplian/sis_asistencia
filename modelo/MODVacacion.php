@@ -48,7 +48,8 @@ class MODVacacion extends MODbase{
         $this->captura('nro_tramite','varchar');
         $this->captura('medio_dia','integer');
         $this->captura('dias_efectivo', 'numeric');
-// medio_dia
+		$this->captura('id_responsable','int4');
+        $this->captura('responsable','text');
         //Ejecuta la instruccion
 		$this->armarConsulta();
 		$this->ejecutarConsulta();
@@ -73,6 +74,7 @@ class MODVacacion extends MODbase{
 		$this->setParametro('descripcion','descripcion','text');
 		$this->setParametro('medio_dia','medio_dia','integer');   //medio_dia
         $this->setParametro('dias_efectivo','dias_efectivo','numeric');
+        $this->setParametro('id_responsable','id_responsable','int4');
 
 
 		//Ejecuta la instruccion
@@ -99,6 +101,7 @@ class MODVacacion extends MODbase{
 		$this->setParametro('descripcion','descripcion','text');
         $this->setParametro('medio_dia','medio_dia','integer');
         $this->setParametro('dias_efectivo','dias_efectivo', 'numeric');
+        $this->setParametro('id_responsable','id_responsable','int4');
 
 // medio_dia
 
@@ -239,6 +242,20 @@ class MODVacacion extends MODbase{
         $this->armarConsulta();
         $this->ejecutarConsulta();
 
+        //Devuelve la respuesta
+        return $this->respuesta;
+	}
+	
+	function aprobarEstado(){
+        //Definicion de variables para ejecucion del procedimiento
+        $this->procedimiento='asis.ft_vacacion_ime';
+        $this->transaccion='ASIS_VVB_IME';
+        $this->tipo_procedimiento='IME';
+        //Define los parametros para la funcion
+        $this->setParametro('id_proceso_wf','id_proceso_wf','int4');
+        $this->setParametro('id_estado_wf','id_estado_wf','int4');
+        $this->armarConsulta();
+        $this->ejecutarConsulta();
         //Devuelve la respuesta
         return $this->respuesta;
     }
