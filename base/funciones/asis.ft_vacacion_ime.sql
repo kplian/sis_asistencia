@@ -261,9 +261,13 @@ BEGIN
             --Insertar detalle dias de la solicitud de vacion
 
             for v_record_det in (select dia::date as dia
-                                  from generate_series(v_parametros.fecha_inicio,v_parametros.fecha_fin, '1 day'::interval) dia)loop
+                                  from generate_series(v_parametros.fecha_inicio,v_parametros.fecha_fin, 
+                                  '1 day'::interval) dia)loop
 
-
+			IF NOT EXISTS(select * from param.tferiado f
+                                          JOIN param.tlugar l on l.id_lugar = f.id_lugar
+                                          WHERE l.codigo='BO' AND f.fecha = v_record_det.dia::date  
+                                          AND f.id_gestion=v_id_gestion_actual )THEN
 
                 if extract(dow from v_record_det.dia::date) <> 0 then
                     if extract(dow from v_record_det.dia::date) <> 6 then
@@ -291,7 +295,13 @@ BEGIN
                                 );
                         end if;
                     end if;
-                end loop;
+                END IF;
+                    
+            end loop;
+         
+
+
+            
 
 
 			--Definicion de la respuesta
@@ -405,7 +415,7 @@ BEGIN
             for v_record_det in (select dia::date as dia
                                   from generate_series(v_parametros.fecha_inicio,v_parametros.fecha_fin, '1 day'::interval) dia)loop
 
-			if exists (select 1
+		/*	if exists (select 1
                 from asis.tpermiso p
                 where p.id_funcionario = v_parametros.id_funcionario
                         and p.fecha_solicitud = v_record_det.dia
@@ -413,7 +423,7 @@ BEGIN
 
             	raise exception 'Tienes un registro en permiso con esta fecha (%)',v_record_det.dia;
 
-            end if;
+            end if;*/
 
 
                 if extract(dow from v_record_det.dia::date) <> 0 then
