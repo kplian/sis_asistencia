@@ -14,21 +14,22 @@
 class ACTMovimientoVacacion extends ACTbase{    
 			
 	function listarMovimientoVacacion(){
+		$this->objParam->defecto('ordenacion','id_movimiento_vacacion');
+		$this->objParam->defecto('dir_ordenacion','asc');
 
+        // if($this->objParam->getParametro('interfaz')=='MovVacUsuario'){         
+        //     $this->objParam->parametros_consulta['ordenacion'] = 'fecha_reg';   
+        //     $this->objParam->parametros_consulta['dir_ordenacion'] = 'desc';    
+        // }
+        // else{
+        //     $this->objParam->defecto('ordenacion','id_movimiento_vacacion');
+        //     $this->objParam->defecto('dir_ordenacion','asc');
 
-        if($this->objParam->getParametro('interfaz')=='MovVacUsuario'){         //Para ordenar descendentemente
-            $this->objParam->parametros_consulta['ordenacion'] = 'fecha_reg';   //Para ordenar descendentemente
-            $this->objParam->parametros_consulta['dir_ordenacion'] = 'desc';    //Para ordenar descendentemente
-        }
-        else{
-            $this->objParam->defecto('ordenacion','id_movimiento_vacacion');
-            $this->objParam->defecto('dir_ordenacion','asc');
+        //     if($this->objParam->getParametro('id_funcionarios') != ''){
+        //         $this->objParam->addFiltro("mvs.id_funcionario = ".$this->objParam->getParametro('id_funcionarios'));
+        //     }
+        // }
 
-            if($this->objParam->getParametro('id_funcionarios') != ''){
-                $this->objParam->addFiltro("mvs.id_funcionario = ".$this->objParam->getParametro('id_funcionarios'));
-            }
-        }
-        //var_dump($this->objParam);
 		if($this->objParam->getParametro('tipoReporte')=='excel_grid' || $this->objParam->getParametro('tipoReporte')=='pdf_grid'){
 			$this->objReporte = new Reporte($this->objParam,$this);
 			$this->res = $this->objReporte->generarReporteListado('MODMovimientoVacacion','listarMovimientoVacacion');

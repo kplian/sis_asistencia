@@ -323,7 +323,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     config:{
                         name: 'hro_desde_reposicion',
                         fieldLabel: 'Desde',
-                        increment: 30,
+                        increment: 10,
                         width: 100,
                         format: 'H:i:s',
                         renderer:function (value,p,record){return value?value.dateFormat('H:i:s'):''}
@@ -338,7 +338,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     config:{
                         name: 'hro_hasta_reposicion',
                         fieldLabel: 'Hasta',
-                        increment: 30,
+                        increment: 10,
                         width: 100,
                         format: 'H:i:s',
                         renderer:function (value,p,record){return value?value.dateFormat('H:i:s'):''}

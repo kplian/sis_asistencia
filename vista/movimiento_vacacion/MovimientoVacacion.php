@@ -63,16 +63,7 @@ Phx.vista.MovimientoVacacion=Ext.extend(Phx.gridInterfaz,{
 				anchor: '80%',
 				gwidth: 100,
                 format: 'd/m/Y',
-                format: 'd/m/Y',
-                renderer:function (value,p,record){
-  
-                    if(record.data.tipo=='ACUMULADA'){
-                        p.style="background-color: "+colorFila+"; text-align: left;width:98px;";
-                    }
-                    
-                    return value?value.dateFormat('d/m/Y'):'';
-
-                }
+				renderer:function (value,p,record){return value?value.dateFormat('d/m/Y'):''}
 			},
 				type:'DateField',
 				filters:{pfiltro:'mvs.desde',type:'date'},
@@ -88,14 +79,8 @@ Phx.vista.MovimientoVacacion=Ext.extend(Phx.gridInterfaz,{
 				anchor: '80%',
 				gwidth: 100,
                 format: 'd/m/Y',
-                renderer:function (value,p,record){
+				renderer:function (value,p,record){return value?value.dateFormat('d/m/Y'):''}
 
-                    if(record.data.tipo=='ACUMULADA'){
-                        p.style="background-color: "+colorFila+"; text-align: left;width:98px;";
-                    }
-                    return value?value.dateFormat('d/m/Y'):'';
-
-                }
 			},
 				type:'DateField',
 				filters:{pfiltro:'mvs.hasta',type:'date'},
@@ -109,14 +94,7 @@ Phx.vista.MovimientoVacacion=Ext.extend(Phx.gridInterfaz,{
 				fieldLabel: 'Evento',
 				allowBlank: true,
 				anchor: '80%',
-				gwidth: 100,
-                renderer:function (value,p,record){
-                    if(record.data.tipo=='ACUMULADA'){
-                        p.style="background-color: "+colorFila+"; text-align: left;width:98px;";
-                    }
-                    return String.format('{0}', value);
-
-                }
+				gwidth: 100
 			},
 				type:'Field',
 				filters:{pfiltro:'mvs.tipo',type:'string'},
@@ -131,13 +109,7 @@ Phx.vista.MovimientoVacacion=Ext.extend(Phx.gridInterfaz,{
                 fieldLabel: 'Dias',
                 allowBlank: true,
                 anchor: '80%',
-                gwidth: 100,
-                renderer:function (value,p,record){
-                    if(record.data.tipo=='ACUMULADA'){
-                        p.style="background-color: "+colorFila+"; text-align: left;width:98px;";
-                    }
-                    return String.format('{0}', value);
-                }
+                gwidth: 100
             },
             type:'NumberField',
             filters:{pfiltro:'mvs.dias',type:'numeric'},
@@ -152,13 +124,7 @@ Phx.vista.MovimientoVacacion=Ext.extend(Phx.gridInterfaz,{
 				fieldLabel: 'Saldo',
 				allowBlank: true,
 				anchor: '80%',
-				gwidth: 100,
-                renderer:function (value,p,record){
-                    if(record.data.tipo=='ACUMULADA'){
-                        p.style="background-color: "+colorFila+"; text-align: left;width:98px;";
-                    }
-                    return String.format('{0}', value);
-                }
+				gwidth: 100
 			},
 				type:'NumberField',
 				bottom_filter: true,
@@ -167,72 +133,14 @@ Phx.vista.MovimientoVacacion=Ext.extend(Phx.gridInterfaz,{
 				grid:true,
 				form:true
 		},
-		{
-			config:{
-					labelSeparator:'',
-					inputType:'hidden',
-					name: 'nombre',
-                    renderer:function (value,p,record){
-                        if(record.data.tipo=='ACUMULADA'){
-                            p.style="background-color: "+colorFila+"; text-align: left;width:98px;";
-                        }
-                        return String.format('{0}', value);
-                    }
-			},
-			type:'Field',
-			bottom_filter: true,
-			filters:{pfiltro:'p.nombre',type:'string'},
-			form:true 
-		},
-		{
-			config:{
-					labelSeparator:'',
-					inputType:'hidden',
-					name: 'apellido_materno',
-                    renderer:function (value,p,record){
-                        if(record.data.tipo=='ACUMULADA'){
-                           p.style="background-color: "+colorFila+"; text-align: left;width:98px;";
-                        }
-                        return String.format('{0}', value);
-
-                    }
-			},
-			type:'Field',
-			bottom_filter: true,
-			filters:{pfiltro:'p.apellido_materno',type:'string'},
-			form:true 
-		},
-		{
-			config:{
-					labelSeparator:'',
-					inputType:'hidden',
-					name: 'apellido_paterno',
-                    renderer:function (value,p,record){
-                        if(record.data.tipo=='ACUMULADA'){
-                            p.style="background-color: "+colorFila+"; text-align: left;width:98px;";
-                        }
-                        return String.format('{0}', value);
-                    }
-			},
-			type:'Field',
-			bottom_filter: true,
-			filters:{pfiltro:'p.apellido_paterno',type:'string'},
-			form:true 
-		},
         {
             config:{
                 name: 'funcionario',
                 fieldLabel: 'Funcionario',
                 allowBlank: true,
                 anchor: '80%',
-                gwidth: 100,
-                maxLength:4,
-                renderer:function (value,p,record){
-                    if(record.data.tipo=='ACUMULADA'){
-                        p.style="background-color: "+colorFila+"; text-align: left;width:98px;";
-                    }
-                    return String.format('{0}', value);
-                }
+                gwidth: 300,
+                maxLength:4
             },
             type:'Field',
             filters:{pfiltro:'funcionario',type:'string'},
@@ -248,13 +156,7 @@ Phx.vista.MovimientoVacacion=Ext.extend(Phx.gridInterfaz,{
                 allowBlank: true,
                 anchor: '80%',
                 gwidth: 100,
-                maxLength:10,
-                renderer:function (value,p,record){
-                    if(record.data.tipo=='ACUMULADA'){
-                        p.style="background-color: "+colorFila+"; text-align: left;width:98px;";
-                    }
-                    return String.format('{0}', value);
-                }
+                maxLength:10
             },
             type:'TextField',
             filters:{pfiltro:'mvs.activo',type:'string'},
@@ -269,13 +171,7 @@ Phx.vista.MovimientoVacacion=Ext.extend(Phx.gridInterfaz,{
 				allowBlank: true,
 				anchor: '80%',
 				gwidth: 100,
-				maxLength:4,
-                renderer:function (value,p,record){
-                    if(record.data.tipo=='ACUMULADA'){
-                        p.style="background-color: "+colorFila+"; text-align: left;width:98px;";
-                    }
-                    return String.format('{0}', value);
-                }
+				maxLength:4
 			},
 				type:'Field',
 				filters:{pfiltro:'usu1.cuenta',type:'string'},
@@ -290,11 +186,7 @@ Phx.vista.MovimientoVacacion=Ext.extend(Phx.gridInterfaz,{
 				allowBlank: true,
 				anchor: '80%',
 				gwidth: 100,
-
                 renderer:function (value,p,record){
-                    if(record.data.tipo=='ACUMULADA'){
-                        p.style="background-color: "+colorFila+"; text-align: left;width:98px;";
-                    }
                     return String.format('{0}', value);
                 }
 			},
@@ -311,13 +203,7 @@ Phx.vista.MovimientoVacacion=Ext.extend(Phx.gridInterfaz,{
 				allowBlank: true,
 				anchor: '80%',
 				gwidth: 100,
-				maxLength:4,
-                renderer:function (value,p,record){
-                    if(record.data.tipo=='ACUMULADA'){
-                        p.style="background-color: "+colorFila+"; text-align: left;width:98px;";
-                    }
-                    return value?value.dateFormat('d/m/Y'):''
-                }
+				maxLength:4
 			},
 				type:'Field',
 				filters:{pfiltro:'mvs.id_usuario_ai',type:'numeric'},

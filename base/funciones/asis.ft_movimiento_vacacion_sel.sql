@@ -27,6 +27,7 @@ DECLARE
 	v_nombre_funcion   	text;
 	v_resp				varchar;
     v_filtro			varchar;
+    v_record			record;
 
 BEGIN
 
@@ -43,15 +44,15 @@ BEGIN
 	if(p_transaccion='ASIS_MVS_SEL')then
 
     	begin
-        	--raise exception 'id_funcionario: % interfaz %', v_parametros.id_funcionario, v_parametros.interfaz;
-            --raise exception '%',v_parametros;
+
             v_filtro = '';
             	if  pxp.f_existe_parametro(p_tabla,'interfaz') then  --condicional a causa de que no existe en vista.
                 	if v_parametros.interfaz = 'MovVacUsuario' then
                     	if p_administrador = 1 then
                        		if  pxp.f_existe_parametro(p_tabla,'id_funcionario') then
                        			if v_parametros.id_funcionario is null then
-                       				raise exception 'Tu usuario no esta  registrado com funcionario';
+                       				-- raise exception 'Tu usuario no esta  registrado com funcionario';
+                                    v_filtro= 'mvs.id_funcionario ='||v_parametros.id_funcionario||' and';
                             	end if;
                        	 		v_filtro= 'mvs.id_funcionario ='||v_parametros.id_funcionario||' and';
                     		end if;
@@ -60,7 +61,10 @@ BEGIN
                     	v_filtro= 'mvs.id_funcionario ='||v_parametros.id_funcionario||' and';
                    	end if;
                 end if;
-    end if;
+    			end if;
+
+
+
 
     		--Sentencia de la consulta
                 v_consulta:='select
@@ -173,6 +177,7 @@ LANGUAGE 'plpgsql'
 VOLATILE
 CALLED ON NULL INPUT
 SECURITY INVOKER
+PARALLEL UNSAFE
 COST 100;
 
 ALTER FUNCTION asis.ft_movimiento_vacacion_sel (p_administrador integer, p_id_usuario integer, p_tabla varchar, p_transaccion varchar)
