@@ -26,19 +26,20 @@ header("content-type: text/javascript; charset=UTF-8");
                     lazyRender:true,
                     mode: 'local',
                     width:300,
-                    store:['Saldo','Anticipadas','Vencimiento']
+                    store:['Anticipadas'],
+                    /// store:['Saldo','Anticipadas','Vencimiento']
                 },
                 type:'ComboBox',
                 id_grupo:0,
-                valorInicial: 'Saldo',
+                valorInicial: 'Anticipadas',
                 form:true
             },
-            {
+          /*  {
                 config:{
                     name : 'id_gestion',
                     origen : 'GESTION',
                     fieldLabel : 'Gestion',
-                    allowBlank : false,
+                    allowBlank : true,
                     valueField : 'gestion',
                     width : 300,
 
@@ -46,7 +47,31 @@ header("content-type: text/javascript; charset=UTF-8");
                 type : 'ComboRec',
                 id_grupo : 0,
                 form : true
+            },*/
+            {
+                config : {
+                    name : 'fecha_ini',
+                    fieldLabel : 'Fecha',
+                    allowBlank : true,
+                    format : 'd/m/Y',
+                    width : 300,
+                },
+                type : 'DateField',
+                id_grupo : 0,
+                form : true
             },
+           /* {
+                config : {
+                    name : 'fecha_fin',
+                    fieldLabel: 'Fecha Hasta',
+                    allowBlank: true,
+                    format: 'd/m/Y',
+                    width : 300
+                },
+                type : 'DateField',
+                id_grupo : 1,
+                form : true
+            },*/
             {
                 config : {
                     name : 'id_funcionario',
