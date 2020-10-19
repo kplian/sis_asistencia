@@ -260,12 +260,13 @@ class MODReportes extends MODbase{
 
         $this->setCount(false);
 
+        $this->setParametro('formato', 'formato', 'varchar');
+        $this->setParametro('reporte', 'reporte', 'varchar');
         $this->setParametro('fecha_ini', 'fecha_ini', 'date');
-        $this->setParametro('fecha_fin', 'fecha_fin', 'date');
 
         //Definicion de la lista del resultado del query
-        $this->captura('codigo','varchar');
         $this->captura('desc_funcionario1','text');
+        $this->captura('codigo','varchar');
         $this->captura('gerencia','varchar');
         $this->captura('departamento','varchar');
 
@@ -279,7 +280,7 @@ class MODReportes extends MODbase{
         //Ejecuta la instruccion
         $this->armarConsulta();
         $this->ejecutarConsulta();
-        // var_dump($this->respuesta);exit;
+       //  var_dump($this->respuesta);exit;
         //Devuelve la respuesta
         return $this->respuesta;
     }
@@ -322,11 +323,12 @@ class MODReportes extends MODbase{
         $this->transaccion='ASIS_ANT_SEL';
         $this->tipo_procedimiento='SEL';//tipo de transaccion
         $this->setCount(false);
-        $this->setParametro('id_gestion', 'id_gestion', 'int4');
         $this->setParametro('formato', 'formato', 'varchar');
         $this->setParametro('reporte', 'reporte', 'varchar');
         $this->setParametro('fecha_ini', 'fecha_ini', 'date');
         $this->setParametro('fecha_fin', 'fecha_fin', 'date');
+
+
         //Definicion de la lista del resultado del query
         $this->captura('desc_funcionario2','text');
         $this->captura('codigo','varchar');

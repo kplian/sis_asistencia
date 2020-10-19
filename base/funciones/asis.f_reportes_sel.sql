@@ -529,88 +529,33 @@ BEGIN
 
     	begin
         --Sentencia de la consulta
-         	v_consulta:='select  ant.desc_funcionario2,
-                                ant.codigo,
-                                ant.gerencia,
-                                ant.departamento,
-                                (case
-                                  when ant.saldo < 0 then
-                                      -1 * ant.saldo
-                                  when ant.saldo >= 0 then
-                                      0
-                                  else
-                                      666
-                                  end ) as anticipo
-                      from (
 
-                      with acumulado as (select mm.id_funcionario,
-                                                (case
-                                                  when sum(coalesce(mm.dias, 0)) < 0 then
-                                                  -1 * sum(coalesce(mm.dias, 0))
-                                                  else
-                                                  sum(coalesce(mm.dias, 0))
-                                                  end ) as saldo_acumulado
-                                         from asis.tmovimiento_vacacion mm
-                                         where mm.tipo = ''ACUMULADA'' and
-                                               mm.fecha_reg::date between '''||v_parametros.fecha_ini||''' and  '''||v_parametros.fecha_ini||'''
-                                         group by mm.id_funcionario),
-                           tomada as (select  mm.id_funcionario,
-                                               (case
-                                                  when sum(coalesce(mm.dias, 0)) < 0 then
-                                                  -1 * sum(coalesce(mm.dias, 0))
-                                                  else
-                                                  sum(coalesce(mm.dias, 0))
-                                                  end ) as saldo_tomada
-                                       from asis.tmovimiento_vacacion mm
-                                       where mm.tipo = ''TOMADA'' and
-                                            mm.fecha_reg::date between '''||v_parametros.fecha_ini||''' and  '''||v_parametros.fecha_ini||'''
-                                       group by mm.id_funcionario),
-                            caducada as (select mm.id_funcionario,
-                                                (case
-                                                  when sum(coalesce(mm.dias, 0)) < 0 then
-                                                  -1 * sum(coalesce(mm.dias, 0))
-                                                  else
-                                                  sum(coalesce(mm.dias, 0))
-                                                  end ) as saldo_caducado
+
+         	v_consulta:='select  fun.desc_funcionario2,
+            					 fun.codigo ,
+                                 fun.gerencia,
+                                 fun.departamento,
+                                 (
+                                  case
+                                      when (select sum(coalesce(mm.dias, 0))
+                                      from asis.tmovimiento_vacacion mm
+                                      where   mm.id_funcionario = fun.id_funcionario
+                                      and mm.fecha_reg::date <= '''||v_parametros.fecha_ini||'''::date) < 0 then
+
+                                      (select -1 * sum(coalesce(mm.dias, 0))
                                         from asis.tmovimiento_vacacion mm
-                                        where mm.tipo = ''CADUCADA'' and
-                                              mm.fecha_reg::date between '''||v_parametros.fecha_ini||''' and  '''||v_parametros.fecha_ini||'''
-                                        group by mm.id_funcionario),
-                           anticipo as (select mm.id_funcionario,
-                                                (case
-                                                  when sum(coalesce(mm.dias, 0)) < 0 then
-                                                  -1 * sum(coalesce(mm.dias, 0))
-                                                  else
-                                                  sum(coalesce(mm.dias, 0))
-                                                  end )as saldo_anticipo
-                                        from asis.tmovimiento_vacacion mm
-                                        where mm.tipo = ''ANTICIPO'' and
-                                               mm.fecha_reg::date between '''||v_parametros.fecha_ini||''' and '''||v_parametros.fecha_ini||'''
-                                        group by mm.id_funcionario),
-                            pagado as (select mm.id_funcionario,
-                                               (case
-                                                  when sum(coalesce(mm.dias, 0)) < 0 then
-                                                  -1 * sum(coalesce(mm.dias, 0))
-                                                  else
-                                                  sum(coalesce(mm.dias, 0))
-                                                  end )as saldo_pagado
-                                       from asis.tmovimiento_vacacion mm
-                                       where mm.tipo = ''PAGADO'' and
-                                            mm.fecha_reg::date between '''||v_parametros.fecha_ini||''' and '''||v_parametros.fecha_ini||'''
-                                       group by mm.id_funcionario)
+                                        where   mm.id_funcionario = fun.id_funcionario
+                                        and mm.fecha_reg::date <= '''||v_parametros.fecha_ini||'''::date)
+                                      else
+                                       0
+                                      end
+                                 ) as anticipo
+                          from (
                            select distinct on (uofun.id_funcionario) uofun.id_funcionario,
                                           trim(both ''FUNODTPR'' from  fun.codigo)::varchar as codigo,
                                           fun.desc_funcionario2,
                                           ger.nombre_unidad as gerencia,
-                                          dep.nombre_unidad as departamento,
-                                          coalesce( di.saldo_acumulado,0) as saldo_acumulado ,
-                                          coalesce( tom.saldo_tomada,0) as saldo_tomada,
-                                          coalesce( cad.saldo_caducado,0) as saldo_caducado,
-                                          coalesce( ant.saldo_anticipo,0) as saldo_anticipo,
-                                          coalesce( pag.saldo_pagado,0) as saldo_pagado ,
-                                          coalesce(coalesce(di.saldo_acumulado,0) - coalesce( tom.saldo_tomada,0) -
-                                              coalesce( cad.saldo_caducado,0) - coalesce( ant.saldo_anticipo,0) -
-                                                   coalesce( pag.saldo_pagado,0) ,0) as saldo
+                                          dep.nombre_unidad as departamento
                                   from orga.tuo_funcionario uofun
                                   inner join orga.tcargo car on car.id_cargo = uofun.id_cargo
                                   inner join orga.ttipo_contrato tc on car.id_tipo_contrato = tc.id_tipo_contrato
@@ -618,16 +563,11 @@ BEGIN
                                   inner join orga.tuo ger ON ger.id_uo = orga.f_get_uo_gerencia(uofun.id_uo, NULL::integer, NULL::date)
                                   inner join orga.tuo dep ON dep.id_uo = orga.f_get_uo_departamento(uofun.id_uo, NULL::integer, NULL::date)
                                   left join orga.toficina ofi on car.id_oficina = ofi.id_oficina
-                                  left join  acumulado di on di.id_funcionario = uofun.id_funcionario
-                                  left join  tomada tom on tom.id_funcionario = uofun.id_funcionario
-                                  left join  caducada cad on cad.id_funcionario = uofun.id_funcionario
-                                  left join  anticipo ant on ant.id_funcionario = uofun.id_funcionario
-                                  left join  pagado pag on pag.id_funcionario = uofun.id_funcionario
                                   where tc.codigo in (''PLA'', ''EVE'') and UOFUN.tipo = ''oficial'' and
-                                  uofun.fecha_asignacion <= '''||v_parametros.fecha_ini||'''::date and
-                                  (uofun.fecha_finalizacion is null or uofun.fecha_finalizacion >= '''||v_parametros.fecha_ini||'''::date) AND
+                                  uofun.fecha_asignacion <=  '''||v_parametros.fecha_ini||'''::date and
+                                  (uofun.fecha_finalizacion is null or uofun.fecha_finalizacion >=  '''||v_parametros.fecha_ini||'''::date) AND
                                   uofun.estado_reg != ''inactivo''
-                                  order by uofun.id_funcionario, uofun.fecha_asignacion desc) ant
+                                  order by uofun.id_funcionario, uofun.fecha_asignacion desc) fun
                                   order by gerencia, departamento, desc_funcionario2';
 
 		   --Devuelve la respuesta
@@ -735,117 +675,108 @@ BEGIN
     	begin
         --Sentencia de la consulta
 
-         	v_consulta:='with acumulado as (select    mm.id_funcionario,
-                                                       sum(coalesce(mm.dias,0)) as saldo_acumulado
-                                                       from asis.tmovimiento_vacacion mm
-                                                       where mm.tipo = ''ACUMULADA''
-                                                       and mm.fecha_reg::date >= '''||v_parametros.fecha_ini||''' and mm.fecha_reg::date <='''||v_parametros.fecha_fin||'''
-                                                       group by mm.id_funcionario),
-                            tomada as (select    mm.id_funcionario,
-                                               sum(coalesce(mm.dias,0)) as saldo_tomada
-                                               from asis.tmovimiento_vacacion mm
-                                               where mm.tipo = ''TOMADA''
-                                               and mm.fecha_reg::date >= '''||v_parametros.fecha_ini||''' and mm.fecha_reg::date <='''||v_parametros.fecha_fin||'''
-                                               group by mm.id_funcionario
-                                                ),
-                             caducada as (select    mm.id_funcionario,
-                                               sum(coalesce(mm.dias,0)) as saldo_caducado
-                                               from asis.tmovimiento_vacacion mm
-                                               where mm.tipo = ''CADUCADA''
-                                               and mm.fecha_reg::date >= '''||v_parametros.fecha_ini||''' and mm.fecha_reg::date <='''||v_parametros.fecha_fin||'''
-                                               group by mm.id_funcionario
-                                                ),
-                             anticipo as (select    mm.id_funcionario,
-                                               sum(coalesce(mm.dias,0)) as saldo_anticipo
-                                               from asis.tmovimiento_vacacion mm
-                                               where mm.tipo = ''ANTICIPO''
-                                               and mm.fecha_reg::date >= '''||v_parametros.fecha_ini||''' and mm.fecha_reg::date <='''||v_parametros.fecha_fin||'''
-                                               group by mm.id_funcionario
-                                                ),
-                                pagado as (select    mm.id_funcionario,
-                                               sum(coalesce(mm.dias,0)) as saldo_pagado
-                                               from asis.tmovimiento_vacacion mm
-                                               where mm.tipo = ''PAGADO''
-                                               and mm.fecha_reg::date >= '''||v_parametros.fecha_ini||''' and mm.fecha_reg::date <='''||v_parametros.fecha_fin||'''
-                                               group by mm.id_funcionario)
-                            select    trim(both ''FUNODTPR'' from  fu.codigo)::varchar as codigo,
-                                    initcap(fu.desc_funcionario2) as desc_funcionario1,
-                                    '' ''::varchar as gerencia,
-                                    '' ''::varchar as departamento,
-                                    COALESCE((
-                                    case
-                                          when di.saldo_acumulado < 0 then
-                                          -1 * di.saldo_acumulado
-                                          else
-                                          di.saldo_acumulado
-                                          end
-                                    ),0)::numeric  as saldo_acumulado,
-                                    COALESCE((
-                                      case
-                                          when tom.saldo_tomada < 0 then
-                                          -1 * tom.saldo_tomada
-                                          else
-                                          tom.saldo_tomada
-                                          end
-                                    ),0)::numeric  as saldo_tomada,
-                                    COALESCE((
-                                      case
-                                          when cad.saldo_caducado < 0 then
-                                          -1 * cad.saldo_caducado
-                                          else
-                                          cad.saldo_caducado
-                                          end
-                                    ),0)::numeric  as saldo_caducado,
-                                    COALESCE((
-                                      case
-                                          when ant.saldo_anticipo < 0 then
-                                          -1 * ant.saldo_anticipo
-                                          else
-                                          ant.saldo_anticipo
-                                          end
-                                    ),0)::numeric  as saldo_anticipo,
-                                    COALESCE(pag.saldo_pagado,0)::numeric  as saldo_pagado,
-                                    (
-                               COALESCE((
-                              case
-                              		when di.saldo_acumulado < 0 then
-                                    -1 * di.saldo_acumulado
-                                    else
-                              		di.saldo_acumulado
-                                    end
-                              ),0) -   COALESCE((
-                              	case
-                                	when tom.saldo_tomada < 0 then
-                                    -1 * tom.saldo_tomada
-                                    else
-                                    tom.saldo_tomada
-                                	end
-                              ),0) -  COALESCE((
-                              	case
-                                	when cad.saldo_caducado < 0 then
-                                    -1 * cad.saldo_caducado
-                                    else
-                                    cad.saldo_caducado
-                                	end
-                              ),0)  -  COALESCE((
-                              	case
-                                	when ant.saldo_anticipo < 0 then
-                                    -1 * ant.saldo_anticipo
-                                    else
-                                    ant.saldo_anticipo
-                                	end
-                              ),0) - COALESCE(pag.saldo_pagado,0)
-                              )::numeric as saldo
-                      from orga.vfuncionario fu
-                     -- inner join orga.tuo ger ON ger.id_uo = orga.f_get_uo_gerencia(fu.id_uo, NULL::integer, NULL::date)
-                     -- inner join orga.tuo dep ON dep.id_uo = orga.f_get_uo_departamento(fu.id_uo, NULL::integer, NULL::date)
-					  left join  acumulado di on di.id_funcionario = fu.id_funcionario
-                      left join  tomada tom on tom.id_funcionario = fu.id_funcionario
-                      left join  caducada cad on cad.id_funcionario = fu.id_funcionario
-                      left join  anticipo ant on ant.id_funcionario = fu.id_funcionario
-                      left join  pagado pag on pag.id_funcionario = fu.id_funcionario
-                      -- where (fu.fecha_finalizacion is null or fu.fecha_asignacion >= now()::date)
-                      order by  desc_funcionario1 asc';
+         	v_consulta:='select   ant.desc_funcionario2,
+                                  ant.codigo,
+                                  ant.gerencia,
+                                  ant.departamento,
+                            (case
+                              when ant.saldo_acumulado  < 0 then
+                               -1 * ant.saldo_acumulado
+                               else
+                                ant.saldo_acumulado
+                              end) as saldo_acumulado,
+                              (case
+                              when ant.saldo_tomada  < 0 then
+                               -1 * ant.saldo_tomada
+                               else
+                                ant.saldo_tomada
+                              end) as saldo_tomada,
+                           (case
+                              when ant.saldo_caducado  < 0 then
+                               -1 * ant.saldo_caducado
+                               else
+                                ant.saldo_caducado
+                              end) as saldo_caducado,
+                            (case
+                              when ant.saldo_anticipo  < 0 then
+                               -1 * ant.saldo_anticipo
+                               else
+                                ant.saldo_anticipo
+                              end) as saldo_anticipo,
+                           (case
+                              when ant.saldo_pagado  < 0 then
+                               -1 * ant.saldo_pagado
+                               else
+                                ant.saldo_pagado
+                              end) as saldo_pagado,
+                            ant.saldo
+                  from (
+
+                  with acumulado as (select mm.id_funcionario,
+                                            sum(coalesce(mm.dias, 0))  as saldo_acumulado
+                                     from asis.tmovimiento_vacacion mm
+                                     where mm.tipo = ''ACUMULADA'' and
+                                           mm.fecha_reg::date <='''||v_parametros.fecha_ini||'''::date
+                                     group by mm.id_funcionario),
+                       tomada as (select  mm.id_funcionario,
+                                           sum(coalesce(mm.dias, 0))as saldo_tomada
+                                   from asis.tmovimiento_vacacion mm
+                                   where mm.tipo = ''TOMADA'' and
+                                          mm.fecha_reg::date <='''||v_parametros.fecha_ini||'''::date
+                                   group by mm.id_funcionario),
+                        caducada as (select mm.id_funcionario,
+                                            sum(coalesce(mm.dias, 0))  as saldo_caducado
+                                    from asis.tmovimiento_vacacion mm
+                                    where mm.tipo = ''CADUCADA'' and
+                                             mm.fecha_reg::date <='''||v_parametros.fecha_ini||'''::date
+                                    group by mm.id_funcionario),
+                       anticipo as (select mm.id_funcionario,
+                                            sum(coalesce(mm.dias, 0)) as saldo_anticipo
+                                    from asis.tmovimiento_vacacion mm
+                                    where mm.tipo = ''ANTICIPO'' and
+                                              mm.fecha_reg::date <='''||v_parametros.fecha_ini||'''::date
+                                    group by mm.id_funcionario),
+                        pagado as (select mm.id_funcionario,
+                                           sum(coalesce(mm.dias, 0)) as saldo_pagado
+                                   from asis.tmovimiento_vacacion mm
+                                   where mm.tipo = ''PAGADO'' and
+                                           mm.fecha_reg::date <='''||v_parametros.fecha_ini||'''::date
+                                   group by mm.id_funcionario),
+                         saldo as (select mm.id_funcionario,
+                                           sum(coalesce(mm.dias, 0)) as saldo
+                                   from asis.tmovimiento_vacacion mm
+                                   where  mm.fecha_reg::date <='''||v_parametros.fecha_ini||'''::date
+                                   group by mm.id_funcionario)
+                       select distinct on (uofun.id_funcionario) uofun.id_funcionario,
+                                      trim(both ''FUNODTPR'' from  fun.codigo)::varchar as codigo,
+                                    initcap(fun.desc_funcionario2) as desc_funcionario2,
+                                      ger.nombre_unidad as gerencia,
+                                      dep.nombre_unidad as departamento,
+                                      coalesce( di.saldo_acumulado,0) as saldo_acumulado ,
+                                      coalesce( tom.saldo_tomada,0) as saldo_tomada,
+                                      coalesce( cad.saldo_caducado,0) as saldo_caducado,
+                                      coalesce( ant.saldo_anticipo,0) as saldo_anticipo,
+                                      coalesce( pag.saldo_pagado,0) as saldo_pagado ,
+                                      coalesce(sal.saldo,0) as saldo
+                              from orga.tuo_funcionario uofun
+                              inner join orga.tcargo car on car.id_cargo = uofun.id_cargo
+                              inner join orga.ttipo_contrato tc on car.id_tipo_contrato = tc.id_tipo_contrato
+                              inner join orga.vfuncionario fun on fun.id_funcionario = uofun.id_funcionario
+                              inner join orga.tuo ger ON ger.id_uo = orga.f_get_uo_gerencia(uofun.id_uo, NULL::integer, NULL::date)
+                              inner join orga.tuo dep ON dep.id_uo = orga.f_get_uo_departamento(uofun.id_uo, NULL::integer, NULL::date)
+                              left join orga.toficina ofi on car.id_oficina = ofi.id_oficina
+                              left join  acumulado di on di.id_funcionario = uofun.id_funcionario
+                              left join  tomada tom on tom.id_funcionario = uofun.id_funcionario
+                              left join  caducada cad on cad.id_funcionario = uofun.id_funcionario
+                              left join  anticipo ant on ant.id_funcionario = uofun.id_funcionario
+                              left join  pagado pag on pag.id_funcionario = uofun.id_funcionario
+                              left join  saldo sal on sal.id_funcionario = uofun.id_funcionario
+                              where tc.codigo in (''PLA'', ''EVE'') and UOFUN.tipo = ''oficial'' and
+                              uofun.fecha_asignacion <= ''02/09/2020''::date and
+                              (uofun.fecha_finalizacion is null or uofun.fecha_finalizacion >= ''02/09/2020''::date) AND
+                              uofun.estado_reg != ''inactivo''
+                              order by uofun.id_funcionario, uofun.fecha_asignacion desc   ) ant
+                              order by gerencia, departamento,desc_funcionario2';
 
 		   --Devuelve la respuesta
             return v_consulta;

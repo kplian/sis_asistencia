@@ -26,8 +26,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     lazyRender:true,
                     mode: 'local',
                     width:300,
-                    store:['Anticipadas'],
-                    /// store:['Saldo','Anticipadas','Vencimiento']
+                     store:['Saldo','Anticipadas','Vencimiento','Resumen']
                 },
                 type:'ComboBox',
                 id_grupo:0,
