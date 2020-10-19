@@ -232,7 +232,7 @@ class ACTReporte extends ACTbase{
 
     }
 
-    function listarVacacionesResumen(){
+   /* function listarVacacionesResumen(){
             $this->objFunc=$this->create('MODReportes');
             $this->res=$this->objFunc->listarVacacionesResumen($this->objParam);
             //obtener titulo del reporte
@@ -265,7 +265,7 @@ class ACTReporte extends ACTbase{
             $this->mensajeExito->setArchivoGenerado($nombreArchivo);
             $this->mensajeExito->imprimirRespuesta($this->mensajeExito->generarJson());
 
-    }
+    }*/
     function listarVacacionesSaldo(){
 
 
@@ -349,6 +349,34 @@ class ACTReporte extends ACTbase{
                     $this->objParam->addParametro('nombre_archivo', $nombreArchivo);
                     $this->objParam->addParametro('datos', $this->res->datos);
                     $this->objReporteFormato = new RReporteSaldoXLSX($this->objParam);
+                    $this->objReporteFormato->generarDatos();
+                    $this->objReporteFormato->generarReporte();
+                }
+                break;
+            case "Resumen":
+                //
+                $this->objFunc=$this->create('MODReportes');
+                $this->res=$this->objFunc->listarVacacionesResumen($this->objParam);
+                //obtener titulo del reporte
+                $titulo = 'Reporte Resumen';
+
+                if($this->objParam->getParametro('formato') == 'PDF'){
+                    $nombreArchivo = uniqid(md5(session_id()) . $titulo);
+                    $nombreArchivo .= '.pdf';
+                    $this->objParam->addParametro('orientacion', 'P');
+                    $this->objParam->addParametro('tamano', 'LETTER');
+                    $this->objParam->addParametro('nombre_archivo', $nombreArchivo);
+                    //Instancia la clase de pdf
+                    $this->objReporteFormato = new RReporteVacacionResumenPDF($this->objParam);
+                    $this->objReporteFormato->setDatos($this->res->datos);
+                    $this->objReporteFormato->generarReporte();
+                    $this->objReporteFormato->output($this->objReporteFormato->url_archivo, 'F');
+                }else {
+                    $nombreArchivo=uniqid(md5(session_id()).$titulo);
+                    $nombreArchivo.='.xls';
+                    $this->objParam->addParametro('nombre_archivo', $nombreArchivo);
+                    $this->objParam->addParametro('datos', $this->res->datos);
+                    $this->objReporteFormato = new RReporteVacacionResumenXls($this->objParam);
                     $this->objReporteFormato->generarDatos();
                     $this->objReporteFormato->generarReporte();
                 }
