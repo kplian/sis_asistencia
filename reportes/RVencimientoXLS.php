@@ -1,5 +1,5 @@
 <?php
-class RReporteAncticipoXls{
+class RVencimientoXLS{
     private $docexcel;
     private $objWriter;
     public $fila_aux = 0;
@@ -84,16 +84,20 @@ class RReporteAncticipoXls{
         $this->docexcel->getActiveSheet()->getColumnDimension('A')->setWidth(15);
         $this->docexcel->getActiveSheet()->getColumnDimension('B')->setWidth(10);
         $this->docexcel->getActiveSheet()->getColumnDimension('C')->setWidth(40);
-        $this->docexcel->getActiveSheet()->getColumnDimension('D')->setWidth(10);
+        $this->docexcel->getActiveSheet()->getColumnDimension('D')->setWidth(20);
         $this->docexcel->getActiveSheet()->getColumnDimension('E')->setWidth(15);
-        $this->docexcel->getActiveSheet()->getStyle('A5:E5')->getAlignment()->setWrapText(true);
-        $this->docexcel->getActiveSheet()->getStyle('A5:E5')->applyFromArray($styleTitulos2);
+        $this->docexcel->getActiveSheet()->getColumnDimension('F')->setWidth(10);
+        $this->docexcel->getActiveSheet()->getColumnDimension('G')->setWidth(10);
+        $this->docexcel->getActiveSheet()->getStyle('A5:G5')->getAlignment()->setWrapText(true);
+        $this->docexcel->getActiveSheet()->getStyle('A5:G5')->applyFromArray($styleTitulos2);
 
         $this->docexcel->getActiveSheet()->setCellValue('A5','CODIGO');
         $this->docexcel->getActiveSheet()->setCellValue('B5','');
         $this->docexcel->getActiveSheet()->setCellValue('C5','EMPLEADO');
         $this->docexcel->getActiveSheet()->setCellValue('D5','');
-        $this->docexcel->getActiveSheet()->setCellValue('E5','ANTICIPO');
+        $this->docexcel->getActiveSheet()->setCellValue('E5','FECHA INGRESO');
+        $this->docexcel->getActiveSheet()->setCellValue('F5','FEC. VEC.');
+        $this->docexcel->getActiveSheet()->setCellValue('G5','DIAS');
 
 
     }
@@ -124,7 +128,9 @@ class RReporteAncticipoXls{
 
         $ger = '';
         $dep = '';
-
+        $codigo = '';
+        $funcionario = '';
+        $fecha = '';
         foreach ($datos as $value) {
             if ($value['gerencia'] != $ger) {
                 $this->imprimeSubtitulo($fila,$value['gerencia']);
@@ -136,12 +142,28 @@ class RReporteAncticipoXls{
                 $dep = $value['departamento'];
                 $fila++;
             }
+            if( $value['codigo'] != $codigo){
+                $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(0, $fila, $value['codigo']);
+                $codigo=  $value['codigo'];
+            }
+            if( $value['desc_funcionario1'] != $funcionario){
+                $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(2, $fila, $value['desc_funcionario1']);
+                $funcionario=  $value['desc_funcionario1'];
+            }
+            if( $value['fecha_contrato'] != $fecha){
+                $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(4, $fila, $value['fecha_contrato']);
+                $fecha=  $value['fecha_contrato'];
+            }
+            if ($value['gestion'] == 0){
+                $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(5, $fila, 'TOTAL');
+                $this->docexcel->getActiveSheet()->getStyle("F$fila:G$fila")->applyFromArray($styleTitulos);
 
-            $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(0, $fila, $value['codigo']);
-            $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(2, $fila, $value['desc_funcionario2']);
-            $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(4, $fila, $value['anticipo']);
-            $this->docexcel->getActiveSheet()->getStyle("E$fila:E$fila")->getNumberFormat()->setFormatCode('0.0');
+            }else{
+                $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(5, $fila, $value['fecha_caducado']);
+            }
+            $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(6, $fila, $value['saldo']);
             $this->docexcel->getActiveSheet()->getStyle("A$fila:A$fila")->applyFromArray($styleTitulos3);
+            $this->docexcel->getActiveSheet()->getStyle("E$fila:E$fila")->applyFromArray($styleTitulos3);
             $fila++;
         }
     }

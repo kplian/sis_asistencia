@@ -78,7 +78,7 @@ class RReporteSaldoXLSX{
         $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(0,2,'SALDO DE VACACIONES');
         $this->docexcel->getActiveSheet()->getStyle('A2:F2')->applyFromArray($styleTitulos1);
         $this->docexcel->getActiveSheet()->mergeCells('A2:F2');
-        $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(0,3,'Gestion:'.$this->objParam->getParametro('id_gestion'));
+        $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(0,3,'Fecha: '.$this->objParam->getParametro('fecha_ini'));
         $this->docexcel->getActiveSheet()->getStyle('A3:F3')->applyFromArray($styleTitulos3);
         $this->docexcel->getActiveSheet()->mergeCells('A3:F3');
         $this->docexcel->getActiveSheet()->getColumnDimension('A')->setWidth(15);

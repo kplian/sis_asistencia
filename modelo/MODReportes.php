@@ -293,13 +293,11 @@ class MODReportes extends MODbase{
 
         $this->setCount(false);
 
-         $this->setParametro('id_gestion', 'id_gestion', 'int4');
         $this->setParametro('formato', 'formato', 'varchar');
         $this->setParametro('reporte', 'reporte', 'varchar');
         $this->setParametro('id_funcionario', 'id_funcionario', 'int4');
         $this->setParametro('id_uo', 'id_uo', 'int4');
         $this->setParametro('fecha_ini', 'fecha_ini', 'date');
-        $this->setParametro('fecha_fin', 'fecha_fin', 'date');
 
         //Definicion de la lista del resultado del query
         $this->captura('codigo','varchar');
@@ -308,12 +306,46 @@ class MODReportes extends MODbase{
         $this->captura('gerencia','varchar');
         $this->captura('departamento','varchar');
         $this->captura('gestion','int4');
+        $this->captura('fecha_caducado','text');
+
         $this->captura('saldo','numeric');
         $this->captura('ordenar','varchar');
         //Ejecuta la instruccion
         $this->armarConsulta();
         $this->ejecutarConsulta();
-         // var_dump($this->respuesta);exit;
+        // var_dump($this->respuesta);exit;
+        //Devuelve la respuesta
+        return $this->respuesta;
+    }
+    function listarVacacionesVencimiento(){
+        //Definicion de variables para ejecucion del procedimientp
+        $this->procedimiento='asis.f_reportes_sel';
+        $this->transaccion='ASIS_VENS_SEL';
+        $this->tipo_procedimiento='SEL';//tipo de transaccion
+
+        $this->setCount(false);
+
+        $this->setParametro('formato', 'formato', 'varchar');
+        $this->setParametro('reporte', 'reporte', 'varchar');
+        $this->setParametro('id_funcionario', 'id_funcionario', 'int4');
+        $this->setParametro('id_uo', 'id_uo', 'int4');
+        $this->setParametro('fecha_ini', 'fecha_ini', 'date');
+
+        //Definicion de la lista del resultado del query
+        $this->captura('codigo','varchar');
+        $this->captura('desc_funcionario1','varchar');
+        $this->captura('fecha_contrato','text');
+        $this->captura('gerencia','varchar');
+        $this->captura('departamento','varchar');
+        $this->captura('gestion','int4');
+        $this->captura('fecha_caducado','text');
+
+        $this->captura('saldo','numeric');
+        $this->captura('ordenar','varchar');
+        //Ejecuta la instruccion
+        $this->armarConsulta();
+        $this->ejecutarConsulta();
+        // var_dump($this->respuesta);exit;
         //Devuelve la respuesta
         return $this->respuesta;
     }

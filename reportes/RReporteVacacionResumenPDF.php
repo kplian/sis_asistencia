@@ -16,7 +16,7 @@ class RReporteVacacionResumenPDF extends  ReportePDF
         $this->MultiCell(40, 25, '', 0, 'C', 0, '', '');
         $this->SetFontSize(15);
         $this->SetFont('', 'B');
-        $this->MultiCell(105, 25, "\n" . 'RESUMEN DE VACACIONES', 0, 'C', 0, '', '');
+        $this->MultiCell(105, 25, "\n" . 'RESUMEN DE VACACIONES'. "\n".'Fecha: '.$this->objParam->getParametro('fecha_ini'), 0, 'C', 0, '', '');
         $this->SetFont('times', '', 10);
         $this->MultiCell(0, 25,'', 0, 'C', 0, '', '');
         $this->Image(dirname(__FILE__) . '/../../pxp/lib' . $_SESSION['_DIR_LOGO'], 17, 15, 36);
