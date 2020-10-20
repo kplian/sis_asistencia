@@ -8,7 +8,7 @@
  * HISTORIAL DE MODIFICACIONES:
 
  */
-class RReporteSaldoPDF extends  ReportePDF
+class RVencimientoPDF extends  ReportePDF
 {
     private $total_horas = '00:00:00';
     function Header(){
@@ -30,7 +30,7 @@ class RReporteSaldoPDF extends  ReportePDF
                         <th width="15%" style="border-top: 1px solid black; border-bottom: 1px solid black;" align="center"><b>Código</b></th>
                         <th width="40%" style="border-top: 1px solid black; border-bottom: 1px solid black;" align="center"><b>Empleado</b></th>
                         <th width="15%" style="border-top: 1px solid black; border-bottom: 1px solid black;" align="center"><b>Fecha ingreso</b></th>
-                        <th width="15%" style="border-top: 1px solid black; border-bottom: 1px solid black;" align="center"><b>Gestion</b></th>
+                        <th width="15%" style="border-top: 1px solid black; border-bottom: 1px solid black;" align="center"><b>Fec. Vec.</b></th>
                         <th width="15%" style="border-top: 1px solid black; border-bottom: 1px solid black;" align="center"><b>Dias</b></th>
                   </tr>
                   
@@ -92,7 +92,7 @@ class RReporteSaldoPDF extends  ReportePDF
                 $table .= ' <td  width="15%" align="center"><b>TOTAL</b></td>
                            <td  width="15%" align="center"><b>'.number_format($value['saldo'], 1, ',', ' ').'</b></td>';
             }else{
-                $table .= ' <td  width="15%" align="center">'.$value['gestion'].'</td>
+                $table .= ' <td  width="15%" align="center">'.$value['fecha_caducado'].'</td>
                            <td  width="15%" align="center">'. number_format($value['saldo'], 1, ',', ' ').'</td>';
             }
 

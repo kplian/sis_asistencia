@@ -27,6 +27,8 @@ require_once(dirname(__FILE__).'/../reportes/RReporteAncticipo.php');
 require_once(dirname(__FILE__).'/../reportes/RReporteAncticipoXls.php');
 require_once(dirname(__FILE__).'/../reportes/RReporteVacacionResumenXls.php');
 require_once(dirname(__FILE__).'/../reportes/RReporteHistoricoVacacionXls.php');
+require_once(dirname(__FILE__).'/../reportes/RVencimientoPDF.php');
+require_once(dirname(__FILE__).'/../reportes/RVencimientoXLS.php');
 class ACTReporte extends ACTbase{
     function reporteAnexos(){
         $this->objFunc = $this->create('MODReportes');
@@ -328,7 +330,7 @@ class ACTReporte extends ACTbase{
             case "Vencimiento":
                //
                 $this->objFunc=$this->create('MODReportes');
-                $this->res=$this->objFunc->listarVacacionesSaldo($this->objParam);
+                $this->res=$this->objFunc->listarVacacionesVencimiento($this->objParam);
                 //obtener titulo del reporte
                 $titulo = 'Reporte Vacacion Saldo';
 
@@ -339,7 +341,7 @@ class ACTReporte extends ACTbase{
                     $this->objParam->addParametro('tamano','LETTER');
                     $this->objParam->addParametro('nombre_archivo',$nombreArchivo);
                     //Instancia la clase de pdf
-                    $this->objReporteFormato=new RReporteSaldoPDF($this->objParam);
+                    $this->objReporteFormato=new RVencimientoPDF($this->objParam);
                     $this->objReporteFormato->setDatos($this->res->datos);
                     $this->objReporteFormato->generarReporte();
                     $this->objReporteFormato->output($this->objReporteFormato->url_archivo,'F');
@@ -348,7 +350,7 @@ class ACTReporte extends ACTbase{
                     $nombreArchivo .= '.xls';
                     $this->objParam->addParametro('nombre_archivo', $nombreArchivo);
                     $this->objParam->addParametro('datos', $this->res->datos);
-                    $this->objReporteFormato = new RReporteSaldoXLSX($this->objParam);
+                    $this->objReporteFormato = new RVencimientoXLS($this->objParam);
                     $this->objReporteFormato->generarDatos();
                     $this->objReporteFormato->generarReporte();
                 }

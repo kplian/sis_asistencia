@@ -39,6 +39,7 @@ DECLARE
     v_fecha_fin         date;
     v_acumulado_record	record;
     v_dia_saldo			numeric;
+    v_acumulado			record;
 
 BEGIN
 
@@ -396,7 +397,7 @@ BEGIN
     	begin
         --Sentencia de la consulta
 
-		--raise exception 'entra';
+
         CREATE TEMPORARY TABLE temporal_saldo ( id_funcionario integer,
                                                 codigo varchar,
                                                 desc_funcionario1 varchar,
@@ -407,84 +408,89 @@ BEGIN
                                                 fecha_caducado date,
                                                 saldo numeric ) ON COMMIT DROP;
 
-        for  v_record in (  with acumulado  as (  select   mm.id_funcionario,
-                  	           mm.dias_actual as saldo,
-                               mm.dias as dias_acumulados
-                               from asis.tmovimiento_vacacion mm
-                               where mm.tipo = 'ACUMULADA'and extract(year from mm.fecha_reg) = v_parametros.id_gestion),
-             tomado  as  (     select mm.id_funcionario,
-                                  coalesce(
-                                  (
-                                  	case
-                                    	when sum(mm.dias) < 0 then
-                                        -1*sum(mm.dias)
-                                        else
-                                        sum(mm.dias)
-                                  end ),0) as tomado
-                            from asis.tmovimiento_vacacion mm
-                                group by  mm.id_funcionario)
+        for  v_record in (select  funs.id_funcionario,
+                                  funs.codigo,
+                                  funs.desc_funcionario2,
+                                  funs.fecha_contrato,
+                                  funs.gerencia,
+                                  funs.departamento,
+                                  sum(coalesce(mm.dias, 0)) as saldo
+                          from (
+                          select distinct on (uofun.id_funcionario) uofun.id_funcionario,
+                                trim(both 'FUNODTPR' from  fun.codigo)::varchar as codigo,
+                                fun.desc_funcionario2,
+                                ger.nombre_unidad as gerencia,
+                                dep.nombre_unidad as departamento,
+                                plani.f_get_fecha_primer_contrato_empleado(uofun.id_uo_funcionario, uofun.id_funcionario, uofun.fecha_asignacion) as fecha_contrato
 
-        		     select   fu.id_funcionario,
-                              fu.codigo,
-                              fu.desc_funcionario2,
-                              plani.f_get_fecha_primer_contrato_empleado(fu.id_uo_funcionario, fu.id_funcionario, fu.fecha_asignacion) as fecha_contrato,
-                              ger.nombre_unidad as gerencia,
-                              dep.nombre_unidad as departamento,
-                              ac.saldo,
-                              ac.dias_acumulados,
-                              tom.tomado
-                      from orga.vfuncionario_cargo fu
-                      inner join orga.tuo ger ON ger.id_uo = orga.f_get_uo_gerencia(fu.id_uo, NULL::integer, NULL::date)
-                      inner join orga.tuo dep ON dep.id_uo = orga.f_get_uo_departamento(fu.id_uo, NULL::integer, NULL::date)
-                      inner join acumulado ac on ac.id_funcionario = fu.id_funcionario
-                      inner join tomado tom on tom.id_funcionario = fu.id_funcionario
-                      where (fu.fecha_finalizacion is null or fu.fecha_finalizacion >= now()::date)
-                      and (case
-                      		 when v_parametros.id_funcionario is null then
-                              	0 = 0
-                              else
-                              	fu.id_funcionario = v_parametros.id_funcionario
-                               end)
+                          from orga.tuo_funcionario uofun
+                          inner join orga.tcargo car on car.id_cargo = uofun.id_cargo
+                          inner join orga.ttipo_contrato tc on car.id_tipo_contrato = tc.id_tipo_contrato
+                          inner join orga.vfuncionario fun on fun.id_funcionario = uofun.id_funcionario
+                          inner join orga.tuo ger ON ger.id_uo = orga.f_get_uo_gerencia(uofun.id_uo, NULL::integer, NULL::date)
+                          inner join orga.tuo dep ON dep.id_uo = orga.f_get_uo_departamento(uofun.id_uo, NULL::integer, NULL::date)
+                          where tc.codigo in ('PLA', 'EVE') and UOFUN.tipo = 'oficial' and
+                          uofun.fecha_asignacion <= v_parametros.fecha_ini::date and
+                          (uofun.fecha_finalizacion is null or uofun.fecha_finalizacion >= v_parametros.fecha_ini::date) AND
+                          uofun.estado_reg != 'inactivo'
+                          order by uofun.id_funcionario, uofun.fecha_asignacion desc)funs
+                          inner join asis.tmovimiento_vacacion mm on mm.id_funcionario = funs.id_funcionario
+                          ---where funs.id_funcionario = 508
+                          group by  funs.id_funcionario,
+                                    funs.codigo,
+                                    funs.desc_funcionario2,
+                                    funs.fecha_contrato,
+                                    funs.gerencia,
+                                    funs.departamento
+                          order by gerencia, departamento, desc_funcionario2) loop
 
-                      and (case
-                      		 when v_parametros.id_uo is null then
-                              	0 = 0
-                              else
-                              	(ger.id_uo = v_parametros.id_uo or dep.id_uo = v_parametros.id_uo)
-                               end)
-                      order by  gerencia, departamento, desc_funcionario2 ) loop
-
-					if (v_record.tomado != 0)then
-                          if(v_record.tomado > v_record.dias_acumulados)then
-
-                              PERFORM asis.f_calcular_saldo_gestion(v_parametros.id_gestion,v_record,v_record.tomado);
+            select mo.fecha_reg::date as fecha_reg,
+            	   mo.dias
+                   into
+                   v_acumulado
+            from asis.tmovimiento_vacacion mo
+            where mo.tipo = 'ACUMULADA' and  mo.id_funcionario = v_record.id_funcionario
+            	  and  mo.fecha_reg::date = ( select max(m.fecha_reg::date)
+                                              from asis.tmovimiento_vacacion m
+                                              where m.tipo = 'ACUMULADA' and
+                                                   m.id_funcionario = v_record.id_funcionario);
 
 
-                          end if;
+                if (v_record.saldo > v_acumulado.dias) then
 
 
-                          if(v_record.tomado <= v_record.dias_acumulados)then
-                                      insert into temporal_saldo (id_funcionario,
-                                                                  codigo,
-                                                                  desc_funcionario1,
-                                                                  fecha_contrato,
-                                                                  gerencia,
-                                                                  departamento,
-                                                                  gestion,
-                                                                  saldo
-                                                                  )values(
-                                                                  v_record.id_funcionario,
-                                                                  v_record.codigo,
-                                                                  v_record.desc_funcionario2,
-                                                                  v_record.fecha_contrato,
-                                                                  v_record.gerencia,
-                                                                  v_record.departamento,
-                                                                  v_parametros.id_gestion,
-                                                                  v_record.tomado
-                                                                  );
 
-                          end if;
-                    end if;
+                      perform asis.f_calcular_saldo_gestion(v_acumulado.fecha_reg,
+                      									    v_acumulado.dias,
+                                                            v_record,
+                                                            v_record.saldo);
+
+
+                else
+
+                	  insert into temporal_saldo (id_funcionario,
+                                                    codigo,
+                                                    desc_funcionario1,
+                                                    fecha_contrato,
+                                                    gerencia,
+                                                    departamento,
+                                                    fecha_caducado,
+                                                    gestion,
+                                                    saldo
+                                                    )values(
+                                                    v_record.id_funcionario,
+                                                    v_record.codigo,
+                                                    v_record.desc_funcionario2,
+                                                    v_record.fecha_contrato,
+                                                    v_record.gerencia,
+                                                    v_record.departamento,
+                                                    v_acumulado.fecha_reg,
+                                                    extract(year from v_acumulado.fecha_reg),
+                                                    v_record.saldo
+                                                    );
+
+                end if;
+
 
         end loop;
 
@@ -495,6 +501,7 @@ BEGIN
                                     ts.gerencia,
                                     ts.departamento,
                                     ts.gestion,
+                                     to_char(ts.fecha_caducado,''DD/MM/YYYY'') as fecha_caducado,
                                     ts.saldo,
                                     ''a''::varchar as ordenar
                             from temporal_saldo ts
@@ -505,6 +512,7 @@ BEGIN
                                     ts.gerencia,
                                     ts.departamento,
                                     0::integer as gestion,
+                                    null::text as fecha_caducado,
                                     sum(ts.saldo) as saldo,
                                     ''b''::varchar as ordenar
                             from temporal_saldo ts
@@ -518,6 +526,148 @@ BEGIN
             return v_consulta;
 
 		end;
+
+     /*********************************
+ 	#TRANSACCION:  'ASIS_VENS_SEL'
+ 	#DESCRIPCION:	Reporte Reporte saldo
+ 	#AUTOR:		MMV
+ 	#FECHA:		11/09/2019
+	***********************************/
+	elsif(p_transaccion='ASIS_VENS_SEL')then
+
+    	begin
+        --Sentencia de la consulta
+
+
+        CREATE TEMPORARY TABLE temporal_saldo ( id_funcionario integer,
+                                                codigo varchar,
+                                                desc_funcionario1 varchar,
+                                                fecha_contrato date,
+                                                gerencia varchar,
+                                                departamento varchar,
+                                                gestion integer,
+                                                fecha_caducado date,
+                                                saldo numeric ) ON COMMIT DROP;
+
+        for  v_record in (select  funs.id_funcionario,
+                                  funs.codigo,
+                                  funs.desc_funcionario2,
+                                  funs.fecha_contrato,
+                                  funs.gerencia,
+                                  funs.departamento,
+                                  sum(coalesce(mm.dias, 0)) as saldo
+                          from (
+                          select distinct on (uofun.id_funcionario) uofun.id_funcionario,
+                                trim(both 'FUNODTPR' from  fun.codigo)::varchar as codigo,
+                                fun.desc_funcionario2,
+                                ger.nombre_unidad as gerencia,
+                                dep.nombre_unidad as departamento,
+                                plani.f_get_fecha_primer_contrato_empleado(uofun.id_uo_funcionario, uofun.id_funcionario, uofun.fecha_asignacion) as fecha_contrato
+
+                          from orga.tuo_funcionario uofun
+                          inner join orga.tcargo car on car.id_cargo = uofun.id_cargo
+                          inner join orga.ttipo_contrato tc on car.id_tipo_contrato = tc.id_tipo_contrato
+                          inner join orga.vfuncionario fun on fun.id_funcionario = uofun.id_funcionario
+                          inner join orga.tuo ger ON ger.id_uo = orga.f_get_uo_gerencia(uofun.id_uo, NULL::integer, NULL::date)
+                          inner join orga.tuo dep ON dep.id_uo = orga.f_get_uo_departamento(uofun.id_uo, NULL::integer, NULL::date)
+                          where tc.codigo in ('PLA', 'EVE') and UOFUN.tipo = 'oficial' and
+                          uofun.fecha_asignacion <= v_parametros.fecha_ini::date and
+                          (uofun.fecha_finalizacion is null or uofun.fecha_finalizacion >= v_parametros.fecha_ini::date) AND
+                          uofun.estado_reg != 'inactivo'
+                          order by uofun.id_funcionario, uofun.fecha_asignacion desc)funs
+                          inner join asis.tmovimiento_vacacion mm on mm.id_funcionario = funs.id_funcionario
+                          ---where funs.id_funcionario = 508
+                          group by  funs.id_funcionario,
+                                    funs.codigo,
+                                    funs.desc_funcionario2,
+                                    funs.fecha_contrato,
+                                    funs.gerencia,
+                                    funs.departamento
+                          order by gerencia, departamento, desc_funcionario2) loop
+
+            select mo.fecha_reg::date as fecha_reg,
+            	   mo.dias
+                   into
+                   v_acumulado
+            from asis.tmovimiento_vacacion mo
+            where mo.tipo = 'ACUMULADA' and  mo.id_funcionario = v_record.id_funcionario
+            	  and  mo.fecha_reg::date = ( select max(m.fecha_reg::date)
+                                              from asis.tmovimiento_vacacion m
+                                              where m.tipo = 'ACUMULADA' and
+                                                   m.id_funcionario = v_record.id_funcionario);
+
+
+                if (v_record.saldo > v_acumulado.dias) then
+
+
+
+                      perform asis.f_calcular_saldo_gestion(v_acumulado.fecha_reg,
+                      									    v_acumulado.dias,
+                                                            v_record,
+                                                            v_record.saldo);
+
+
+                else
+
+                	  insert into temporal_saldo (id_funcionario,
+                                                    codigo,
+                                                    desc_funcionario1,
+                                                    fecha_contrato,
+                                                    gerencia,
+                                                    departamento,
+                                                    fecha_caducado,
+                                                    gestion,
+                                                    saldo
+                                                    )values(
+                                                    v_record.id_funcionario,
+                                                    v_record.codigo,
+                                                    v_record.desc_funcionario2,
+                                                    v_record.fecha_contrato,
+                                                    v_record.gerencia,
+                                                    v_record.departamento,
+                                                    v_acumulado.fecha_reg,
+                                                    extract(year from v_acumulado.fecha_reg),
+                                                    v_record.saldo
+                                                    );
+
+                end if;
+
+
+        end loop;
+
+
+              	v_consulta:='select  trim(both ''FUNODTPR'' from  ts.codigo)::varchar as codigo,
+                                    ts.desc_funcionario1,
+                                    to_char(ts.fecha_contrato,''DD/MM/YYYY'') as fecha_contrato,
+                                    ts.gerencia,
+                                    ts.departamento,
+                                    ts.gestion,
+                                     to_char(ts.fecha_caducado,''DD/MM/YYYY'') as fecha_caducado,
+                                    ts.saldo,
+                                    ''a''::varchar as ordenar
+                            from temporal_saldo ts
+                            union all
+                            select   trim(both ''FUNODTPR'' from  ts.codigo)::varchar as codigo,
+                                    ts.desc_funcionario1,
+                                    to_char(ts.fecha_contrato,''DD/MM/YYYY'') as fecha_contrato,
+                                    ts.gerencia,
+                                    ts.departamento,
+                                    0::integer as gestion,
+                                    null::text as fecha_caducado,
+                                    sum(ts.saldo) as saldo,
+                                    ''b''::varchar as ordenar
+                            from temporal_saldo ts
+                            group by ts.codigo,
+                                     ts.desc_funcionario1,
+                                     ts.fecha_contrato,
+                            		ts.gerencia,
+                                    ts.departamento
+                            order by gerencia, departamento, desc_funcionario1,ordenar, gestion';
+		   --Devuelve la respuesta
+            return v_consulta;
+
+		end;
+
 
     /*********************************
  	#TRANSACCION:  'ASIS_ANT_SEL'
@@ -563,7 +713,7 @@ BEGIN
                                   inner join orga.tuo ger ON ger.id_uo = orga.f_get_uo_gerencia(uofun.id_uo, NULL::integer, NULL::date)
                                   inner join orga.tuo dep ON dep.id_uo = orga.f_get_uo_departamento(uofun.id_uo, NULL::integer, NULL::date)
                                   left join orga.toficina ofi on car.id_oficina = ofi.id_oficina
-                                  where tc.codigo in (''PLA'', ''EVE'') and UOFUN.tipo = ''oficial'' and
+                                  where tc.codigo in (''PLA'') and UOFUN.tipo = ''oficial'' and
                                   uofun.fecha_asignacion <=  '''||v_parametros.fecha_ini||'''::date and
                                   (uofun.fecha_finalizacion is null or uofun.fecha_finalizacion >=  '''||v_parametros.fecha_ini||'''::date) AND
                                   uofun.estado_reg != ''inactivo''
@@ -771,7 +921,7 @@ BEGIN
                               left join  anticipo ant on ant.id_funcionario = uofun.id_funcionario
                               left join  pagado pag on pag.id_funcionario = uofun.id_funcionario
                               left join  saldo sal on sal.id_funcionario = uofun.id_funcionario
-                              where tc.codigo in (''PLA'', ''EVE'') and UOFUN.tipo = ''oficial'' and
+                              where tc.codigo in (''PLA'') and UOFUN.tipo = ''oficial'' and
                               uofun.fecha_asignacion <= ''02/09/2020''::date and
                               (uofun.fecha_finalizacion is null or uofun.fecha_finalizacion >= ''02/09/2020''::date) AND
                               uofun.estado_reg != ''inactivo''
