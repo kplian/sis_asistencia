@@ -432,7 +432,20 @@ BEGIN
                           where tc.codigo in ('PLA', 'EVE') and UOFUN.tipo = 'oficial' and
                           uofun.fecha_asignacion <= v_parametros.fecha_ini::date and
                           (uofun.fecha_finalizacion is null or uofun.fecha_finalizacion >= v_parametros.fecha_ini::date) AND
-                          uofun.estado_reg != 'inactivo'
+                          uofun.estado_reg != 'inactivo' and
+                              (case
+                          			when v_parametros.id_funcionario is null then
+                                    0 = 0
+                                    else
+                                    uofun.id_funcionario = v_parametros.id_funcionario
+                                    end )
+                                    and
+                                    (case
+                                      when v_parametros.id_uo is null then
+                                      0 = 0
+                                      else
+                                      (ger.id_uo = v_parametros.id_uo or dep.id_uo = v_parametros.id_uo)
+                                      end )
                           order by uofun.id_funcionario, uofun.fecha_asignacion desc)funs
                           inner join asis.tmovimiento_vacacion mm on mm.id_funcionario = funs.id_funcionario
                           ---where funs.id_funcionario = 508
@@ -538,7 +551,6 @@ BEGIN
     	begin
         --Sentencia de la consulta
 
-
         CREATE TEMPORARY TABLE temporal_saldo ( id_funcionario integer,
                                                 codigo varchar,
                                                 desc_funcionario1 varchar,
@@ -573,7 +585,21 @@ BEGIN
                           where tc.codigo in ('PLA', 'EVE') and UOFUN.tipo = 'oficial' and
                           uofun.fecha_asignacion <= v_parametros.fecha_ini::date and
                           (uofun.fecha_finalizacion is null or uofun.fecha_finalizacion >= v_parametros.fecha_ini::date) AND
-                          uofun.estado_reg != 'inactivo'
+                          uofun.estado_reg != 'inactivo'  and
+
+                          (case
+                          			when v_parametros.id_funcionario is null then
+                                    0 = 0
+                                    else
+                                    uofun.id_funcionario = v_parametros.id_funcionario
+                                    end )
+                                    and
+                                    (case
+                                      when v_parametros.id_uo is null then
+                                      0 = 0
+                                      else
+                                      (ger.id_uo = v_parametros.id_uo or dep.id_uo = v_parametros.id_uo)
+                                      end )
                           order by uofun.id_funcionario, uofun.fecha_asignacion desc)funs
                           inner join asis.tmovimiento_vacacion mm on mm.id_funcionario = funs.id_funcionario
                           ---where funs.id_funcionario = 508
@@ -679,7 +705,16 @@ BEGIN
 
     	begin
         --Sentencia de la consulta
+        		v_filtro = '';
 
+                if (v_parametros.id_funcionario is not null )then
+                	v_filtro = 'and uofun.id_funcionario = '||v_parametros.id_funcionario||'';
+                end if;
+
+
+         		if (v_parametros.id_uo is not null )then
+                	v_filtro = 'and (ger.id_uo = '||v_parametros.id_uo ||' or dep.id_uo = '||v_parametros.id_uo ||')';
+                end if;
 
          	v_consulta:='select  fun.desc_funcionario2,
             					 fun.codigo ,
@@ -716,7 +751,7 @@ BEGIN
                                   where tc.codigo in (''PLA'') and UOFUN.tipo = ''oficial'' and
                                   uofun.fecha_asignacion <=  '''||v_parametros.fecha_ini||'''::date and
                                   (uofun.fecha_finalizacion is null or uofun.fecha_finalizacion >=  '''||v_parametros.fecha_ini||'''::date) AND
-                                  uofun.estado_reg != ''inactivo''
+                                  uofun.estado_reg != ''inactivo'' '||v_filtro||'
                                   order by uofun.id_funcionario, uofun.fecha_asignacion desc) fun
                                   order by gerencia, departamento, desc_funcionario2';
 
@@ -825,6 +860,22 @@ BEGIN
     	begin
         --Sentencia de la consulta
 
+        v_filtro = '';
+
+
+            if (v_parametros.id_funcionario is not null) then
+
+            	v_filtro = 'and uofun.id_funcionario = '||v_parametros.id_funcionario;
+
+            end if;
+
+
+            if (v_parametros.id_uo is not null) then
+
+            	 v_filtro = ' and (ger.id_uo = ' || v_parametros.id_uo || 'or dep.id_uo ='||v_parametros.id_uo||')';
+
+            end if;
+
          	v_consulta:='select   ant.desc_funcionario2,
                                   ant.codigo,
                                   ant.gerencia,
@@ -922,9 +973,9 @@ BEGIN
                               left join  pagado pag on pag.id_funcionario = uofun.id_funcionario
                               left join  saldo sal on sal.id_funcionario = uofun.id_funcionario
                               where tc.codigo in (''PLA'') and UOFUN.tipo = ''oficial'' and
-                              uofun.fecha_asignacion <= ''02/09/2020''::date and
-                              (uofun.fecha_finalizacion is null or uofun.fecha_finalizacion >= ''02/09/2020''::date) AND
-                              uofun.estado_reg != ''inactivo''
+                              uofun.fecha_asignacion <= '''||v_parametros.fecha_ini||'''::date and
+                              (uofun.fecha_finalizacion is null or uofun.fecha_finalizacion >= '''||v_parametros.fecha_ini||'''::date) AND
+                              uofun.estado_reg != ''inactivo'' '||v_filtro||'
                               order by uofun.id_funcionario, uofun.fecha_asignacion desc   ) ant
                               order by gerencia, departamento,desc_funcionario2';
 
