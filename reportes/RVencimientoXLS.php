@@ -75,7 +75,7 @@ class RVencimientoXLS{
             ),
         );
         //modificacionw
-        $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(0,2,'SALDO DE VACACIONES');
+        $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(0,2,'VENCIMIENTO DE VACACIONES');
         $this->docexcel->getActiveSheet()->getStyle('A2:F2')->applyFromArray($styleTitulos1);
         $this->docexcel->getActiveSheet()->mergeCells('A2:F2');
         $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(0,3,'Fecha: '.$this->objParam->getParametro('fecha_ini'));
