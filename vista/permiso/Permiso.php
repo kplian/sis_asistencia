@@ -117,7 +117,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     config: {
                         name: 'id_responsable',
                         fieldLabel: 'Responsable',
-                        allowBlank: true,
+                        allowBlank: false,
                         emptyText: 'Elija una opción...',
                         store: new Ext.data.JsonStore({
                             url: '../../sis_asistencia/control/Permiso/listaResponsable',
@@ -166,7 +166,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         gwidth:200,
                         valueField: 'id_funcionario',
                         gdisplayField: 'desc_funcionario',
-                        baseParams: { es_combo_solicitud : 'si' },
+                        baseParams: { fecha : new Date() },
                         renderer:function(value, p, record){return String.format('{0}', record.data['desc_funcionario']);}
                     },
                     type:'ComboRec',//ComboRec
