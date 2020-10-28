@@ -79,6 +79,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     gdisplayField : 'desc_funcionario', //mapea al store del grid
                     valueField : 'id_funcionario',
                     width : 300,
+                    baseParams: { fecha : new Date() },
                     renderer : function(value, p, record) {
                         return String.format('{0}', record.data['desc_funcionario']);
                     }

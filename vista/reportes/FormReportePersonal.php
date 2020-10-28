@@ -65,6 +65,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     gdisplayField: 'desc_funcionario', //mapea al store del grid
                     valueField: 'id_funcionario',
                     width: 230,
+                    baseParams: { fecha : new Date() },
                 },
                 type : 'ComboRec',
                 id_grupo : 2,

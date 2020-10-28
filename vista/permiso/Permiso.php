@@ -690,7 +690,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     }
                 },this);
                 
-                this.Cmp.id_funcionario.store.load({params:{start:0,limit:this.tam_pag},
+                this.Cmp.id_funcionario.store.load({params:{start:0,limit:this.tam_pag,es_combo_solicitud:'si'},
                     callback : function (r) {
                         this.Cmp.id_funcionario.setValue(r[0].data.id_funcionario);
                         this.Cmp.id_funcionario.fireEvent('select', this.Cmp.id_funcionario, r[0]);

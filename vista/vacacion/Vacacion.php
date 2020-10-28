@@ -178,7 +178,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 config: {
                     name: 'id_responsable',
                     fieldLabel: 'Responsable',
-                    allowBlank: true,
+                    allowBlank: false,
                     emptyText: 'Elija una opción...',
                     store: new Ext.data.JsonStore({
                         url: '../../sis_asistencia/control/Permiso/listaResponsable',
@@ -227,7 +227,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     gwidth:200,
                     valueField: 'id_funcionario',
                     gdisplayField: 'desc_funcionario1',
-                    baseParams: {par_filtro: 'id_funcionario#desc_funcionario1#codigo',es_combo_solicitud : 'si'},
+                    baseParams: {par_filtro: 'id_funcionario#desc_funcionario1#codigo',fecha : new Date()},
                     renderer:function(value, p, record){return String.format('{0}', record.data['desc_funcionario1']);}
                 },
                 type:'ComboRec',//ComboRec
@@ -494,7 +494,7 @@ header("content-type: text/javascript; charset=UTF-8");
         onButtonNew:function(){
             Phx.vista.Vacacion.superclass.onButtonNew.call(this);//habilita el boton y se abre
             this.movimientoVacacion(Phx.CP.config_ini.id_funcionario);
-            this.Cmp.id_funcionario.store.load({params:{start:0,limit:this.tam_pag},
+            this.Cmp.id_funcionario.store.load({params:{start:0,limit:this.tam_pag,es_combo_solicitud:'si'},
                 callback : function (r) {
                     this.Cmp.id_funcionario.setValue(r[0].data.id_funcionario);
                     this.Cmp.id_funcionario.fireEvent('select', this.Cmp.id_funcionario, r[0]);
