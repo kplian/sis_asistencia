@@ -99,13 +99,16 @@ BEGIN
                         vac.medio_dia,
                         vac.dias_efectivo,
                         vac.id_responsable,
-                        rep.desc_funcionario1 as responsable
+                        rep.desc_funcionario1 as responsable,
+                        sof.desc_funcionario1 as funcionario_sol,
+                        vac.observaciones
 						from asis.tvacacion vac
 						inner join segu.tusuario usu1 on usu1.id_usuario = vac.id_usuario_reg
                         inner join wf.testado_wf wet on wet.id_estado_wf = vac.id_estado_wf
                         inner join orga.vfuncionario rep on rep.id_funcionario = vac.id_responsable
+                        inner join orga.vfuncionario vf on vf.id_funcionario = vac.id_funcionario
+                        left join orga.vfuncionario sof on sof.id_funcionario = vac.id_funcionario_sol
 						left join segu.tusuario usu2 on usu2.id_usuario = vac.id_usuario_mod
-                        join orga.vfuncionario vf on vf.id_funcionario = vac.id_funcionario
 				        where '||v_filtro;
 
 			--Definicion de la respuesta
@@ -155,8 +158,9 @@ BEGIN
 						inner join segu.tusuario usu1 on usu1.id_usuario = vac.id_usuario_reg
                         inner join wf.testado_wf wet on wet.id_estado_wf = vac.id_estado_wf
                         inner join orga.vfuncionario rep on rep.id_funcionario = vac.id_responsable
+                        inner join orga.vfuncionario vf on vf.id_funcionario = vac.id_funcionario
+                        left join orga.vfuncionario sof on sof.id_funcionario = vac.id_funcionario_sol
 						left join segu.tusuario usu2 on usu2.id_usuario = vac.id_usuario_mod
-                        join orga.vfuncionario vf on vf.id_funcionario = vac.id_funcionario
 					    where '||v_filtro;
 
 			--Definicion de la respuesta

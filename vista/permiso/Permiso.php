@@ -144,7 +144,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         pageSize: 15,
                         queryDelay: 1000,
                         width: 300,
-                        gwidth:200,
+                        gwidth:280,
                         minChars: 2,
                         renderer : function(value, p, record) {
                             return String.format('{0}', record.data['responsable']);
@@ -163,11 +163,20 @@ header("content-type: text/javascript; charset=UTF-8");
                         fieldLabel:'Funcionario',
                         allowBlank:false,
                         width: 300,
-                        gwidth:200,
+                        gwidth:320,
                         valueField: 'id_funcionario',
                         gdisplayField: 'desc_funcionario',
                         baseParams: { fecha : new Date() },
-                        renderer:function(value, p, record){return String.format('{0}', record.data['desc_funcionario']);}
+                        renderer:function(value, p, record){
+                            if(record.data['funcionario_sol'] !== ''){
+                                return '<tpl for="."><div class="x-combo-list-item"><p><b>Registro: </b> '+ record.data['funcionario_sol']+'</p>' +
+                                    '<p><b>Para: </b> '+ record.data['desc_funcionario']+'</p>' +
+                                    '</div></tpl>';
+                            }
+                            else {
+                                return '<tpl for="."><div class="x-combo-list-item"><p>'+record.data['desc_funcionario']+'</p></div></tpl>';
+                            }
+                        }
                     },
                     type:'ComboRec',//ComboRec
                     id_grupo:0,
@@ -175,6 +184,23 @@ header("content-type: text/javascript; charset=UTF-8");
                     bottom_filter:false,
                     grid:true,
                     form:true
+                },
+                {
+                    config:{
+                        name: 'observaciones',
+                        fieldLabel: 'Obs, ',
+                        allowBlank: false,
+                        width: 300,
+                        gwidth: 250,
+                        renderer:function (value,p,record){
+                            return String.format('<b><font color="#a52a2a">{0}</font></b>', value)
+                        }
+                    },
+                    type:'TextArea',
+                    filters:{pfiltro:'pmo.observaciones',type:'string'},
+                    id_grupo:0,
+                    grid:true,
+                    form:false
                 },
                 {
                     config: {
@@ -207,7 +233,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         pageSize: 15,
                         queryDelay: 1000,
                         width: 300,
-                        gwidth: 150,
+                        gwidth: 200,
                         minChars: 2,
                         renderer : function(value, p, record) {
                             return String.format('{0}', record.data['desc_tipo_permiso']);
@@ -291,7 +317,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 {
                     config:{
                         name: 'motivo',
-                        fieldLabel: 'Motivo',
+                        fieldLabel: 'Justificativo ',
                         allowBlank: false,
                         width: 300,
                         gwidth: 250
@@ -301,6 +327,21 @@ header("content-type: text/javascript; charset=UTF-8");
                     id_grupo:0,
                     grid:true,
                     form:true
+                },
+                {
+                    config:{
+                        name: 'usr_reg',
+                        fieldLabel: 'Creado por',
+                        allowBlank: true,
+                        anchor: '80%',
+                        gwidth: 200,
+                        maxLength:4
+                    },
+                    type:'Field',
+                    filters:{pfiltro:'usu1.cuenta',type:'string'},
+                    id_grupo:1,
+                    grid:true,
+                    form:false
                 },
                 {
                     config:{
@@ -395,21 +436,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     grid:false,
                     form:false
                 },
-                {
-                    config:{
-                        name: 'usr_reg',
-                        fieldLabel: 'Creado por',
-                        allowBlank: true,
-                        anchor: '80%',
-                        gwidth: 100,
-                        maxLength:4
-                    },
-                    type:'Field',
-                    filters:{pfiltro:'usu1.cuenta',type:'string'},
-                    id_grupo:1,
-                    grid:true,
-                    form:false
-                },
+
                 {
                     config:{
                         name: 'usuario_ai',
@@ -513,6 +540,9 @@ header("content-type: text/javascript; charset=UTF-8");
                 {name:'hro_total_reposicion',type: 'date',dateFormat:'H:i:s'},
                 {name:'id_responsable', type: 'numeric'},
                 {name:'responsable', type: 'string'},
+
+                {name:'funcionario_sol', type: 'string'},
+                {name:'observaciones', type: 'string'}
             ],
             sortInfo:{
                 field: 'id_permiso',
@@ -690,7 +720,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     }
                 },this);
                 
-                this.Cmp.id_funcionario.store.load({params:{start:0,limit:this.tam_pag,es_combo_solicitud:'si'},
+                this.Cmp.id_funcionario.store.load({params:{start:0,limit:this.tam_pag, es_combo_solicitud:'si'},
                     callback : function (r) {
                         this.Cmp.id_funcionario.setValue(r[0].data.id_funcionario);
                         this.Cmp.id_funcionario.fireEvent('select', this.Cmp.id_funcionario, r[0]);

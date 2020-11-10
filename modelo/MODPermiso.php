@@ -62,6 +62,8 @@ class MODPermiso extends MODbase{
 
         $this->captura('id_responsable','int4');
         $this->captura('responsable','text');
+        $this->captura('funcionario_sol','text');
+        $this->captura('observaciones','text');
 
         //Ejecuta la instruccion
         $this->armarConsulta();
