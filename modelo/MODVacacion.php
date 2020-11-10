@@ -50,6 +50,10 @@ class MODVacacion extends MODbase{
         $this->captura('dias_efectivo', 'numeric');
 		$this->captura('id_responsable','int4');
         $this->captura('responsable','text');
+
+        $this->captura('funcionario_sol','text');
+        $this->captura('observaciones','text');
+
         //Ejecuta la instruccion
 		$this->armarConsulta();
 		$this->ejecutarConsulta();

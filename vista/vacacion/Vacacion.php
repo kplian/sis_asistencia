@@ -224,11 +224,20 @@ header("content-type: text/javascript; charset=UTF-8");
                     fieldLabel:'Funcionario',
                     allowBlank:false,
                     width: 300,
-                    gwidth:200,
+                    gwidth:250,
                     valueField: 'id_funcionario',
                     gdisplayField: 'desc_funcionario1',
                     baseParams: {par_filtro: 'id_funcionario#desc_funcionario1#codigo',fecha : new Date()},
-                    renderer:function(value, p, record){return String.format('{0}', record.data['desc_funcionario1']);}
+                    renderer:function(value, p, record){
+                        if(record.data['funcionario_sol'] !== ''){
+                            return '<tpl for="."><div class="x-combo-list-item"><p><b>Registro: </b> '+ record.data['funcionario_sol']+'</p>' +
+                                '<p><b>Para: </b> '+ record.data['desc_funcionario1']+'</p>' +
+                                '</div></tpl>';
+                        }
+                        else {
+                            return '<tpl for="."><div class="x-combo-list-item"><p>'+record.data['desc_funcionario1']+'</p></div></tpl>';
+                        }
+                    }
                 },
                 type:'ComboRec',//ComboRec
                 id_grupo:1,
@@ -236,6 +245,23 @@ header("content-type: text/javascript; charset=UTF-8");
                 bottom_filter:true,
                 grid:true,
                 form:true,
+            },
+            {
+                config:{
+                    name: 'observaciones',
+                    fieldLabel: 'Obs, ',
+                    allowBlank: false,
+                    width: 300,
+                    gwidth: 250,
+                    renderer:function (value,p,record){
+                        return String.format('<b><font color="#a52a2a">{0}</font></b>', value)
+                    }
+                },
+                type:'TextArea',
+                filters:{pfiltro:'pmo.observaciones',type:'string'},
+                id_grupo:0,
+                grid:true,
+                form:false
             },
             {
                 config:{
@@ -274,17 +300,34 @@ header("content-type: text/javascript; charset=UTF-8");
             {
             config:{
                 name: 'saldo',
-                fieldLabel: 'Saldo',
+                fieldLabel: 'Dias Disponibles',
                 allowBlank: true,
                 anchor: '35%',
                 gwidth: 100,
+                width: 50,
                 readOnly :true,
-                style: 'background-image: none;'
+                style: 'background-image: none; border: 0; font-weight: bold; font-size: 12px;',
+
             },
             type:'NumberField',
-            id_grupo:1,
+            id_grupo:6,
             grid:false,
             form:true,
+            },
+            {
+                config:{
+                    name: 'mensaje',
+                    fieldLabel: '',
+                    allowBlank: true,
+                    anchor: '35%',
+                    gwidth: 100,
+                    readOnly :true,
+                    style: 'background-image: none; border: 0; font-weight: bold; font-size: 12px;',
+                },
+                type:'TextField',
+                id_grupo:6,
+                grid:false,
+                form:true,
             },
             {
 
@@ -455,7 +498,9 @@ header("content-type: text/javascript; charset=UTF-8");
             {name:'medio_dia', type: 'numeric'},
             {name:'dias_efectivo', type: 'numeric'},
             {name:'id_responsable', type: 'numeric'},
-                {name:'responsable', type: 'string'},
+            {name:'responsable', type: 'string'},
+            {name:'funcionario_sol', type: 'string'},
+            {name:'observaciones', type: 'string'}
         ],
         sortInfo:{
             field: 'id_vacacion',
@@ -464,7 +509,7 @@ header("content-type: text/javascript; charset=UTF-8");
         bdel:true,
         bsave:false,
         fwidth: '35%',
-        fheight: '50%',
+        fheight: '63%',
         Grupos: [
             {
                 layout: 'form',
@@ -474,6 +519,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 },
 
                 items: [
+
                     {
                         items: [
                             {
@@ -483,10 +529,29 @@ header("content-type: text/javascript; charset=UTF-8");
                                 items: [],
                                 id_grupo: 1
                             }
-
-
                         ]
-                    }
+                    },
+                    {
+                        items: [{
+                            xtype: 'fieldset',
+                            autoHeight: true,
+                            // title: ' Saldo ',
+                            items: [
+                                {
+                                    xtype: 'compositefield',
+                                    msgTarget : 'side',
+                                    fieldLabel: 'Dias Disponibles',
+                                    defaults: {
+                                        flex: 1,
+                                        padding: 5
+                                    },
+                                    items: [],
+                                    id_grupo: 6
+                                },
+
+                            ]
+                        }]
+                    },
                 ]
             }
         ],
@@ -502,11 +567,15 @@ header("content-type: text/javascript; charset=UTF-8");
                     this.onCargarResponsable(r[0].data.id_funcionario);
                 }, scope : this
             });
+
             this.Cmp.id_funcionario.on('select', function(combo, record, index){
                      this.Cmp.id_responsable.reset();
                      this.Cmp.id_responsable.store.baseParams = Ext.apply(this.Cmp.id_responsable.store.baseParams, {id_funcionario: record.data.id_funcionario});
+                     this.movimientoVacacion(record.data.id_funcionario);
                      this.Cmp.id_responsable.modificado = true;
-                },this);
+            },this);
+
+
         },
         onCargarResponsable:function(id){
                 this.Cmp.id_responsable.store.baseParams = Ext.apply(this.Cmp.id_responsable.store.baseParams, {id_funcionario: id});
@@ -522,7 +591,7 @@ header("content-type: text/javascript; charset=UTF-8");
         onButtonEdit:function(){
             Phx.vista.Vacacion.superclass.onButtonEdit.call(this);
             this.movimientoVacacion(Phx.CP.config_ini.id_funcionario);
-            var inicio;
+            let inicio;
             this.Cmp.fecha_inicio.on('select', function(menu, record){
                 inicio = record;
             },this);
@@ -531,6 +600,12 @@ header("content-type: text/javascript; charset=UTF-8");
             for(var i=0; i<=parseInt(this.Cmp.dias.getValue()); i++){
                 this.arrayStore.Selección[i]=["ID"+(i),(i)];
             }
+            this.Cmp.id_funcionario.on('select', function(combo, record, index){
+                this.Cmp.id_responsable.reset();
+                this.Cmp.id_responsable.store.baseParams = Ext.apply(this.Cmp.id_responsable.store.baseParams, {id_funcionario: record.data.id_funcionario});
+                this.movimientoVacacion(record.data.id_funcionario);
+                this.Cmp.id_responsable.modificado = true;
+            },this);
         },
         onAtras :function (res) {
             var rec=this.sm.getSelected();
@@ -678,6 +753,8 @@ header("content-type: text/javascript; charset=UTF-8");
                 success:function(resp){
                     const reg = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));
                     this.Cmp.saldo.setValue(reg.ROOT.datos.dias_actual); //dias
+                    this.Cmp.mensaje.setValue(reg.ROOT.datos.evento);
+
                 },
                 failure: this.conexionFailure,
                 timeout:this.timeout,

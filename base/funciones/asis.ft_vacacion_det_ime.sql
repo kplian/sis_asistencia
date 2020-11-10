@@ -52,59 +52,57 @@ BEGIN
 
         begin
         	--Sentencia de la insercion
-        	select va.tiempo into v_tiempo
+        	select va.tiempo, va.id_vacacion into v_tiempo, v_id_vacacion
         	from asis.tvacacion_det va
         	where va.id_vacacion_det = v_parametros.id_vacacion_det;
-                
+
 
             if v_tiempo = 'completo' then
                 update asis.tvacacion_det set
                 tiempo = 'mañana'
                 where id_vacacion_det = v_parametros.id_vacacion_det;
             end if;
-            
+
         	if v_tiempo =  'mañana' then
                 update asis.tvacacion_det set
                 tiempo = 'tarde'
         	    where id_vacacion_det = v_parametros.id_vacacion_det;
             end if;
-            
+
             if v_tiempo =  'tarde' then
                 update asis.tvacacion_det set
                 tiempo = 'completo'
         	    where id_vacacion_det = v_parametros.id_vacacion_det;
             end if;
-            
-            
-            
-      /*      select sum(d.dias_efectico) into v_dias_efectivo
-        	from ( 
-            select   
-            	    (case  
-                    				when vd.tiempo  = 'completo' then 
+
+
+          --
+
+            select sum(d.dias_efectico) into v_dias_efectivo
+        	from (
+            select
+            	    (case
+                    				when vd.tiempo  = 'completo' then
                                      1
                                     when vd.tiempo  = 'mañana' then
                                     0.5
                                     when vd.tiempo  = 'tarde' then
                                     0.5
                                     else
-                                    0 
-                                    end ::integer )  as dias_efectico 
-                                    
+                                    0
+                                    end ::numeric )  as dias_efectico
+
             from asis.tvacacion_det vd
-            where vd.id_vacacion =  (select va.id_vacacion
-                                    from asis.tvacacion_det va
-                                    where va.id_vacacion_det = v_parametros.id_vacacion_det)) d;
-            
-            
-            raise exception '%',v_dias_efectivo;
-            
-            update asis.tvacacion  set 
-            dias_efectivo = v_dias_efectivo
-            where  id_vacacion  = (select va.id_vacacion
-                                    from asis.tvacacion_det va
-                                    where va.id_vacacion_det = v_parametros.id_vacacion_det);
-                                    */
+            where vd.id_vacacion = v_id_vacacion) d;
+
+            -- raise exception '% id %',v_dias_efectivo,v_id_vacacion;
+
+
+            update asis.tvacacion  set
+            dias_efectivo = v_dias_efectivo,
+            dias = v_dias_efectivo
+            where  id_vacacion  = v_id_vacacion;
+
             
 			--Definicion de la respuesta
 			v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Vacación detalle almacenado(a) con exito (id_vacacion_det'||v_id_vacacion_det||')');

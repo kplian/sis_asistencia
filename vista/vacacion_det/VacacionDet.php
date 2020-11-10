@@ -264,8 +264,8 @@ header("content-type: text/javascript; charset=UTF-8");
             oncellclick : function(grid, rowIndex, columnIndex, e) {/// revisar
                 const record = this.store.getAt(rowIndex),
                     fieldName = grid.getColumnModel().getDataIndex(columnIndex); // Get field name
-                if (fieldName == 'tiempo'){
-                    if(this.maestro.estado == 'registro')
+                if (fieldName === 'tiempo'){
+                    if(this.maestro.estado === 'registro')
                         this.cambiarAsignacion(record,fieldName);
                 }
             },
@@ -287,6 +287,7 @@ header("content-type: text/javascript; charset=UTF-8");
             successRevision: function(resp){
                 Phx.CP.loadingHide();
                 var reg = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));
+                Phx.CP.getPagina(this.idContenedorPadre).reload();
             }
         }
     )
