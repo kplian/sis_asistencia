@@ -39,8 +39,9 @@ DECLARE
    v_consulta_record			record;
    v_rango						record;
    v_dias_efectivo				numeric;
-       v_descripcion_correo    varchar;
-	v_id_alarma        		integer;
+   v_descripcion_correo    		varchar;
+   v_id_alarma        			integer;
+   v_vista_vacacion				record;
 
 BEGIN
   v_nombre_funcion = 'mat.f_procesar_estados_solicitud';
@@ -62,9 +63,21 @@ BEGIN
 
     if (v_registro.id_funcionario_sol is not null)then
 
+				select va.fecha_solicitud, va.funcionario_solicitante, va.fecha_inicio,va.fecha_fin,va.descripcion
+                into v_vista_vacacion
+                from asis.vvacacion va
+                where va.id_proceso_wf = p_id_proceso_wf;
+
 
                 v_descripcion_correo = '
-                <font size="4">SOLICITUD VACACION</font><br>';
+                	<div>
+                    <p><font size="4">SOLICITUD DE VACACIÓn</font><br></p>
+                    <p>Fecha solicitud: <b>'||v_vista_vacacion.fecha_solicitud||'</b>/p>
+					<p><b>'||v_vista_vacacion.funcionario_solicitante||'</b></p>
+                    <p> Desde: <b>'||v_vista_vacacion.fecha_inicio||'</b Hasta: <b>'||v_vista_vacacion.fecha_fin||'</b </p>
+                    <p> Justificacion: <b>'||v_vista_vacacion.descripcion||'</b</p>
+                    </div>
+                ';
 
                 v_id_alarma = param.f_inserta_alarma(
                                     v_registro.id_funcionario,
