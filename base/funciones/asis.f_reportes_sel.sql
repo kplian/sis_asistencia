@@ -429,7 +429,7 @@ BEGIN
                           inner join orga.vfuncionario fun on fun.id_funcionario = uofun.id_funcionario
                           inner join orga.tuo ger ON ger.id_uo = orga.f_get_uo_gerencia(uofun.id_uo, NULL::integer, NULL::date)
                           inner join orga.tuo dep ON dep.id_uo = orga.f_get_uo_departamento(uofun.id_uo, NULL::integer, NULL::date)
-                          where tc.codigo in ('PLA', 'EVE') and UOFUN.tipo = 'oficial' and
+                          where tc.codigo in ('PLA','EVE') and UOFUN.tipo = 'oficial' and
                           uofun.fecha_asignacion <= v_parametros.fecha_ini::date and
                           (uofun.fecha_finalizacion is null or uofun.fecha_finalizacion >= v_parametros.fecha_ini::date) AND
                           uofun.estado_reg != 'inactivo' and
@@ -448,7 +448,7 @@ BEGIN
                                       end )
                           order by uofun.id_funcionario, uofun.fecha_asignacion desc)funs
                           inner join asis.tmovimiento_vacacion mm on mm.id_funcionario = funs.id_funcionario
-                          ---where funs.id_funcionario = 508
+                          where mm.fecha_reg::date <= v_parametros.fecha_ini::date
                           group by  funs.id_funcionario,
                                     funs.codigo,
                                     funs.desc_funcionario2,
@@ -582,7 +582,7 @@ BEGIN
                           inner join orga.vfuncionario fun on fun.id_funcionario = uofun.id_funcionario
                           inner join orga.tuo ger ON ger.id_uo = orga.f_get_uo_gerencia(uofun.id_uo, NULL::integer, NULL::date)
                           inner join orga.tuo dep ON dep.id_uo = orga.f_get_uo_departamento(uofun.id_uo, NULL::integer, NULL::date)
-                          where tc.codigo in ('PLA', 'EVE') and UOFUN.tipo = 'oficial' and
+                          where tc.codigo in ('PLA','EVE') and UOFUN.tipo = 'oficial' and
                           uofun.fecha_asignacion <= v_parametros.fecha_ini::date and
                           (uofun.fecha_finalizacion is null or uofun.fecha_finalizacion >= v_parametros.fecha_ini::date) AND
                           uofun.estado_reg != 'inactivo'  and
@@ -602,7 +602,7 @@ BEGIN
                                       end )
                           order by uofun.id_funcionario, uofun.fecha_asignacion desc)funs
                           inner join asis.tmovimiento_vacacion mm on mm.id_funcionario = funs.id_funcionario
-                          ---where funs.id_funcionario = 508
+                             where mm.fecha_reg::date <= v_parametros.fecha_ini::date
                           group by  funs.id_funcionario,
                                     funs.codigo,
                                     funs.desc_funcionario2,
@@ -748,7 +748,7 @@ BEGIN
                                   inner join orga.tuo ger ON ger.id_uo = orga.f_get_uo_gerencia(uofun.id_uo, NULL::integer, NULL::date)
                                   inner join orga.tuo dep ON dep.id_uo = orga.f_get_uo_departamento(uofun.id_uo, NULL::integer, NULL::date)
                                   left join orga.toficina ofi on car.id_oficina = ofi.id_oficina
-                                  where tc.codigo in (''PLA'') and UOFUN.tipo = ''oficial'' and
+                                  where tc.codigo in (''PLA'',''EVE'') and UOFUN.tipo = ''oficial'' and
                                   uofun.fecha_asignacion <=  '''||v_parametros.fecha_ini||'''::date and
                                   (uofun.fecha_finalizacion is null or uofun.fecha_finalizacion >=  '''||v_parametros.fecha_ini||'''::date) AND
                                   uofun.estado_reg != ''inactivo'' '||v_filtro||'
@@ -789,7 +789,7 @@ BEGIN
                           inner join orga.vfuncionario_cargo fu on fu.id_funcionario = mv.id_funcionario and (fu.fecha_finalizacion is null or fu.fecha_finalizacion >= now()::date)
                           inner join orga.tuo ger ON ger.id_uo = orga.f_get_uo_gerencia(fu.id_uo, NULL::integer, NULL::date)
                           where mv.id_funcionario = '||v_parametros.id_funcionario||'
-                           order by mv.fecha_reg desc';
+                           order by mv.fecha_reg asc';
 
 		   --Devuelve la respuesta
             return v_consulta;
@@ -807,12 +807,13 @@ BEGIN
     	begin
         --Sentencia de la consulta
 
+
         	v_filtro = '';
 
 
             if (v_parametros.id_funcionario is not null) then
 
-            	v_filtro = 'and fu.id_funcionario = '||v_parametros.id_funcionario;
+            	v_filtro = 'and uofun.id_funcionario = '||v_parametros.id_funcionario;
 
             end if;
 
@@ -823,26 +824,43 @@ BEGIN
 
             end if;
 
-         	v_consulta:='select   ger.nombre_unidad as gerencia,
-            					  dep.nombre_unidad as departamento,
-                                  fu.desc_funcionario2 as desc_funcionario1,
-                                   trim(both ''FUNODTPR'' from  fu.codigo)::varchar as codigo,
+         	v_consulta:='select   funs.gerencia,
+                                  funs.departamento,
+                                  funs.desc_funcionario2  as desc_funcionario,
+                                  funs.codigo,
                                   (case
-                                  		when  mv.dias < 0 then
-                                        -1 *  mv.dias
+                                  		when mm.dias < 0 then
+                                        -1 * mm.dias
                                         else
-                                         mv.dias
-                                         end ) as dias,
-                                  to_char(mv.desde,''DD/MM/YYYY'') as desde,
-                                  to_char(mv.hasta,''DD/MM/YYYY'') as hasta
-                          from asis.tmovimiento_vacacion mv
-                          inner join orga.vfuncionario_cargo fu on fu.id_funcionario = mv.id_funcionario and (fu.fecha_finalizacion is null or fu.fecha_finalizacion >= now()::date)
-                          inner join orga.tuo ger ON ger.id_uo = orga.f_get_uo_gerencia(fu.id_uo, NULL::integer, NULL::date)
-                          inner join orga.tuo dep ON dep.id_uo = orga.f_get_uo_departamento(fu.id_uo, NULL::integer, NULL::date)
-                          where  mv.tipo = ''TOMADA'' '|| v_filtro ||' and  mv.desde >= '''||v_parametros.fecha_ini||''' and  mv.hasta <= '''||v_parametros.fecha_fin||'''
-                          order by gerencia, departamento, desc_funcionario1 ';
+                                        mm.dias
+                                        end) as dias,
+                                  to_char(mm.desde,''DD/MM/YYYY'') as desde,
+                                  to_char(mm.hasta,''DD/MM/YYYY'') as hasta
+                          from (
+                          select distinct on (uofun.id_funcionario) uofun.id_funcionario,
+                                trim(both ''FUNODTPR'' from  fun.codigo)::varchar as codigo,
+                                fun.desc_funcionario2,
+                                ger.nombre_unidad as gerencia,
+                                dep.nombre_unidad as departamento,
+                                plani.f_get_fecha_primer_contrato_empleado(uofun.id_uo_funcionario, uofun.id_funcionario, uofun.fecha_asignacion) as fecha_contrato
 
-		   --Devuelve la respuesta
+                          from orga.tuo_funcionario uofun
+                          inner join orga.tcargo car on car.id_cargo = uofun.id_cargo
+                          inner join orga.ttipo_contrato tc on car.id_tipo_contrato = tc.id_tipo_contrato
+                          inner join orga.vfuncionario fun on fun.id_funcionario = uofun.id_funcionario
+                          inner join orga.tuo ger ON ger.id_uo = orga.f_get_uo_gerencia(uofun.id_uo, NULL::integer, NULL::date)
+                          inner join orga.tuo dep ON dep.id_uo = orga.f_get_uo_departamento(uofun.id_uo, NULL::integer, NULL::date)
+                          where tc.codigo in (''PLA'', ''EVE'') and UOFUN.tipo = ''oficial'' and
+                          uofun.fecha_asignacion <= '''||v_parametros.fecha_fin||'''::date and
+                          (uofun.fecha_finalizacion is null or uofun.fecha_finalizacion >= '''||v_parametros.fecha_ini||''' ::date) AND
+                          uofun.estado_reg != ''inactivo'' '||v_filtro||'
+                          order by uofun.id_funcionario, uofun.fecha_asignacion desc)funs
+                          inner join asis.tmovimiento_vacacion mm on mm.id_funcionario = funs.id_funcionario
+                          where mm.tipo = ''TOMADA'' and mm.fecha_reg::date between '''||v_parametros.fecha_ini||''' ::date and '''||v_parametros.fecha_fin||'''::date
+
+                          order by gerencia, departamento, desc_funcionario2 ';
+
+            --Devuelve la respuesta
 
         	raise notice '%',v_consulta;
             return v_consulta;
@@ -972,7 +990,7 @@ BEGIN
                               left join  anticipo ant on ant.id_funcionario = uofun.id_funcionario
                               left join  pagado pag on pag.id_funcionario = uofun.id_funcionario
                               left join  saldo sal on sal.id_funcionario = uofun.id_funcionario
-                              where tc.codigo in (''PLA'') and UOFUN.tipo = ''oficial'' and
+                              where tc.codigo in (''PLA'',''EVE'') and UOFUN.tipo = ''oficial'' and
                               uofun.fecha_asignacion <= '''||v_parametros.fecha_ini||'''::date and
                               (uofun.fecha_finalizacion is null or uofun.fecha_finalizacion >= '''||v_parametros.fecha_ini||'''::date) AND
                               uofun.estado_reg != ''inactivo'' '||v_filtro||'

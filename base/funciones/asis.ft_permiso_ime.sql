@@ -84,6 +84,7 @@ DECLARE
 
     v_descripcion_correo    varchar;
 	v_id_alarma        		integer;
+    v_vista_permiso			record;
 
 BEGIN
 
@@ -701,8 +702,23 @@ BEGIN
                 if (v_permiso.id_funcionario_sol is not null)then
 
 
+                	select p.tipo_permiso, p.fecha_solicitud, p.funcionario_solicitante, p.hro_desde, p.hro_hasta , p.motivo
+                    into v_vista_permiso
+                    from asis.vpermiso p
+                    where p.id_proceso_wf = v_parametros.id_proceso_wf;
+
+
+
                 v_descripcion_correo = '
-                <font size="4">SOLICITUD PERMISO</font><br>';
+                	<div>
+                    <p><font size="4">SOLICITUD DE PERMISO</font><br></p>
+                    <p>Tipo permiso: <b>'||v_vista_permiso.tipo_permiso||'</b></p>
+                    <p>Fecha solicitud: <b>'||v_vista_permiso.fecha_solicitud||'</b>/p>
+					<p><b>'||v_vista_permiso.funcionario_solicitante||'</b></p>
+                    <p> Desde: <b>'||v_vista_permiso.hro_desde||'</b Hasta: <b>'||v_vista_permiso.hro_hasta||'</b </p>
+                    <p> Justificacion: <b>'||v_vista_permiso.motivo||'</b</p>
+                    </div>
+                ';
 
                 v_id_alarma = param.f_inserta_alarma(
                                     v_permiso.id_funcionario,
@@ -791,7 +807,7 @@ BEGIN
                                 p_id_usuario,
                                 now(),
                                'activo',
-                                325,---v_registros.id_tipo_documento,
+                                313,---v_registros.id_tipo_documento,
                                 v_parametros.id_proceso_wf,
                                 v_permiso.nro_tramite,
                                 'verificar',
