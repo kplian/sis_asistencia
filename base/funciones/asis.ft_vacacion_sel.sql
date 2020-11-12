@@ -75,6 +75,10 @@ BEGIN
                      end if;
                	end if;
             end if;
+
+             if v_parametros.tipo_interfaz = 'VacacionRrhh'then
+                v_filtro = '';
+            end if;
 			v_consulta:='select
 						vac.id_vacacion,
 						vac.estado_reg,
@@ -151,6 +155,11 @@ BEGIN
                     	v_filtro = 'wet.id_funcionario =  '||v_id_funcionario||' and ';
                      end if;
                	end if;
+            end if;
+
+
+             if v_parametros.tipo_interfaz = 'VacacionRrhh'then
+                v_filtro = '';
             end if;
 			--Sentencia de la consulta de conteo de registros
 			v_consulta:='select count(id_vacacion)

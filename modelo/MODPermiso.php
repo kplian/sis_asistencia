@@ -261,6 +261,20 @@ class MODPermiso extends MODbase{
         //Devuelve la respuesta
         return $this->respuesta;
     }
+    function listarEstados (){// MMV
+        //Definicion de variables para ejecucion del procedimientp
+        $this->procedimiento='asis.ft_permiso_sel';
+        $this->transaccion='ASIS_AOES_SEL';
+        $this->tipo_procedimiento='SEL';//tipo de transaccion
 
+        $this->captura('id_tipo_estado','int4');
+        $this->captura('codigo','varchar');
+        $this->captura('nombre_estado','varchar');
+        $this->captura('codigo_macro','varchar');
+
+        $this->armarConsulta();
+        $this->ejecutarConsulta();
+        return $this->respuesta;
+    }
 }
 ?>

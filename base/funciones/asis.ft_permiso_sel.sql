@@ -78,7 +78,7 @@ BEGIN
 
                	end if;
             end if;
-            if v_parametros.tipo_interfaz = 'PermisoRRHH'then
+            if v_parametros.tipo_interfaz = 'PermisoRRHH' or v_parametros.tipo_interfaz = 'PermisoRrhh' then
                 v_filtro = '';
             end if;
 
@@ -133,6 +133,7 @@ BEGIN
 			v_consulta:=v_consulta||v_parametros.filtro;
 			v_consulta:=v_consulta||' order by ' ||v_parametros.ordenacion|| ' ' || v_parametros.dir_ordenacion || ' limit ' || v_parametros.cantidad || ' offset ' || v_parametros.puntero;
 			--Devuelve la respuesta
+            raise notice '%',v_consulta;
 			return v_consulta;
 
 		end;
@@ -175,7 +176,7 @@ BEGIN
                      end if;
                	end if;
             end if;
-            if v_parametros.tipo_interfaz = 'PermisoRRHH'then
+            if v_parametros.tipo_interfaz = 'PermisoRRHH' or v_parametros.tipo_interfaz = 'PermisoRrhh' then
                 v_filtro = '';
             end if;
 			--Sentencia de la consulta de conteo de registros
@@ -243,6 +244,58 @@ BEGIN
                             where fun.id_funcionario in (select *
                                                          from orga.f_get_aprobadores_x_funcionario(CURRENT_DATE,'||v_parametros.id_funcionario||',''todos'',''todos'',''2,3,4,6'') as
                                                         (id_funcionario integer)) and';
+
+			--Definicion de la respuesta
+			v_consulta:=v_consulta||v_parametros.filtro;
+			--Devuelve la respuesta
+			return v_consulta;
+
+		end;
+
+	  /*********************************
+    #TRANSACCION:  'ASIS_AOES_SEL'
+    #DESCRIPCION:	Consult area list
+    #AUTOR:		MMV
+    #FECHA:		17-07-2019 17:41:55
+    ***********************************/
+
+	elsif(p_transaccion='ASIS_AOES_SEL')then
+
+		begin
+			--Sentencia de la consulta
+			v_consulta:=' select ts.id_tipo_estado,
+                                 ts.codigo,
+                                 ts.nombre_estado,
+                                 mp.codigo as codigo_macro
+                          from wf.tproceso_macro mp
+                          inner join wf.ttipo_proceso tp on tp.id_proceso_macro = mp.id_proceso_macro
+                          inner join wf.ttipo_estado ts on ts.id_tipo_proceso = tp.id_tipo_proceso
+                          where ts.estado_reg = ''activo'' and';
+
+			--Definicion de la respuesta
+			v_consulta:=v_consulta||v_parametros.filtro;
+			v_consulta:=v_consulta||' order by ' ||v_parametros.ordenacion|| ' ' || v_parametros.dir_ordenacion || ' limit ' || v_parametros.cantidad || ' offset ' || v_parametros.puntero;
+			--Devuelve la respuesta
+			return v_consulta;
+
+		end;
+
+    /*********************************
+    #TRANSACCION:  'ASIS_AOES_CONT'
+    #DESCRIPCION:	Count area list
+    #AUTOR:		MMV
+    #FECHA:		17-07-2019 17:41:55
+    ***********************************/
+
+	elsif(p_transaccion='ASIS_AOES_CONT')then
+
+		begin
+			--Sentencia de la consulta de conteo de registros
+			v_consulta:=' select count(ts.id_tipo_estado)
+                          from wf.tproceso_macro mp
+                          inner join wf.ttipo_proceso tp on tp.id_proceso_macro = mp.id_proceso_macro
+                          inner join wf.ttipo_estado ts on ts.id_tipo_proceso = tp.id_tipo_proceso
+                          where ts.estado_reg = ''activo'' and';
 
 			--Definicion de la respuesta
 			v_consulta:=v_consulta||v_parametros.filtro;

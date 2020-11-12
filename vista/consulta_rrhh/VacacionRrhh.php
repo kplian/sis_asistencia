@@ -20,9 +20,12 @@ header("content-type: text/javascript; charset=UTF-8");
         bdel:false,
         bsave:false,
         constructor: function(config) {
-            this.Atributos[this.getIndAtributo('id_responsable')].grid=false;
+           // this.Atributos[this.getIndAtributo('id_responsable')].grid=false;
+            this.Atributos[this.getIndAtributo('observaciones')].grid=false;
+
             Phx.vista.VacacionRrhh.superclass.constructor.call(this, config);
             this.store.baseParams = {tipo_interfaz: this.nombreVista};
+            this.getBoton('btn_cancelar').setVisible(false);
 
             this.addButton('btn_siguiente',{grupo:[0,3],
                 text:'Aprobar',
@@ -36,8 +39,17 @@ header("content-type: text/javascript; charset=UTF-8");
                 iconCls: 'bdel',
                 disabled:true,
                 handler:this.onAtras});
-
             this.load({params: {start: 0, limit: this.tam_pag}});
+        },
+        onReloadPage:function(param){
+            this.initFiltro(param);
+        },
+        initFiltro: function(param){
+            this.store.baseParams.param = 'si';
+            this.store.baseParams.desde = param.desde;
+            this.store.baseParams.hasta = param.hasta;
+            this.store.baseParams.id_tipo_estado = param.id_tipo_estado;
+            this.load( { params: { start:0, limit: this.tam_pag } });
         },
         onSiguiente :function () {
             Phx.CP.loadingShow();
