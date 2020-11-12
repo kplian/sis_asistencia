@@ -181,6 +181,7 @@ class MODVacacion extends MODbase{
         $this->setParametro('dias','dias','numeric');
         $this->setParametro('medios_dias','medios_dias','bool');
         $this->setParametro('dias_efectivo', 'dias_efectivo', 'numeric');
+        $this->setParametro('id_funcionario', 'id_funcionario', 'int4');
 
         //Ejecuta la instruccion
         $this->armarConsulta();

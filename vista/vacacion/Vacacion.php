@@ -59,6 +59,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         'dias': 0,
 
                         'medios_dias':  '',
+                        'id_funcionario':  this.Cmp.id_funcionario.getValue()
 
                     },
                     success: this.respuestaValidacion,
@@ -78,6 +79,8 @@ header("content-type: text/javascript; charset=UTF-8");
                         'dias': 0,
 
                         'medios_dias':  '',
+                        'id_funcionario':  this.Cmp.id_funcionario.getValue()
+
 
                     },
                     success: this.respuestaValidacion,
