@@ -273,13 +273,27 @@ BEGIN
 
             --Insertar detalle dias de la solicitud de vacion
 
+
+				select
+            l.codigo
+            into v_lugar
+            from segu.tusuario us
+            join segu.tpersona p on p.id_persona=us.id_persona
+            join orga.tfuncionario f on f.id_persona = p.id_persona
+            join orga.tuo_funcionario uf on uf.id_funcionario=f.id_funcionario
+            join orga.tcargo c on c.id_cargo=uf.id_cargo
+            join param.tlugar l on l.id_lugar=c.id_lugar
+            where uf.estado_reg = 'activo' and uf.tipo = 'oficial'
+            and uf.fecha_asignacion<=now() and coalesce(uf.fecha_finalizacion, now())>=now() and uf.id_funcionario = v_parametros.id_funcionario;
+
+
             for v_record_det in (select dia::date as dia
                                   from generate_series(v_parametros.fecha_inicio,v_parametros.fecha_fin,
                                   '1 day'::interval) dia)loop
 
 			IF NOT EXISTS(select * from param.tferiado f
                                           JOIN param.tlugar l on l.id_lugar = f.id_lugar
-                                          WHERE l.codigo='BO' AND f.fecha = v_record_det.dia::date
+                                          WHERE l.codigo in ('BO',v_lugar) AND f.fecha = v_record_det.dia::date
                                           AND f.id_gestion=v_id_gestion_actual )THEN
 
                 if extract(dow from v_record_det.dia::date) <> 0 then
@@ -346,7 +360,8 @@ BEGIN
             join orga.tuo_funcionario uf on uf.id_funcionario=f.id_funcionario
             join orga.tcargo c on c.id_cargo=uf.id_cargo
             join param.tlugar l on l.id_lugar=c.id_lugar
-            where uf.estado_reg = 'activo' and uf.tipo = 'oficial' and uf.fecha_asignacion<=now() and coalesce(uf.fecha_finalizacion, now())>=now() and us.id_usuario=p_id_usuario;
+            where uf.estado_reg = 'activo' and uf.tipo = 'oficial'
+            and uf.fecha_asignacion<=now() and coalesce(uf.fecha_finalizacion, now())>=now() and uf.id_funcionario = v_parametros.id_funcionario;
 
         	--Sentencia de la insercion
             IF v_parametros.fecha_inicio::DATE > v_parametros.fecha_fin::DATE THEN
@@ -361,6 +376,9 @@ BEGIN
             v_id_gestion_actual
             FROM param.tgestion g
             WHERE v_fecha_aux BETWEEN g.fecha_ini and g.fecha_fin;
+
+				---
+
 
             WHILE (SELECT (v_fecha_aux::date) <= v_parametros.fecha_fin::date ) loop
             	IF(select extract(dow from v_fecha_aux::date)not in (v_sabado, v_domingo) ) THEN
@@ -705,7 +723,7 @@ BEGIN
             		and v.activo = 'activo';
 
 
-            if (v_movimiento.dias_actual <= 0)then
+            if (COALESCE(v_movimiento.dias_actual,0) <= 0)then
 
         		v_mensaje = 'Saldo no disponible';
 
@@ -715,7 +733,7 @@ BEGIN
             v_resp = pxp.f_agrega_clave(v_resp,'mensaje','El existo papu');
             v_resp = pxp.f_agrega_clave(v_resp,'id_funcionario',v_parametros.id_funcionario::varchar);
             v_resp = pxp.f_agrega_clave(v_resp,'tipo',v_movimiento.tipo::varchar);
-            v_resp = pxp.f_agrega_clave(v_resp,'dias_actual',v_movimiento.dias_actual::varchar);
+            v_resp = pxp.f_agrega_clave(v_resp,'dias_actual',COALESCE(v_movimiento.dias_actual,0)::varchar);
 			v_resp = pxp.f_agrega_clave(v_resp,'evento',v_mensaje::varchar);
             --Devuelve la respuesta
             return v_resp;
