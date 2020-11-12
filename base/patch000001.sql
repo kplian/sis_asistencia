@@ -407,7 +407,8 @@ CREATE TABLE asis.ttipo_permiso (
 ) INHERITS (pxp.tbase)
 WITH (oids = false);
 
- CREATE TABLE asis.tpermiso (
+
+CREATE TABLE asis.tpermiso (
   id_permiso SERIAL,
   id_funcionario INTEGER NOT NULL,
   fecha_solicitud DATE NOT NULL,
@@ -425,6 +426,10 @@ WITH (oids = false);
   reposicion VARCHAR(20),
   hro_total_permiso TIME WITHOUT TIME ZONE,
   hro_total_reposicion TIME WITHOUT TIME ZONE,
+  jornada VARCHAR(10),
+  id_responsable INTEGER,
+  id_funcionario_sol INTEGER,
+  observaciones TEXT,
   CONSTRAINT tpermiso_pkey PRIMARY KEY(id_permiso)
 ) INHERITS (pxp.tbase)
 WITH (oids = false);
@@ -455,6 +460,13 @@ ALTER TABLE asis.tpermiso
 
 ALTER TABLE asis.tpermiso
   ALTER COLUMN nro_tramite SET STATISTICS 0;
+
+ALTER TABLE asis.tpermiso
+  OWNER TO dbaamamani;
+
+
+
+
 
 CREATE TABLE asis.tpares (
   id_pares SERIAL,
@@ -597,6 +609,10 @@ CREATE TABLE asis.tvacacion (
   id_gestion INTEGER,
   medio_dia INTEGER,
   dias_efectivo NUMERIC,
+  prestado VARCHAR(5) DEFAULT 'no'::character varying,
+  id_responsable INTEGER,
+  id_funcionario_sol INTEGER,
+  observaciones TEXT,
   CONSTRAINT tvacacion_id_proceso_wf_key UNIQUE(id_proceso_wf),
   CONSTRAINT tvacacion_pkey PRIMARY KEY(id_vacacion)
 ) INHERITS (pxp.tbase)
@@ -613,6 +629,12 @@ ALTER TABLE asis.tvacacion
 
 ALTER TABLE asis.tvacacion
   ALTER COLUMN descripcion SET STATISTICS 0;
+
+COMMENT ON COLUMN asis.tvacacion.prestado
+IS 'bandera para sabe si la vacacion ya no tiene salgo y se puede prestar dias su proxima vacaciones';
+
+ALTER TABLE asis.tvacacion
+  OWNER TO dbaamamani;
 
 /***********************************F-SCP-AUG-ASIS-1-23/10/2019****************************************/
 /***********************************I-SCP-MMV-ASIS-1-24/10/2019****************************************/
