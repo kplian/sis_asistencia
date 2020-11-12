@@ -42,6 +42,26 @@ class ACTPermiso extends ACTbase{
         if ($this->objParam->getParametro('tipo_interfaz') == 'PermisoRRHH'){
             $this->objParam->addFiltro("pmo.estado <> ''registro''");
         }
+
+          if ($this->objParam->getParametro('tipo_interfaz') == 'PermisoRrhh') {
+
+              $filtroInit = "pmo.fecha_solicitud = now()::date";
+
+              $this->objParam->addFiltro("pmo.estado = ''vobo''");
+
+              if ($this->objParam->getParametro('param') != '') {
+                  if ($this->objParam->getParametro('desde') != '' && $this->objParam->getParametro('hasta') != '') {
+                      $filtroInit = "pmo.fecha_solicitud >= '' " . $this->objParam->getParametro('desde') . "'' and pmo.fecha_solicitud <= ''" . $this->objParam->getParametro('hasta') . "''";
+                  }
+                  if ($this->objParam->getParametro('id_tipo_estado') != '') {
+                      $this->objParam->addFiltro("pmo.id_estado_wf =  " . $this->objParam->getParametro('id_tipo_estado') . " and ");
+                  }
+              }
+              $this->objParam->addFiltro($filtroInit);
+
+          }
+
+
         if($this->objParam->getParametro('tipoReporte')=='excel_grid' || $this->objParam->getParametro('tipoReporte')=='pdf_grid'){
             $this->objReporte = new Reporte($this->objParam,$this);
             $this->res = $this->objReporte->generarReporteListado('MODPermiso','listarPermiso');
@@ -101,6 +121,20 @@ class ACTPermiso extends ACTbase{
         $this->res=$this->objFunc->aprobarEstado($this->objParam);
         $this->res->imprimirRespuesta($this->res->generarJson());
     }
+    function listarEstados(){
+        $this->objParam->defecto('ordenacion','id_tipo_estado');
+        $this->objParam->defecto('dir_ordenacion','asc');
+
+           if ($this->objParam->getParametro('marco') != '' && $this->objParam->getParametro('codigo') != ''){
+              //  var_dump($this->objParam->getParametro('marco') ,$this->objParam->getParametro('codigo'));exit;
+               $this->objParam->addFiltro("mp.codigo = ''".$this->objParam->getParametro('marco') ."'' and  tp.codigo =''".$this->objParam->getParametro('codigo')."'' ");
+
+           }
+        $this->objFunc=$this->create('MODPermiso');
+        $this->res=$this->objFunc->listarEstados($this->objParam);
+        $this->res->imprimirRespuesta($this->res->generarJson());
+    }
+
 }
 
 ?>

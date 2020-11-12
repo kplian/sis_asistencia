@@ -35,6 +35,23 @@ class ACTVacacion extends ACTbase{
         if ($this->objParam->getParametro('tipo_interfaz') == 'VacacionVoBo'){
             $this->objParam->addFiltro("vac.estado = ''vobo''");
         }
+        if ($this->objParam->getParametro('tipo_interfaz') == 'VacacionRrhh') {
+
+            $filtroInit = "vac.fecha_reg::date = now()::date";
+
+            $this->objParam->addFiltro("vac.estado = ''vobo''");
+
+          if ($this->objParam->getParametro('param') != '') {
+                if ($this->objParam->getParametro('desde') != '' && $this->objParam->getParametro('hasta') != '') {
+                    $filtroInit = "vac.fecha_reg::date >= '' " . $this->objParam->getParametro('desde') . "'' and vac.fecha_reg::date <= ''" . $this->objParam->getParametro('hasta') . "''";
+                }
+                if ($this->objParam->getParametro('id_tipo_estado') != '') {
+                    $this->objParam->addFiltro("vac.id_estado_wf =  " . $this->objParam->getParametro('id_tipo_estado') . " and ");
+                }
+            }
+            $this->objParam->addFiltro($filtroInit);
+
+        }
         //var_dump("hiola", $this->objParam); exit;
 		if($this->objParam->getParametro('tipoReporte')=='excel_grid' || $this->objParam->getParametro('tipoReporte')=='pdf_grid'){
 			$this->objReporte = new Reporte($this->objParam,$this);

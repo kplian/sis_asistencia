@@ -27,15 +27,20 @@ header("content-type: text/javascript; charset=UTF-8");
 
             Phx.vista.FormFiltro.superclass.constructor.call(this,config);
             this.init();
-
+             this.inicialEvento();
             if(config.detalle){
-                //cargar los valores para el FormFiltro
                 this.loadForm({data: config.detalle});
-               /* var me = this;
+                const me = this;
                 setTimeout(function(){
-                    me.onSubmit()
-                }, 1500);*/
+                  //  me.onSubmit()
+                    console.log(12)
+                }, 1000);
             }
+        },
+
+        inicialEvento:function(){
+            this.Cmp.desde.setValue(new Date());
+            this.Cmp.hasta.setValue(new Date());
         },
         //
         Atributos:[
@@ -43,7 +48,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 config:{
                     name: 'desde',
                     fieldLabel: 'Fecha (Desde)',
-                    allowBlank: true,
+                    allowBlank: false,
                     format: 'd/m/Y',
                     width: 180
                 },
@@ -55,7 +60,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 config:{
                     name: 'hasta',
                     fieldLabel: 'Fecha (Hasta)',
-                    allowBlank: true,
+                    allowBlank: false,
                     format: 'd/m/Y',
                     width: 180
                 },
@@ -63,7 +68,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 id_grupo: 0,
                 form: true
             },
-            {
+            /*{
                 config: {
                     name: 'id_tipo_estado',
                     fieldLabel: 'Estado',
@@ -71,7 +76,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     resizable:true,
                     emptyText: 'Elija una opción...',
                     store: new Ext.data.JsonStore({
-                        url: '../../sis_auditoria/control/AuditoriaOportunidadMejora/listarEstados',
+                        url: '../../sis_asistencia/control/Permiso/listarEstados',
                         id: 'id_tipo_estado',
                         root: 'datos',
                         sortInfo: {
@@ -81,7 +86,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         totalProperty: 'total',
                         fields: ['id_tipo_estado', 'codigo','nombre_estado'],
                         remoteSort: true,
-                        baseParams: {par_filtro: 'ts.codigo'}
+                        baseParams: {par_filtro: 'ts.codigo', marco:'PER',codigo:'PER-ASI'}
                     }),
                     valueField: 'codigo',
                     displayField: 'nombre_estado',
@@ -101,25 +106,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 type: 'ComboBox',
                 id_grupo: 0,
                 form: true
-            },
-            {
-                config: {
-                    name: 'id_uo',
-                    baseParams: {
-                        estado_reg : 'activo'
-                    },
-                    origen:'UO',
-                    allowBlank:true,
-                    fieldLabel:'Area',
-                    gdisplayField:'nombre_unidad', //mapea al store del grid
-                    tpl:'<tpl for="."><div class="x-combo-list-item"><p>{nombre_unidad}</p> </div></tpl>',
-                    gwidth: 250,
-                    width: 180
-                },
-                type:'ComboRec',
-                id_grupo:0,
-                form:true
-            }
+            }*/
         ],
         labelSubmit: '<i class="fa fa-check"></i> Aplicar Filtro',
         east: {
@@ -131,31 +118,32 @@ header("content-type: text/javascript; charset=UTF-8");
         title: 'Filtro',
         autoScroll: true,
 
-        onSubmit:function(){
-
-            var me = this;
-
+        onSubmit:function(o){
+            const me = this;
             if (this.form.getForm().isValid()) {
-                var parametros = me.getValForm();
-                this.fireEvent('beforesave',this,this.getValues());
-                this.getValues();
-                this.onEnablePanel(me.idContenedorPadre, parametros)
+                const parametros = me.getValForm();
+
+                const desde = this.Cmp.desde.getValue();
+                const hasta = this.Cmp.hasta.getValue();
+                const id_tipo_estado = null;
+                this.onEnablePanel(this.idContenedor + '-east',
+                    Ext.apply(parametros,{
+                        'desde': desde,
+                        'hasta': hasta,
+                        'id_tipo_estado': id_tipo_estado
+                    }));
             }
         },
 
         getValues:function(){
-            var resp = {
-                id_gestion : this.Cmp.id_gestion.getValue(),
-                desde : this.Cmp.desde.getValue(),
-                hasta : this.Cmp.hasta.getValue(),
-            }
-            return resp;
+            return {
+                desde: this.Cmp.desde.getValue(),
+                hasta: this.Cmp.hasta.getValue(),
+                // id_tipo_estado: this.Cmp.id_tipo_estado.getValue()
+            };
         },
         loadValoresIniciales: function(){
             Phx.vista.FormFiltro.superclass.loadValoresIniciales.call(this);
-        },
-        onReloadPage:function(){
-
         }
 
     })
