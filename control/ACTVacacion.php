@@ -113,6 +113,15 @@ class ACTVacacion extends ACTbase{
         $this->res=$this->objFunc->aprobarEstado($this->objParam);
         $this->res->imprimirRespuesta($this->res->generarJson());
     }
+
+    function listarFuncionarioOficiales(){
+		$this->objParam->defecto('ordenacion','id_funcionario');
+        // $this->objParam->defecto('dir_ordenacion','asc');
+        
+        $this->objFunc=$this->create('MODVacacion');
+		$this->res=$this->objFunc->listarFuncionarioOficiales($this->objParam);
+		$this->res->imprimirRespuesta($this->res->generarJson());
+	}
 			
 }
 

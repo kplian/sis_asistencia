@@ -264,5 +264,27 @@ class MODVacacion extends MODbase{
         //Devuelve la respuesta
         return $this->respuesta;
     }
+    function listarFuncionarioOficiales(){
+		//Definicion de variables para ejecucion del procedimientp
+		$this->procedimiento='asis.ft_vacacion_sel';
+		$this->transaccion='ASIS_REFOF_SEL';
+		$this->tipo_procedimiento='SEL';//tipo de transaccion
+				
+		//Definicion de la lista del resultado del query
+		$this->captura('id_funcionario','int4');
+		$this->captura('desc_funcionario','text');
+		$this->captura('codigo','varchar');
+		$this->captura('cargo','varchar');
+		$this->captura('departamento','varchar');
+		$this->captura('oficina','varchar');
+
+        //Ejecuta la instruccion
+		$this->armarConsulta();
+		$this->ejecutarConsulta();
+		
+		//Devuelve la respuesta
+		return $this->respuesta;
+	}
+
 }
 ?>
