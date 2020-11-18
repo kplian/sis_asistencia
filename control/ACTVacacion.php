@@ -30,6 +30,9 @@ class ACTVacacion extends ACTbase{
                 case 'aprobado':
                     $this->objParam->addFiltro("vac.estado = ''aprobado''");
                     break;
+                case 'cancelado':
+                        $this->objParam->addFiltro("vac.estado = ''cancelado''");
+                        break;
             }
         }
         if ($this->objParam->getParametro('tipo_interfaz') == 'VacacionVoBo'){
@@ -39,7 +42,7 @@ class ACTVacacion extends ACTbase{
 
             $filtroInit = "vac.fecha_reg::date = now()::date";
 
-            $this->objParam->addFiltro("vac.estado = ''vobo''");
+            $this->objParam->addFiltro("vac.estado in (''vobo'',''aprobado'')");
 
           if ($this->objParam->getParametro('param') != '') {
                 if ($this->objParam->getParametro('desde') != '' && $this->objParam->getParametro('hasta') != '') {
@@ -117,7 +120,14 @@ class ACTVacacion extends ACTbase{
     function listarFuncionarioOficiales(){
 		$this->objParam->defecto('ordenacion','id_funcionario');
         // $this->objParam->defecto('dir_ordenacion','asc');
-        
+        $date = date('d/m/Y');
+
+        if( $this->objParam->getParametro('es_combo_solicitud') == 'si' ) {
+			
+			$this->objParam->addFiltro("uofun.id_funcionario in (select * 
+										from orga.f_get_funcionarios_x_usuario_asistente(''" . $date . "'', " .
+																						 $_SESSION["ss_id_usuario"] . ") AS (id_funcionario INTEGER)) ");
+		}
         $this->objFunc=$this->create('MODVacacion');
 		$this->res=$this->objFunc->listarFuncionarioOficiales($this->objParam);
 		$this->res->imprimirRespuesta($this->res->generarJson());
