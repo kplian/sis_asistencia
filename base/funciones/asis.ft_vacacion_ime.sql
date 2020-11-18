@@ -72,14 +72,14 @@ DECLARE
     v_id_mov_actual				integer;
     v_vacacion_record			record;
     v_registro_estado 	  		record;
-
+    
     va_id_tipo_estado 	  		integer [];
     va_codigo_estado 		  	varchar [];
     va_disparador 	      		varchar [];
     va_regla 				  	varchar [];
     va_prioridad 		      	integer [];
 	v_id_sol_funcionario		integer;
-    v_record_solicitud			record;
+    v_record_solicitud			record;	
 
 BEGIN
 
@@ -213,18 +213,18 @@ BEGIN
 
              end if;
 
-
+			 
             v_id_sol_funcionario = null;
-
+            
             select fp.id_funcionario, fp.desc_funcionario1 into v_record_solicitud
             from segu.vusuario usu
             inner join orga.vfuncionario_persona fp on fp.id_persona = usu.id_persona
             where usu.id_usuario  = p_id_usuario;
-
+    			
             if(v_record_solicitud.id_funcionario <> v_parametros.id_funcionario)then
-                v_id_sol_funcionario = v_record_solicitud.id_funcionario;
+                v_id_sol_funcionario = v_record_solicitud.id_funcionario; 
             end if;
-
+            
 
 
             insert into asis.tvacacion( estado_reg,
@@ -273,27 +273,13 @@ BEGIN
 
             --Insertar detalle dias de la solicitud de vacion
 
-
-				select
-            l.codigo
-            into v_lugar
-            from segu.tusuario us
-            join segu.tpersona p on p.id_persona=us.id_persona
-            join orga.tfuncionario f on f.id_persona = p.id_persona
-            join orga.tuo_funcionario uf on uf.id_funcionario=f.id_funcionario
-            join orga.tcargo c on c.id_cargo=uf.id_cargo
-            join param.tlugar l on l.id_lugar=c.id_lugar
-            where uf.estado_reg = 'activo' and uf.tipo = 'oficial'
-            and uf.fecha_asignacion<=now() and coalesce(uf.fecha_finalizacion, now())>=now() and uf.id_funcionario = v_parametros.id_funcionario;
-
-
             for v_record_det in (select dia::date as dia
-                                  from generate_series(v_parametros.fecha_inicio,v_parametros.fecha_fin,
+                                  from generate_series(v_parametros.fecha_inicio,v_parametros.fecha_fin, 
                                   '1 day'::interval) dia)loop
 
 			IF NOT EXISTS(select * from param.tferiado f
                                           JOIN param.tlugar l on l.id_lugar = f.id_lugar
-                                          WHERE l.codigo in ('BO',v_lugar) AND f.fecha = v_record_det.dia::date
+                                          WHERE l.codigo='BO' AND f.fecha = v_record_det.dia::date  
                                           AND f.id_gestion=v_id_gestion_actual )THEN
 
                 if extract(dow from v_record_det.dia::date) <> 0 then
@@ -323,12 +309,12 @@ BEGIN
                         end if;
                     end if;
                 END IF;
-
+                    
             end loop;
+         
 
 
-
-
+            
 
 
 			--Definicion de la respuesta
@@ -360,8 +346,7 @@ BEGIN
             join orga.tuo_funcionario uf on uf.id_funcionario=f.id_funcionario
             join orga.tcargo c on c.id_cargo=uf.id_cargo
             join param.tlugar l on l.id_lugar=c.id_lugar
-            where uf.estado_reg = 'activo' and uf.tipo = 'oficial'
-            and uf.fecha_asignacion<=now() and coalesce(uf.fecha_finalizacion, now())>=now() and uf.id_funcionario = v_parametros.id_funcionario;
+            where uf.estado_reg = 'activo' and uf.tipo = 'oficial' and uf.fecha_asignacion<=now() and coalesce(uf.fecha_finalizacion, now())>=now() and us.id_usuario=p_id_usuario;
 
         	--Sentencia de la insercion
             IF v_parametros.fecha_inicio::DATE > v_parametros.fecha_fin::DATE THEN
@@ -376,9 +361,6 @@ BEGIN
             v_id_gestion_actual
             FROM param.tgestion g
             WHERE v_fecha_aux BETWEEN g.fecha_ini and g.fecha_fin;
-
-				---
-
 
             WHILE (SELECT (v_fecha_aux::date) <= v_parametros.fecha_fin::date ) loop
             	IF(select extract(dow from v_fecha_aux::date)not in (v_sabado, v_domingo) ) THEN
@@ -711,9 +693,9 @@ BEGIN
 
 		begin
 			--Sentencia de la modificacion
-
+			  
               v_mensaje = 'Saldo disponible';
-
+              
               select v.tipo,
                    v.dias_actual
                    into
@@ -721,19 +703,19 @@ BEGIN
             from asis.tmovimiento_vacacion v
             where v.id_funcionario = v_parametros.id_funcionario
             		and v.activo = 'activo';
-
-
-            if (COALESCE(v_movimiento.dias_actual,0) <= 0)then
-
-        		v_mensaje = 'Saldo no disponible';
-
+                    
+                    
+            if (v_movimiento.dias_actual <= 0)then
+           
+        		v_mensaje = 'Saldo no disponible'; 
+            	
             end if;
 
 			--Definicion de la respuesta
             v_resp = pxp.f_agrega_clave(v_resp,'mensaje','El existo papu');
             v_resp = pxp.f_agrega_clave(v_resp,'id_funcionario',v_parametros.id_funcionario::varchar);
             v_resp = pxp.f_agrega_clave(v_resp,'tipo',v_movimiento.tipo::varchar);
-            v_resp = pxp.f_agrega_clave(v_resp,'dias_actual',COALESCE(v_movimiento.dias_actual,0)::varchar);
+            v_resp = pxp.f_agrega_clave(v_resp,'dias_actual',v_movimiento.dias_actual::varchar);
 			v_resp = pxp.f_agrega_clave(v_resp,'evento',v_mensaje::varchar);
             --Devuelve la respuesta
             return v_resp;
@@ -750,54 +732,58 @@ BEGIN
 
 		begin
 			--Sentencia de la modificacion
-
-
+            
+            
             select v.id_vacacion, v.id_funcionario into v_vacacion_record
             from asis.tvacacion v
             where v.id_vacacion = v_parametros.id_vacacion;
-
-
-
+			
+         
+            
             select m.id_movimiento_vacacion, m.id_funcionario into v_movimiento_vacacion
             from asis.tmovimiento_vacacion m
             where m.id_vacacion = v_parametros.id_vacacion
 				 and m.activo = 'activo';
-
+            
                -- raise exception '%',v_movimiento_vacacion;
-
+            
             delete from asis.tmovimiento_vacacion  mv
             where mv.id_movimiento_vacacion = v_movimiento_vacacion.id_movimiento_vacacion
             	and mv.activo = 'activo';
-
-
+                
+                
            -- raise exception '% -> %',v_parametros.id_vacacion
             delete from asis.tpares pa
             where pa.id_vacacion = v_parametros.id_vacacion
             	and pa.id_funcionario = v_vacacion_record.id_funcionario;
-
-
+            
+            
             select mm.id_movimiento_vacacion into v_id_mov_actual
             from asis.tmovimiento_vacacion mm
             where mm.id_funcionario = v_movimiento_vacacion.id_funcionario
             		and mm.fecha_reg = (select max(m.fecha_reg)
                                         from asis.tmovimiento_vacacion m
                                         where m.id_funcionario = v_movimiento_vacacion.id_funcionario);
-
-
+                             
+               
             update asis.tmovimiento_vacacion set
             activo = 'activo',
             estado_reg = 'activo'
             where id_movimiento_vacacion = v_id_mov_actual;
-
-
-            delete from asis.tvacacion  v
+            
+			
+             update asis.tvacacion set
+             estado = 'cancelado'
+             where id_vacacion = v_parametros.id_vacacion;
+            
+          /*  delete from asis.tvacacion  v
             where v.id_vacacion = v_parametros.id_vacacion;
-
+            
             delete from asis.tvacacion_det vd
-            where vd.id_vacacion = v_parametros.id_vacacion;
-
-
-
+            where vd.id_vacacion = v_parametros.id_vacacion;*/
+            
+            
+            
 			--Definicion de la respuesta
             v_resp = pxp.f_agrega_clave(v_resp,'mensaje','El existo papu');
             v_resp = pxp.f_agrega_clave(v_resp,'id_vacacion',v_parametros.id_vacacion::varchar);
@@ -806,16 +792,16 @@ BEGIN
             return v_resp;
 
 		end;
-
+        
         /****************************************************
     #TRANSACCION:     'ASIS_VVB_IME'
     #DESCRIPCION:     Cambiar de estado
     #AUTOR:           MMV
     #FECHA:			  31-01-2020 13:53:10
     ***************************************************/
-
+    
     elsif( p_transaccion='ASIS_VVB_IME') then
-
+    	
    	 begin
 
           -- Validar estado
@@ -826,14 +812,14 @@ BEGIN
                   te.id_tipo_estado,
                   te.pedir_obs,
                   pw.nro_tramite
-                into
+                into 
                   v_registro_estado
                 from wf.tproceso_wf pw
                 inner join wf.testado_wf ew  on ew.id_proceso_wf = pw.id_proceso_wf and ew.estado_reg = 'activo'
                 inner join wf.ttipo_estado te on ew.id_tipo_estado = te.id_tipo_estado
                 where pw.id_proceso_wf =  v_parametros.id_proceso_wf;
-
-
+                
+               
                select v.id_vacacion,
                	      v.id_responsable,
                       v.descripcion
@@ -841,7 +827,7 @@ BEGIN
                       v_vacacion_record
                from  asis.tvacacion v
                where v.id_proceso_wf = v_parametros.id_proceso_wf;
-
+              
                select  ps_id_tipo_estado,
                        ps_codigo_estado,
                        ps_disparador,
@@ -857,17 +843,17 @@ BEGIN
                                                null,
                                                v_registro_estado.id_tipo_estado,
                                                'siguiente',
-                                               p_id_usuario);
-
-
-
+                                               p_id_usuario); 
+                       
+                   
+                   
                       v_acceso_directo = '';
                       v_clase = '';
                       v_parametros_ad = '';
                       v_tipo_noti = 'notificacion';
                       v_titulo  = 'Aprobado';
-
-
+                       
+                       
                        v_id_estado_actual = wf.f_registra_estado_wf(  va_id_tipo_estado[1]::integer,
                                                                       v_vacacion_record.id_responsable,--v_parametros.id_funcionario_wf,
                                                                       v_registro_estado.id_estado_wf,
@@ -882,17 +868,17 @@ BEGIN
                                                                       v_parametros_ad,
                                                                       v_tipo_noti,
                                                                       v_titulo);
-
-
+                                                                  
+              
             /* update asis.tvacacion set
               id_estado_wf =  v_id_estado_actual,
               estado = va_codigo_estado[1],
               id_usuario_mod=p_id_usuario,
               fecha_mod=now()
              where id_proceso_wf  = v_parametros.id_proceso_wf;*/
-
-
-
+             
+             
+             
              	IF NOT asis.f_procesar_estado_vacacion( p_id_usuario,
                                                         v_parametros._id_usuario_ai,
                                                         v_parametros._nombre_usuario_ai,
@@ -903,7 +889,7 @@ BEGIN
          			RAISE NOTICE 'PASANDO DE ESTADO';
 
           		END IF;
-
+             
             --Definicion de la respuesta
             v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Exito');
             v_resp = pxp.f_agrega_clave(v_resp,'id_proceso_wf',v_parametros.id_proceso_wf::varchar);
@@ -911,7 +897,7 @@ BEGIN
             --Devuelve la respuesta
             return v_resp;
 
-
+   
 
  		end;
 

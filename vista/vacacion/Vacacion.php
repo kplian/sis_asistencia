@@ -169,7 +169,15 @@ header("content-type: text/javascript; charset=UTF-8");
                     allowBlank: true,
                     anchor: '80%',
                     gwidth: 80,
-                    maxLength:10
+                    maxLength:10,
+                    renderer: function(value,p,record){
+                        const color = 'red';
+                        if(record.data['estado'] === 'cancelado'){
+                            return '<font color="'+color+'">'+record.data['estado']+'</font>';
+                        }else{
+                            return '<font color=#040404 >'+record.data['estado']+'</font>';
+                        }
+                    }
                 },
                 type:'TextField',
                 filters:{pfiltro:'vac.estado',type:'string'},

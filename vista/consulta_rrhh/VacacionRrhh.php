@@ -39,6 +39,14 @@ header("content-type: text/javascript; charset=UTF-8");
                 iconCls: 'bdel',
                 disabled:true,
                 handler:this.onAtras});
+            
+            this.addButton('btn_cancelar',{grupo:[6],
+                text:'Cancelar',
+                iconCls: 'bassign',
+                disabled:true,
+                handler:this.onCancelar,
+                tooltip: '<b>Cancelar</b><p>la vacacion en caso que no tomara </p>'});
+
             this.load({params: {start: 0, limit: this.tam_pag}});
         },
         onReloadPage:function(param){
