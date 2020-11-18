@@ -73,9 +73,9 @@ BEGIN
                      if v_id_funcionario is not null then
                     	v_filtro = 'wet.id_funcionario =  '||v_id_funcionario||' and ';
                      end if;
-               	end if;
+               	end if; 
             end if;
-
+            
              if v_parametros.tipo_interfaz = 'VacacionRrhh'then
                 v_filtro = '';
             end if;
@@ -156,8 +156,8 @@ BEGIN
                      end if;
                	end if;
             end if;
-
-
+            
+            
              if v_parametros.tipo_interfaz = 'VacacionRrhh'then
                 v_filtro = '';
             end if;
@@ -301,6 +301,70 @@ BEGIN
             v_consulta:='select a.dias_asignados from param.tantiguedad a ';
             return v_consulta;
         end;
+    
+        /*********************************
+ 	#TRANSACCION:  'ASIS_REFOF_SEL'  
+ 	#DESCRIPCION:	Listar funcionario
+ 	#AUTOR:		miguel.mamani
+ 	#FECHA:		31-01-2019 13:53:10
+	***********************************/
+    elsif(p_transaccion='ASIS_REFOF_SEL')then
+		begin
+
+       		v_consulta:='select distinct on (uofun.id_funcionario) uofun.id_funcionario,
+                                           pe.nombre_completo1::text as desc_funcionario1,
+                                           fun.codigo,
+                                           car.nombre as cargo,
+                                           dep.nombre_unidad as departamento,
+                                           ofi.nombre as oficina
+                        from orga.tuo_funcionario uofun
+                        inner join orga.tfuncionario fun on fun.id_funcionario = uofun.id_funcionario
+                        inner join segu.vpersona pe on pe.id_persona = fun.id_persona
+                        inner join orga.tcargo car on car.id_cargo = uofun.id_cargo
+                        inner join orga.ttipo_contrato tc on car.id_tipo_contrato = tc.id_tipo_contrato
+                        inner join orga.tuo dep ON dep.id_uo = orga.f_get_uo_departamento(uofun.id_uo, NULL::integer, NULL::date)
+                        inner join orga.toficina ofi on ofi.id_oficina = car.id_oficina
+                        where tc.codigo in (''PLA'', ''EVE'') and UOFUN.tipo = ''oficial'' and uofun.fecha_asignacion <=  now()::date and
+                         (uofun.fecha_finalizacion is null or uofun.fecha_finalizacion >= now()::date) and
+                         uofun.estado_reg != ''inactivo'' and ';
+
+            --Definicion de la respuesta
+
+			v_consulta:=v_consulta||v_parametros.filtro;
+			v_consulta:=v_consulta||' order by uofun.id_funcionario, uofun.fecha_asignacion desc' || v_parametros.dir_ordenacion || ' limit ' || v_parametros.cantidad || ' offset ' || v_parametros.puntero;
+            raise notice '%',v_consulta;
+            return v_consulta;
+        end;
+    /*********************************
+ 	#TRANSACCION:  'ASIS_REFOF_CONT'  
+ 	#DESCRIPCION:	count Listar funcionario
+ 	#AUTOR:		miguel.mamani
+ 	#FECHA:		31-01-2019 13:53:10
+	***********************************/
+    elsif(p_transaccion='ASIS_REFOF_CONT')then
+
+		begin
+			--Sentencia de la consulta de conteo de registros
+            
+            v_consulta:='select count(distinct uofun.id_funcionario) 
+                          from orga.tuo_funcionario uofun
+                          inner join orga.tfuncionario fun on fun.id_funcionario = uofun.id_funcionario
+                          inner join segu.vpersona pe on pe.id_persona = fun.id_persona
+                          inner join orga.tcargo car on car.id_cargo = uofun.id_cargo
+                          inner join orga.ttipo_contrato tc on car.id_tipo_contrato = tc.id_tipo_contrato
+                          inner join orga.tuo dep ON dep.id_uo = orga.f_get_uo_departamento(uofun.id_uo, NULL::integer, NULL::date)
+                          inner join orga.toficina ofi on ofi.id_oficina = car.id_oficina
+                          where tc.codigo in (''PLA'', ''EVE'') and UOFUN.tipo = ''oficial'' and uofun.fecha_asignacion <=  now()::date and
+                           (uofun.fecha_finalizacion is null or uofun.fecha_finalizacion >= now()::date) and
+                           uofun.estado_reg != ''inactivo'' and ';
+
+			--Definicion de la respuesta
+			v_consulta:=v_consulta||v_parametros.filtro;
+			--Devuelve la respuesta
+
+			return v_consulta;
+
+		end;
 
 	else
 

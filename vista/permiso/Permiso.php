@@ -128,7 +128,7 @@ header("content-type: text/javascript; charset=UTF-8");
                                 direction: 'ASC'
                             },
                             totalProperty: 'total',
-                            fields: ['id_funcionario','desc_funcionario'],
+                            fields: ['id_funcionario','desc_funcionario','desc_funcionario_cargo'],
                             remoteSort: true,
                             baseParams: {par_filtro: 'fun.desc_funcionario'}
                         }),
@@ -136,6 +136,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         displayField: 'desc_funcionario',
                         gdisplayField: 'responsable',
                         hiddenName: 'id_responsable',
+                        tpl: '<tpl for="."><div class="x-combo-list-item"><p><b>{desc_funcionario}</b></p><p>{desc_funcionario_cargo}</p></div></tpl>',
                         forceSelection: true,
                         typeAhead: false,
                         triggerAction: 'all',
@@ -156,18 +157,36 @@ header("content-type: text/javascript; charset=UTF-8");
                     form: true
                 },
                 {
-                    config:{
-                        name:'id_funcionario',
-                        hiddenName: 'id_funcionario',
-                        origen:'FUNCIONARIOCAR',
-                        fieldLabel:'Funcionario',
-                        allowBlank:false,
-                        width: 300,
-                        gwidth:320,
-                        valueField: 'id_funcionario',
-                        gdisplayField: 'desc_funcionario',
-                        baseParams: { fecha : new Date() },
-                        renderer:function(value, p, record){
+                config: {
+                    name: 'id_funcionario',
+                    fieldLabel: 'Funcionario',
+                    allowBlank: false,
+                    emptyText: 'Elija una opción...',
+                    store: new Ext.data.JsonStore({
+                        url: '../../sis_asistencia/control/Vacacion/listarFuncionarioOficiales',
+                        id: 'id_funcionario',
+                        root: 'datos',
+                        totalProperty: 'total',
+                        fields: ['id_funcionario','desc_funcionario','codigo','cargo','departamento','oficina'],
+                        remoteSort: true,
+                        baseParams: {par_filtro: 'pe.nombre_completo1'}
+                    }),
+                    valueField: 'id_funcionario',
+                    displayField: 'desc_funcionario',
+                    gdisplayField: 'responsable',
+                    hiddenName: 'Funcionario',
+                    tpl: '<tpl for="."><div class="x-combo-list-item"><p><b>{desc_funcionario}</b></p><p>{codigo}</p><p>{cargo}</p><p>{departamento}</p><p>{oficina}</p> </div></tpl>',
+                    forceSelection: true,
+                    typeAhead: false,
+                    triggerAction: 'all',
+                    lazyRender: true,
+                    mode: 'remote',
+                    pageSize: 15,
+                    queryDelay: 1000,
+                    width: 300,
+                    gwidth:200,
+                    minChars: 2,
+                    renderer:function(value, p, record){
                             if(record.data['funcionario_sol'] !== ''){
                                 return '<tpl for="."><div class="x-combo-list-item"><p><b>Registro: </b> '+ record.data['funcionario_sol']+'</p>' +
                                     '<p><b>Para: </b> '+ record.data['desc_funcionario']+'</p>' +
@@ -178,12 +197,10 @@ header("content-type: text/javascript; charset=UTF-8");
                             }
                         }
                     },
-                    type:'ComboRec',//ComboRec
-                    id_grupo:0,
-                    filters:{pfiltro:'fun.desc_funcionario1',type:'string'},
-                    bottom_filter:false,
-                    grid:true,
-                    form:true
+                    type: 'ComboBox',
+                    id_grupo: 1,
+                    grid: true,
+                    form: true
                 },
                 {
                     config:{
