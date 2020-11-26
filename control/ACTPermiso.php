@@ -21,7 +21,7 @@ class ACTPermiso extends ACTbase{
 
             switch ($this->objParam->getParametro('pes_estado')) {
                 case 'registro':
-                    $this->objParam->addFiltro("pmo.estado = ''registro''"); // un where de conuslta de sel es una concatenando
+                    $this->objParam->addFiltro("pmo.estado in (''registro'',''rechazado'')"); // un where de conuslta de sel es una concatenando
                     break;
                 case 'vobo':
                     $this->objParam->addFiltro("pmo.estado = ''vobo''");
@@ -45,7 +45,21 @@ class ACTPermiso extends ACTbase{
 
           if ($this->objParam->getParametro('tipo_interfaz') == 'PermisoRrhh') {
 
-              $filtroInit = "pmo.fecha_solicitud = now()::date";
+              switch ($this->objParam->getParametro('pes_estado')) {
+                  case 'vobo':
+                      $this->objParam->addFiltro("pmo.estado = ''vobo''");
+                      break;
+                  case 'aprobado':
+                      $this->objParam->addFiltro("pmo.estado = ''aprobado''");
+                      break;
+                  case 'rechazado':
+                      $this->objParam->addFiltro("pmo.estado = ''rechazado''");
+                      break;
+                  case 'cancelado':
+                      $this->objParam->addFiltro("pmo.estado = ''cancelado''");
+                      break;
+              }
+             /* $filtroInit = "pmo.fecha_solicitud = now()::date";
 
               $this->objParam->addFiltro("pmo.estado = ''vobo''");
 
@@ -57,7 +71,7 @@ class ACTPermiso extends ACTbase{
                       $this->objParam->addFiltro("pmo.id_estado_wf =  " . $this->objParam->getParametro('id_tipo_estado') . " and ");
                   }
               }
-              $this->objParam->addFiltro($filtroInit);
+              $this->objParam->addFiltro($filtroInit);*/
 
           }
 

@@ -215,7 +215,7 @@ BEGIN
                                     ''''::text  as desc_funcionario_cargo
                             from  orga.vfuncionario fun
                             where fun.id_funcionario in (select *
-                                                         from orga.f_get_aprobadores_x_funcionario(CURRENT_DATE,'||v_parametros.id_funcionario||',''todos'',''todos'',''2,3,4,6'') as
+                                                         from orga.f_get_aprobadores_x_funcionario(CURRENT_DATE,'||v_parametros.id_funcionario||',''todos'',''todos'',''1,2,3,4,6'') as
                                                         (id_funcionario integer)) and';
 
 			--Definicion de la respuesta
