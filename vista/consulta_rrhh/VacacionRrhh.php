@@ -19,6 +19,23 @@ header("content-type: text/javascript; charset=UTF-8");
         bedit:false,
         bdel:false,
         bsave:false,
+        actualizarSegunTab: function(name, indice){
+            if (this.finCons) {
+                this.store.baseParams.pes_estado = name;
+                this.load({params: {start: 0, limit: this.tam_pag}});
+            }
+        },
+        // tab
+        gruposBarraTareas:[
+            {name:'vobo',title:'<h1 align="center"><i></i>VoBo</h1>',grupo:1,height:0},
+            {name:'aprobado',title:'<h1 align="center"><i></i>Aprobado</h1>',grupo:1,height:0},
+            {name:'cancelado',title:'<h1 align="center"><i></i>Cancelado</h1>',grupo:1,height:0}
+        ],
+        bnewGroups:[0],
+        bactGroups:[0,1,2],
+        bdelGroups:[0],
+        beditGroups:[0],
+        bexcelGroups:[0,1,2],
         constructor: function(config) {
            // this.Atributos[this.getIndAtributo('id_responsable')].grid=false;
             this.Atributos[this.getIndAtributo('observaciones')].grid=false;

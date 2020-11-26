@@ -19,14 +19,31 @@ header("content-type: text/javascript; charset=UTF-8");
         bedit:false,
         bdel:false,
         tam_pag:50,
+        actualizarSegunTab: function(name, indice){
+            if (this.finCons) {
+                this.store.baseParams.pes_estado = name;
+                this.load({params: {start: 0, limit: this.tam_pag}});
+            }
+        },
+        // tab
+        gruposBarraTareas:[
+            {name:'vobo',title:'<h1 align="center"><i></i>VoBo</h1>',grupo:3,height:0},
+            {name:'aprobado',title:'<h1 align="center"><i></i>Aprobado</h1>',grupo:3,height:0},
+            {name:'rechazado',title:'<h1 align="center"><i></i>Rechazado</h1>',grupo:3,height:0},
+            {name:'cancelado',title:'<h1 align="center"><i></i>Cancelado</h1>',grupo:3,height:0}
+        ],
+        bnewGroups:[0,3],
+        bactGroups:[0,1,2,3],
+        bdelGroups:[0],
+        beditGroups:[0],
+        bexcelGroups:[0,1,2,3],
         //funcion para mandar el name de tab
         constructor: function(config) {
-           // this.Atributos[this.getIndAtributo('id_responsable')].grid=false;
-            this.Atributos[this.getIndAtributo('observaciones')].grid=false;
-
+            // this.Atributos[this.getIndAtributo('observaciones')].grid=false;
             Phx.vista.PermisoRrhh.superclass.constructor.call(this, config);
            // this.store.baseParams = {tipo_interfaz: this.nombreVista};
             this.store.baseParams.tipo_interfaz = this.nombreVista;
+            this.store.baseParams.pes_estado = 'vobo';
 
             this.addButton('btn_siguiente',{grupo:[0,3],
                 text:'Aprobar',
@@ -59,7 +76,9 @@ header("content-type: text/javascript; charset=UTF-8");
                     url: '../../sis_asistencia/control/Permiso/aprobarEstado',
                     params: {
                         id_proceso_wf:  rec.data.id_proceso_wf,
-                        id_estado_wf:  rec.data.id_estado_wf
+                        id_estado_wf:  rec.data.id_estado_wf,
+                        evento : 'siguiente'
+
                     },
                     success: this.successWizard,
                     failure: this.conexionFailure,

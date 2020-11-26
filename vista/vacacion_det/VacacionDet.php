@@ -111,7 +111,6 @@ header("content-type: text/javascript; charset=UTF-8");
                     filters:{pfiltro:'vde.fecha_dia',type:'date'},
                     id_grupo:1,
                     grid:true,
-                    bottom_filter:true,
                     form:true
                 },
                 {

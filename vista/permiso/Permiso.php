@@ -198,9 +198,12 @@ header("content-type: text/javascript; charset=UTF-8");
                         }
                     },
                     type: 'ComboBox',
+                    filters:{pfiltro:'fun.desc_funcionario1',type:'string'},
                     id_grupo: 1,
                     grid: true,
-                    form: true
+                    form: true,
+                    bottom_filter:true
+
                 },
                 {
                     config:{
@@ -793,12 +796,12 @@ header("content-type: text/javascript; charset=UTF-8");
             onAntEstado: function(wizard,resp){
                 Phx.CP.loadingShow();
                 Ext.Ajax.request({
-                    url:'../../sis_asistencia/control/Permiso/anteriorEstado',
-                    params:{
+                    url: '../../sis_asistencia/control/Permiso/aprobarEstado',
+                    params: {
                         id_proceso_wf: resp.id_proceso_wf,
                         id_estado_wf:  resp.id_estado_wf,
-                        obs: resp.obs,
-                        estado_destino: resp.estado_destino
+                        evento : 'rechazado',
+                        obs: resp.obs
                     },
                     argument:{wizard:wizard},
                     success:this.successEstadoSinc,
@@ -820,7 +823,9 @@ header("content-type: text/javascript; charset=UTF-8");
                             url: '../../sis_asistencia/control/Permiso/aprobarEstado',
                             params: {
                                 id_proceso_wf:  rec.data.id_proceso_wf,
-                                id_estado_wf:  rec.data.id_estado_wf
+                                id_estado_wf:  rec.data.id_estado_wf,
+                                evento : 'aprobado',
+                                obs : ''
                             },
                             success: this.successWizard,
                             failure: this.conexionFailure,

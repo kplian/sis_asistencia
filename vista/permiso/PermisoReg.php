@@ -44,6 +44,13 @@ header("content-type: text/javascript; charset=UTF-8");
             this.store.baseParams.pes_estado = 'registro';
             this.getBoton('btn_atras').setVisible(false);
             // this.finCons = true;
+            this.addButton('btnChequeoDocumentosWf',{
+                text: 'Documentos',
+                iconCls: 'bchecklist',
+                disabled: true,
+                handler: this.loadCheckDocumentosRecWf,
+                tooltip: '<b>Documentos </b><br/>Subir los documetos requeridos.'
+            });
             this.load({params: {start: 0, limit: this.tam_pag}});
         }
     };

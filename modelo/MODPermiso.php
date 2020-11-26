@@ -256,6 +256,9 @@ class MODPermiso extends MODbase{
         //Define los parametros para la funcion
         $this->setParametro('id_proceso_wf','id_proceso_wf','int4');
         $this->setParametro('id_estado_wf','id_estado_wf','int4');
+        $this->setParametro('evento','evento','varchar');
+        $this->setParametro('obs', 'obs', 'text');
+
         $this->armarConsulta();
         $this->ejecutarConsulta();
         //Devuelve la respuesta
