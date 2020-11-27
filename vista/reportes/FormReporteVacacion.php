@@ -183,6 +183,7 @@ header("content-type: text/javascript; charset=UTF-8");
             this.Cmp.reporte.on('select',function(c,r,i) {
                 if(r.data.field1 === 'Historial de Vacaciones'){
                     this.ocultarComponente(this.Cmp.fecha_ini);
+                    this.ocultarComponente(this.Cmp.fecha_fin);
                     this.ocultarComponente(this.Cmp.id_uo);
                     this.ocultarComponente(this.Cmp.id_tipo_contrato);
                 }
@@ -196,6 +197,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     this.mostrarComponente(this.Cmp.id_uo);
                     this.mostrarComponente(this.Cmp.id_tipo_contrato);
                     this.ocultarComponente(this.Cmp.fecha_fin);
+
                 }
 
                 console.log(r.data.field1)
