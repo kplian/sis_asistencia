@@ -213,12 +213,12 @@ class MODReportes extends MODbase{
         $this->captura('dia','numeric');
         $this->captura('saldo','numeric');
         $this->captura('nombre_unidad','varchar');
-        $this->captura('fecha_contrato','date');
+        $this->captura('fecha_contrato','text');
 
         //Ejecuta la instruccion
         $this->armarConsulta();
         $this->ejecutarConsulta();
-        // var_dump($this->respuesta);exit;
+         // var_dump($this->respuesta);exit;
         //Devuelve la respuesta
         return $this->respuesta;
     }
@@ -282,7 +282,7 @@ class MODReportes extends MODbase{
         //Ejecuta la instruccion
         $this->armarConsulta();
         $this->ejecutarConsulta();
-       //  var_dump($this->respuesta);exit;
+        //  var_dump($this->respuesta);exit;
         //Devuelve la respuesta
         return $this->respuesta;
     }
@@ -315,7 +315,7 @@ class MODReportes extends MODbase{
         //Ejecuta la instruccion
         $this->armarConsulta();
         $this->ejecutarConsulta();
-        // var_dump($this->respuesta);exit;
+        /// var_dump($this->respuesta);exit;
         //Devuelve la respuesta
         return $this->respuesta;
     }
@@ -347,7 +347,7 @@ class MODReportes extends MODbase{
         //Ejecuta la instruccion
         $this->armarConsulta();
         $this->ejecutarConsulta();
-         //var_dump($this->respuesta);exit;
+        //var_dump($this->respuesta);exit;
         //Devuelve la respuesta
         return $this->respuesta;
     }
@@ -372,15 +372,9 @@ class MODReportes extends MODbase{
         //Ejecuta la instruccion
         $this->armarConsulta();
         $this->ejecutarConsulta();
-         // var_dump($this->respuesta);exit;
+        // var_dump($this->respuesta);exit;
         //Devuelve la respuesta
         return $this->respuesta;
     }
-
-
-
 }
 ?>
-
-
-

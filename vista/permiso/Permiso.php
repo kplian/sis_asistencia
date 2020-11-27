@@ -203,7 +203,6 @@ header("content-type: text/javascript; charset=UTF-8");
                     grid: true,
                     form: true,
                     bottom_filter:true
-
                 },
                 {
                     config:{
