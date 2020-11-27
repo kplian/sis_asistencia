@@ -26,31 +26,17 @@ header("content-type: text/javascript; charset=UTF-8");
                     lazyRender:true,
                     mode: 'local',
                     width:300,
-                     store:['Saldo','Anticipadas','Vencimiento','Resumen','Personal en Vacaciones','Historial de Vacaciones']
+                     store:['Saldo','Anticipadas','Resumen','Personal en Vacaciones','Historial de Vacaciones']
                 },
                 type:'ComboBox',
                 id_grupo:0,
                 valorInicial: 'Anticipadas',
                 form:true
             },
-          /*  {
-                config:{
-                    name : 'id_gestion',
-                    origen : 'GESTION',
-                    fieldLabel : 'Gestion',
-                    allowBlank : true,
-                    valueField : 'gestion',
-                    width : 300,
-
-                },
-                type : 'ComboRec',
-                id_grupo : 0,
-                form : true
-            },*/
             {
                 config : {
                     name : 'fecha_ini',
-                    fieldLabel : 'Fecha',
+                    fieldLabel : 'Desde',
                     allowBlank : true,
                     format : 'd/m/Y',
                     width : 300,
@@ -59,10 +45,11 @@ header("content-type: text/javascript; charset=UTF-8");
                 id_grupo : 0,
                 form : true
             },
-           /* {
+
+            {
                 config : {
                     name : 'fecha_fin',
-                    fieldLabel: 'Fecha Hasta',
+                    fieldLabel: 'Hasta',
                     allowBlank: true,
                     format: 'd/m/Y',
                     width : 300
@@ -70,30 +57,12 @@ header("content-type: text/javascript; charset=UTF-8");
                 type : 'DateField',
                 id_grupo : 1,
                 form : true
-            },*/
-           /* {
-                config : {
-                    name : 'id_funcionario',
-                    origen : 'FUNCIONARIOCAR',
-                    fieldLabel : 'Funcionario',
-                    gdisplayField : 'desc_funcionario', //mapea al store del grid
-                    valueField : 'id_funcionario',
-                    width : 300,
-                    baseParams: { fecha : new Date() },
-                    renderer : function(value, p, record) {
-                        return String.format('{0}', record.data['desc_funcionario']);
-                    }
-                },
-                type : 'ComboRec',
-                id_grupo : 2,
-                grid : true,
-                form : true
-            },*/
+            },
             {
                 config: {
                     name: 'id_funcionario',
                     fieldLabel: 'Funcionario',
-                    allowBlank: false,
+                    allowBlank: true,
                     emptyText: 'Elija una opción...',
                     store: new Ext.data.JsonStore({
                         url: '../../sis_asistencia/control/Vacacion/listarFuncionarioOficiales',
@@ -102,7 +71,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         totalProperty: 'total',
                         fields: ['id_funcionario','desc_funcionario','codigo','cargo','departamento','oficina'],
                         remoteSort: true,
-                        baseParams: {par_filtro: 'pe.nombre_completo1'}
+                        baseParams: {par_filtro: 'pe.nombre_completo1#fun.codigo'}
                     }),
                     valueField: 'id_funcionario',
                     displayField: 'desc_funcionario',
@@ -143,6 +112,44 @@ header("content-type: text/javascript; charset=UTF-8");
                 form:true
             },
             {
+                config: {
+                    name: 'id_tipo_contrato',
+                    fieldLabel: 'Tipo Contrato',
+                    allowBlank: true,
+                    emptyText: 'Dejar en blanco para todos...',
+                    store: new Ext.data.JsonStore({
+                        url: '../../sis_organigrama/control/TipoContrato/listarTipoContrato',
+                        id: 'id_tipo_contrato',
+                        root: 'datos',
+                        sortInfo: {
+                            field: 'nombre',
+                            direction: 'ASC'
+                        },
+                        totalProperty: 'total',
+                        fields: ['id_tipo_contrato', 'nombre', 'codigo'],
+                        remoteSort: true,
+                        baseParams: {par_filtro: 'tipcon.nombre#tipcon.codigo'}
+                    }),
+                    valueField: 'id_tipo_contrato',
+                    displayField: 'nombre',
+                    gdisplayField: 'nombre_tipo_contrato',
+                    hiddenName: 'id_tipo_contrato',
+                    forceSelection: true,
+                    typeAhead: false,
+                    triggerAction: 'all',
+                    lazyRender: true,
+                    mode: 'remote',
+                    pageSize: 15,
+                    queryDelay: 1000,
+                    minChars: 2,
+                    width : 300,
+
+                },
+                type: 'ComboBox',
+                id_grupo: 0,
+                form: true
+            },
+            {
                 config:{
                     name: 'formato',
                     fieldLabel: 'Formato',
@@ -160,6 +167,8 @@ header("content-type: text/javascript; charset=UTF-8");
                 valorInicial: 'PDF',
                 form:true
             },
+
+
         ],
         title : 'Generar Reporte',
         ActSave : '../../sis_asistencia/control/Reporte/listarVacacionesSaldo',
@@ -170,6 +179,27 @@ header("content-type: text/javascript; charset=UTF-8");
         constructor : function(config) {
             Phx.vista.FormReporteVacacion.superclass.constructor.call(this, config);
             this.init();
+            this.ocultarComponente(this.Cmp.fecha_fin);
+            this.Cmp.reporte.on('select',function(c,r,i) {
+                if(r.data.field1 === 'Historial de Vacaciones'){
+                    this.ocultarComponente(this.Cmp.fecha_ini);
+                    this.ocultarComponente(this.Cmp.id_uo);
+                    this.ocultarComponente(this.Cmp.id_tipo_contrato);
+                }
+                else if (r.data.field1 === 'Personal en Vacaciones'){
+                    this.ocultarComponente(this.Cmp.id_uo);
+                    this.ocultarComponente(this.Cmp.id_tipo_contrato);
+                    this.mostrarComponente(this.Cmp.fecha_ini);
+                    this.mostrarComponente(this.Cmp.fecha_fin);
+                }else{
+                    this.mostrarComponente(this.Cmp.fecha_ini);
+                    this.mostrarComponente(this.Cmp.id_uo);
+                    this.mostrarComponente(this.Cmp.id_tipo_contrato);
+                    this.ocultarComponente(this.Cmp.fecha_fin);
+                }
+
+                console.log(r.data.field1)
+            },this);
 
         },
 

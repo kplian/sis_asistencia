@@ -771,8 +771,42 @@ BEGIN
     	begin
         --Sentencia de la consulta
 
+        v_consulta:= 'select  fun.id_funcionario,
+                              fun.desc_funcionario1,
+                              fun.descripcion_cargo,
+                              fun.codigo,
+                              mv.tipo,
+                              to_char(mv.fecha_reg::date,''DD/MM/YYYY'') as fecha,
+                              to_char(mv.desde,''DD/MM/YYYY'') as desde,
+                              to_char(mv.hasta,''DD/MM/YYYY'') as hasta,
+                              coalesce(mv.dias,0) as dias,
+                              coalesce(mv.dias_actual,0)  as saldo,
+                              fun.nombre_unidad,
+                              to_char(fun.fecha_contrato,''DD/MM/YYYY'') as fecha_contrato
+                      from (
+                      select distinct on (uofun.id_funcionario) uofun.id_funcionario,
+                                          trim(both ''FUNODTPR'' from  fun.codigo)::varchar as codigo,
+                                          fun.desc_funcionario1,
+                                          car.nombre as descripcion_cargo,
+                                          dep.nombre_unidad,
+                                          plani.f_get_fecha_primer_contrato_empleado(uofun.id_uo_funcionario, uofun.id_funcionario, uofun.fecha_asignacion) as fecha_contrato
+                          from orga.tuo_funcionario uofun
+                          inner join orga.tcargo car on car.id_cargo = uofun.id_cargo
+                          inner join orga.ttipo_contrato tc on car.id_tipo_contrato = tc.id_tipo_contrato
+                          inner join orga.vfuncionario fun on fun.id_funcionario = uofun.id_funcionario
+                          inner join orga.tuo dep ON dep.id_uo = orga.f_get_uo_departamento(uofun.id_uo, NULL::integer, NULL::date)
+                          where tc.codigo in (''PLA'',''EVE'') and UOFUN.tipo = ''oficial'' and
+                          uofun.fecha_asignacion <=  now()::date and
+                          (uofun.fecha_finalizacion is null or uofun.fecha_finalizacion >= now()::date) AND
+                          uofun.estado_reg != ''inactivo'' and uofun.id_funcionario = '||v_parametros.id_funcionario||'
+                          order by uofun.id_funcionario, uofun.fecha_asignacion desc ) fun
+                          left join asis.tmovimiento_vacacion mv on mv.id_funcionario = fun.id_funcionario
+                          order by mv.fecha_reg asc';
 
 
+
+
+/*
          	v_consulta:='select   fu.id_funcionario,
                                   fu.desc_funcionario1,
                                   fu.descripcion_cargo,
@@ -789,7 +823,7 @@ BEGIN
                           inner join orga.vfuncionario_cargo fu on fu.id_funcionario = mv.id_funcionario and (fu.fecha_finalizacion is null or fu.fecha_finalizacion >= now()::date)
                           inner join orga.tuo ger ON ger.id_uo = orga.f_get_uo_gerencia(fu.id_uo, NULL::integer, NULL::date)
                           where mv.id_funcionario = '||v_parametros.id_funcionario||'
-                           order by mv.fecha_reg asc';
+                           order by mv.fecha_reg asc';*/
 
 		   --Devuelve la respuesta
             return v_consulta;
