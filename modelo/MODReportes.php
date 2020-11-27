@@ -265,7 +265,7 @@ class MODReportes extends MODbase{
         $this->setParametro('id_funcionario', 'id_funcionario', 'int4');
         $this->setParametro('id_uo', 'id_uo', 'int4');
         $this->setParametro('fecha_ini', 'fecha_ini', 'date');
-
+        $this->setParametro('id_tipo_contrato', 'id_tipo_contrato', 'int4');
         //Definicion de la lista del resultado del query
         $this->captura('desc_funcionario1','text');
         $this->captura('codigo','varchar');
@@ -300,7 +300,7 @@ class MODReportes extends MODbase{
         $this->setParametro('id_funcionario', 'id_funcionario', 'int4');
         $this->setParametro('id_uo', 'id_uo', 'int4');
         $this->setParametro('fecha_ini', 'fecha_ini', 'date');
-
+        $this->setParametro('id_tipo_contrato', 'id_tipo_contrato', 'int4');
         //Definicion de la lista del resultado del query
         $this->captura('codigo','varchar');
         $this->captura('desc_funcionario1','varchar');
@@ -362,6 +362,7 @@ class MODReportes extends MODbase{
         $this->setParametro('id_funcionario', 'id_funcionario', 'int4');
         $this->setParametro('id_uo', 'id_uo', 'int4');
         $this->setParametro('fecha_ini', 'fecha_ini', 'date');
+        $this->setParametro('id_tipo_contrato', 'id_tipo_contrato', 'int4');
 
         //Definicion de la lista del resultado del query
         $this->captura('desc_funcionario2','text');
