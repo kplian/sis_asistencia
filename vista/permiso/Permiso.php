@@ -21,13 +21,14 @@ header("content-type: text/javascript; charset=UTF-8");
                 Phx.vista.Permiso.superclass.constructor.call(this,config);
                 this.init();
                 this.finCons = true;
-                this.addButton('btn_siguiente',{grupo:[0,3],
+
+                this.addButton('btn_siguiente',{grupo:[0,2,3],
                     text:'Enviar Solicitud',
                     iconCls: 'bemail',
                     disabled:true,
                     handler:this.onSiguiente});
                     
-                this.addButton('btn_atras',{grupo:[3],
+                this.addButton('btn_atras',{grupo:[2,3],
                     argument: { estado: 'anterior'},
                     text:'Anterior',
                     iconCls: 'batras',
@@ -35,7 +36,16 @@ header("content-type: text/javascript; charset=UTF-8");
                     handler:this.onAtras,
                     tooltip: '<b>Pasar al Anterior Estado</b>'});
 
-              
+                this.addButton('btnChequeoDocumentosWf',{
+                    grupo:[1,2,3,4,5],
+                    text: 'Documentos',
+                    iconCls: 'bchecklist',
+                    disabled: true,
+                    handler: this.loadCheckDocumentosRecWf,
+                    tooltip: '<b>Documentos </b><br/>Subir los documetos requeridos.'
+                });
+
+
 
                 this.addBotonesGantt();
 
@@ -184,16 +194,16 @@ header("content-type: text/javascript; charset=UTF-8");
                     pageSize: 15,
                     queryDelay: 1000,
                     width: 300,
-                    gwidth:200,
+                    gwidth:250,
                     minChars: 2,
                     renderer:function(value, p, record){
                             if(record.data['funcionario_sol'] !== ''){
-                                return '<tpl for="."><div class="x-combo-list-item"><p><b>Registro: </b> '+ record.data['funcionario_sol']+'</p>' +
+                                return '<tpl for="."><div><p><b>Registro: </b> '+ record.data['funcionario_sol']+'</p>' +
                                     '<p><b>Para: </b> '+ record.data['desc_funcionario']+'</p>' +
                                     '</div></tpl>';
                             }
                             else {
-                                return '<tpl for="."><div class="x-combo-list-item"><p>'+record.data['desc_funcionario']+'</p></div></tpl>';
+                                return '<tpl for="."><div><p>'+record.data['desc_funcionario']+'</p></div></tpl>';
                             }
                         }
                     },
@@ -439,6 +449,18 @@ header("content-type: text/javascript; charset=UTF-8");
                     id_grupo:1,
                     grid:true,
                     form:false
+                },{
+                    config:{
+                        name: 'departamento',
+                        fieldLabel: '',
+                        allowBlank: true,
+                        anchor: '80%',
+                        gwidth: 100,
+                        maxLength:10
+                    },
+                    type:'TextField',
+                    id_grupo:1,
+                    grid:true
                 },
                 {
                     config:{
@@ -561,7 +583,9 @@ header("content-type: text/javascript; charset=UTF-8");
                 {name:'responsable', type: 'string'},
 
                 {name:'funcionario_sol', type: 'string'},
-                {name:'observaciones', type: 'string'}
+                {name:'observaciones', type: 'string'},
+                {name:'id_uo', type: 'numeric'},
+                {name:'departamento', type: 'string'}
             ],
             sortInfo:{
                 field: 'id_permiso',
@@ -586,7 +610,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     id: 'b-diagrama_gantt-' + this.idContenedor,
                     text: 'Gantt',
                     disabled: true,
-                    grupo:[0,1,2],
+                    grupo:[0,1,2,4,5],
                     iconCls : 'bgantt',
                     handler:this.diagramGanttDinamico,
                     scope: this,
@@ -625,13 +649,19 @@ header("content-type: text/javascript; charset=UTF-8");
                 this.getBoton('btn_atras').enable();
                 this.getBoton('diagrama_gantt').enable();
                 this.getBoton('btn_siguiente').enable();
+                this.getBoton('btnChequeoDocumentosWf').enable();
             },
             liberaMenu:function() {
-                var tb = Phx.vista.Permiso.superclass.liberaMenu.call(this);
+                const tb = Phx.vista.Permiso.superclass.liberaMenu.call(this);
+                const rec = this.getSelectedData();
+                console.log(rec)
                 if (tb) {
                     this.getBoton('btn_atras').disable();
                     this.getBoton('diagrama_gantt').disable();
                     this.getBoton('btn_siguiente').disable();
+                   // if (rec.documento === 'si'){
+                        this.getBoton('btnChequeoDocumentosWf').disable();
+                   // }
                 }
             },
             onButtonNew:function(){

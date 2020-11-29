@@ -26,11 +26,14 @@ class ACTPermiso extends ACTbase{
                 case 'vobo':
                     $this->objParam->addFiltro("pmo.estado = ''vobo''");
                     break;
-                case 'reposicion':
-                    $this->objParam->addFiltro("pmo.estado = ''reposicion''");
-                    break;
-                case 'finalizado':
+                case 'aprobado':
                     $this->objParam->addFiltro("pmo.estado = ''aprobado''");
+                    break;
+                case 'rechazado':
+                    $this->objParam->addFiltro("pmo.estado = ''rechazado''");
+                    break;
+                case 'cancelado':
+                    $this->objParam->addFiltro("pmo.estado = ''cancelado''");
                     break;
             }
 

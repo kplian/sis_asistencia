@@ -118,16 +118,20 @@ BEGIN
                                 pmo.id_responsable,
                                 rep.desc_funcionario1 as responsable,
                                 ded.desc_funcionario1 as funcionario_sol,
-                                pmo.observaciones
+                                pmo.observaciones,
+                                fun.id_uo,
+                                dep.nombre_unidad as departamento
                                 from asis.tpermiso pmo
                                 inner join segu.tusuario usu1 on usu1.id_usuario = pmo.id_usuario_reg
                                 inner join asis.ttipo_permiso tip on tip.id_tipo_permiso = pmo.id_tipo_permiso
-                                inner join orga.vfuncionario fun on fun.id_funcionario = pmo.id_funcionario
+                                inner join orga.vfuncionario_cargo fun on fun.id_funcionario = pmo.id_funcionario
                                 inner join wf.testado_wf wet on wet.id_estado_wf = pmo.id_estado_wf
                                 inner join orga.vfuncionario rep on rep.id_funcionario = pmo.id_responsable
+                                inner join orga.tuo dep ON dep.id_uo = orga.f_get_uo_departamento(fun.id_uo, NULL::integer, NULL::date)
                                 left join segu.tusuario usu2 on usu2.id_usuario = pmo.id_usuario_mod
                                 left join orga.vfuncionario ded on ded.id_funcionario = pmo.id_funcionario_sol
-                                where  '||v_filtro;
+                                where fun.fecha_asignacion <= now()::date
+                                and (fun.fecha_finalizacion is null or fun.fecha_finalizacion >= now()::date) and '||v_filtro;
 
 			--Definicion de la respuesta
 			v_consulta:=v_consulta||v_parametros.filtro;
@@ -184,12 +188,14 @@ BEGIN
 					    from asis.tpermiso pmo
 					    inner join segu.tusuario usu1 on usu1.id_usuario = pmo.id_usuario_reg
                         inner join asis.ttipo_permiso tip on tip.id_tipo_permiso = pmo.id_tipo_permiso
-                        inner join orga.vfuncionario fun on fun.id_funcionario = pmo.id_funcionario
+                        inner join orga.vfuncionario_cargo fun on fun.id_funcionario = pmo.id_funcionario
                         inner join wf.testado_wf wet on wet.id_estado_wf = pmo.id_estado_wf
                         inner join orga.vfuncionario rep on rep.id_funcionario = pmo.id_responsable
+                        inner join orga.tuo dep ON dep.id_uo = orga.f_get_uo_departamento(fun.id_uo, NULL::integer, NULL::date)
                         left join segu.tusuario usu2 on usu2.id_usuario = pmo.id_usuario_mod
                         left join orga.vfuncionario ded on ded.id_funcionario = pmo.id_funcionario_sol
-					    where '||v_filtro;
+                        where fun.fecha_asignacion <= now()::date
+                        and (fun.fecha_finalizacion is null or fun.fecha_finalizacion >= now()::date) and '||v_filtro;
 
 			--Definicion de la respuesta
 			v_consulta:=v_consulta||v_parametros.filtro;
@@ -215,7 +221,7 @@ BEGIN
                                     ''''::text  as desc_funcionario_cargo
                             from  orga.vfuncionario fun
                             where fun.id_funcionario in (select *
-                                                         from orga.f_get_aprobadores_x_funcionario(CURRENT_DATE,'||v_parametros.id_funcionario||',''todos'',''todos'',''1,2,3,4,6'') as
+                                                         from orga.f_get_aprobadores_x_funcionario(CURRENT_DATE,'||v_parametros.id_funcionario||',''todos'',''todos'',''2,3,4,6'') as
                                                         (id_funcionario integer)) and';
 
 			--Definicion de la respuesta
