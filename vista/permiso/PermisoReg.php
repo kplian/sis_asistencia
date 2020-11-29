@@ -30,27 +30,20 @@ header("content-type: text/javascript; charset=UTF-8");
         gruposBarraTareas:[
             {name:'registro',title:'<h1 align="center"><i></i>Registrado</h1>',grupo:0,height:0},
             {name:'vobo',title:'<h1 align="center"><i></i>VoBo</h1>',grupo:1,height:0},
-            {name:'finalizado',title:'<h1 align="center"><i></i>Finalizado</h1>',grupo:2,height:0}
+            {name:'aprobado',title:'<h1 align="center"><i></i>Aprobado</h1>',grupo:4,height:0},
+            {name:'rechazado',title:'<h1 align="center"><i></i>Rechazados</h1>',grupo:4,height:0},
+            {name:'cancelado',title:'<h1 align="center"><i></i>Cancelados</h1>',grupo:4,height:0}
         ],
-        bnewGroups:[0],
-        bactGroups:[0,1,2],
+        bnewGroups:[0,3],
+        bactGroups:[0,1,2,3,4,5],
         bdelGroups:[0],
         beditGroups:[0],
-        bexcelGroups:[0,1,2],
-
+        bexcelGroups:[0,1,2,3,4,5],
         constructor: function(config) {
             Phx.vista.PermisoReg.superclass.constructor.call(this, config);
             this.store.baseParams = {tipo_interfaz: this.nombreVista};
             this.store.baseParams.pes_estado = 'registro';
             this.getBoton('btn_atras').setVisible(false);
-            // this.finCons = true;
-            this.addButton('btnChequeoDocumentosWf',{
-                text: 'Documentos',
-                iconCls: 'bchecklist',
-                disabled: true,
-                handler: this.loadCheckDocumentosRecWf,
-                tooltip: '<b>Documentos </b><br/>Subir los documetos requeridos.'
-            });
             this.load({params: {start: 0, limit: this.tam_pag}});
         }
     };

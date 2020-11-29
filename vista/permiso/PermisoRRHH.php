@@ -63,7 +63,8 @@ header("content-type: text/javascript; charset=UTF-8");
                 this.getBoton('diagrama_gantt').disable();
                 this.getBoton('btnChequeoDocumentosWf').disable();
             }
-        }
+        },
+       
     };
 </script>
 
