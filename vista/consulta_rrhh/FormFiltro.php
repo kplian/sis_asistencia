@@ -85,45 +85,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 id_grupo:0,
                 form:true
             },
-            /*{
-                config: {
-                    name: 'id_tipo_estado',
-                    fieldLabel: 'Estado',
-                    allowBlank: true,
-                    resizable:true,
-                    emptyText: 'Elija una opción...',
-                    store: new Ext.data.JsonStore({
-                        url: '../../sis_asistencia/control/Permiso/listarEstados',
-                        id: 'id_tipo_estado',
-                        root: 'datos',
-                        sortInfo: {
-                            field: 'codigo',
-                            direction: 'ASC'
-                        },
-                        totalProperty: 'total',
-                        fields: ['id_tipo_estado', 'codigo','nombre_estado'],
-                        remoteSort: true,
-                        baseParams: {par_filtro: 'ts.codigo', marco:'PER',codigo:'PER-ASI'}
-                    }),
-                    valueField: 'codigo',
-                    displayField: 'nombre_estado',
-                    gdisplayField: 'codigo',
-                    hiddenName: 'id_tipo_estado',
-                    forceSelection: true,
-                    typeAhead: false,
-                    triggerAction: 'all',
-                    lazyRender: true,
-                    mode: 'remote',
-                    pageSize: 15,
-                    queryDelay: 1000,
-                    width: 180,
-                    gwidth: 80,
-                    minChars: 2
-                },
-                type: 'ComboBox',
-                id_grupo: 0,
-                form: true
-            }*/
+
         ],
         labelSubmit: '<i class="fa fa-check"></i> Aplicar Filtro',
         east: {
@@ -143,11 +105,13 @@ header("content-type: text/javascript; charset=UTF-8");
                 const desde = this.Cmp.desde.getValue();
                 const hasta = this.Cmp.hasta.getValue();
                 const id_tipo_estado = null;
+                const id_uo = this.Cmp.id_uo.getValue();
                 this.onEnablePanel(this.idContenedor + '-east',
                     Ext.apply(parametros,{
                         'desde': desde,
                         'hasta': hasta,
-                        'id_tipo_estado': id_tipo_estado
+                        'id_tipo_estado': id_tipo_estado,
+                        'id_uo': id_uo
                     }));
             }
         },
@@ -156,7 +120,7 @@ header("content-type: text/javascript; charset=UTF-8");
             return {
                 desde: this.Cmp.desde.getValue(),
                 hasta: this.Cmp.hasta.getValue(),
-                // id_tipo_estado: this.Cmp.id_tipo_estado.getValue()
+                id_uo: this.Cmp.id_uo.getValue()
             };
         },
         loadValoresIniciales: function(){

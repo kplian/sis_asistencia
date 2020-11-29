@@ -119,7 +119,7 @@ BEGIN
                                 rep.desc_funcionario1 as responsable,
                                 ded.desc_funcionario1 as funcionario_sol,
                                 pmo.observaciones,
-                                fun.id_uo,
+                                dep.id_uo,
                                 dep.nombre_unidad as departamento
                                 from asis.tpermiso pmo
                                 inner join segu.tusuario usu1 on usu1.id_usuario = pmo.id_usuario_reg
