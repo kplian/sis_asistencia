@@ -62,7 +62,7 @@ class ACTPermiso extends ACTbase{
                       $this->objParam->addFiltro("pmo.estado = ''cancelado''");
                       break;
               }
-             /* $filtroInit = "pmo.fecha_solicitud = now()::date";
+             $filtroInit = "pmo.fecha_solicitud = now()::date";
 
               $this->objParam->addFiltro("pmo.estado = ''vobo''");
 
@@ -70,11 +70,12 @@ class ACTPermiso extends ACTbase{
                   if ($this->objParam->getParametro('desde') != '' && $this->objParam->getParametro('hasta') != '') {
                       $filtroInit = "pmo.fecha_solicitud >= '' " . $this->objParam->getParametro('desde') . "'' and pmo.fecha_solicitud <= ''" . $this->objParam->getParametro('hasta') . "''";
                   }
-                  if ($this->objParam->getParametro('id_tipo_estado') != '') {
-                      $this->objParam->addFiltro("pmo.id_estado_wf =  " . $this->objParam->getParametro('id_tipo_estado') . " and ");
+                  if ($this->objParam->getParametro('id_uo') != '') {
+
+                      $filtroInit = "dep.id_uo =  " . $this->objParam->getParametro('id_uo') . "  ";
                   }
               }
-              $this->objParam->addFiltro($filtroInit);*/
+              $this->objParam->addFiltro($filtroInit);
 
           }
 

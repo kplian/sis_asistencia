@@ -81,7 +81,7 @@ header("content-type: text/javascript; charset=UTF-8");
             this.store.baseParams.param = 'si';
             this.store.baseParams.desde = param.desde;
             this.store.baseParams.hasta = param.hasta;
-            this.store.baseParams.id_tipo_estado = param.id_tipo_estado;
+            this.store.baseParams.id_uo = param.id_uo;
             this.load( { params: { start:0, limit: this.tam_pag } });
         },
         onSiguiente :function () {
