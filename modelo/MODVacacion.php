@@ -53,7 +53,8 @@ class MODVacacion extends MODbase{
 
         $this->captura('funcionario_sol','text');
         $this->captura('observaciones','text');
-
+        $this->captura('id_uo','int4');
+        $this->captura('departamento','varchar');
         //Ejecuta la instruccion
 		$this->armarConsulta();
 		$this->ejecutarConsulta();
@@ -259,6 +260,8 @@ class MODVacacion extends MODbase{
         //Define los parametros para la funcion
         $this->setParametro('id_proceso_wf','id_proceso_wf','int4');
         $this->setParametro('id_estado_wf','id_estado_wf','int4');
+        $this->setParametro('evento','evento','varchar');
+        $this->setParametro('obs', 'obs', 'text');
         $this->armarConsulta();
         $this->ejecutarConsulta();
         //Devuelve la respuesta

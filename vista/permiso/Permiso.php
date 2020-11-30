@@ -460,7 +460,9 @@ header("content-type: text/javascript; charset=UTF-8");
                     },
                     type:'TextField',
                     id_grupo:1,
-                    grid:true
+                    grid:true,
+                    form:false
+
                 },
                 {
                     config:{

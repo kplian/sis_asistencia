@@ -38,12 +38,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 tooltip: '<b>Pasar al Anterior Estado</b>'});
     
             this.addBotonesGantt();
-            this.addButton('btn_cancelar',{grupo:[6],
-                text:'Cancelar',
-                iconCls: 'bassign',
-                disabled:true,
-                handler:this.onCancelar,
-                tooltip: '<b>Cancelar</b><p>la vacacion en caso que no tomara </p>'});
+
             this.iniciarEventos();
             // this.diasEfectivo(); //-->Función definida para el calculo de los dias efectivos
         },
@@ -404,6 +399,21 @@ header("content-type: text/javascript; charset=UTF-8");
             },
             {
                 config:{
+                    name: 'departamento',
+                    fieldLabel: '',
+                    allowBlank: true,
+                    anchor: '80%',
+                    gwidth: 100,
+                    maxLength:10
+                },
+                type:'TextField',
+                id_grupo:1,
+                grid:true,
+                form:false
+
+            },
+            {
+                config:{
                     name: 'usr_reg',
                     fieldLabel: 'Creado por',
                     allowBlank: true,
@@ -527,7 +537,9 @@ header("content-type: text/javascript; charset=UTF-8");
             {name:'id_responsable', type: 'numeric'},
             {name:'responsable', type: 'string'},
             {name:'funcionario_sol', type: 'string'},
-            {name:'observaciones', type: 'string'}
+            {name:'observaciones', type: 'string'},
+            {name:'id_uo', type: 'numeric'},
+            {name:'departamento', type: 'string'}
         ],
         sortInfo:{
             field: 'id_vacacion',
@@ -655,6 +667,21 @@ header("content-type: text/javascript; charset=UTF-8");
         onAntEstado: function(wizard,resp){
             Phx.CP.loadingShow();
             Ext.Ajax.request({
+                url: '../../sis_asistencia/control/Vacacion/aprobarEstado',
+                params: {
+                    id_proceso_wf: resp.id_proceso_wf,
+                    id_estado_wf:  resp.id_estado_wf,
+                    evento : 'rechazado',
+                    obs: resp.obs
+                },
+                argument:{wizard:wizard},
+                success:this.successEstadoSinc,
+                failure: this.conexionFailure,
+                timeout:this.timeout,
+                scope:this
+            });
+           /* Phx.CP.loadingShow();
+            Ext.Ajax.request({
                 url:'../../sis_asistencia/control/Vacacion/anteriorEstado',
                 params:{
                     id_proceso_wf: resp.id_proceso_wf,
@@ -667,7 +694,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 failure: this.conexionFailure,
                 timeout:this.timeout,
                 scope:this
-            });
+            });*/
         },
         successEstadoSinc:function(resp){
             Phx.CP.loadingHide();
@@ -682,7 +709,9 @@ header("content-type: text/javascript; charset=UTF-8");
                             url: '../../sis_asistencia/control/Vacacion/aprobarEstado',
                             params: {
                                 id_proceso_wf:  rec.data.id_proceso_wf,
-                                id_estado_wf:  rec.data.id_estado_wf
+                                id_estado_wf:  rec.data.id_estado_wf,
+                                evento : 'siguiente',
+                                obs : ''
                             },
                             success: this.successWizard,
                             failure: this.conexionFailure,
@@ -762,7 +791,6 @@ header("content-type: text/javascript; charset=UTF-8");
             this.getBoton('btn_atras').enable();
             this.getBoton('diagrama_gantt').enable();
             this.getBoton('btn_siguiente').enable();
-            this.getBoton('btn_cancelar').enable();
         },
         liberaMenu:function() {
             var tb = Phx.vista.Vacacion.superclass.liberaMenu.call(this);
@@ -770,7 +798,6 @@ header("content-type: text/javascript; charset=UTF-8");
                 this.getBoton('btn_atras').disable();
                 this.getBoton('diagrama_gantt').disable();
                 this.getBoton('btn_siguiente').disable();
-                this.getBoton('btn_cancelar').disable();
             }
         },
         movimientoVacacion:function (value) {

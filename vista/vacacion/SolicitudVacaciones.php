@@ -45,7 +45,6 @@ header("content-type: text/javascript; charset=UTF-8");
             this.store.baseParams = {tipo_interfaz: this.nombreVista};
             this.store.baseParams.pes_estado = 'registro';
             this.getBoton('btn_atras').setVisible(false);
-            this.getBoton('btn_cancelar').setVisible(false);
 
             this.finCons = true;
             this.load({params: {start: 0, limit: this.tam_pag}});

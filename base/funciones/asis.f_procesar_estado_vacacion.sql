@@ -4,7 +4,8 @@ CREATE OR REPLACE FUNCTION asis.f_procesar_estado_vacacion (
   p_usuario_ai varchar,
   p_id_estado_wf integer,
   p_id_proceso_wf integer,
-  p_codigo_estado varchar
+  p_codigo_estado varchar,
+  p_obs text
 )
 RETURNS boolean AS
 $body$
@@ -39,9 +40,11 @@ DECLARE
    v_consulta_record			record;
    v_rango						record;
    v_dias_efectivo				numeric;
-   v_descripcion_correo    		varchar;
-   v_id_alarma        			integer;
-   v_vista_vacacion				record;
+   v_descripcion_correo    varchar;
+   v_id_alarma        		integer;
+   v_vacacion_record      record;
+   v_movimiento_vacacion	record;
+    v_id_mov_actual				integer;
 
 BEGIN
   v_nombre_funcion = 'mat.f_procesar_estados_solicitud';
@@ -59,25 +62,14 @@ BEGIN
     from asis.tvacacion me
     where me.id_proceso_wf = p_id_proceso_wf;
 
+
    if p_codigo_estado = 'vobo' then
 
     if (v_registro.id_funcionario_sol is not null)then
 
-				select va.fecha_solicitud, va.funcionario_solicitante, va.fecha_inicio,va.fecha_fin,va.descripcion
-                into v_vista_vacacion
-                from asis.vvacacion va
-                where va.id_proceso_wf = p_id_proceso_wf;
-
 
                 v_descripcion_correo = '
-                	<div>
-                    <p><font size="4">SOLICITUD DE VACACIÓn</font><br></p>
-                    <p>Fecha solicitud: <b>'||v_vista_vacacion.fecha_solicitud||'</b>/p>
-					<p><b>'||v_vista_vacacion.funcionario_solicitante||'</b></p>
-                    <p> Desde: <b>'||v_vista_vacacion.fecha_inicio||'</b Hasta: <b>'||v_vista_vacacion.fecha_fin||'</b </p>
-                    <p> Justificacion: <b>'||v_vista_vacacion.descripcion||'</b</p>
-                    </div>
-                ';
+                <font size="4">SOLICITUD VACACION</font><br>';
 
                 v_id_alarma = param.f_inserta_alarma(
                                     v_registro.id_funcionario,
@@ -100,7 +92,7 @@ BEGIN
                		---raise exception 'para';
                end if;
 
-    	select sum(d.dias_efectico) into v_dias_efectivo
+    select sum(d.dias_efectico) into v_dias_efectivo
         	from (
             select
             	    (case
@@ -117,10 +109,10 @@ BEGIN
             from asis.tvacacion_det vd
             where vd.id_vacacion =  v_registro.id_vacacion ) d;
 
-            update asis.tvacacion  set
-            dias_efectivo = v_dias_efectivo,
-            dias = v_dias_efectivo
-            where  id_vacacion  =  v_registro.id_vacacion;
+    update asis.tvacacion  set
+    dias_efectivo = v_dias_efectivo,
+    dias = v_dias_efectivo
+    where  id_vacacion  =  v_registro.id_vacacion;
 
 
       update asis.tvacacion  set
@@ -129,8 +121,10 @@ BEGIN
       id_usuario_mod=p_id_usuario,
       id_usuario_ai = p_id_usuario_ai,
       usuario_ai = p_usuario_ai,
-      fecha_mod=now()
+      fecha_mod=now(),
+       observaciones =  p_obs
       where id_proceso_wf = p_id_proceso_wf;
+        return true;
 
 	end if;
 
@@ -211,9 +205,13 @@ BEGIN
         id_usuario_mod=p_id_usuario,
         id_usuario_ai = p_id_usuario_ai,
         usuario_ai = p_usuario_ai,
-        fecha_mod=now()
+        fecha_mod=now(),
+        observaciones =  p_obs
         where id_proceso_wf = p_id_proceso_wf;
 
+          return true;
+
+         end if;
 
        /* for v_pares in (select  vd.fecha_dia,
 
@@ -381,7 +379,71 @@ BEGIN
         end loop;*/
 
 
+
+      if p_codigo_estado = 'cancelado' then
+
+
+       select v.id_vacacion, v.id_funcionario into v_vacacion_record
+            from asis.tvacacion v
+            where v.id_proceso_wf = p_id_proceso_wf;
+
+
+            select m.id_movimiento_vacacion, m.id_funcionario into v_movimiento_vacacion
+            from asis.tmovimiento_vacacion m
+            where m.id_vacacion = v_registro.id_vacacion
+				 and m.activo = 'activo';
+
+
+            delete from asis.tmovimiento_vacacion  mv
+            where mv.id_movimiento_vacacion = v_movimiento_vacacion.id_movimiento_vacacion
+            	and mv.activo = 'activo';
+
+
+            delete from asis.tpares pa
+            where pa.id_vacacion = v_registro.id_vacacion
+            	and pa.id_funcionario = v_vacacion_record.id_funcionario;
+
+             -- raise exception 'entra';
+            select mm.id_movimiento_vacacion into v_id_mov_actual
+            from asis.tmovimiento_vacacion mm
+            where mm.id_funcionario = v_movimiento_vacacion.id_funcionario
+            		and mm.fecha_reg = (select max(m.fecha_reg)
+                                        from asis.tmovimiento_vacacion m
+                                        where m.id_funcionario = v_movimiento_vacacion.id_funcionario);
+
+
+            update asis.tmovimiento_vacacion set
+            activo = 'activo',
+            estado_reg = 'activo'
+            where id_movimiento_vacacion = v_id_mov_actual;
+
+
+          update asis.tvacacion  set
+          id_estado_wf =  p_id_estado_wf,
+          estado = p_codigo_estado,
+          id_usuario_mod=p_id_usuario,
+          id_usuario_ai = p_id_usuario_ai,
+          usuario_ai = p_usuario_ai,
+          fecha_mod=now(),
+           observaciones =  p_obs
+          where id_proceso_wf = p_id_proceso_wf;
+        return true;
+
 	end if;
+
+
+      update asis.tvacacion  set
+        id_estado_wf =  p_id_estado_wf,
+        estado = p_codigo_estado,
+        id_usuario_mod=p_id_usuario,
+        id_usuario_ai = p_id_usuario_ai,
+        usuario_ai = p_usuario_ai,
+        fecha_mod=now(),
+        observaciones =  p_obs
+        where id_proceso_wf = p_id_proceso_wf;
+
+
+
 
   return true;
 EXCEPTION
@@ -400,5 +462,5 @@ SECURITY INVOKER
 PARALLEL UNSAFE
 COST 100;
 
-ALTER FUNCTION asis.f_procesar_estado_vacacion (p_id_usuario integer, p_id_usuario_ai integer, p_usuario_ai varchar, p_id_estado_wf integer, p_id_proceso_wf integer, p_codigo_estado varchar)
+ALTER FUNCTION asis.f_procesar_estado_vacacion (p_id_usuario integer, p_id_usuario_ai integer, p_usuario_ai varchar, p_id_estado_wf integer, p_id_proceso_wf integer, p_codigo_estado varchar, p_obs text)
   OWNER TO dbaamamani;
