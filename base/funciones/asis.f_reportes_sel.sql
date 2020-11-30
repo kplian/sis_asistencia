@@ -595,6 +595,13 @@ BEGIN
                                     end )
                                     and
                                     (case
+                          			when v_parametros.id_tipo_contrato is null then
+                                    0 = 0
+                                    else
+                                    tc.id_tipo_contrato = v_parametros.id_tipo_contrato
+                                    end )
+                                    and
+                                    (case
                                       when v_parametros.id_uo is null then
                                       0 = 0
                                       else
@@ -711,6 +718,9 @@ BEGIN
                 	v_filtro = 'and uofun.id_funcionario = '||v_parametros.id_funcionario||'';
                 end if;
 
+                if (v_parametros.id_tipo_contrato is not null) then
+                    v_filtro = 'and  tc.id_tipo_contrato = '||v_parametros.id_tipo_contrato;
+                end if;
 
          		if (v_parametros.id_uo is not null )then
                 	v_filtro = 'and (ger.id_uo = '||v_parametros.id_uo ||' or dep.id_uo = '||v_parametros.id_uo ||')';
@@ -806,25 +816,6 @@ BEGIN
 
 
 
-/*
-         	v_consulta:='select   fu.id_funcionario,
-                                  fu.desc_funcionario1,
-                                  fu.descripcion_cargo,
-                                   trim(both ''FUNODTPR'' from  fu.codigo)::varchar as codigo,
-                                  mv.tipo,
-                                  to_char(mv.fecha_reg::date,''DD/MM/YYYY'') as fecha,
-                                  to_char(mv.desde,''DD/MM/YYYY'') as desde,
-                                  to_char(mv.hasta,''DD/MM/YYYY'') as hasta,
-                                  coalesce(mv.dias,0) as dias,
-                                  coalesce(mv.dias_actual,0)  as saldo,
-                                  ger.nombre_unidad,
-                                  plani.f_get_fecha_primer_contrato_empleado(fu.id_uo_funcionario, fu.id_funcionario, fu.fecha_asignacion) as fecha_contrato
-                          from asis.tmovimiento_vacacion mv
-                          inner join orga.vfuncionario_cargo fu on fu.id_funcionario = mv.id_funcionario and (fu.fecha_finalizacion is null or fu.fecha_finalizacion >= now()::date)
-                          inner join orga.tuo ger ON ger.id_uo = orga.f_get_uo_gerencia(fu.id_uo, NULL::integer, NULL::date)
-                          where mv.id_funcionario = '||v_parametros.id_funcionario||'
-                           order by mv.fecha_reg asc';*/
-
 		   --Devuelve la respuesta
             return v_consulta;
 
@@ -912,6 +903,8 @@ BEGIN
     	begin
         --Sentencia de la consulta
 
+
+        -- raise exception '%',v_parametros.id_tipo_contrato;  tc.id_tipo_contrato
         v_filtro = '';
 
 
@@ -927,6 +920,13 @@ BEGIN
             	 v_filtro = ' and (ger.id_uo = ' || v_parametros.id_uo || 'or dep.id_uo ='||v_parametros.id_uo||')';
 
             end if;
+
+             if (v_parametros.id_tipo_contrato is not null) then
+
+            	v_filtro = 'and  tc.id_tipo_contrato = '||v_parametros.id_tipo_contrato;
+
+            end if;
+
 
          	v_consulta:='select   ant.desc_funcionario2,
                                   ant.codigo,
@@ -1030,7 +1030,6 @@ BEGIN
                               uofun.estado_reg != ''inactivo'' '||v_filtro||'
                               order by uofun.id_funcionario, uofun.fecha_asignacion desc   ) ant
                               order by gerencia, departamento,desc_funcionario2';
-
 		   --Devuelve la respuesta
             return v_consulta;
 
