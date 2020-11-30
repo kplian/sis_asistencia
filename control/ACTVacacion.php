@@ -22,7 +22,7 @@ class ACTVacacion extends ACTbase{
         if ($this->objParam->getParametro('tipo_interfaz') == 'SolicitudVacaciones'){
             switch ($this->objParam->getParametro('pes_estado')) {
                 case 'registro':
-                    $this->objParam->addFiltro("vac.estado = ''registro''"); // un where de conuslta de sel es una concatenando
+                    $this->objParam->addFiltro("vac.estado in (''registro'',''rechazado'')"); // un where de conuslta de sel es una concatenando
                     break;
                 case 'vobo':
                     $this->objParam->addFiltro("vac.estado = ''vobo''");
@@ -39,18 +39,30 @@ class ACTVacacion extends ACTbase{
             $this->objParam->addFiltro("vac.estado = ''vobo''");
         }
         if ($this->objParam->getParametro('tipo_interfaz') == 'VacacionRrhh') {
-
+            switch ($this->objParam->getParametro('pes_estado')) {
+                case 'vobo':
+                    $this->objParam->addFiltro("vac.estado = ''vobo''");
+                    break;
+                case 'aprobado':
+                    $this->objParam->addFiltro("vac.estado = ''aprobado''");
+                    break;
+                case 'rechazado':
+                    $this->objParam->addFiltro("vac.estado = ''rechazado''");
+                    break;
+                case 'cancelado':
+                    $this->objParam->addFiltro("vac.estado = ''cancelado''");
+                    break;
+            }
             $filtroInit = "vac.fecha_reg::date = now()::date";
-
-            $this->objParam->addFiltro("vac.estado in (''vobo'',''aprobado'')");
 
           if ($this->objParam->getParametro('param') != '') {
                 if ($this->objParam->getParametro('desde') != '' && $this->objParam->getParametro('hasta') != '') {
                     $filtroInit = "vac.fecha_reg::date >= '' " . $this->objParam->getParametro('desde') . "'' and vac.fecha_reg::date <= ''" . $this->objParam->getParametro('hasta') . "''";
                 }
-                if ($this->objParam->getParametro('id_tipo_estado') != '') {
-                    $this->objParam->addFiltro("vac.id_estado_wf =  " . $this->objParam->getParametro('id_tipo_estado') . " and ");
-                }
+              if ($this->objParam->getParametro('id_uo') != '') {
+
+                  $filtroInit = "dep.id_uo =  " . $this->objParam->getParametro('id_uo') . "  ";
+              }
             }
             $this->objParam->addFiltro($filtroInit);
 
