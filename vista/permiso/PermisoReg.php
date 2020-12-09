@@ -31,7 +31,7 @@ header("content-type: text/javascript; charset=UTF-8");
             {name:'registro',title:'<h1 align="center"><i></i>Registrado</h1>',grupo:0,height:0},
             {name:'vobo',title:'<h1 align="center"><i></i>VoBo</h1>',grupo:1,height:0},
             {name:'aprobado',title:'<h1 align="center"><i></i>Aprobado</h1>',grupo:4,height:0},
-            {name:'rechazado',title:'<h1 align="center"><i></i>Rechazados</h1>',grupo:4,height:0},
+            // {name:'rechazado',title:'<h1 align="center"><i></i>Rechazados</h1>',grupo:4,height:0},
             {name:'cancelado',title:'<h1 align="center"><i></i>Cancelados</h1>',grupo:4,height:0}
         ],
         bnewGroups:[0,3],
@@ -45,7 +45,21 @@ header("content-type: text/javascript; charset=UTF-8");
             this.store.baseParams.pes_estado = 'registro';
             this.getBoton('btn_atras').setVisible(false);
             this.load({params: {start: 0, limit: this.tam_pag}});
-        }
+        },
+        loadCheckDocumentosRecWf:function() {
+            var rec=this.sm.getSelected();
+            rec.data.nombreVista = this.nombreVista;
+            Phx.CP.loadWindows('../../../sis_workflow/vista/documento_wf/DocumentoWf.php',
+                'Chequear documento del WF',
+                {
+                    width:'90%',
+                    height:500
+                },
+                rec.data,
+                this.idContenedor,
+                'DocumentoWf'
+            )
+        },
     };
 </script>
 

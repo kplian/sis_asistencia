@@ -15,8 +15,11 @@ class ACTTipoPermiso extends ACTbase{
 			
 	function listarTipoPermiso(){
 		$this->objParam->defecto('ordenacion','id_tipo_permiso');
-
 		$this->objParam->defecto('dir_ordenacion','asc');
+
+		if($this->objParam->getParametro('id_tipo_permiso') != ''){
+            $this->objParam->addFiltro("tpo.id_tipo_permiso = ".$this->objParam->getParametro('id_tipo_permiso'));
+        }
 		if($this->objParam->getParametro('tipoReporte')=='excel_grid' || $this->objParam->getParametro('tipoReporte')=='pdf_grid'){
 			$this->objReporte = new Reporte($this->objParam,$this);
 			$this->res = $this->objReporte->generarReporteListado('MODTipoPermiso','listarTipoPermiso');

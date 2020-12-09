@@ -135,8 +135,8 @@ class MODPermiso extends MODbase{
         $this->setParametro('hro_desde','hro_desde','time');
         $this->setParametro('hro_hasta','hro_hasta','time');
 
-        $this->setParametro('hro_total_permiso','hro_total_permiso','varchar');
-        $this->setParametro('hro_total_reposicion','hro_total_reposicion','varchar');
+        $this->setParametro('hro_total_permiso','hro_total_permiso','time');
+        $this->setParametro('hro_total_reposicion','hro_total_reposicion','time');
 
         $this->setParametro('jornada','jornada','varchar');
         $this->setParametro('id_responsable','id_responsable','int4');

@@ -27,7 +27,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     iconCls: 'bemail',
                     disabled:true,
                     handler:this.onSiguiente});
-                    
+
                 this.addButton('btn_atras',{grupo:[2,3],
                     argument: { estado: 'anterior'},
                     text:'Anterior',
@@ -37,18 +37,14 @@ header("content-type: text/javascript; charset=UTF-8");
                     tooltip: '<b>Pasar al Anterior Estado</b>'});
 
                 this.addButton('btnChequeoDocumentosWf',{
-                    grupo:[1,2,3,4,5],
+                    grupo:[0,1,2,3,4,5],
                     text: 'Documentos',
                     iconCls: 'bchecklist',
                     disabled: true,
                     handler: this.loadCheckDocumentosRecWf,
                     tooltip: '<b>Documentos </b><br/>Subir los documetos requeridos.'
                 });
-
-
-
                 this.addBotonesGantt();
-
                 this.onFormulario();
                 this.load({params:{start:0, limit:this.tam_pag}})
             },
@@ -115,7 +111,13 @@ header("content-type: text/javascript; charset=UTF-8");
                         allowBlank: true,
                         anchor: '80%',
                         gwidth: 80,
-                        maxLength:50
+                        maxLength:50,
+                        renderer:function (value,p,record){
+                            if (value === 'rechazado'){
+                                return String.format('<b><font color="#a52a2a">{0}</font></b>', value)
+                            }
+                            return String.format('<b><font>{0}</font></b>', value)
+                        }
                     },
                     type:'TextField',
                     filters:{pfiltro:'pmo.estado',type:'string'},
@@ -167,36 +169,36 @@ header("content-type: text/javascript; charset=UTF-8");
                     form: true
                 },
                 {
-                config: {
-                    name: 'id_funcionario',
-                    fieldLabel: 'Funcionario',
-                    allowBlank: false,
-                    emptyText: 'Elija una opción...',
-                    store: new Ext.data.JsonStore({
-                        url: '../../sis_asistencia/control/Vacacion/listarFuncionarioOficiales',
-                        id: 'id_funcionario',
-                        root: 'datos',
-                        totalProperty: 'total',
-                        fields: ['id_funcionario','desc_funcionario','codigo','cargo','departamento','oficina'],
-                        remoteSort: true,
-                        baseParams: {par_filtro: 'pe.nombre_completo1'}
-                    }),
-                    valueField: 'id_funcionario',
-                    displayField: 'desc_funcionario',
-                    gdisplayField: 'responsable',
-                    hiddenName: 'Funcionario',
-                    tpl: '<tpl for="."><div class="x-combo-list-item"><p><b>{desc_funcionario}</b></p><p>{codigo}</p><p>{cargo}</p><p>{departamento}</p><p>{oficina}</p> </div></tpl>',
-                    forceSelection: true,
-                    typeAhead: false,
-                    triggerAction: 'all',
-                    lazyRender: true,
-                    mode: 'remote',
-                    pageSize: 15,
-                    queryDelay: 1000,
-                    width: 300,
-                    gwidth:250,
-                    minChars: 2,
-                    renderer:function(value, p, record){
+                    config: {
+                        name: 'id_funcionario',
+                        fieldLabel: 'Funcionario',
+                        allowBlank: false,
+                        emptyText: 'Elija una opción...',
+                        store: new Ext.data.JsonStore({
+                            url: '../../sis_asistencia/control/Vacacion/listarFuncionarioOficiales',
+                            id: 'id_funcionario',
+                            root: 'datos',
+                            totalProperty: 'total',
+                            fields: ['id_funcionario','desc_funcionario','codigo','cargo','departamento','oficina'],
+                            remoteSort: true,
+                            baseParams: {par_filtro: 'pe.nombre_completo1'}
+                        }),
+                        valueField: 'id_funcionario',
+                        displayField: 'desc_funcionario',
+                        gdisplayField: 'desc_funcionario',
+                        hiddenName: 'Funcionario',
+                        tpl: '<tpl for="."><div class="x-combo-list-item"><p><b>{desc_funcionario}</b></p><p>{codigo}</p><p>{cargo}</p><p>{departamento}</p><p>{oficina}</p> </div></tpl>',
+                        forceSelection: true,
+                        typeAhead: false,
+                        triggerAction: 'all',
+                        lazyRender: true,
+                        mode: 'remote',
+                        pageSize: 15,
+                        queryDelay: 1000,
+                        width: 300,
+                        gwidth:250,
+                        minChars: 2,
+                        renderer:function(value, p, record){
                             if(record.data['funcionario_sol'] !== ''){
                                 return '<tpl for="."><div><p><b>Registro: </b> '+ record.data['funcionario_sol']+'</p>' +
                                     '<p><b>Para: </b> '+ record.data['desc_funcionario']+'</p>' +
@@ -330,7 +332,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         name: 'hro_total_permiso',
                         fieldLabel: 'Total Hora',
                         allowBlank: true,
-                        anchor: '40%',
+                        anchor: '50%',
                         gwidth: 100,
                         readOnly: true,
                         format: 'H:i:s',
@@ -591,12 +593,12 @@ header("content-type: text/javascript; charset=UTF-8");
             ],
             sortInfo:{
                 field: 'id_permiso',
-                direction: 'ASC'
+                direction: 'DESC'
             },
             bdel:true,
             bsave:false,
             fwidth: '32%',
-             fheight: '60%',
+            fheight: '60%',
             onFormulario:function(){
                 this.ocultarComponente(this.Cmp.fecha_reposicion);
                 this.ocultarComponente(this.Cmp.hro_desde_reposicion);
@@ -648,36 +650,36 @@ header("content-type: text/javascript; charset=UTF-8");
             },
             preparaMenu:function(n){
                 Phx.vista.Permiso.superclass.preparaMenu.call(this, n);
+                const rec = this.getSelectedData();
                 this.getBoton('btn_atras').enable();
                 this.getBoton('diagrama_gantt').enable();
-                this.getBoton('btn_siguiente').enable();
+                if(rec.estado === 'rechazado'){
+                    this.getBoton('btn_siguiente').disable();
+                    this.getBoton('edit').disable();
+                }else{
+                    this.getBoton('btn_siguiente').enable();
+                    this.getBoton('edit').enable();
+                }
                 this.getBoton('btnChequeoDocumentosWf').enable();
             },
             liberaMenu:function() {
                 const tb = Phx.vista.Permiso.superclass.liberaMenu.call(this);
-                const rec = this.getSelectedData();
-                console.log(rec)
                 if (tb) {
                     this.getBoton('btn_atras').disable();
                     this.getBoton('diagrama_gantt').disable();
                     this.getBoton('btn_siguiente').disable();
-                   // if (rec.documento === 'si'){
-                        this.getBoton('btnChequeoDocumentosWf').disable();
-                   // }
+                    this.getBoton('btnChequeoDocumentosWf').disable();
                 }
             },
             onButtonNew:function(){
                 Phx.vista.Permiso.superclass.onButtonNew.call(this);
                 this.Cmp.fecha_solicitud.setValue(new Date());
                 this.Cmp.fecha_solicitud.fireEvent('change');
-
                 this.Cmp.id_tipo_permiso.on('select', function(combo, record, index){
-                    // mostrar
                     this.mostrarComponente(this.Cmp.hro_desde);
                     this.mostrarComponente(this.Cmp.hro_hasta);
                     this.mostrarComponente(this.Cmp.hro_total_permiso);
                     this.mostrarComponente(this.Cmp.motivo);
-    
                     if (record.data.reposcion === 'si'){
                         this.window.setSize(490,480);
                         this.mostrarComponente(this.Cmp.fecha_reposicion);
@@ -692,85 +694,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         this.ocultarComponente(this.Cmp.hro_total_reposicion);
                     }
                 },this);
-
-                this.Cmp.hro_desde.on('select', function(combo, record){
-                        if (this.Cmp.hro_hasta.getValue() !== ''){
-                            this.Cmp.hro_total_permiso.reset();
-                            Ext.Ajax.request({
-                                    url:'../../sis_asistencia/control/Permiso/calcularRango',
-                                    params:{desde : record.data.field1,
-                                            hasta: this.Cmp.hro_hasta.getValue(),
-                                            contro: 'si'},
-                                    success:function(resp){
-                                        const reg = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));
-                                        this.Cmp.hro_total_permiso.setValue(reg.ROOT.datos.resultado);
-                                    },
-                                    failure: this.conexionFailure,
-                                    timeout:this.timeout,
-                                    scope:this
-                            });
-                        }
-                },this);
-
-                this.Cmp.hro_hasta.on('select', function(combo, record){
-                    if (this.Cmp.hro_desde.getValue() !== ''){
-                        this.Cmp.hro_total_permiso.reset();
-                        Ext.Ajax.request({
-                                    url:'../../sis_asistencia/control/Permiso/calcularRango',
-                                    params:{desde : this.Cmp.hro_desde.getValue(),
-                                            hasta: record.data.field1,
-                                            contro: 'si'},
-                                    success:function(resp){
-                                        const reg = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));     
-                                        
-                                        console.log(reg.ROOT.datos.resultado);
-                                        this.Cmp.hro_total_permiso.setValue(reg.ROOT.datos.resultado);
-                                    },
-                                    failure: this.conexionFailure,
-                                    timeout:this.timeout,
-                                    scope:this
-                            });
-                    }
-                },this);
-
-                this.Cmp.hro_desde_reposicion.on('select', function(combo, record, index){
-                    if (this.Cmp.hro_hasta_reposicion.getValue() !== ''){
-                            this.Cmp.hro_total_reposicion.reset();
-                            Ext.Ajax.request({
-                                    url:'../../sis_asistencia/control/Permiso/calcularRango',
-                                    params:{desde : record.data.field1,
-                                            hasta: this.Cmp.hro_hasta_reposicion.getValue(),
-                                            contro: 'no'},
-                                    success:function(resp){
-                                        const reg = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));
-                                        this.Cmp.hro_total_reposicion.setValue(reg.ROOT.datos.resultado);
-                                    },
-                                    failure: this.conexionFailure,
-                                    timeout:this.timeout,
-                                    scope:this
-                            });
-                        }
-                },this);
-
-                this.Cmp.hro_hasta_reposicion.on('select', function(combo, record, index){
-                    if (this.Cmp.hro_desde_reposicion.getValue() !== ''){
-                        this.Cmp.hro_total_reposicion.reset();
-                        Ext.Ajax.request({
-                                    url:'../../sis_asistencia/control/Permiso/calcularRango',
-                                    params:{desde : this.Cmp.hro_desde_reposicion.getValue(),
-                                            hasta: record.data.field1,
-                                            contro: 'no'},
-                                    success:function(resp){
-                                        const reg = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));
-                                        this.Cmp.hro_total_reposicion.setValue(reg.ROOT.datos.resultado);
-                                    },
-                                    failure: this.conexionFailure,
-                                    timeout:this.timeout,
-                                    scope:this
-                            });
-                    }
-                },this);
-                
+                this.onCalcularRango();
                 this.Cmp.id_funcionario.store.load({params:{start:0,limit:this.tam_pag, es_combo_solicitud:'si'},
                     callback : function (r) {
                         this.Cmp.id_funcionario.setValue(r[0].data.id_funcionario);
@@ -780,9 +704,9 @@ header("content-type: text/javascript; charset=UTF-8");
                     }, scope : this
                 });
                 this.Cmp.id_funcionario.on('select', function(combo, record, index){
-                     this.Cmp.id_responsable.reset();
-                     this.Cmp.id_responsable.store.baseParams = Ext.apply(this.Cmp.id_responsable.store.baseParams, {id_funcionario: record.data.id_funcionario});
-                     this.Cmp.id_responsable.modificado = true;
+                    this.Cmp.id_responsable.reset();
+                    this.Cmp.id_responsable.store.baseParams = Ext.apply(this.Cmp.id_responsable.store.baseParams, {id_funcionario: record.data.id_funcionario});
+                    this.Cmp.id_responsable.modificado = true;
                 },this);
             },
             onCargarResponsable:function(id){
@@ -798,12 +722,129 @@ header("content-type: text/javascript; charset=UTF-8");
             },
             onButtonEdit:function(){
                 Phx.vista.Permiso.superclass.onButtonEdit.call(this);
-                this.mostrarComponente(this.Cmp.hro_desde);
-                this.mostrarComponente(this.Cmp.hro_hasta);
+                this.Cmp.id_tipo_permiso.store.load({params:{start:0,limit:50,id_tipo_permiso: this.Cmp.id_tipo_permiso.getValue()},
+                    callback : function (r) {
+                        for (const value of r) {
+                            this.mostrarComponente(this.Cmp.hro_desde);
+                            this.mostrarComponente(this.Cmp.hro_hasta);
+                            this.mostrarComponente(this.Cmp.hro_total_permiso);
+                            this.mostrarComponente(this.Cmp.motivo);
+                            if (value.json.reposcion === 'si'){
+                                this.window.setSize(490,480);
+                                this.mostrarComponente(this.Cmp.fecha_reposicion);
+                                this.mostrarComponente(this.Cmp.hro_desde_reposicion);
+                                this.mostrarComponente(this.Cmp.hro_hasta_reposicion);
+                                this.mostrarComponente(this.Cmp.hro_total_reposicion);
+                            }else {
+                                this.window.setSize(490,360);
+                                this.ocultarComponente(this.Cmp.fecha_reposicion);
+                                this.ocultarComponente(this.Cmp.hro_desde_reposicion);
+                                this.ocultarComponente(this.Cmp.hro_hasta_reposicion);
+                                this.ocultarComponente(this.Cmp.hro_total_reposicion);
+                            }
+                        }
+                    }, scope : this
+                });
+                this.Cmp.id_tipo_permiso.on('select', function(combo, record, index){
+                    this.mostrarComponente(this.Cmp.hro_desde);
+                    this.mostrarComponente(this.Cmp.hro_hasta);
+                    this.mostrarComponente(this.Cmp.hro_total_permiso);
+                    this.mostrarComponente(this.Cmp.motivo);
+                    if (record.data.reposcion === 'si'){
+                        this.window.setSize(490,480);
+                        this.mostrarComponente(this.Cmp.fecha_reposicion);
+                        this.mostrarComponente(this.Cmp.hro_desde_reposicion);
+                        this.mostrarComponente(this.Cmp.hro_hasta_reposicion);
+                        this.mostrarComponente(this.Cmp.hro_total_reposicion);
+                    }else {
+                        this.window.setSize(490,360);
+                        this.ocultarComponente(this.Cmp.fecha_reposicion);
+                        this.ocultarComponente(this.Cmp.hro_desde_reposicion);
+                        this.ocultarComponente(this.Cmp.hro_hasta_reposicion);
+                        this.ocultarComponente(this.Cmp.hro_total_reposicion);
+                    }
+                },this);
+                this.onCalcularRango();
                 this.Cmp.id_funcionario.on('select', function(combo, record, index){
-                     this.Cmp.id_responsable.reset();
-                     this.Cmp.id_responsable.store.baseParams = Ext.apply(this.Cmp.id_responsable.store.baseParams, {id_funcionario: record.data.id_funcionario});
-                     this.Cmp.id_responsable.modificado = true;
+                    this.Cmp.id_responsable.reset();
+                    this.Cmp.id_responsable.store.baseParams = Ext.apply(this.Cmp.id_responsable.store.baseParams, {id_funcionario: record.data.id_funcionario});
+                    this.Cmp.id_responsable.modificado = true;
+                },this);
+            },
+            onCalcularRango:function (){
+                this.Cmp.hro_desde.on('select', function(combo, record){
+                    if (this.Cmp.hro_hasta.getValue() !== ''){
+                        this.Cmp.hro_total_permiso.reset();
+                        Ext.Ajax.request({
+                            url:'../../sis_asistencia/control/Permiso/calcularRango',
+                            params:{desde : record.data.field1,
+                                hasta: this.Cmp.hro_hasta.getValue(),
+                                contro: 'si'},
+                            success:function(resp){
+                                const reg = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));
+                                this.Cmp.hro_total_permiso.setValue(reg.ROOT.datos.resultado);
+                            },
+                            failure: this.conexionFailure,
+                            timeout:this.timeout,
+                            scope:this
+                        });
+                    }
+                },this);
+                this.Cmp.hro_hasta.on('select', function(combo, record){
+                    if (this.Cmp.hro_desde.getValue() !== ''){
+                        this.Cmp.hro_total_permiso.reset();
+                        Ext.Ajax.request({
+                            url:'../../sis_asistencia/control/Permiso/calcularRango',
+                            params:{desde : this.Cmp.hro_desde.getValue(),
+                                hasta: record.data.field1,
+                                contro: 'si'},
+                            success:function(resp){
+                                const reg = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));
+
+                                console.log(reg.ROOT.datos.resultado);
+                                this.Cmp.hro_total_permiso.setValue(reg.ROOT.datos.resultado);
+                            },
+                            failure: this.conexionFailure,
+                            timeout:this.timeout,
+                            scope:this
+                        });
+                    }
+                },this);
+                this.Cmp.hro_desde_reposicion.on('select', function(combo, record, index){
+                    if (this.Cmp.hro_hasta_reposicion.getValue() !== ''){
+                        this.Cmp.hro_total_reposicion.reset();
+                        Ext.Ajax.request({
+                            url:'../../sis_asistencia/control/Permiso/calcularRango',
+                            params:{desde : record.data.field1,
+                                hasta: this.Cmp.hro_hasta_reposicion.getValue(),
+                                contro: 'no'},
+                            success:function(resp){
+                                const reg = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));
+                                this.Cmp.hro_total_reposicion.setValue(reg.ROOT.datos.resultado);
+                            },
+                            failure: this.conexionFailure,
+                            timeout:this.timeout,
+                            scope:this
+                        });
+                    }
+                },this);
+                this.Cmp.hro_hasta_reposicion.on('select', function(combo, record, index){
+                    if (this.Cmp.hro_desde_reposicion.getValue() !== ''){
+                        this.Cmp.hro_total_reposicion.reset();
+                        Ext.Ajax.request({
+                            url:'../../sis_asistencia/control/Permiso/calcularRango',
+                            params:{desde : this.Cmp.hro_desde_reposicion.getValue(),
+                                hasta: record.data.field1,
+                                contro: 'no'},
+                            success:function(resp){
+                                const reg = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));
+                                this.Cmp.hro_total_reposicion.setValue(reg.ROOT.datos.resultado);
+                            },
+                            failure: this.conexionFailure,
+                            timeout:this.timeout,
+                            scope:this
+                        });
+                    }
                 },this);
             },
             onAtras :function (res) {
@@ -850,19 +891,19 @@ header("content-type: text/javascript; charset=UTF-8");
                 Phx.CP.loadingShow();
                 const rec = this.sm.getSelected(); //obtine los datos selecionado en la grilla 
                 if(confirm('¿Enviar solicitud?')) {
-                        Ext.Ajax.request({
-                            url: '../../sis_asistencia/control/Permiso/aprobarEstado',
-                            params: {
-                                id_proceso_wf:  rec.data.id_proceso_wf,
-                                id_estado_wf:  rec.data.id_estado_wf,
-                                evento : 'aprobado',
-                                obs : ''
-                            },
-                            success: this.successWizard,
-                            failure: this.conexionFailure,
-                            timeout: this.timeout,
-                            scope: this
-                        });
+                    Ext.Ajax.request({
+                        url: '../../sis_asistencia/control/Permiso/aprobarEstado',
+                        params: {
+                            id_proceso_wf:  rec.data.id_proceso_wf,
+                            id_estado_wf:  rec.data.id_estado_wf,
+                            evento : 'aprobado',
+                            obs : ''
+                        },
+                        success: this.successWizard,
+                        failure: this.conexionFailure,
+                        timeout: this.timeout,
+                        scope: this
+                    });
                 }
                 Phx.CP.loadingHide();
             },

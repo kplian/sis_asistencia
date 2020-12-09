@@ -73,9 +73,9 @@ BEGIN
                      if v_id_funcionario is not null then
                     	v_filtro = 'wet.id_funcionario =  '||v_id_funcionario||' and ';
                      end if;
-               	end if;
+               	end if; 
             end if;
-
+            
              if v_parametros.tipo_interfaz = 'VacacionRrhh'then
                 v_filtro = '';
             end if;
@@ -116,8 +116,8 @@ BEGIN
                         inner join orga.tuo dep ON dep.id_uo = orga.f_get_uo_departamento(vf.id_uo, NULL::integer, NULL::date)
                         left join orga.vfuncionario sof on sof.id_funcionario = vac.id_funcionario_sol
 						left join segu.tusuario usu2 on usu2.id_usuario = vac.id_usuario_mod
-				        where vf.fecha_asignacion <= now()::date
-                                and (vf.fecha_finalizacion is null or vf.fecha_finalizacion >= now()::date) and'||v_filtro;
+				        where vf.fecha_asignacion <= now()::date 
+                                and (vf.fecha_finalizacion is null or vf.fecha_finalizacion >= now()::date) and '||v_filtro;
 
 			--Definicion de la respuesta
 			v_consulta:=v_consulta||v_parametros.filtro;
@@ -160,8 +160,8 @@ BEGIN
                      end if;
                	end if;
             end if;
-
-
+            
+            
              if v_parametros.tipo_interfaz = 'VacacionRrhh'then
                 v_filtro = '';
             end if;
@@ -175,8 +175,8 @@ BEGIN
                         inner join orga.tuo dep ON dep.id_uo = orga.f_get_uo_departamento(vf.id_uo, NULL::integer, NULL::date)
                         left join orga.vfuncionario sof on sof.id_funcionario = vac.id_funcionario_sol
 						left join segu.tusuario usu2 on usu2.id_usuario = vac.id_usuario_mod
-					    where vf.fecha_asignacion <= now()::date
-                                and (vf.fecha_finalizacion is null or vf.fecha_finalizacion >= now()::date) and'||v_filtro;
+					    where vf.fecha_asignacion <= now()::date 
+                                and (vf.fecha_finalizacion is null or vf.fecha_finalizacion >= now()::date) and '||v_filtro;
 
 			--Definicion de la respuesta
 			v_consulta:=v_consulta||v_parametros.filtro;
@@ -307,9 +307,9 @@ BEGIN
             v_consulta:='select a.dias_asignados from param.tantiguedad a ';
             return v_consulta;
         end;
-
+    
         /*********************************
- 	#TRANSACCION:  'ASIS_REFOF_SEL'
+ 	#TRANSACCION:  'ASIS_REFOF_SEL'  
  	#DESCRIPCION:	Listar funcionario
  	#AUTOR:		miguel.mamani
  	#FECHA:		31-01-2019 13:53:10
@@ -342,7 +342,7 @@ BEGIN
             return v_consulta;
         end;
     /*********************************
- 	#TRANSACCION:  'ASIS_REFOF_CONT'
+ 	#TRANSACCION:  'ASIS_REFOF_CONT'  
  	#DESCRIPCION:	count Listar funcionario
  	#AUTOR:		miguel.mamani
  	#FECHA:		31-01-2019 13:53:10
@@ -351,8 +351,8 @@ BEGIN
 
 		begin
 			--Sentencia de la consulta de conteo de registros
-
-            v_consulta:='select count(distinct uofun.id_funcionario)
+            
+            v_consulta:='select count(distinct uofun.id_funcionario) 
                           from orga.tuo_funcionario uofun
                           inner join orga.tfuncionario fun on fun.id_funcionario = uofun.id_funcionario
                           inner join segu.vpersona pe on pe.id_persona = fun.id_persona

@@ -249,7 +249,36 @@ BEGIN
             --v_parametros.jornada
 			)RETURNING id_permiso into v_id_permiso;
 
+			if (v_record_tipo.documento = 'si') then
+/*                   	PERFORM	wf.f_inserta_documento_wf(p_id_usuario, v_parametros.id_proceso_wf, v_id_estado_actual);
+*/
+                         INSERT INTO
+                                wf.tdocumento_wf
+                              (
+                                id_usuario_reg,
+                                fecha_reg,
+                                estado_reg,
+                                id_tipo_documento,
+                                id_proceso_wf,
+                                num_tramite,
+                                momento,
+                                chequeado,
+                                id_estado_ini
+                              )
+                              VALUES (
+                                p_id_usuario,
+                                now(),
+                               'activo',
+                                313,---v_registros.id_tipo_documento,
+                                v_id_proceso_wf,
+                                v_nro_tramite,
+                                'verificar',
+                                'no',
+                                v_id_estado_wf--v_id_estado_actual
+                              );
 
+
+				end if;
 
 
 
