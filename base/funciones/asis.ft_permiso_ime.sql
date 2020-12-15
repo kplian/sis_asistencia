@@ -1,3 +1,5 @@
+--------------- SQL ---------------
+
 CREATE OR REPLACE FUNCTION asis.ft_permiso_ime (
   p_administrador integer,
   p_id_usuario integer,
@@ -728,7 +730,7 @@ BEGIN
               if (va_codigo_estado[1] = 'vobo')then
 
 
-                if (v_permiso.id_funcionario_sol is not null)then
+            /*    if (v_permiso.id_funcionario_sol is not null)then
 
 
                 	select p.tipo_permiso, p.fecha_solicitud, p.funcionario_solicitante, p.hro_desde, p.hro_hasta , p.motivo
@@ -768,7 +770,7 @@ BEGIN
                                     v_registro_estado.id_estado_wf--#9
                                    );
                		---raise exception 'para';
-               end if;
+               end if;*/
 
                  select  tp.documento,
                           tp.reposcion,
@@ -894,6 +896,3 @@ CALLED ON NULL INPUT
 SECURITY INVOKER
 PARALLEL UNSAFE
 COST 100;
-
-ALTER FUNCTION asis.ft_permiso_ime (p_administrador integer, p_id_usuario integer, p_tabla varchar, p_transaccion varchar)
-  OWNER TO postgres;

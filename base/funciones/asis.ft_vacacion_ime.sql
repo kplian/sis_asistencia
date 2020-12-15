@@ -1,3 +1,5 @@
+--------------- SQL ---------------
+
 CREATE OR REPLACE FUNCTION asis.ft_vacacion_ime (
   p_administrador integer,
   p_id_usuario integer,
@@ -80,8 +82,8 @@ DECLARE
     va_prioridad 		      	integer [];
 	v_id_sol_funcionario		integer;
     v_record_solicitud			record;
-       v_estado_maestro		varchar;
-    v_id_estado_maestro 	integer;
+       v_estado_maestro			varchar;
+    v_id_estado_maestro 		integer;
 
 BEGIN
 
@@ -157,11 +159,29 @@ BEGIN
             FROM param.tgestion g
             WHERE now() BETWEEN g.fecha_ini and g.fecha_fin;
 
+
+			   	select
+            l.codigo
+            into v_lugar
+            from segu.tusuario us
+            join segu.tpersona p on p.id_persona=us.id_persona
+            join orga.tfuncionario f on f.id_persona = p.id_persona
+            join orga.tuo_funcionario uf on uf.id_funcionario=f.id_funcionario
+            join orga.tcargo c on c.id_cargo=uf.id_cargo
+            join param.tlugar l on l.id_lugar=c.id_lugar
+            where uf.estado_reg = 'activo' and uf.tipo = 'oficial' 
+            and uf.fecha_asignacion<=now() and
+             coalesce(uf.fecha_finalizacion, now())>=now() and us.id_usuario=p_id_usuario;
+
+
+
+
             WHILE (SELECT v_fecha_aux::date <= v_parametros.fecha_fin::date ) loop
             	IF(select extract(dow from v_fecha_aux::date)not in (v_sabado, v_domingo)) THEN
                 	IF NOT EXISTS(select * from param.tferiado f
                                           JOIN param.tlugar l on l.id_lugar = f.id_lugar
-                                          WHERE l.codigo='BO' AND (EXTRACT(MONTH from f.fecha))::integer = (EXTRACT(MONTH from v_fecha_aux::date))::integer
+                                          WHERE l.codigo in ('BO',v_lugar)
+                                           AND (EXTRACT(MONTH from f.fecha))::integer = (EXTRACT(MONTH from v_fecha_aux::date))::integer
                                           AND (EXTRACT(DAY from f.fecha))::integer = (EXTRACT(DAY from v_fecha_aux)) AND f.id_gestion=v_id_gestion_actual )THEN
                                           v_cant_dias=v_cant_dias+1;
 
@@ -197,24 +217,8 @@ BEGIN
               from asis.tmovimiento_vacacion va
               where va.id_funcionario = v_parametros.id_funcionario
               		and va.activo = 'activo';
-
-             v_prestado = 'no';
-
-             if v_movimiento.dias_actual < v_parametros.dias then
-
-                 if not exists (select 1
-                                 from orga.vfuncionario_cargo f
-                                 where f.id_funcionario = v_parametros.id_funcionario
-                                        and f.fecha_finalizacion is null) then
-
-                 	raise exception 'No tienes saldo';
-
-                 end if;
-
-             	  v_prestado = 'si';
-
-             end if;
-
+                    
+            v_prestado = 'no';
 
             v_id_sol_funcionario = null;
 
@@ -281,8 +285,9 @@ BEGIN
 
 			IF NOT EXISTS(select * from param.tferiado f
                                           JOIN param.tlugar l on l.id_lugar = f.id_lugar
-                                          WHERE l.codigo='BO' AND f.fecha = v_record_det.dia::date
-                                          AND f.id_gestion=v_id_gestion_actual )THEN
+                                          WHERE l.codigo in ('BO',v_lugar)
+                                          AND (EXTRACT(MONTH from f.fecha))::integer = (EXTRACT(MONTH from v_record_det.dia::date))::integer
+                                          AND (EXTRACT(DAY from f.fecha))::integer = (EXTRACT(DAY from v_record_det.dia)) AND f.id_gestion=v_id_gestion_actual)THEN
 
                 if extract(dow from v_record_det.dia::date) <> 0 then
                     if extract(dow from v_record_det.dia::date) <> 6 then
@@ -886,13 +891,6 @@ BEGIN
                                                                       v_titulo);
 
 
-            /* update asis.tvacacion set
-              id_estado_wf =  v_id_estado_actual,
-              estado = va_codigo_estado[1],
-              id_usuario_mod=p_id_usuario,
-              fecha_mod=now()
-             where id_proceso_wf  = v_parametros.id_proceso_wf;*/
-
 
 
              	IF NOT asis.f_procesar_estado_vacacion( p_id_usuario,
@@ -941,6 +939,3 @@ CALLED ON NULL INPUT
 SECURITY INVOKER
 PARALLEL UNSAFE
 COST 100;
-
-ALTER FUNCTION asis.ft_vacacion_ime (p_administrador integer, p_id_usuario integer, p_tabla varchar, p_transaccion varchar)
-  OWNER TO postgres;

@@ -543,7 +543,7 @@ header("content-type: text/javascript; charset=UTF-8");
         ],
         sortInfo:{
             field: 'id_vacacion',
-            direction: 'ASC'
+            direction: 'DESC'
         },
         bdel:true,
         bsave:false,
@@ -600,8 +600,10 @@ header("content-type: text/javascript; charset=UTF-8");
             this.movimientoVacacion(Phx.CP.config_ini.id_funcionario);
             this.Cmp.id_funcionario.store.load({params:{start:0,limit:this.tam_pag,es_combo_solicitud:'si'},
                 callback : function (r) {
+                    console.log(r)
                     this.Cmp.id_funcionario.setValue(r[0].data.id_funcionario);
                     this.Cmp.id_funcionario.fireEvent('select', this.Cmp.id_funcionario, r[0]);
+                    this.Cmp.id_funcionario.modificado = true;
                     this.Cmp.id_funcionario.collapse();
                     this.onCargarResponsable(r[0].data.id_funcionario);
                 }, scope : this

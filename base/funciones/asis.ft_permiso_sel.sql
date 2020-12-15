@@ -1,3 +1,5 @@
+--------------- SQL ---------------
+
 CREATE OR REPLACE FUNCTION asis.ft_permiso_sel (
   p_administrador integer,
   p_id_usuario integer,
@@ -23,13 +25,14 @@ $body$
 
 DECLARE
 
-v_consulta    		varchar;
+    v_consulta    		varchar;
 	v_parametros  		record;
 	v_nombre_funcion   	text;
 	v_resp				varchar;
     v_filtro			varchar;
     v_id_funcionario	integer;
     v_id_funcionario_sol	integer;
+    v_count					integer;
 
 BEGIN
 
@@ -45,42 +48,58 @@ BEGIN
 
 	if(p_transaccion='ASIS_PMO_SEL')then
 
-begin
-            if v_parametros.tipo_interfaz = 'PermisoReg'then
-                v_filtro = '';
-                if p_administrador != 1  then
+      begin
+      
+      if v_parametros.tipo_interfaz = 'PermisoReg'then
+      	
+        v_filtro = '';
+        
+          if p_administrador != 1  then
 
 
-select fp.id_funcionario into v_id_funcionario_sol
-from segu.vusuario usu
-         inner join orga.vfuncionario_persona fp on fp.id_persona = usu.id_persona
-         inner join asis.tpermiso p on p.id_funcionario = fp.id_funcionario
-where usu.id_usuario  = p_id_usuario;
-
-v_filtro = '(pmo.id_funcionario = '||v_id_funcionario_sol||' or pmo.id_usuario_reg = '||p_id_usuario|| ') and ';
-
-end if;
-end if;
-
-            if v_parametros.tipo_interfaz = 'PermisoVoBo'then
-               v_filtro = '';
-                if p_administrador != 1  then
-
-select f.id_funcionario into v_id_funcionario_sol
-from segu.vusuario u
-         inner join orga.vfuncionario_persona f on f.id_persona = u.id_persona
-where u.id_usuario = p_id_usuario;
+            select fp.id_funcionario into v_id_funcionario_sol
+            from segu.vusuario usu
+            inner join orga.vfuncionario_persona fp on fp.id_persona = usu.id_persona
+            inner join asis.tpermiso p on p.id_funcionario = fp.id_funcionario
+            where usu.id_usuario  = p_id_usuario;
+            
+            	select count(p.id_permiso) into v_count
+                from asis.tpermiso p
+                where p.id_usuario_reg = p_id_usuario;
+            
+            	if v_id_funcionario_sol is null and v_count = 0 then
+                
+                	v_filtro = '( pmo.id_usuario_reg = '||p_id_usuario|| ') and ';
+					
+                else
+                
+                    v_filtro = '(pmo.id_funcionario = '||v_id_funcionario_sol||' or pmo.id_usuario_reg = '||p_id_usuario|| ') and ';
 
 
-v_filtro = 'wet.id_funcionario =  '||v_id_funcionario_sol||' and ';
+                end if;
+            
+          end if;
+      end if;
 
+      if v_parametros.tipo_interfaz = 'PermisoVoBo'then
+      
+         v_filtro = '';
+         
+         if p_administrador != 1  then
 
+          select f.id_funcionario into v_id_funcionario_sol
+          from segu.vusuario u
+          inner join orga.vfuncionario_persona f on f.id_persona = u.id_persona
+          where u.id_usuario = p_id_usuario;
 
-end if;
-end if;
-            if v_parametros.tipo_interfaz = 'PermisoRRHH' or v_parametros.tipo_interfaz = 'PermisoRrhh' then
-                v_filtro = '';
-end if;
+      	v_filtro = 'wet.id_funcionario =  '||v_id_funcionario_sol||' and ';
+
+    		end if;
+      end if;
+      
+      if v_parametros.tipo_interfaz = 'PermisoRRHH' or v_parametros.tipo_interfaz = 'PermisoRrhh' then
+          v_filtro = '';
+      end if;
 
 
     		--Sentencia de la consulta
@@ -138,9 +157,9 @@ end if;
 			v_consulta:=v_consulta||' order by ' ||v_parametros.ordenacion|| ' ' || v_parametros.dir_ordenacion || ' limit ' || v_parametros.cantidad || ' offset ' || v_parametros.puntero;
 			--Devuelve la respuesta
             raise notice '%',v_consulta;
-return v_consulta;
+      return v_consulta;
 
-end;
+      end;
 
 	/*********************************
  	#TRANSACCION:  'ASIS_PMO_CONT'
@@ -151,38 +170,56 @@ end;
 
 	elsif(p_transaccion='ASIS_PMO_CONT')then
 
-begin
-            if v_parametros.tipo_interfaz = 'PermisoReg'then
-                v_filtro = '';
-                if p_administrador != 1  then
-select fp.id_funcionario into v_id_funcionario_sol
-from segu.vusuario usu
-         inner join orga.vfuncionario_persona fp on fp.id_persona = usu.id_persona
-         inner join asis.tpermiso p on p.id_funcionario = fp.id_funcionario
-where usu.id_usuario  = p_id_usuario;
+          begin
+          
+          if v_parametros.tipo_interfaz = 'PermisoReg'then
+      	
+        v_filtro = '';
+        
+          if p_administrador != 1  then
 
-v_filtro = '(pmo.id_funcionario = '||v_id_funcionario_sol||' or pmo.id_usuario_reg = '||p_id_usuario|| ') and ';
 
-end if;
-end if;
+            select fp.id_funcionario into v_id_funcionario_sol
+            from segu.vusuario usu
+            inner join orga.vfuncionario_persona fp on fp.id_persona = usu.id_persona
+            inner join asis.tpermiso p on p.id_funcionario = fp.id_funcionario
+            where usu.id_usuario  = p_id_usuario;
+            
+            	select count(p.id_permiso) into v_count
+                from asis.tpermiso p
+                where p.id_usuario_reg = p_id_usuario;
+            
+            	if v_id_funcionario_sol is null and v_count = 0 then
+                
+                	v_filtro = '( pmo.id_usuario_reg = '||p_id_usuario|| ') and ';
+                    
+                else
+                     v_filtro = '(pmo.id_funcionario = '||v_id_funcionario_sol||' or pmo.id_usuario_reg = '||p_id_usuario|| ') and ';
 
-            if v_parametros.tipo_interfaz = 'PermisoVoBo'then
-               v_filtro = '';
-                if p_administrador != 1  then
+                end if;
 
-select f.id_funcionario into v_id_funcionario
-from segu.vusuario u
-         inner join orga.vfuncionario_persona f on f.id_persona = u.id_persona
-where u.id_usuario = p_id_usuario;
+          end if;
+      end if;
 
-if v_id_funcionario is not null then
-                    	v_filtro = 'wet.id_funcionario =  '||v_id_funcionario||' and ';
-end if;
-end if;
-end if;
-            if v_parametros.tipo_interfaz = 'PermisoRRHH' or v_parametros.tipo_interfaz = 'PermisoRrhh' then
-                v_filtro = '';
-end if;
+      if v_parametros.tipo_interfaz = 'PermisoVoBo'then
+      
+         v_filtro = '';
+         
+         if p_administrador != 1  then
+
+          select f.id_funcionario into v_id_funcionario_sol
+          from segu.vusuario u
+          inner join orga.vfuncionario_persona f on f.id_persona = u.id_persona
+          where u.id_usuario = p_id_usuario;
+
+      	v_filtro = 'wet.id_funcionario =  '||v_id_funcionario_sol||' and ';
+
+    		end if;
+      end if;
+      
+      if v_parametros.tipo_interfaz = 'PermisoRRHH' or v_parametros.tipo_interfaz = 'PermisoRrhh' then
+          v_filtro = '';
+      end if;
 			--Sentencia de la consulta de conteo de registros
 			v_consulta:='select count(id_permiso)
 					    from asis.tpermiso pmo
@@ -200,10 +237,10 @@ end if;
 			--Definicion de la respuesta
 			v_consulta:=v_consulta||v_parametros.filtro;
 
-			--Devuelve la respuesta
-return v_consulta;
+                        --Devuelve la respuesta
+            return v_consulta;
 
-end;
+            end;
 
     /*********************************
  	#TRANSACCION:  'ASIS_RFL_SEL'
@@ -214,11 +251,12 @@ end;
 
 	elsif(p_transaccion='ASIS_RFL_SEL')then
 
-begin
+		begin
 
         	v_consulta := 'select  fun.id_funcionario,
                                    fun.desc_funcionario1 as desc_funcionario,
-                                    ''''::text  as desc_funcionario_cargo
+                                    ''''::text  as desc_funcionario_cargo,
+                                    fun.codigo
                             from  orga.vfuncionario fun
                             where fun.id_funcionario in (select *
                                                          from orga.f_get_aprobadores_x_funcionario(CURRENT_DATE,'||v_parametros.id_funcionario||',''todos'',''todos'',''1,2,3,4,6'') as
@@ -227,10 +265,10 @@ begin
 			--Definicion de la respuesta
 			v_consulta:=v_consulta||v_parametros.filtro;
 			v_consulta:=v_consulta||' order by ' ||v_parametros.ordenacion|| ' ' || v_parametros.dir_ordenacion || ' limit ' || v_parametros.cantidad || ' offset ' || v_parametros.puntero;
-
+			raise notice '%',v_consulta;
 			--Devuelve la respuesta
-return v_consulta;
-end;
+          return v_consulta;
+          end;
 
 
 	/*********************************
@@ -242,7 +280,7 @@ end;
 
 	elsif(p_transaccion='ASIS_RFL_CONT')then
 
-begin
+		begin
 
 			--Sentencia de la consulta de conteo de registros
 			v_consulta:='select   count (fun.id_funcionario)
@@ -254,9 +292,9 @@ begin
 			--Definicion de la respuesta
 			v_consulta:=v_consulta||v_parametros.filtro;
 			--Devuelve la respuesta
-return v_consulta;
+    return v_consulta;
 
-end;
+    end;
 
 	  /*********************************
     #TRANSACCION:  'ASIS_AOES_SEL'
@@ -267,7 +305,7 @@ end;
 
 	elsif(p_transaccion='ASIS_AOES_SEL')then
 
-begin
+	begin
 			--Sentencia de la consulta
 			v_consulta:=' select ts.id_tipo_estado,
                                  ts.codigo,
@@ -282,9 +320,9 @@ begin
 			v_consulta:=v_consulta||v_parametros.filtro;
 			v_consulta:=v_consulta||' order by ' ||v_parametros.ordenacion|| ' ' || v_parametros.dir_ordenacion || ' limit ' || v_parametros.cantidad || ' offset ' || v_parametros.puntero;
 			--Devuelve la respuesta
-return v_consulta;
+      return v_consulta;
 
-end;
+      end;
 
     /*********************************
     #TRANSACCION:  'ASIS_AOES_CONT'
@@ -295,7 +333,7 @@ end;
 
 	elsif(p_transaccion='ASIS_AOES_CONT')then
 
-begin
+	begin
 			--Sentencia de la consulta de conteo de registros
 			v_consulta:=' select count(ts.id_tipo_estado)
                           from wf.tproceso_macro mp
@@ -306,9 +344,9 @@ begin
 			--Definicion de la respuesta
 			v_consulta:=v_consulta||v_parametros.filtro;
 			--Devuelve la respuesta
-return v_consulta;
+    return v_consulta;
 
-end;
+    end;
 
 
 else
@@ -334,6 +372,3 @@ CALLED ON NULL INPUT
 SECURITY INVOKER
 PARALLEL UNSAFE
 COST 100;
-
-ALTER FUNCTION asis.ft_permiso_sel (p_administrador integer, p_id_usuario integer, p_tabla varchar, p_transaccion varchar)
-    OWNER TO postgres;

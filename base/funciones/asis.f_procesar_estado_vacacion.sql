@@ -1,3 +1,5 @@
+--------------- SQL ---------------
+
 CREATE OR REPLACE FUNCTION asis.f_procesar_estado_vacacion (
   p_id_usuario integer,
   p_id_usuario_ai integer,
@@ -65,11 +67,10 @@ BEGIN
 
    if p_codigo_estado = 'vobo' then
 
-    if (v_registro.id_funcionario_sol is not null)then
+   /* if (v_registro.id_funcionario_sol is not null)then
 
 
-                v_descripcion_correo = '
-                <font size="4">SOLICITUD VACACION</font><br>';
+                v_descripcion_correo = '<font size="4">SOLICITUD VACACION</font><br>';
 
                 v_id_alarma = param.f_inserta_alarma(
                                     v_registro.id_funcionario,
@@ -89,8 +90,7 @@ BEGIN
                                     p_id_proceso_wf,
                                     v_registro.id_estado_wf--#9
                                    );
-               		---raise exception 'para';
-               end if;
+               end if;*/
 
     select sum(d.dias_efectico) into v_dias_efectivo
         	from (
@@ -133,27 +133,26 @@ BEGIN
 
         select va.id_movimiento_vacacion,
                va.id_funcionario,
-               va.dias_actual,
+               COALESCE(va.dias_actual,0) as dias_actual,
                va.codigo
               into v_record
         from asis.tmovimiento_vacacion va
-        where va.id_funcionario =  v_registro.id_funcionario and va.activo = 'activo';
-
-
+        where va.id_funcionario = v_registro.id_funcionario and va.activo = 'activo';
+        
         v_evento = 'TOMADA';
         v_resultado =  v_record.dias_actual - v_registro.dias;
-
-        if v_registro.prestado = 'si' then
-
-            if v_record.dias_actual < 0 then
-                v_positivo = -1 * v_record.dias_actual;
-                v_resultado =  (v_positivo + v_registro.dias)* -1;
-            end if;
-
-            v_evento = 'PRESTADO';
+        
+        if v_record.dias_actual <= 0 then
+        
+        	v_positivo = -1 * v_record.dias_actual;
+            v_resultado =  (v_positivo + v_registro.dias)* -1;
+            
+        	-- v_evento = 'ANTICIPO';
 
         end if;
-
+        
+       
+        
     	INSERT INTO  asis.tmovimiento_vacacion(
                           id_usuario_reg,
                           id_usuario_mod,
@@ -186,7 +185,7 @@ BEGIN
                           v_resultado,-- v_record.dias_actual - v_registro.dias,
                           'activo',
                           v_record.codigo,
-                          -1 * v_registro.dias ,
+                          -1*v_registro.dias ,
                           v_evento,
                           v_registro.id_vacacion
                         )RETURNING id_movimiento_vacacion into v_id_movimiento_vacacion;
@@ -195,9 +194,9 @@ BEGIN
            raise exception 'Algo salimo mal en calculo operacion';
           end if;
 
-        update asis.tmovimiento_vacacion set
-        activo = 'inactivo'
-        where id_movimiento_vacacion = v_record.id_movimiento_vacacion;
+          update asis.tmovimiento_vacacion set
+          activo = 'inactivo'
+          where id_movimiento_vacacion = v_record.id_movimiento_vacacion;
 
         update asis.tvacacion  set
         id_estado_wf =  p_id_estado_wf,
@@ -461,6 +460,3 @@ CALLED ON NULL INPUT
 SECURITY INVOKER
 PARALLEL UNSAFE
 COST 100;
-
-ALTER FUNCTION asis.f_procesar_estado_vacacion (p_id_usuario integer, p_id_usuario_ai integer, p_usuario_ai varchar, p_id_estado_wf integer, p_id_proceso_wf integer, p_codigo_estado varchar, p_obs text)
-  OWNER TO dbaamamani;

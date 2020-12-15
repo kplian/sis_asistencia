@@ -242,6 +242,7 @@ class MODPermiso extends MODbase{
         $this->captura('id_funcionario','int4');
         $this->captura('desc_funcionario','text');
         $this->captura('desc_funcionario_cargo','text');
+        $this->captura('codigo','varchar');
 
         //Ejecuta la instruccion
         $this->armarConsulta();

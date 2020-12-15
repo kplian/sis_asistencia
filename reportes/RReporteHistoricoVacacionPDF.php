@@ -12,30 +12,33 @@ class RReporteHistoricoVacacionPDF extends  ReportePDF
 {
     private $total_horas = '00:00:00';
     function Header(){
-        $this->Ln(8);
-        $this->MultiCell(40, 25, '', 0, 'C', 0, '', '');
-        $this->SetFontSize(15);
-        $this->SetFont('', 'B');
-        $this->MultiCell(105, 25, "\n" . 'HISTORIAL DE VACACIONES', 0, 'C', 0, '', '');
-        $this->SetFont('times', '', 10);
-        $this->MultiCell(0, 25,'', 0, 'C', 0, '', '');
-        $this->Image(dirname(__FILE__) . '/../../pxp/lib' . $_SESSION['_DIR_LOGO'], 17, 15, 36);
 
-    }
-    function reporteRequerimiento(){
-
-       /* $this->SetFont('times', 'B', 10);
-        $this->Cell(80, 7, 'EMPLEADO:'.$this->datos[0]['desc_funcionario1'], 0, 0, 'L', 0, '', 0);
-        $this->Cell(106, 7, 'CARGO: '.$this->datos[0]['descripcion_cargo'], 0, 0, 'L', 0, '', 0);
+        $this->Ln(5);
+        $url_imagen = dirname(__FILE__) . '/../../pxp/lib' . $_SESSION['_DIR_LOGO'];
+        $f_actual = date("d/m/Y");//date_format(date_create($this->datos[0]["fecha_solicitud"]), 'd/m/Y');
+        $paginador = $this->getAliasNumPage().'/'.$this->getAliasNbPages();
+        $html = <<<EOF
+		<style>
+		table, th, td {		
+   			font-family: "Calibri";
+   			font-size: 9pt;	
+		}
+		
+		</style>
+		<body>
+		<table cellpadding="2" cellspacing = "0">
+        	<tr>
+            	<th style="width: 20%;vertical-align:middle;" align="center" rowspan="2"><img src="$url_imagen" ></th>
+            	<th style="width: 60%;vertical-align:middle;" align="center" rowspan="2"><br/><br/><h2>HISTORIAL DE VACACIONES</h2></th>
+            	<th style="width: 20%;" align="center" colspan="2"><div style="padding:10px 10px 10px 10px;">&nbsp;&nbsp;&nbsp;&nbsp;<b>Página: </b>$paginador</div></th>
+        	</tr>
+        	<tr>
+        	      <th style="width: 20%;" align="center" colspan="2"><div style="padding:10px 10px 10px 10px;"><b>Fecha: </b>$f_actual</div></th>
+        	</tr>
+        </table>
+EOF;
+        $this->writeHTML ($html);
         $this->ln();
-
-        $this->SetFont('times', 'B', 10);
-        $this->Cell(80, 7, 'CÓDIGO: '.$this->datos[0]['codigo'], 0, 0, 'L', 0, '', 0);
-        $this->Cell(106, 7, 'ÁREA: '.$this->datos[0]['nombre_unidad'], 0, 0, 'L', 0, '', 0);
-        $this->ln();
-
-        $this->SetFont('times', 'B', 10);
-        $this->Cell(0, 7, 'FECHA INGRESO: '. $this->datos[0]['fecha_contrato'], 0, 0, 'L', 0, '', 0);*/
         $funcionario = $this->datos[0]['desc_funcionario1'];
         $descripcion_cargo= $this->datos[0]['descripcion_cargo'];
         $codigo= $this->datos[0]['codigo'];
@@ -63,20 +66,59 @@ class RReporteHistoricoVacacionPDF extends  ReportePDF
             </table>
 EOD;
         $this->SetFont('times', '', 9);
-        $this->writeHTML($html, true, false, false, false, '');
+        $this->writeHTML($html);
+
         $this->ln();
-
-        $table = '
-             <table cellspacing="0" cellpadding="1" >
-                  <tr>
-                        <th style="border-top: 1px solid black; border-bottom: 1px solid black;" align="center"><b>EVENTO</b></th>
-                        <th style="border-top: 1px solid black; border-bottom: 1px solid black;" align="center"><b>FECHA</b></th>
-                        <th style="border-top: 1px solid black; border-bottom: 1px solid black;" align="center"><b>RANGO DE FECHAS</b></th>
-                        <th style="border-top: 1px solid black; border-bottom: 1px solid black;" align="center"><b>DÍAS</b></th>
-                        <th style="border-top: 1px solid black; border-bottom: 1px solid black;" align="center"><b>SALDO</b></th>
-                  </tr>';
-
-
+        $hader = '<table cellspacing="0" cellpadding="1">
+                      <tr>
+                            <th style="border-top: 1px solid black; border-bottom: 1px solid black;" align="center"><b>EVENTO</b></th>
+                            <th style="border-top: 1px solid black; border-bottom: 1px solid black;" align="center"><b>FECHA</b></th>
+                            <th style="border-top: 1px solid black; border-bottom: 1px solid black;" align="center"><b>RANGO DE FECHAS</b></th>
+                            <th style="border-top: 1px solid black; border-bottom: 1px solid black;" align="center"><b>DÍAS</b></th>
+                            <th style="border-top: 1px solid black; border-bottom: 1px solid black;" align="center"><b>SALDO</b></th>
+                      </tr>
+                </table>';
+        $this->writeHTML($hader);
+    }
+    function Footer() {
+        $this->setY(-15);
+        $ormargins = $this->getOriginalMargins();
+        $this->SetTextColor(0, 0, 0);
+        //set style for cell border
+        $line_width = 0.85 / $this->getScaleFactor();
+        $this->SetLineStyle(array('width' => $line_width, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => array(0, 0, 0)));
+        $ancho = round(($this->getPageWidth() - $ormargins['left'] - $ormargins['right']) / 3);
+        $this->Ln(2);
+        $cur_y = $this->GetY();
+        //$this->Cell($ancho, 0, 'Generado por XPHS', 'T', 0, 'L');
+        $this->Cell($ancho, 0, 'Usuario: '.$_SESSION['_LOGIN'], '', 0, 'L');
+        $pagenumtxt = '';
+        $this->Cell($ancho, 0, $pagenumtxt, '', 0, 'C');
+        $this->Cell($ancho, 0, $_SESSION['_REP_NOMBRE_SISTEMA'], '', 0, 'R');
+        $this->Ln();
+        $fecha_rep = date("d-m-Y H:i:s");
+        $this->Cell($ancho, 0, "Fecha Impresion : ".$fecha_rep, '', 0, 'L');
+        $this->Ln($line_width);
+        $this->Ln();
+        $barcode = $this->getBarcode();
+        $style = array(
+            'position' => $this->rtl?'R':'L',
+            'align' => $this->rtl?'R':'L',
+            'stretch' => false,
+            'fitwidth' => true,
+            'cellfitalign' => '',
+            'border' => false,
+            'padding' => 0,
+            'fgcolor' => array(0,0,0),
+            'bgcolor' => false,
+            'text' => false,
+            'position' => 'R'
+        );
+        $this->write1DBarcode($barcode, 'C128B', $ancho*2, $cur_y + $line_width+5, '', (($this->getFooterMargin() / 3) - $line_width), 0.3, $style, '');
+    }
+    function reporteRequerimiento(){
+        $this->ln();
+        $table = ' <table cellspacing="0" cellpadding="1">';
         foreach ($this->datos as $value){
 
             $tipo = $value['tipo'];
@@ -96,7 +138,7 @@ EOD;
         $table .= '</table>';
 
         $this->SetFont('times', '', 10);
-        $this->writeHTML($table, true, false, false, false, '');
+        $this->writeHTML($table);
         $this->ln();
 
     }
@@ -105,11 +147,12 @@ EOD;
     }
 
     function generarReporte() {
-        $this->SetMargins(15,40,15);
+        $this->SetMargins(15,63,15);
         $this->setFontSubsetting(false);
         $this->AddPage();
-        $this->SetMargins(15,40,15);
+        $this->SetMargins(15,63,15);
         $this->reporteRequerimiento();
+
     }
 }
 ?>

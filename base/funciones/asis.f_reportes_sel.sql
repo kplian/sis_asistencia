@@ -1,3 +1,5 @@
+--------------- SQL ---------------
+
 CREATE OR REPLACE FUNCTION asis.f_reportes_sel (
   p_administrador integer,
   p_id_usuario integer,
@@ -430,8 +432,8 @@ BEGIN
                           inner join orga.tuo ger ON ger.id_uo = orga.f_get_uo_gerencia(uofun.id_uo, NULL::integer, NULL::date)
                           inner join orga.tuo dep ON dep.id_uo = orga.f_get_uo_departamento(uofun.id_uo, NULL::integer, NULL::date)
                           where tc.codigo in ('PLA','EVE') and UOFUN.tipo = 'oficial' and
-                          uofun.fecha_asignacion <= v_parametros.fecha_ini::date and
-                          (uofun.fecha_finalizacion is null or uofun.fecha_finalizacion >= v_parametros.fecha_ini::date) AND
+                          uofun.fecha_asignacion <= v_parametros.fecha_fin::date and
+                          (uofun.fecha_finalizacion is null or uofun.fecha_finalizacion >= v_parametros.fecha_fin::date) AND
                           uofun.estado_reg != 'inactivo' and
                               (case
                           			when v_parametros.id_funcionario is null then
@@ -448,7 +450,7 @@ BEGIN
                                       end )
                           order by uofun.id_funcionario, uofun.fecha_asignacion desc)funs
                           inner join asis.tmovimiento_vacacion mm on mm.id_funcionario = funs.id_funcionario
-                          where mm.fecha_reg::date <= v_parametros.fecha_ini::date
+                          where mm.fecha_reg::date <= v_parametros.fecha_fin::date
                           group by  funs.id_funcionario,
                                     funs.codigo,
                                     funs.desc_funcionario2,
@@ -534,7 +536,7 @@ BEGIN
                                      ts.fecha_contrato,
                             		ts.gerencia,
                                     ts.departamento
-                            order by gerencia, departamento, desc_funcionario1,ordenar, gestion';
+                            order by gerencia, departamento, desc_funcionario1 asc ,ordenar, gestion';
 		   --Devuelve la respuesta
             return v_consulta;
 
@@ -583,8 +585,8 @@ BEGIN
                           inner join orga.tuo ger ON ger.id_uo = orga.f_get_uo_gerencia(uofun.id_uo, NULL::integer, NULL::date)
                           inner join orga.tuo dep ON dep.id_uo = orga.f_get_uo_departamento(uofun.id_uo, NULL::integer, NULL::date)
                           where tc.codigo in ('PLA','EVE') and UOFUN.tipo = 'oficial' and
-                          uofun.fecha_asignacion <= v_parametros.fecha_ini::date and
-                          (uofun.fecha_finalizacion is null or uofun.fecha_finalizacion >= v_parametros.fecha_ini::date) AND
+                          uofun.fecha_asignacion <= v_parametros.fecha_fin::date and
+                          (uofun.fecha_finalizacion is null or uofun.fecha_finalizacion >= v_parametros.fecha_fin::date) AND
                           uofun.estado_reg != 'inactivo'  and
 
                           (case
@@ -609,7 +611,7 @@ BEGIN
                                       end )
                           order by uofun.id_funcionario, uofun.fecha_asignacion desc)funs
                           inner join asis.tmovimiento_vacacion mm on mm.id_funcionario = funs.id_funcionario
-                             where mm.fecha_reg::date <= v_parametros.fecha_ini::date
+                             where mm.fecha_reg::date <= v_parametros.fecha_fin::date
                           group by  funs.id_funcionario,
                                     funs.codigo,
                                     funs.desc_funcionario2,
@@ -695,7 +697,7 @@ BEGIN
                                      ts.fecha_contrato,
                             		ts.gerencia,
                                     ts.departamento
-                            order by gerencia, departamento, desc_funcionario1,ordenar, gestion';
+                            order by gerencia, departamento, desc_funcionario1 asc,ordenar, gestion';
 		   --Devuelve la respuesta
             return v_consulta;
 
@@ -735,12 +737,12 @@ BEGIN
                                       when (select sum(coalesce(mm.dias, 0))
                                       from asis.tmovimiento_vacacion mm
                                       where   mm.id_funcionario = fun.id_funcionario
-                                      and mm.fecha_reg::date <= '''||v_parametros.fecha_ini||'''::date) < 0 then
+                                      and mm.fecha_reg::date <= '''||v_parametros.fecha_fin||'''::date) < 0 then
 
                                       (select -1 * sum(coalesce(mm.dias, 0))
                                         from asis.tmovimiento_vacacion mm
                                         where   mm.id_funcionario = fun.id_funcionario
-                                        and mm.fecha_reg::date <= '''||v_parametros.fecha_ini||'''::date)
+                                        and mm.fecha_reg::date <= '''||v_parametros.fecha_fin||'''::date)
                                       else
                                        0
                                       end
@@ -759,11 +761,11 @@ BEGIN
                                   inner join orga.tuo dep ON dep.id_uo = orga.f_get_uo_departamento(uofun.id_uo, NULL::integer, NULL::date)
                                   left join orga.toficina ofi on car.id_oficina = ofi.id_oficina
                                   where tc.codigo in (''PLA'',''EVE'') and UOFUN.tipo = ''oficial'' and
-                                  uofun.fecha_asignacion <=  '''||v_parametros.fecha_ini||'''::date and
-                                  (uofun.fecha_finalizacion is null or uofun.fecha_finalizacion >=  '''||v_parametros.fecha_ini||'''::date) AND
+                                  uofun.fecha_asignacion <=  '''||v_parametros.fecha_fin||'''::date and
+                                  (uofun.fecha_finalizacion is null or uofun.fecha_finalizacion >=  '''||v_parametros.fecha_fin||'''::date) AND
                                   uofun.estado_reg != ''inactivo'' '||v_filtro||'
                                   order by uofun.id_funcionario, uofun.fecha_asignacion desc) fun
-                                  order by gerencia, departamento, desc_funcionario2';
+                                  order by gerencia, departamento, desc_funcionario2 asc';
 
 		   --Devuelve la respuesta
             return v_consulta;
@@ -789,7 +791,12 @@ BEGIN
                               to_char(mv.fecha_reg::date,''DD/MM/YYYY'') as fecha,
                               to_char(mv.desde,''DD/MM/YYYY'') as desde,
                               to_char(mv.hasta,''DD/MM/YYYY'') as hasta,
-                              coalesce(mv.dias,0) as dias,
+                              (case
+                                  		when mv.dias < 0 then
+                                        -1 * mv.dias
+                                        else
+                                        mv.dias
+                                        end) as dias,
                               coalesce(mv.dias_actual,0)  as saldo,
                               fun.nombre_unidad,
                               to_char(fun.fecha_contrato,''DD/MM/YYYY'') as fecha_contrato
@@ -860,15 +867,16 @@ BEGIN
                                         mm.dias
                                         end) as dias,
                                   to_char(mm.desde,''DD/MM/YYYY'') as desde,
-                                  to_char(mm.hasta,''DD/MM/YYYY'') as hasta
+                                  to_char(mm.hasta,''DD/MM/YYYY'') as hasta,
+                                  funs.tipo_contrato
                           from (
                           select distinct on (uofun.id_funcionario) uofun.id_funcionario,
                                 trim(both ''FUNODTPR'' from  fun.codigo)::varchar as codigo,
                                 fun.desc_funcionario2,
                                 ger.nombre_unidad as gerencia,
                                 dep.nombre_unidad as departamento,
-                                plani.f_get_fecha_primer_contrato_empleado(uofun.id_uo_funcionario, uofun.id_funcionario, uofun.fecha_asignacion) as fecha_contrato
-
+                                plani.f_get_fecha_primer_contrato_empleado(uofun.id_uo_funcionario, uofun.id_funcionario, uofun.fecha_asignacion) as fecha_contrato,
+                                tc.nombre as tipo_contrato
                           from orga.tuo_funcionario uofun
                           inner join orga.tcargo car on car.id_cargo = uofun.id_cargo
                           inner join orga.ttipo_contrato tc on car.id_tipo_contrato = tc.id_tipo_contrato
@@ -881,9 +889,8 @@ BEGIN
                           uofun.estado_reg != ''inactivo'' '||v_filtro||'
                           order by uofun.id_funcionario, uofun.fecha_asignacion desc)funs
                           inner join asis.tmovimiento_vacacion mm on mm.id_funcionario = funs.id_funcionario
-                          where mm.tipo = ''TOMADA'' and mm.fecha_reg::date between '''||v_parametros.fecha_ini||''' ::date and '''||v_parametros.fecha_fin||'''::date
-
-                          order by gerencia, departamento, desc_funcionario2 ';
+                          where mm.tipo = ''TOMADA'' and mm.desde::date >= '''||v_parametros.fecha_ini||''' ::date and mm.hasta::date <='''||v_parametros.fecha_fin||'''::date
+                          order by gerencia, departamento,tipo_contrato, desc_funcionario2 asc';
 
             --Devuelve la respuesta
 
@@ -969,36 +976,36 @@ BEGIN
                                             sum(coalesce(mm.dias, 0))  as saldo_acumulado
                                      from asis.tmovimiento_vacacion mm
                                      where mm.tipo = ''ACUMULADA'' and
-                                           mm.fecha_reg::date <='''||v_parametros.fecha_ini||'''::date
+                                           mm.fecha_reg::date <='''||v_parametros.fecha_fin||'''::date
                                      group by mm.id_funcionario),
                        tomada as (select  mm.id_funcionario,
                                            sum(coalesce(mm.dias, 0))as saldo_tomada
                                    from asis.tmovimiento_vacacion mm
                                    where mm.tipo = ''TOMADA'' and
-                                          mm.fecha_reg::date <='''||v_parametros.fecha_ini||'''::date
+                                          mm.fecha_reg::date <='''||v_parametros.fecha_fin||'''::date
                                    group by mm.id_funcionario),
                         caducada as (select mm.id_funcionario,
                                             sum(coalesce(mm.dias, 0))  as saldo_caducado
                                     from asis.tmovimiento_vacacion mm
                                     where mm.tipo = ''CADUCADA'' and
-                                             mm.fecha_reg::date <='''||v_parametros.fecha_ini||'''::date
+                                             mm.fecha_reg::date <='''||v_parametros.fecha_fin||'''::date
                                     group by mm.id_funcionario),
                        anticipo as (select mm.id_funcionario,
                                             sum(coalesce(mm.dias, 0)) as saldo_anticipo
                                     from asis.tmovimiento_vacacion mm
                                     where mm.tipo = ''ANTICIPO'' and
-                                              mm.fecha_reg::date <='''||v_parametros.fecha_ini||'''::date
+                                              mm.fecha_reg::date <='''||v_parametros.fecha_fin||'''::date
                                     group by mm.id_funcionario),
                         pagado as (select mm.id_funcionario,
                                            sum(coalesce(mm.dias, 0)) as saldo_pagado
                                    from asis.tmovimiento_vacacion mm
                                    where mm.tipo = ''PAGADO'' and
-                                           mm.fecha_reg::date <='''||v_parametros.fecha_ini||'''::date
+                                           mm.fecha_reg::date <='''||v_parametros.fecha_fin||'''::date
                                    group by mm.id_funcionario),
                          saldo as (select mm.id_funcionario,
                                            sum(coalesce(mm.dias, 0)) as saldo
                                    from asis.tmovimiento_vacacion mm
-                                   where  mm.fecha_reg::date <='''||v_parametros.fecha_ini||'''::date
+                                   where  mm.fecha_reg::date <='''||v_parametros.fecha_fin||'''::date
                                    group by mm.id_funcionario)
                        select distinct on (uofun.id_funcionario) uofun.id_funcionario,
                                       trim(both ''FUNODTPR'' from  fun.codigo)::varchar as codigo,
@@ -1025,11 +1032,11 @@ BEGIN
                               left join  pagado pag on pag.id_funcionario = uofun.id_funcionario
                               left join  saldo sal on sal.id_funcionario = uofun.id_funcionario
                               where tc.codigo in (''PLA'',''EVE'') and UOFUN.tipo = ''oficial'' and
-                              uofun.fecha_asignacion <= '''||v_parametros.fecha_ini||'''::date and
-                              (uofun.fecha_finalizacion is null or uofun.fecha_finalizacion >= '''||v_parametros.fecha_ini||'''::date) AND
+                              uofun.fecha_asignacion <= '''||v_parametros.fecha_fin||'''::date and
+                              (uofun.fecha_finalizacion is null or uofun.fecha_finalizacion >= '''||v_parametros.fecha_fin||'''::date) AND
                               uofun.estado_reg != ''inactivo'' '||v_filtro||'
                               order by uofun.id_funcionario, uofun.fecha_asignacion desc   ) ant
-                              order by gerencia, departamento,desc_funcionario2';
+                              order by desc_funcionario2 asc';
 		   --Devuelve la respuesta
             return v_consulta;
 
@@ -1057,6 +1064,3 @@ CALLED ON NULL INPUT
 SECURITY INVOKER
 PARALLEL UNSAFE
 COST 100;
-
-ALTER FUNCTION asis.f_reportes_sel (p_administrador integer, p_id_usuario integer, p_tabla varchar, p_transaccion varchar)
-  OWNER TO dbaamamani;

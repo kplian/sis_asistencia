@@ -140,9 +140,9 @@ header("content-type: text/javascript; charset=UTF-8");
                                 direction: 'ASC'
                             },
                             totalProperty: 'total',
-                            fields: ['id_funcionario','desc_funcionario','desc_funcionario_cargo'],
+                            fields: ['id_funcionario','desc_funcionario','desc_funcionario_cargo','codigo'],
                             remoteSort: true,
-                            baseParams: {par_filtro: 'fun.desc_funcionario'}
+                            baseParams: {par_filtro: 'fun.desc_funcionario1#fun.codigo'}
                         }),
                         valueField: 'id_funcionario',
                         displayField: 'desc_funcionario',
@@ -181,7 +181,7 @@ header("content-type: text/javascript; charset=UTF-8");
                             totalProperty: 'total',
                             fields: ['id_funcionario','desc_funcionario','codigo','cargo','departamento','oficina'],
                             remoteSort: true,
-                            baseParams: {par_filtro: 'pe.nombre_completo1'}
+                            baseParams: {par_filtro: 'pe.nombre_completo1#fun.codigo'}
                         }),
                         valueField: 'id_funcionario',
                         displayField: 'desc_funcionario',
@@ -695,10 +695,11 @@ header("content-type: text/javascript; charset=UTF-8");
                     }
                 },this);
                 this.onCalcularRango();
-                this.Cmp.id_funcionario.store.load({params:{start:0,limit:this.tam_pag, es_combo_solicitud:'si'},
+                this.Cmp.id_funcionario.store.load({params:{start:0,limit:this.tam_pag,es_combo_solicitud:'si'},
                     callback : function (r) {
                         this.Cmp.id_funcionario.setValue(r[0].data.id_funcionario);
                         this.Cmp.id_funcionario.fireEvent('select', this.Cmp.id_funcionario, r[0]);
+                        this.Cmp.id_funcionario.modificado = true;
                         this.Cmp.id_funcionario.collapse();
                         this.onCargarResponsable(r[0].data.id_funcionario);
                     }, scope : this

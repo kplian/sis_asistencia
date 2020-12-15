@@ -179,8 +179,9 @@ header("content-type: text/javascript; charset=UTF-8");
         constructor : function(config) {
             Phx.vista.FormReporteVacacion.superclass.constructor.call(this, config);
             this.init();
-            this.ocultarComponente(this.Cmp.fecha_fin);
+            this.ocultarComponente(this.Cmp.fecha_ini);
             this.Cmp.reporte.on('select',function(c,r,i) {
+
                 if(r.data.field1 === 'Historial de Vacaciones'){
                     this.ocultarComponente(this.Cmp.fecha_ini);
                     this.ocultarComponente(this.Cmp.fecha_fin);
@@ -193,10 +194,10 @@ header("content-type: text/javascript; charset=UTF-8");
                     this.mostrarComponente(this.Cmp.fecha_ini);
                     this.mostrarComponente(this.Cmp.fecha_fin);
                 }else{
-                    this.mostrarComponente(this.Cmp.fecha_ini);
+                    this.ocultarComponente(this.Cmp.fecha_ini);
                     this.mostrarComponente(this.Cmp.id_uo);
                     this.mostrarComponente(this.Cmp.id_tipo_contrato);
-                    this.ocultarComponente(this.Cmp.fecha_fin);
+                    this.mostrarComponente(this.Cmp.fecha_fin);
 
                 }
 
