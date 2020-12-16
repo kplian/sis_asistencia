@@ -655,10 +655,10 @@ header("content-type: text/javascript; charset=UTF-8");
                 this.getBoton('diagrama_gantt').enable();
                 if(rec.estado === 'rechazado'){
                     this.getBoton('btn_siguiente').disable();
-                    this.getBoton('edit').disable();
+                  //  this.getBoton('edit').disable();
                 }else{
                     this.getBoton('btn_siguiente').enable();
-                    this.getBoton('edit').enable();
+                 //   this.getBoton('edit').enable();
                 }
                 this.getBoton('btnChequeoDocumentosWf').enable();
             },
@@ -697,11 +697,13 @@ header("content-type: text/javascript; charset=UTF-8");
                 this.onCalcularRango();
                 this.Cmp.id_funcionario.store.load({params:{start:0,limit:this.tam_pag,es_combo_solicitud:'si'},
                     callback : function (r) {
-                        this.Cmp.id_funcionario.setValue(r[0].data.id_funcionario);
-                        this.Cmp.id_funcionario.fireEvent('select', this.Cmp.id_funcionario, r[0]);
-                        this.Cmp.id_funcionario.modificado = true;
-                        this.Cmp.id_funcionario.collapse();
-                        this.onCargarResponsable(r[0].data.id_funcionario);
+                        if(r.length > 0) {
+                            this.Cmp.id_funcionario.setValue(r[0].data.id_funcionario);
+                            this.Cmp.id_funcionario.fireEvent('select', this.Cmp.id_funcionario, r[0]);
+                            this.Cmp.id_funcionario.modificado = true;
+                            this.Cmp.id_funcionario.collapse();
+                            this.onCargarResponsable(r[0].data.id_funcionario);
+                        }
                     }, scope : this
                 });
                 this.Cmp.id_funcionario.on('select', function(combo, record, index){
