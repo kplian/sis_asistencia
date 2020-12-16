@@ -64,7 +64,7 @@ class ACTPermiso extends ACTbase{
               }
              $filtroInit = "pmo.fecha_solicitud = now()::date";
 
-              $this->objParam->addFiltro("pmo.estado = ''vobo''");
+             // $this->objParam->addFiltro("pmo.estado = ''vobo''");
 
               if ($this->objParam->getParametro('param') != '') {
                   if ($this->objParam->getParametro('desde') != '' && $this->objParam->getParametro('hasta') != '') {

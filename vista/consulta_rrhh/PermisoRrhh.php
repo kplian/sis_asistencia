@@ -68,7 +68,7 @@ header("content-type: text/javascript; charset=UTF-8");
             this.addButton('btn_cancelar',{grupo:[5],
                 text:'Cancelar',
                 iconCls: 'bassign',
-                disabled:true,
+                disabled:false,
                 handler:this.onCancelar,
                 tooltip: '<b>Cancelar</b><p>el permiso en caso que no tomara </p>'});
 
@@ -93,7 +93,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     params: {
                         id_proceso_wf:  rec.data.id_proceso_wf,
                         id_estado_wf:  rec.data.id_estado_wf,
-                        evento : 'siguiente',
+                        evento : 'aprobado',
                         obs : ''
 
 
@@ -126,28 +126,22 @@ header("content-type: text/javascript; charset=UTF-8");
             }
             Phx.CP.loadingHide();
         },
-      /*  preparaMenu:function(n){
+        preparaMenu:function(n){
             Phx.vista.PermisoRrhh.superclass.preparaMenu.call(this, n);
             this.getBoton('btn_atras').enable();
             this.getBoton('diagrama_gantt').enable();
             this.getBoton('btn_siguiente').enable();
             this.getBoton('btn_cancelar').enable();
-            this.getBoton('btnChequeoDocumentosWf').enable();
         },
         liberaMenu:function() {
-            const tb = Phx.vista.PermisoRrhh.superclass.liberaMenu.call(this);
-            const rec = this.getSelectedData();
-            console.log(rec)
+            var tb = Phx.vista.PermisoRrhh.superclass.liberaMenu.call(this);
             if (tb) {
                 this.getBoton('btn_atras').disable();
                 this.getBoton('diagrama_gantt').disable();
                 this.getBoton('btn_siguiente').disable();
                 this.getBoton('btn_cancelar').disable();
-                // if (rec.documento === 'si'){
-                this.getBoton('btnChequeoDocumentosWf').disable();
-                // }
             }
-        },*/
+        }
     };
 </script>
 

@@ -1,5 +1,3 @@
---------------- SQL ---------------
-
 CREATE OR REPLACE FUNCTION asis.ft_permiso_ime (
   p_administrador integer,
   p_id_usuario integer,
@@ -24,12 +22,9 @@ $body$
 
 DECLARE
 
-	v_nro_requerimiento    	integer;
 	v_parametros           	record;
-	v_id_requerimiento     	integer;
 	v_resp		            varchar;
 	v_nombre_funcion        text;
-	v_mensaje_error         text;
 	v_id_permiso			integer;
     v_id_gestion			integer;
     v_codigo_proceso		varchar;
@@ -38,7 +33,6 @@ DECLARE
     v_id_proceso_wf			integer;
     v_id_estado_wf			integer;
     v_codigo_estado			varchar;
-
     v_record				record;
     v_id_tipo_estado		integer;
     v_pedir_obs				varchar;
@@ -56,12 +50,9 @@ DECLARE
     v_id_usuario_reg			integer;
     v_id_estado_wf_ant			integer;
     v_codigo_estado_siguiente	varchar;
-    v_tiempo					time;
     v_diferencia				time;
     v_registro_funcionario		record;
     v_consulta					varchar;
-    v_consulta_record			record;
-
     v_inicio	varchar;
     v_fin		varchar;
     v_record_tipo record;
@@ -88,6 +79,9 @@ DECLARE
 	v_id_alarma        		integer;
     v_vista_permiso			record;
 
+    v_estado_maestro			varchar;
+    v_id_estado_maestro 		integer;
+    v_estado_record             record;
 BEGIN
 
     v_nombre_funcion = 'asis.ft_permiso_ime';
@@ -271,7 +265,7 @@ BEGIN
                                 p_id_usuario,
                                 now(),
                                'activo',
-                                313,---v_registros.id_tipo_documento,
+                                314,---v_registros.id_tipo_documento,
                                 v_id_proceso_wf,
                                 v_nro_tramite,
                                 'verificar',
@@ -682,11 +676,6 @@ BEGIN
                from asis.tpermiso pe
                where pe.id_proceso_wf = v_parametros.id_proceso_wf;
 
-
-
-
-
-
                select  ps_id_tipo_estado,
                        ps_codigo_estado,
                        ps_disparador,
@@ -712,7 +701,34 @@ BEGIN
                        v_tipo_noti = 'notificacion';
                        v_titulo  = 'Visto Bueno';
 
-                       v_id_estado_actual = wf.f_registra_estado_wf(  va_id_tipo_estado[1]::integer,
+
+
+                       
+
+                      		
+                   		if( array_length(va_codigo_estado, 1) >= 2) then
+
+                   		     select  tt.id_tipo_estado,
+                                tt.codigo
+                                into
+                                v_estado_record
+                        from wf.ttipo_estado tt
+                        where tt.id_tipo_estado in (select unnest(ARRAY[va_id_tipo_estado]))
+                   		     and tt.codigo = v_parametros.evento;
+                        
+                            v_id_estado_maestro = v_estado_record.id_tipo_estado; 
+                   		    v_estado_maestro = v_estado_record.codigo; 
+                   		     
+                        else
+                        
+                       	    v_id_estado_maestro = va_id_tipo_estado[1]::integer;
+                            v_estado_maestro = va_codigo_estado[1]::varchar;
+                        
+                        end if ;
+                      
+
+
+                       v_id_estado_actual = wf.f_registra_estado_wf(  v_id_estado_maestro,
                                                                       v_permiso.id_responsable,--v_parametros.id_funcionario_wf,
                                                                       v_registro_estado.id_estado_wf,
                                                                       v_registro_estado.id_proceso_wf,
@@ -727,50 +743,8 @@ BEGIN
                                                                       v_tipo_noti,
                                                                       v_titulo);
 
-              if (va_codigo_estado[1] = 'vobo')then
+              if (v_estado_maestro = 'vobo')then
 
-
-            /*    if (v_permiso.id_funcionario_sol is not null)then
-
-
-                	select p.tipo_permiso, p.fecha_solicitud, p.funcionario_solicitante, p.hro_desde, p.hro_hasta , p.motivo
-                    into v_vista_permiso
-                    from asis.vpermiso p
-                    where p.id_proceso_wf = v_parametros.id_proceso_wf;
-
-
-
-                v_descripcion_correo = '
-                	<div>
-                    <p><font size="4">SOLICITUD DE PERMISO</font><br></p>
-                    <p>Tipo permiso: <b>'||v_vista_permiso.tipo_permiso||'</b></p>
-                    <p>Fecha solicitud: <b>'||v_vista_permiso.fecha_solicitud||'</b>/p>
-					<p><b>'||v_vista_permiso.funcionario_solicitante||'</b></p>
-                    <p> Desde: <b>'||v_vista_permiso.hro_desde||'</b Hasta: <b>'||v_vista_permiso.hro_hasta||'</b </p>
-                    <p> Justificacion: <b>'||v_vista_permiso.motivo||'</b</p>
-                    </div>
-                ';
-
-                v_id_alarma = param.f_inserta_alarma(
-                                    v_permiso.id_funcionario,
-                                    v_descripcion_correo,--par_descripcion
-                                    '',--acceso directo
-                                    now()::date,--par_fecha: Indica la fecha de vencimiento de la alarma
-                                    'notificacion', --notificacion
-                                    'Solicitud Permiso',  --asunto
-                                    p_id_usuario,
-                                    '', --clase
-                                    'Solicitud Permiso',--titulo
-                                    '',--par_parametros varchar,   parametros a mandar a la interface de acceso directo
-                                    p_id_usuario, --usuario a quien va dirigida la alarma
-                                    'Solicitud Permiso',--titulo correo
-                                    '', --correo funcionario
-                                    null,--#9
-                                    v_registro_estado.id_proceso_wf,
-                                    v_registro_estado.id_estado_wf--#9
-                                   );
-               		---raise exception 'para';
-               end if;*/
 
                  select  tp.documento,
                           tp.reposcion,
@@ -818,49 +792,18 @@ BEGIN
                           );
                 end if;
 
-                   if (v_record_tipo.documento = 'si') then
-/*                   	PERFORM	wf.f_inserta_documento_wf(p_id_usuario, v_parametros.id_proceso_wf, v_id_estado_actual);
-*/
-                         INSERT INTO
-                                wf.tdocumento_wf
-                              (
-                                id_usuario_reg,
-                                fecha_reg,
-                                estado_reg,
-                                id_tipo_documento,
-                                id_proceso_wf,
-                                num_tramite,
-                                momento,
-                                chequeado,
-                                id_estado_ini
-                              )
-                              VALUES (
-                                p_id_usuario,
-                                now(),
-                               'activo',
-                                313,---v_registros.id_tipo_documento,
-                                v_parametros.id_proceso_wf,
-                                v_permiso.nro_tramite,
-                                'verificar',
-                                'no',
-                                v_id_estado_actual
-                              );
-
-
-				end if;
-
                end if;
 
 
 
              update asis.tpermiso set
               id_estado_wf =  v_id_estado_actual,
-              estado = va_codigo_estado[1],
+              estado = v_estado_maestro,
               id_usuario_mod = p_id_usuario,
               id_usuario_ai = v_parametros._id_usuario_ai,
               usuario_ai = v_parametros._nombre_usuario_ai,
-              fecha_mod = now()
-
+              fecha_mod = now(),
+             observaciones = v_parametros.obs
              where id_proceso_wf  = v_parametros.id_proceso_wf;
 
             --Definicion de la respuesta

@@ -1,5 +1,3 @@
---------------- SQL ---------------
-
 CREATE OR REPLACE FUNCTION asis.ft_permiso_sel (
   p_administrador integer,
   p_id_usuario integer,
@@ -57,7 +55,7 @@ BEGIN
           if p_administrador != 1  then
 
 
-            select fp.id_funcionario into v_id_funcionario_sol
+            select  fp.id_funcionario into v_id_funcionario_sol
             from segu.vusuario usu
             inner join orga.vfuncionario_persona fp on fp.id_persona = usu.id_persona
             inner join asis.tpermiso p on p.id_funcionario = fp.id_funcionario
@@ -68,12 +66,20 @@ BEGIN
                 where p.id_usuario_reg = p_id_usuario;
             
             	if v_id_funcionario_sol is null and v_count = 0 then
-                
+                		
+                	
                 	v_filtro = '( pmo.id_usuario_reg = '||p_id_usuario|| ') and ';
 					
                 else
                 
-                    v_filtro = '(pmo.id_funcionario = '||v_id_funcionario_sol||' or pmo.id_usuario_reg = '||p_id_usuario|| ') and ';
+                	if (v_id_funcionario_sol is null)then
+                    
+                    	v_filtro = '( pmo.id_usuario_reg = '||p_id_usuario|| ') and ';
+                    
+                    else
+                        v_filtro = '(pmo.id_funcionario = '||v_id_funcionario_sol||' or pmo.id_usuario_reg = '||p_id_usuario|| ') and ';
+
+                    end if;
 
 
                 end if;
@@ -194,8 +200,15 @@ BEGIN
                 	v_filtro = '( pmo.id_usuario_reg = '||p_id_usuario|| ') and ';
                     
                 else
-                     v_filtro = '(pmo.id_funcionario = '||v_id_funcionario_sol||' or pmo.id_usuario_reg = '||p_id_usuario|| ') and ';
 
+                	if (v_id_funcionario_sol is null)then
+                    
+                    	v_filtro = '( pmo.id_usuario_reg = '||p_id_usuario|| ') and ';
+                    
+                    else
+                        v_filtro = '(pmo.id_funcionario = '||v_id_funcionario_sol||' or pmo.id_usuario_reg = '||p_id_usuario|| ') and ';
+
+                    end if;
                 end if;
 
           end if;
