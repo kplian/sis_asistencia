@@ -106,7 +106,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     params: {
                         id_proceso_wf:  rec.data.id_proceso_wf,
                         id_estado_wf:  rec.data.id_estado_wf,
-                        evento : 'siguiente',
+                        evento : 'aprobado',
                         obs : ''
 
                     },

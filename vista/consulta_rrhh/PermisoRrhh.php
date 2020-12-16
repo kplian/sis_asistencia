@@ -19,6 +19,10 @@ header("content-type: text/javascript; charset=UTF-8");
         bedit:false,
         bdel:false,
         tam_pag:50,
+        sortInfo:{
+            field: 'departamento',
+            direction: 'ASC'
+        },
         tipoStore: 'GroupingStore',//GroupingStore o JsonStore #
         remoteGroup: true,
         groupField: 'departamento',

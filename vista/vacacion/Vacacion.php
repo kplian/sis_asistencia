@@ -24,10 +24,10 @@ header("content-type: text/javascript; charset=UTF-8");
             this.finCons = true;
 
             this.addButton('btn_siguiente',{grupo:[0,3],
-                    text:'Enviar Solicitud',
-                    iconCls: 'bemail',
-                    disabled:true,
-                    handler:this.onSiguiente});
+                text:'Enviar Solicitud',
+                iconCls: 'bemail',
+                disabled:true,
+                handler:this.onSiguiente});
 
             this.addButton('btn_atras',{    grupo:[3,2],
                 argument: { estado: 'anterior'},
@@ -36,7 +36,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 disabled:true,
                 handler:this.onAtras,
                 tooltip: '<b>Pasar al Anterior Estado</b>'});
-    
+
             this.addBotonesGantt();
 
             this.iniciarEventos();
@@ -320,21 +320,21 @@ header("content-type: text/javascript; charset=UTF-8");
                 form:true
             },
             {
-            config:{
-                name: 'saldo',
-                fieldLabel: 'Dias Disponibles',
-                allowBlank: true,
-                anchor: '35%',
-                gwidth: 100,
-                width: 50,
-                readOnly :true,
-                style: 'background-image: none; border: 0; font-weight: bold; font-size: 12px;',
+                config:{
+                    name: 'saldo',
+                    fieldLabel: 'Dias Disponibles',
+                    allowBlank: true,
+                    anchor: '35%',
+                    gwidth: 100,
+                    width: 50,
+                    readOnly :true,
+                    style: 'background-image: none; border: 0; font-weight: bold; font-size: 12px;',
 
-            },
-            type:'NumberField',
-            id_grupo:6,
-            grid:false,
-            form:true,
+                },
+                type:'NumberField',
+                id_grupo:6,
+                grid:false,
+                form:true,
             },
             {
                 config:{
@@ -600,35 +600,37 @@ header("content-type: text/javascript; charset=UTF-8");
             this.movimientoVacacion(Phx.CP.config_ini.id_funcionario);
             this.Cmp.id_funcionario.store.load({params:{start:0,limit:this.tam_pag,es_combo_solicitud:'si'},
                 callback : function (r) {
-                    console.log(r)
-                    this.Cmp.id_funcionario.setValue(r[0].data.id_funcionario);
-                    this.Cmp.id_funcionario.fireEvent('select', this.Cmp.id_funcionario, r[0]);
-                    this.Cmp.id_funcionario.modificado = true;
-                    this.Cmp.id_funcionario.collapse();
-                    this.onCargarResponsable(r[0].data.id_funcionario);
+                    if(r[0].data){
+                        this.Cmp.id_funcionario.setValue(r[0].data.id_funcionario);
+                        this.Cmp.id_funcionario.fireEvent('select', this.Cmp.id_funcionario, r[0]);
+                        this.Cmp.id_funcionario.modificado = true;
+                        this.Cmp.id_funcionario.collapse();
+                        this.onCargarResponsable(r[0].data.id_funcionario);
+                    }
+
                 }, scope : this
             });
 
             this.Cmp.id_funcionario.on('select', function(combo, record, index){
-                     this.Cmp.id_responsable.reset();
-                     this.Cmp.id_responsable.store.baseParams = Ext.apply(this.Cmp.id_responsable.store.baseParams, {id_funcionario: record.data.id_funcionario});
-                     this.movimientoVacacion(record.data.id_funcionario);
-                     this.Cmp.id_responsable.modificado = true;
+                this.Cmp.id_responsable.reset();
+                this.Cmp.id_responsable.store.baseParams = Ext.apply(this.Cmp.id_responsable.store.baseParams, {id_funcionario: record.data.id_funcionario});
+                this.movimientoVacacion(record.data.id_funcionario);
+                this.Cmp.id_responsable.modificado = true;
             },this);
 
 
         },
         onCargarResponsable:function(id){
-                this.Cmp.id_responsable.store.baseParams = Ext.apply(this.Cmp.id_responsable.store.baseParams, {id_funcionario: id});
-                this.Cmp.id_responsable.modificado = true;
-                this.Cmp.id_responsable.store.load({params:{start:0,limit:this.tam_pag ,id_funcionario: id },
-                    callback : function (r) {
-                        this.Cmp.id_responsable.setValue(r[0].data.id_funcionario);
-                        this.Cmp.id_responsable.fireEvent('select', this.Cmp.id_responsable, r[0]);
-                        this.Cmp.id_responsable.collapse();
-                    }, scope : this
-                });
-            },
+            this.Cmp.id_responsable.store.baseParams = Ext.apply(this.Cmp.id_responsable.store.baseParams, {id_funcionario: id});
+            this.Cmp.id_responsable.modificado = true;
+            this.Cmp.id_responsable.store.load({params:{start:0,limit:this.tam_pag ,id_funcionario: id },
+                callback : function (r) {
+                    this.Cmp.id_responsable.setValue(r[0].data.id_funcionario);
+                    this.Cmp.id_responsable.fireEvent('select', this.Cmp.id_responsable, r[0]);
+                    this.Cmp.id_responsable.collapse();
+                }, scope : this
+            });
+        },
         onButtonEdit:function(){
             Phx.vista.Vacacion.superclass.onButtonEdit.call(this);
             this.movimientoVacacion(Phx.CP.config_ini.id_funcionario);
@@ -682,21 +684,21 @@ header("content-type: text/javascript; charset=UTF-8");
                 timeout:this.timeout,
                 scope:this
             });
-           /* Phx.CP.loadingShow();
-            Ext.Ajax.request({
-                url:'../../sis_asistencia/control/Vacacion/anteriorEstado',
-                params:{
-                    id_proceso_wf: resp.id_proceso_wf,
-                    id_estado_wf:  resp.id_estado_wf,
-                    obs: resp.obs,
-                    estado_destino: resp.estado_destino
-                },
-                argument:{wizard:wizard},
-                success:this.successEstadoSinc,
-                failure: this.conexionFailure,
-                timeout:this.timeout,
-                scope:this
-            });*/
+            /* Phx.CP.loadingShow();
+             Ext.Ajax.request({
+                 url:'../../sis_asistencia/control/Vacacion/anteriorEstado',
+                 params:{
+                     id_proceso_wf: resp.id_proceso_wf,
+                     id_estado_wf:  resp.id_estado_wf,
+                     obs: resp.obs,
+                     estado_destino: resp.estado_destino
+                 },
+                 argument:{wizard:wizard},
+                 success:this.successEstadoSinc,
+                 failure: this.conexionFailure,
+                 timeout:this.timeout,
+                 scope:this
+             });*/
         },
         successEstadoSinc:function(resp){
             Phx.CP.loadingHide();
@@ -705,23 +707,23 @@ header("content-type: text/javascript; charset=UTF-8");
         },
         onSiguiente :function () {
             Phx.CP.loadingShow();
-                const rec = this.sm.getSelected(); //obtine los datos selecionado en la grilla 
-                if(confirm('¿Enviar solicitud?')) {
-                        Ext.Ajax.request({
-                            url: '../../sis_asistencia/control/Vacacion/aprobarEstado',
-                            params: {
-                                id_proceso_wf:  rec.data.id_proceso_wf,
-                                id_estado_wf:  rec.data.id_estado_wf,
-                                evento : 'siguiente',
-                                obs : ''
-                            },
-                            success: this.successWizard,
-                            failure: this.conexionFailure,
-                            timeout: this.timeout,
-                            scope: this
-                        });
-                }
-                Phx.CP.loadingHide();
+            const rec = this.sm.getSelected(); //obtine los datos selecionado en la grilla
+            if(confirm('¿Enviar solicitud?')) {
+                Ext.Ajax.request({
+                    url: '../../sis_asistencia/control/Vacacion/aprobarEstado',
+                    params: {
+                        id_proceso_wf:  rec.data.id_proceso_wf,
+                        id_estado_wf:  rec.data.id_estado_wf,
+                        evento : 'siguiente',
+                        obs : ''
+                    },
+                    success: this.successWizard,
+                    failure: this.conexionFailure,
+                    timeout: this.timeout,
+                    scope: this
+                });
+            }
+            Phx.CP.loadingHide();
         },
         onSaveWizard:function(wizard,resp){
             var reg = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));
@@ -746,7 +748,7 @@ header("content-type: text/javascript; charset=UTF-8");
         },
         successWizard:function(resp){
             Phx.CP.loadingHide();
-          //  resp.argument.wizard.panel.destroy();
+            //  resp.argument.wizard.panel.destroy();
             this.reload();
         },
         addBotonesGantt: function() {

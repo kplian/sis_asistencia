@@ -1,5 +1,3 @@
---------------- SQL ---------------
-
 CREATE OR REPLACE FUNCTION asis.ft_vacacion_ime (
   p_administrador integer,
   p_id_usuario integer,
@@ -24,40 +22,34 @@ $body$
 
 DECLARE
 
-	v_nro_requerimiento    	integer;
-	v_parametros           	record;
-	v_id_requerimiento     	integer;
-	v_resp		            varchar;
-	v_nombre_funcion        text;
-	v_mensaje_error         text;
-	v_id_vacacion			integer;
-    v_id_gestion			integer;
-    v_codigo_proceso		varchar;
-    v_id_macro_proceso		integer;
-    v_nro_tramite			varchar;
-    v_id_proceso_wf			integer;
-	v_id_estado_wf			integer;
-    v_codigo_estado			varchar;
-    v_record				record;
-    v_id_tipo_estado		integer;
-    v_pedir_obs				varchar;
-    v_id_depto				integer;
-    v_obs					text;
-    v_acceso_directo 		varchar;
-    v_clase 				varchar;
-    v_parametros_ad 		varchar;
-    v_tipo_noti 			varchar;
-    v_titulo  				varchar;
-    v_id_estado_actual		integer;
-	v_operacion				varchar;
-    v_id_funcionario		integer;
-    v_nombre_funcionario	varchar;
+	v_parametros           	    record;
+	v_resp		                varchar;
+	v_nombre_funcion            text;
+	v_id_vacacion			    integer;
+    v_id_gestion			    integer;
+    v_codigo_proceso		    varchar;
+    v_id_macro_proceso		    integer;
+    v_nro_tramite			    varchar;
+    v_id_proceso_wf			    integer;
+	v_id_estado_wf			    integer;
+    v_codigo_estado			    varchar;
+    v_record				    record;
+    v_id_tipo_estado		    integer;
+    v_pedir_obs				    varchar;
+    v_id_depto				    integer;
+    v_obs					    text;
+    v_acceso_directo 		    varchar;
+    v_clase 				    varchar;
+    v_parametros_ad 		    varchar;
+    v_tipo_noti 			    varchar;
+    v_titulo  				    varchar;
+    v_id_estado_actual		    integer;
+	v_operacion				    varchar;
+    v_id_funcionario		    integer;
     v_id_usuario_reg			integer;
     v_id_estado_wf_ant			integer;
     v_codigo_estado_siguiente	varchar;
     v_cant_dias					numeric=0;
-    v_fecha_inicial				date;
-    v_fecha_final				date;
     v_incremento_fecha      	date;
     v_valor_incremento			varchar;
     v_domingo 					INTEGER = 0;
@@ -74,7 +66,6 @@ DECLARE
     v_id_mov_actual				integer;
     v_vacacion_record			record;
     v_registro_estado 	  		record;
-
     va_id_tipo_estado 	  		integer [];
     va_codigo_estado 		  	varchar [];
     va_disparador 	      		varchar [];
@@ -82,8 +73,9 @@ DECLARE
     va_prioridad 		      	integer [];
 	v_id_sol_funcionario		integer;
     v_record_solicitud			record;
-       v_estado_maestro			varchar;
+    v_estado_maestro			varchar;
     v_id_estado_maestro 		integer;
+    v_estado_record             record;
 
 BEGIN
 
@@ -861,17 +853,27 @@ BEGIN
                       v_titulo  = 'Aprobado';
 
 
-                       v_id_estado_maestro = va_id_tipo_estado[1]::integer;
-                       v_estado_maestro = va_codigo_estado[1]::varchar;
-
-                       if(v_parametros.evento = 'rechazado')then
-
-                       		v_id_estado_maestro = va_id_tipo_estado[2]::integer;
-                            v_estado_maestro = va_codigo_estado[2]::varchar;
-
-                       end if;
-
-
+		
+                   		if( array_length(va_codigo_estado, 1) >= 2) then
+                        
+                   		     select  tt.id_tipo_estado,
+                                tt.codigo
+                                into
+                                v_estado_record
+                        from wf.ttipo_estado tt
+                        where tt.id_tipo_estado in (select unnest(ARRAY[va_id_tipo_estado]))
+                   		     and tt.codigo = v_parametros.evento;
+                        
+                            v_id_estado_maestro = v_estado_record.id_tipo_estado; 
+                   		    v_estado_maestro = v_estado_record.codigo; 
+                        
+                        
+                        else
+                        
+                       	    v_id_estado_maestro = va_id_tipo_estado[1]::integer;
+                            v_estado_maestro = va_codigo_estado[1]::varchar;
+                        
+                        end if ;
 
 
 
