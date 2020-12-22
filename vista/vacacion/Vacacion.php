@@ -269,22 +269,23 @@ header("content-type: text/javascript; charset=UTF-8");
                 form: true
             },
             {
+
                 config:{
-                    name: 'observaciones',
-                    fieldLabel: 'Obs, ',
-                    allowBlank: false,
-                    width: 300,
-                    gwidth: 250,
-                    renderer:function (value,p,record){
-                        return String.format('<b><font color="#a52a2a">{0}</font></b>', value)
-                    }
+                    name: 'saldo',
+                    fieldLabel: 'Saldo',
+                    allowBlank: true,
+                    anchor: '35%',
+                    gwidth: 100,
+                    readOnly :true,
+                    style: 'background-image: none;'
                 },
-                type:'TextArea',
-                filters:{pfiltro:'pmo.observaciones',type:'string'},
-                id_grupo:0,
+                type:'NumberField',
+                filters:{pfiltro:'vac.saldo',type:'numeric'},
+                id_grupo:1,
                 grid:true,
-                form:false
+                form:false,
             },
+
             {
                 config:{
                     name: 'fecha_inicio',
@@ -381,6 +382,23 @@ header("content-type: text/javascript; charset=UTF-8");
                 id_grupo:1,
                 grid:true,
                 form:true
+            },
+            {
+                config:{
+                    name: 'observaciones',
+                    fieldLabel: 'Obs, ',
+                    allowBlank: false,
+                    width: 300,
+                    gwidth: 250,
+                    renderer:function (value,p,record){
+                        return String.format('<b><font color="#a52a2a">{0}</font></b>', value)
+                    }
+                },
+                type:'TextArea',
+                filters:{pfiltro:'pmo.observaciones',type:'string'},
+                id_grupo:0,
+                grid:true,
+                form:false
             },
             {
                 config:{
@@ -539,7 +557,8 @@ header("content-type: text/javascript; charset=UTF-8");
             {name:'funcionario_sol', type: 'string'},
             {name:'observaciones', type: 'string'},
             {name:'id_uo', type: 'numeric'},
-            {name:'departamento', type: 'string'}
+            {name:'departamento', type: 'string'},
+            {name:'saldo', type: 'numeric'}
         ],
         sortInfo:{
             field: 'id_vacacion',

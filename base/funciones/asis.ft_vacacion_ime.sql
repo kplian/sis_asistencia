@@ -76,6 +76,8 @@ DECLARE
     v_estado_maestro			varchar;
     v_id_estado_maestro 		integer;
     v_estado_record             record;
+    v_saldo_resgistro			numeric;
+    v_operacion_reg					numeric;
 
 BEGIN
 
@@ -225,6 +227,29 @@ BEGIN
 
 
 
+              select v.dias_actual
+                   		into
+                   v_movimiento
+            from asis.tmovimiento_vacacion v
+            where v.id_funcionario = v_parametros.id_funcionario
+            		and v.activo = 'activo' and v.estado_reg = 'activo';
+
+
+
+
+				if(v_movimiento.dias_actual > 0 )then 
+
+	                v_saldo_resgistro = v_movimiento.dias_actual - v_parametros.dias;
+             
+               	else
+            		
+               		v_operacion_reg = 1* - v_movimiento.dias_actual;
+               
+    	            v_saldo_resgistro = v_operacion_reg - v_parametros.dias;
+               
+                end if;
+	
+
             insert into asis.tvacacion( estado_reg,
                                         id_funcionario,
                                         fecha_inicio,
@@ -245,7 +270,8 @@ BEGIN
                                         ---dias_efectivo,
                                         prestado,
                                         id_responsable,
-                                        id_funcionario_sol
+                                        id_funcionario_sol,
+                                        saldo
                                         ) values(
                                         'activo',
                                         v_parametros.id_funcionario,
@@ -267,7 +293,9 @@ BEGIN
                                         --v_parametros.dias_efectivo,
                                         v_prestado,
                                         v_parametros.id_responsable,
-                                        v_id_sol_funcionario)RETURNING id_vacacion into v_id_vacacion;
+                                        v_id_sol_funcionario,
+                                        v_saldo_resgistro
+                                        )RETURNING id_vacacion into v_id_vacacion;
 
             --Insertar detalle dias de la solicitud de vacion
 
@@ -361,6 +389,8 @@ BEGIN
             FROM param.tgestion g
             WHERE v_fecha_aux BETWEEN g.fecha_ini and g.fecha_fin;
 
+
+			--raise exception 'v_fecha_aux %  v_id_gestion_actual %',v_fecha_aux,v_id_gestion_actual;
             WHILE (SELECT (v_fecha_aux::date) <= v_parametros.fecha_fin::date ) loop
             	IF(select extract(dow from v_fecha_aux::date)not in (v_sabado, v_domingo) ) THEN
                 	IF NOT EXISTS(select * from param.tferiado f
@@ -701,7 +731,7 @@ BEGIN
                    v_movimiento
             from asis.tmovimiento_vacacion v
             where v.id_funcionario = v_parametros.id_funcionario
-            		and v.activo = 'activo';
+            		and v.activo = 'activo' and v.estado_reg = 'activo';
 
 
             if (v_movimiento.dias_actual <= 0)then

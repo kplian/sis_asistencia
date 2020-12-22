@@ -330,7 +330,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 {
                     config:{
                         name: 'hro_total_permiso',
-                        fieldLabel: 'Total Hora',
+                        fieldLabel: 'Total Horas',
                         allowBlank: true,
                         anchor: '50%',
                         gwidth: 100,

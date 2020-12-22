@@ -127,13 +127,16 @@ EOD;
             $hasta = $value['hasta'];
             $dia = $value['dia'];
             $saldo = $value['saldo'];
-            $table .= '<tr>';
-            $table .= '<td  align="center" >'.$tipo.'</td>
-                        <td  align="center" >'.$fecha.'</td>
-                        <td  align="center" >'.$desde.' - '.$hasta.'</td>
-                        <td  align="center" >'.$dia.'</td>
-                        <td  align="center" >'.$saldo.'</td>';
-            $table .= '</tr>';
+
+            if ($dia > 0 and  $saldo > 0) {
+                $table .= '<tr>';
+                $table .= '<td  align="center" >' . $tipo . '</td>
+                        <td  align="center" >' . $fecha . '</td>
+                        <td  align="center" >' . $desde . ' - ' . $hasta . '</td>
+                        <td  align="center" >' . $dia . '</td>
+                        <td  align="center" >' . $saldo . '</td>';
+                $table .= '</tr>';
+            }
         }
         $table .= '</table>';
 
@@ -147,10 +150,10 @@ EOD;
     }
 
     function generarReporte() {
-        $this->SetMargins(15,63,15);
+        $this->SetMargins(15,64,15);
         $this->setFontSubsetting(false);
         $this->AddPage();
-        $this->SetMargins(15,63,15);
+        $this->SetMargins(15,64,15);
         $this->reporteRequerimiento();
 
     }

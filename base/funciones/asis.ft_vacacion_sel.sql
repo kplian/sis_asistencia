@@ -107,7 +107,8 @@ BEGIN
                         sof.desc_funcionario1 as funcionario_sol,
                         vac.observaciones,
                         dep.id_uo,
-                        dep.nombre_unidad as departamento
+                        dep.nombre_unidad as departamento,
+                        vac.saldo
 						from asis.tvacacion vac
 						inner join segu.tusuario usu1 on usu1.id_usuario = vac.id_usuario_reg
                         inner join wf.testado_wf wet on wet.id_estado_wf = vac.id_estado_wf
@@ -394,6 +395,3 @@ CALLED ON NULL INPUT
 SECURITY INVOKER
 PARALLEL UNSAFE
 COST 100;
-
-ALTER FUNCTION asis.ft_vacacion_sel (p_administrador integer, p_id_usuario integer, p_tabla varchar, p_transaccion varchar)
-  OWNER TO postgres;
