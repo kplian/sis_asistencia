@@ -784,7 +784,7 @@ header("content-type: text/javascript; charset=UTF-8");
                             params:{ rol_asignado : 'ASIS - Rrhh'},
                             success:function(resp){
                                 const reg = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));
-                                if (Number(reg.ROOT.datos.rol) = 1){
+                                if (Number(reg.ROOT.datos.rol) === 1){
                                     this.Cmp.id_funcionario.enable();
 
                                 }else{

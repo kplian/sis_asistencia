@@ -82,6 +82,7 @@ DECLARE
     v_estado_maestro			varchar;
     v_id_estado_maestro 		integer;
     v_estado_record             record;
+    v_rol integer;
 BEGIN
 
     v_nombre_funcion = 'asis.ft_permiso_ime';
