@@ -97,7 +97,6 @@ select pxp.f_insert_testructura_gui ('SOLVAC', 'ASIS');
 select pxp.f_insert_testructura_gui ('VOB', 'SBO');
 select pxp.f_insert_testructura_gui ('PVO', 'SBO');
 select pxp.f_insert_testructura_gui ('VACFUN', 'CON');
-select pxp.f_insert_testructura_gui ('CSA', 'ASIS');
 select pxp.f_insert_testructura_gui ('CON', 'ASIS');
 select pxp.f_insert_testructura_gui ('MAB', 'CON');
 select pxp.f_insert_testructura_gui ('FERIA', 'PARM');

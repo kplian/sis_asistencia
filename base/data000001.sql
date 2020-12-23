@@ -99,7 +99,6 @@ select pxp.f_insert_tgui ('VoBo Permiso', 'VoBo Permiso', 'PVO', 'si', 2, 'sis_a
 select pxp.f_insert_tgui ('Consulta Permiso', 'Consulta Permiso', 'PRH', 'si', 2, 'sis_asistencia/vista/permiso/PermisoRRHH.php', 3, '', 'PermisoRRHH', 'ASIS');
 select pxp.f_insert_tgui ('VoBo', 'VoBo', 'SBO', 'si', 8, '', 2, '', '', 'ASIS');
 select pxp.f_insert_tgui ('Historial Vacaciones', 'Historial Vacaciones', 'VACFUN', 'si', 1, 'sis_asistencia/vista/movimiento_vacacion/MovVacUsuario.php', 3, '', 'MovVacUsuario', 'ASIS');
-select pxp.f_insert_tgui ('Control Asistencia', 'Control Asistencia', 'CSA', 'si', 3, 'sis_asistencia/vista/pares/Pares.php', 2, '', 'Pares', 'ASIS');
 select pxp.f_insert_tgui ('Consultas', 'Consultas', 'CON', 'si', 4, '', 2, '', '', 'ASIS');
 select pxp.f_insert_tgui ('Marcacion Biometrico', 'Marcacion Biometrico', 'MAB', 'si', 3, 'sis_asistencia/vista/transaccion/Transaccion.php', 3, '', 'Transaccion', 'ASIS');
 select pxp.f_insert_tgui ('Feriados', 'Feriados', 'FERIA', 'si', 4, 'sis_parametros/vista/feriado/Feriado.php', 3, '', 'Feriado', 'ASIS');
