@@ -17,8 +17,8 @@ $body$
  HISTORIAL DE MODIFICACIONES:
 #ISSUE				FECHA				AUTOR				DESCRIPCION
 #15		etr			02-09-2019			MMV               	Reporte Transacción marcados ASIS_RET_SEL
-#16		etr			04-09-2019			MMV               	Medicaciones reporte marcados ASIS_REF_SEL
- #18	ERT			26/09/2019 				 MMV			Filtra codigo fun
+#16		etr			04-09-2019			MMV               	Modificaciones reporte marcados ASIS_REF_SEL
+#0		etr			15-11-2019			SAZP               	Modificaciones reporte marcados ASIS_RPT_MAR_GRAL
 
  ***************************************************************************/
 
@@ -34,6 +34,12 @@ DECLARE
     v_filtro			varchar;
     v_fil				varchar;
     v_marcado			record;
+    v_id_funcionario	integer;
+    v_fecha_ini         date;
+    v_fecha_fin         date;
+    v_acumulado_record	record;
+    v_dia_saldo			numeric;
+    v_acumulado			record;
 
 BEGIN
 
@@ -41,13 +47,13 @@ BEGIN
     v_parametros = pxp.f_get_record(p_tabla);
 
 	/*********************************
- 	#TRANSACCION:  'ASIS_RET_SEL' #15
+ 	#TRANSACCION:  'ASIS_RETO_SEL' #15
  	#DESCRIPCION:	Reporte de retrasos
  	#AUTOR:		miguel.mamani
  	#FECHA:		29/08/2019
 	***********************************/
 
-	if(p_transaccion='ASIS_RET_SEL')then
+	if(p_transaccion='ASIS_RETO_SEL')then
     	begin
     		--Sentencia de la consulta
 
@@ -170,12 +176,12 @@ BEGIN
 		end;
 
     /*********************************
- 	#TRANSACCION:  'ASIS_REF_SEL' # 16
+ 	#TRANSACCION:  'ASIS_RE_SEL' # 16
  	#DESCRIPCION:	Reporte de retrasos funcionarios
  	#AUTOR:		miguel.mamani
  	#FECHA:		29/08/2019
 	***********************************/
-	elsif(p_transaccion='ASIS_REF_SEL')then
+	elsif(p_transaccion='ASIS_RE_SEL')then
     	begin
             CREATE TEMPORARY TABLE tmp_retr (   dia varchar,
                                                 fecha_marcado date,
@@ -235,11 +241,9 @@ BEGIN
                             ma.codigo_evento,
                             ma.tipo_evento,
                             ma.modo_verificacion,
-                            asis.f_estraer_palabra(ma.nombre_dispositivo,'Entrada','Salida') as nombre_dispositivo
+                            ma.nombre_dispositivo
                   from funcionario fu
-                  inner join marcador ma on ma.codigo_funcionario = fu.codigo or ma.codigo_funcionario = (select co.codigo
-                                                                                                          from orga.tcodigo_funcionario co --18
-                                                                                                          where co.id_funcionario =  fu.id_funcionario)) loop
+                  inner join marcador ma on ma.codigo_funcionario = fu.codigo) loop
 
         					insert into tmp_retr ( 	dia,
                                                     fecha_marcado,
@@ -317,6 +321,603 @@ BEGIN
         end if;
         return v_consulta;
     end;
+    /*********************************
+ 	#TRANSACCION:  'ASIS_RPT_MAR'
+ 	#DESCRIPCION:	Reporte de marcado de funcionarios
+ 	#AUTOR:		szambrana
+ 	#FECHA:		02/10/2019
+	***********************************/
+    elseif (p_transaccion='ASIS_RPT_MAR') then
+		begin
+
+    		--Sentencia de la consulta
+   			v_consulta:= 'SELECT
+                            bio.id_transaccion_bio,
+                            bio.fecha_marcado,
+                            bio.hora,
+                            bio.id_funcionario,
+                            vfu.desc_funcionario1 AS nombre_funcionario,
+                            --bio.id_periodo,
+                            per.periodo AS mes,
+                            bio.obs,
+                            --bio.id_rango_horario,
+                            bio.evento
+                            --bio.tipo_verificacion,
+                            --bio.area,
+                            --bio.codigo_evento,
+                            --bio.codigo_verificacion,
+                            --bio.acceso
+                            FROM asis.ttransaccion_bio bio
+                            INNER JOIN orga.vfuncionario_cargo vfu ON bio.id_funcionario = vfu.id_funcionario
+                            INNER JOIN param.tperiodo per ON bio.id_periodo = per.id_periodo
+                            WHERE bio.id_funcionario = '||v_parametros.id_funcionario||' AND bio.fecha_marcado::date BETWEEN '''|| v_parametros.fecha_ini ||''' AND '''||v_parametros.fecha_fin||''' ';
+
+			--Devuelve la respuesta
+			return v_consulta;
+		end;
+    /*********************************
+ 	#TRANSACCION:  'ASIS_RPT_MAR_GRAL'
+ 	#DESCRIPCION:	Reporte de marcado de funcionarios por columnas
+ 	#AUTOR:		szambrana
+ 	#FECHA:		02/10/2019
+	***********************************/
+    elseif (p_transaccion='ASIS_RPT_MAR_GRAL') then
+		begin
+    		--Sentencia de la consulta
+			v_consulta:= 'SELECT *
+            				FROM crosstab($$
+                            SELECT
+                                  bio.fecha ||'' | ''|| vfu.desc_funcionario1 ||'' | ''|| ger.nombre_unidad::varchar AS fecha_usr,
+                                  bio.pivot,
+                                  bio.hora
+                            FROM asis.ttransacc_zkb_etl bio
+                            INNER JOIN orga.vfuncionario_cargo vfu ON bio.id_funcionario = vfu.id_funcionario
+                            INNER JOIN orga.tuo ger on ger.id_uo = orga.f_get_uo_departamento(vfu.id_uo, NULL::integer, NULL::date)
+                            WHERE bio.id_funcionario = '||v_parametros.id_funcionario||' AND bio.rango = ''si''   AND bio.fecha::date BETWEEN '''|| v_parametros.fecha_ini ||''' AND '''||v_parametros.fecha_fin||'''
+                            GROUP BY bio.fecha,1,2,3 ORDER BY bio.fecha, bio.pivot
+                            $$,$$
+                            SELECT DISTINCT pivot
+                            FROM asis.ttransacc_zkb_etl
+                            WHERE pivot <> 0 ORDER BY pivot
+                            $$)
+                          	AS (detalles text, hra1 time, hra2 time, hra3 time, hra4 time)';
+
+    		raise notice '%',v_consulta;
+			--Devuelve la respuesta
+			return v_consulta;
+    end;
+    /*********************************
+ 	#TRANSACCION:  'ASIS_SAL_SEL'
+ 	#DESCRIPCION:	Reporte Reporte saldo
+ 	#AUTOR:		MMV
+ 	#FECHA:		11/09/2019
+	***********************************/
+	elsif(p_transaccion='ASIS_SAL_SEL')then
+
+    	begin
+        --Sentencia de la consulta
+
+
+        CREATE TEMPORARY TABLE temporal_saldo ( id_funcionario integer,
+                                                codigo varchar,
+                                                desc_funcionario1 varchar,
+                                                fecha_contrato date,
+                                                gerencia varchar,
+                                                departamento varchar,
+                                                gestion integer,
+                                                fecha_caducado date,
+                                                fecha_acomulado date,
+                                                saldo numeric ) ON COMMIT DROP;
+
+        for  v_record in (select  funs.id_funcionario,
+                                  funs.codigo,
+                                  funs.desc_funcionario2,
+                                  funs.fecha_contrato,
+                                  funs.gerencia,
+                                  funs.departamento,
+                                  sum(coalesce(mm.dias, 0)) as saldo
+                          from (
+                          select distinct on (uofun.id_funcionario) uofun.id_funcionario,
+                                trim(both 'FUNODTPR' from  fun.codigo)::varchar as codigo,
+                                fun.desc_funcionario2,
+                                ger.nombre_unidad as gerencia,
+                                dep.nombre_unidad as departamento,
+                                plani.f_get_fecha_primer_contrato_empleado(uofun.id_uo_funcionario, uofun.id_funcionario, uofun.fecha_asignacion) as fecha_contrato
+
+                          from orga.tuo_funcionario uofun
+                          inner join orga.tcargo car on car.id_cargo = uofun.id_cargo
+                          inner join orga.ttipo_contrato tc on car.id_tipo_contrato = tc.id_tipo_contrato
+                          inner join orga.vfuncionario fun on fun.id_funcionario = uofun.id_funcionario
+                          inner join orga.tuo ger ON ger.id_uo = orga.f_get_uo_gerencia(uofun.id_uo, NULL::integer, NULL::date)
+                          inner join orga.tuo dep ON dep.id_uo = orga.f_get_uo_departamento(uofun.id_uo, NULL::integer, NULL::date)
+                          where tc.codigo in ('PLA','EVE') and UOFUN.tipo = 'oficial' and
+                          uofun.fecha_asignacion <= v_parametros.fecha_fin::date and
+                          (uofun.fecha_finalizacion is null or uofun.fecha_finalizacion >= v_parametros.fecha_fin::date) AND
+                          uofun.estado_reg != 'inactivo' and
+                              (case
+                          			when v_parametros.id_funcionario is null then
+                                    0 = 0
+                                    else
+                                    uofun.id_funcionario = v_parametros.id_funcionario
+                                    end )
+                                    and
+                                   (case
+                          			when v_parametros.id_tipo_contrato is null then
+                                    0 = 0
+                                    else
+                                    tc.id_tipo_contrato = v_parametros.id_tipo_contrato
+                                    end )
+                                    and
+                                    (case
+                                      when v_parametros.id_uo is null then
+                                      0 = 0
+                                      else
+                                      (ger.id_uo = v_parametros.id_uo or dep.id_uo = v_parametros.id_uo)
+                                      end )
+                          order by uofun.id_funcionario, uofun.fecha_asignacion desc)funs
+                          left join asis.tmovimiento_vacacion mm on mm.id_funcionario = funs.id_funcionario and  mm.estado_reg = 'activo' and mm.fecha_reg::date <= now()::date
+                          group by  funs.id_funcionario,
+                                    funs.codigo,
+                                    funs.desc_funcionario2,
+                                    funs.fecha_contrato,
+                                    funs.gerencia,
+                                    funs.departamento
+                          order by gerencia, departamento, desc_funcionario2) loop
+
+            select mo.fecha_reg::date as fecha_reg,
+            	   mo.dias
+                   into
+                   v_acumulado
+            from asis.tmovimiento_vacacion mo
+            where mo.tipo = 'ACUMULADA' 
+                  and mo.id_funcionario = v_record.id_funcionario
+            	  and mo.estado_reg = 'activo' 
+                  and mo.fecha_reg::date = (select max(m.fecha_reg::date)
+                  							from asis.tmovimiento_vacacion m
+                                            where m.tipo = 'ACUMULADA' 
+                                            and m.dias != 0                                 
+                                            and m.id_funcionario = v_record.id_funcionario);
+
+				
+            --    raise notice  '------------------saldo %  acumulado % ------------------------',v_record.saldo, v_acumulado.dias;
+                
+                
+                if (v_record.saldo > v_acumulado.dias) then
+
+
+
+                      perform asis.f_calcular_saldo_gestion(v_acumulado.fecha_reg,
+                      									    v_acumulado.dias,
+                                                            v_record,
+                                                            v_record.saldo);
+
+
+                else
+
+                	  insert into temporal_saldo (id_funcionario,
+                                                    codigo,
+                                                    desc_funcionario1,
+                                                    fecha_contrato,
+                                                    gerencia,
+                                                    departamento,
+                                                    fecha_caducado,
+                                                    gestion,
+                                                    fecha_acomulado,
+                                                    saldo
+                                                    )values(
+                                                    v_record.id_funcionario,
+                                                    v_record.codigo,
+                                                    v_record.desc_funcionario2,
+                                                    v_record.fecha_contrato,
+                                                    v_record.gerencia,
+                                                    v_record.departamento,
+                                                    v_acumulado.fecha_reg,
+                                                    extract(year from COALESCE(v_acumulado.fecha_reg,now())),
+                                                    v_acumulado.fecha_reg,
+                                                    v_record.saldo
+                                                    );
+
+                end if;
+
+
+        end loop;
+
+
+              	v_consulta:='select  trim(both ''FUNODTPR'' from  ts.codigo)::varchar as codigo,
+                                    ts.desc_funcionario1,
+                                    to_char(ts.fecha_contrato,''DD/MM/YYYY'') as fecha_contrato,
+                                    ts.gerencia,
+                                    ts.departamento,
+                                    ts.gestion,
+                                     to_char(ts.fecha_caducado,''DD/MM/YYYY'') as fecha_caducado,
+                                    ts.saldo,
+                                    ''a''::varchar as ordenar
+                            from temporal_saldo ts
+                            union all
+                            select   trim(both ''FUNODTPR'' from  ts.codigo)::varchar as codigo,
+                                    ts.desc_funcionario1,
+                                    to_char(ts.fecha_contrato,''DD/MM/YYYY'') as fecha_contrato,
+                                    ts.gerencia,
+                                    ts.departamento,
+                                    0::integer as gestion,
+                                    null::text as fecha_caducado,
+                                    sum(ts.saldo) as saldo,
+                                    ''b''::varchar as ordenar
+                            from temporal_saldo ts
+                            group by ts.codigo,
+                                     ts.desc_funcionario1,
+                                     ts.fecha_contrato,
+                            		ts.gerencia,
+                                    ts.departamento
+                            order by gerencia, departamento, desc_funcionario1 asc ,ordenar, gestion';
+		   --Devuelve la respuesta
+            return v_consulta;
+
+		end;
+
+     /*********************************
+ 	#TRANSACCION:  'ASIS_VENS_SEL'
+ 	#DESCRIPCION:	No funciona
+ 	#AUTOR:		MMV
+ 	#FECHA:		11/09/2019
+	***********************************/
+	elsif(p_transaccion='ASIS_VENS_SEL')then
+
+    	begin
+           --Sentencia de la consulta
+           v_consulta:='';
+		   --Devuelve la respuesta
+            return v_consulta;
+
+		end;
+
+
+    /*********************************
+ 	#TRANSACCION:  'ASIS_ANT_SEL'
+ 	#DESCRIPCION:	Reporte Reporte Anticipo
+ 	#AUTOR:		MMV
+ 	#FECHA:		11/09/2019
+	***********************************/
+	elsif(p_transaccion='ASIS_ANT_SEL')then
+
+    	begin
+        --Sentencia de la consulta
+        		v_filtro = '';
+
+                if (v_parametros.id_funcionario is not null )then
+                	v_filtro = 'and uofun.id_funcionario = '||v_parametros.id_funcionario||'';
+                end if;
+
+                if (v_parametros.id_tipo_contrato is not null) then
+                    v_filtro = 'and  tc.id_tipo_contrato = '||v_parametros.id_tipo_contrato;
+                end if;
+
+         		if (v_parametros.id_uo is not null )then
+                	v_filtro = 'and (ger.id_uo = '||v_parametros.id_uo ||' or dep.id_uo = '||v_parametros.id_uo ||')';
+                end if;
+
+         	v_consulta:='select  fun.desc_funcionario2,
+            					 fun.codigo ,
+                                 fun.gerencia,
+                                 fun.departamento,
+                                 (
+                                  case
+                                      when (select sum(coalesce(mm.dias, 0))
+                                      from asis.tmovimiento_vacacion mm
+                                      where   mm.id_funcionario = fun.id_funcionario
+                                      and mm.fecha_reg::date <= '''||v_parametros.fecha_fin||'''::date
+                                      and mm.estado_reg = ''activo'') < 0 then
+
+                                      (select -1 * sum(coalesce(mm.dias, 0))
+                                        from asis.tmovimiento_vacacion mm
+                                        where   mm.id_funcionario = fun.id_funcionario
+                                        and mm.fecha_reg::date <= '''||v_parametros.fecha_fin||'''::date
+                                        and mm.estado_reg = ''activo'')
+                                      else
+                                       0
+                                      end
+                                 ) as anticipo
+                          from (
+                           select distinct on (uofun.id_funcionario) uofun.id_funcionario,
+                                          trim(both ''FUNODTPR'' from  fun.codigo)::varchar as codigo,
+                                          fun.desc_funcionario2,
+                                          ger.nombre_unidad as gerencia,
+                                          dep.nombre_unidad as departamento
+                                  from orga.tuo_funcionario uofun
+                                  inner join orga.tcargo car on car.id_cargo = uofun.id_cargo
+                                  inner join orga.ttipo_contrato tc on car.id_tipo_contrato = tc.id_tipo_contrato
+                                  inner join orga.vfuncionario fun on fun.id_funcionario = uofun.id_funcionario
+                                  inner join orga.tuo ger ON ger.id_uo = orga.f_get_uo_gerencia(uofun.id_uo, NULL::integer, NULL::date)
+                                  inner join orga.tuo dep ON dep.id_uo = orga.f_get_uo_departamento(uofun.id_uo, NULL::integer, NULL::date)
+                                  left join orga.toficina ofi on car.id_oficina = ofi.id_oficina
+                                  where tc.codigo in (''PLA'',''EVE'') and UOFUN.tipo = ''oficial'' and
+                                  uofun.fecha_asignacion <=  '''||v_parametros.fecha_fin||'''::date and
+                                  (uofun.fecha_finalizacion is null or uofun.fecha_finalizacion >=  '''||v_parametros.fecha_fin||'''::date) AND
+                                  uofun.estado_reg != ''inactivo'' '||v_filtro||'
+                                  order by uofun.id_funcionario, uofun.fecha_asignacion desc) fun
+                                  order by gerencia, departamento, desc_funcionario2 asc';
+
+		   --Devuelve la respuesta
+            return v_consulta;
+
+		end;
+
+    /*********************************
+ 	#TRANSACCION:  'ASIS_AHT_SEL'
+ 	#DESCRIPCION:	Reporte Historico vacaciones
+ 	#AUTOR:		MMV
+ 	#FECHA:		15/09/2019
+	***********************************/
+	elsif(p_transaccion='ASIS_AHT_SEL')then
+
+    	begin
+        --Sentencia de la consulta
+
+        v_consulta:= 'select  fun.id_funcionario,
+                              fun.desc_funcionario1,
+                              fun.descripcion_cargo,
+                              fun.codigo,
+                              mv.tipo,
+                              to_char(mv.fecha_reg::date,''DD/MM/YYYY'') as fecha,
+                              to_char(mv.desde,''DD/MM/YYYY'') as desde,
+                              to_char(mv.hasta,''DD/MM/YYYY'') as hasta,
+                              coalesce((case
+                                  		when mv.dias < 0 then
+                                        -1 * mv.dias
+                                        else
+                                        mv.dias
+                                        end),0) as dias,
+                              coalesce(mv.dias_actual,0)  as saldo,
+                              fun.nombre_unidad,
+                              to_char(fun.fecha_contrato,''DD/MM/YYYY'') as fecha_contrato
+                      from (
+                      select distinct on (uofun.id_funcionario) uofun.id_funcionario,
+                                          trim(both ''FUNODTPR'' from  fun.codigo)::varchar as codigo,
+                                          fun.desc_funcionario1,
+                                          car.nombre as descripcion_cargo,
+                                          dep.nombre_unidad,
+                                          plani.f_get_fecha_primer_contrato_empleado(uofun.id_uo_funcionario, uofun.id_funcionario, uofun.fecha_asignacion) as fecha_contrato
+                          from orga.tuo_funcionario uofun
+                          inner join orga.tcargo car on car.id_cargo = uofun.id_cargo
+                          inner join orga.ttipo_contrato tc on car.id_tipo_contrato = tc.id_tipo_contrato
+                          inner join orga.vfuncionario fun on fun.id_funcionario = uofun.id_funcionario
+                          inner join orga.tuo dep ON dep.id_uo = orga.f_get_uo_departamento(uofun.id_uo, NULL::integer, NULL::date)
+                          where tc.codigo in (''PLA'',''EVE'') and UOFUN.tipo = ''oficial'' and
+                          uofun.fecha_asignacion <=  now()::date and
+                          (uofun.fecha_finalizacion is null or uofun.fecha_finalizacion >= now()::date) AND
+                          uofun.estado_reg != ''inactivo'' and uofun.id_funcionario = '||v_parametros.id_funcionario||'
+                          order by uofun.id_funcionario, uofun.fecha_asignacion desc ) fun
+                          left join asis.tmovimiento_vacacion mv on mv.id_funcionario = fun.id_funcionario and  mv.estado_reg = ''activo''
+                          order by mv.fecha_reg asc';
+
+
+
+
+		   --Devuelve la respuesta
+            return v_consulta;
+
+		end;
+
+     /*********************************
+ 	#TRANSACCION:  'ASIS_VPR_SEL'
+ 	#DESCRIPCION:	Reporte Personas en vacacion
+ 	#AUTOR:		MMV
+ 	#FECHA:		15/09/2019
+	***********************************/
+	elsif(p_transaccion='ASIS_VPR_SEL')then
+
+    	begin
+        --Sentencia de la consulta
+
+
+        	v_filtro = '';
+
+
+            if (v_parametros.id_funcionario is not null) then
+
+            	v_filtro = 'and uofun.id_funcionario = '||v_parametros.id_funcionario;
+
+            end if;
+
+
+            if (v_parametros.id_uo is not null) then
+
+            	 v_filtro = ' and (ger.id_uo = ' || v_parametros.id_uo || 'or dep.id_uo ='||v_parametros.id_uo||')';
+
+            end if;
+
+         	v_consulta:='select   funs.gerencia,
+                                  funs.departamento,
+                                  funs.desc_funcionario2  as desc_funcionario,
+                                  funs.codigo,
+                                  (case
+                                  		when mm.dias < 0 then
+                                        -1 * mm.dias
+                                        else
+                                        mm.dias
+                                        end) as dias,
+                                  to_char(mm.desde,''DD/MM/YYYY'') as desde,
+                                  to_char(mm.hasta,''DD/MM/YYYY'') as hasta,
+                                  funs.tipo_contrato
+                          from (
+                          select distinct on (uofun.id_funcionario) uofun.id_funcionario,
+                                trim(both ''FUNODTPR'' from  fun.codigo)::varchar as codigo,
+                                fun.desc_funcionario2,
+                                ger.nombre_unidad as gerencia,
+                                dep.nombre_unidad as departamento,
+                                plani.f_get_fecha_primer_contrato_empleado(uofun.id_uo_funcionario, uofun.id_funcionario, uofun.fecha_asignacion) as fecha_contrato,
+                                tc.nombre as tipo_contrato
+                          from orga.tuo_funcionario uofun
+                          inner join orga.tcargo car on car.id_cargo = uofun.id_cargo
+                          inner join orga.ttipo_contrato tc on car.id_tipo_contrato = tc.id_tipo_contrato
+                          inner join orga.vfuncionario fun on fun.id_funcionario = uofun.id_funcionario
+                          inner join orga.tuo ger ON ger.id_uo = orga.f_get_uo_gerencia(uofun.id_uo, NULL::integer, NULL::date)
+                          inner join orga.tuo dep ON dep.id_uo = orga.f_get_uo_departamento(uofun.id_uo, NULL::integer, NULL::date)
+                          where tc.codigo in (''PLA'', ''EVE'') and UOFUN.tipo = ''oficial'' and
+                          uofun.fecha_asignacion <= '''||v_parametros.fecha_fin||'''::date and
+                          (uofun.fecha_finalizacion is null or uofun.fecha_finalizacion >= '''||v_parametros.fecha_ini||''' ::date) AND
+                          uofun.estado_reg != ''inactivo'' '||v_filtro||'
+                          order by uofun.id_funcionario, uofun.fecha_asignacion desc)funs
+                          inner join asis.tmovimiento_vacacion mm on mm.id_funcionario = funs.id_funcionario
+                          where mm.tipo = ''TOMADA'' and mm.estado_reg = ''activo'' and mm.desde::date >= '''||v_parametros.fecha_ini||''' ::date and mm.hasta::date <='''||v_parametros.fecha_fin||'''::date
+                          order by gerencia, departamento,tipo_contrato, desc_funcionario2 asc';
+
+            --Devuelve la respuesta
+
+        	raise notice '%',v_consulta;
+            return v_consulta;
+
+		end;
+
+      /*********************************
+ 	#TRANSACCION:  'ASIS_VARU_SEL'
+ 	#DESCRIPCION:	Reporte Resumen de vacaciones
+ 	#AUTOR:		MMV
+ 	#FECHA:		15/09/2019
+	***********************************/
+	elsif(p_transaccion='ASIS_VARU_SEL')then
+
+    	begin
+        --Sentencia de la consulta
+
+
+        -- raise exception '%',v_parametros.id_tipo_contrato;  tc.id_tipo_contrato
+        v_filtro = '';
+
+
+            if (v_parametros.id_funcionario is not null) then
+
+            	v_filtro = 'and uofun.id_funcionario = '||v_parametros.id_funcionario;
+
+            end if;
+
+
+            if (v_parametros.id_uo is not null) then
+
+            	 v_filtro = ' and (ger.id_uo = ' || v_parametros.id_uo || 'or dep.id_uo ='||v_parametros.id_uo||')';
+
+            end if;
+
+             if (v_parametros.id_tipo_contrato is not null) then
+
+            	v_filtro = 'and  tc.id_tipo_contrato = '||v_parametros.id_tipo_contrato;
+
+            end if;
+
+
+         	v_consulta:='select   ant.desc_funcionario2,
+                                  ant.codigo,
+                                  ant.gerencia,
+                                  ant.departamento,
+                            (case
+                              when ant.saldo_acumulado  < 0 then
+                               -1 * ant.saldo_acumulado
+                               else
+                                ant.saldo_acumulado
+                              end) as saldo_acumulado,
+                              (case
+                              when ant.saldo_tomada  < 0 then
+                               -1 * ant.saldo_tomada
+                               else
+                                ant.saldo_tomada
+                              end) as saldo_tomada,
+                           (case
+                              when ant.saldo_caducado  < 0 then
+                               -1 * ant.saldo_caducado
+                               else
+                                ant.saldo_caducado
+                              end) as saldo_caducado,
+                            (case
+                              when ant.saldo_anticipo  < 0 then
+                               -1 * ant.saldo_anticipo
+                               else
+                                ant.saldo_anticipo
+                              end) as saldo_anticipo,
+                           (case
+                              when ant.saldo_pagado  < 0 then
+                               -1 * ant.saldo_pagado
+                               else
+                                ant.saldo_pagado
+                              end) as saldo_pagado,
+                            ant.saldo
+                  from (
+
+                  with acumulado as (select mm.id_funcionario,
+                                            sum(coalesce(mm.dias, 0))  as saldo_acumulado
+                                     from asis.tmovimiento_vacacion mm
+                                     where mm.tipo = ''ACUMULADA'' and
+                                           mm.fecha_reg::date <='''||v_parametros.fecha_fin||'''::date
+                                           and mm.estado_reg =  ''activo''
+                                     group by mm.id_funcionario),
+                       tomada as (select  mm.id_funcionario,
+                                           sum(coalesce(mm.dias, 0))as saldo_tomada
+                                   from asis.tmovimiento_vacacion mm
+                                   where mm.tipo = ''TOMADA'' and
+                                          mm.fecha_reg::date <='''||v_parametros.fecha_fin||'''::date
+                                          and mm.estado_reg =  ''activo''
+                                   group by mm.id_funcionario),
+                        caducada as (select mm.id_funcionario,
+                                            sum(coalesce(mm.dias, 0))  as saldo_caducado
+                                    from asis.tmovimiento_vacacion mm
+                                    where mm.tipo = ''CADUCADA'' and
+                                             mm.fecha_reg::date <='''||v_parametros.fecha_fin||'''::date
+                                             and mm.estado_reg =  ''activo''
+                                    group by mm.id_funcionario),
+                       anticipo as (select mm.id_funcionario,
+                                            sum(coalesce(mm.dias, 0)) as saldo_anticipo
+                                    from asis.tmovimiento_vacacion mm
+                                    where mm.tipo = ''ANTICIPO'' and
+                                              mm.fecha_reg::date <='''||v_parametros.fecha_fin||'''::date
+                                              and mm.estado_reg =  ''activo''
+                                    group by mm.id_funcionario),
+                        pagado as (select mm.id_funcionario,
+                                           sum(coalesce(mm.dias, 0)) as saldo_pagado
+                                   from asis.tmovimiento_vacacion mm
+                                   where mm.tipo = ''PAGADO'' and
+                                           mm.fecha_reg::date <='''||v_parametros.fecha_fin||'''::date
+                                           and mm.estado_reg =  ''activo''
+                                   group by mm.id_funcionario),
+                         saldo as (select mm.id_funcionario,
+                                           sum(coalesce(mm.dias, 0)) as saldo
+                                   from asis.tmovimiento_vacacion mm
+                                   where  mm.fecha_reg::date <='''||v_parametros.fecha_fin||'''::date
+                                   and mm.estado_reg =  ''activo''
+                                   group by mm.id_funcionario)
+                       select distinct on (uofun.id_funcionario) uofun.id_funcionario,
+                                      trim(both ''FUNODTPR'' from  fun.codigo)::varchar as codigo,
+                                    initcap(fun.desc_funcionario2) as desc_funcionario2,
+                                      ger.nombre_unidad as gerencia,
+                                      dep.nombre_unidad as departamento,
+                                      coalesce( di.saldo_acumulado,0) as saldo_acumulado ,
+                                      coalesce( tom.saldo_tomada,0) as saldo_tomada,
+                                      coalesce( cad.saldo_caducado,0) as saldo_caducado,
+                                      coalesce( ant.saldo_anticipo,0) as saldo_anticipo,
+                                      coalesce( pag.saldo_pagado,0) as saldo_pagado ,
+                                      coalesce(sal.saldo,0) as saldo
+                              from orga.tuo_funcionario uofun
+                              inner join orga.tcargo car on car.id_cargo = uofun.id_cargo
+                              inner join orga.ttipo_contrato tc on car.id_tipo_contrato = tc.id_tipo_contrato
+                              inner join orga.vfuncionario fun on fun.id_funcionario = uofun.id_funcionario
+                              inner join orga.tuo ger ON ger.id_uo = orga.f_get_uo_gerencia(uofun.id_uo, NULL::integer, NULL::date)
+                              inner join orga.tuo dep ON dep.id_uo = orga.f_get_uo_departamento(uofun.id_uo, NULL::integer, NULL::date)
+                              left join orga.toficina ofi on car.id_oficina = ofi.id_oficina
+                              left join  acumulado di on di.id_funcionario = uofun.id_funcionario
+                              left join  tomada tom on tom.id_funcionario = uofun.id_funcionario
+                              left join  caducada cad on cad.id_funcionario = uofun.id_funcionario
+                              left join  anticipo ant on ant.id_funcionario = uofun.id_funcionario
+                              left join  pagado pag on pag.id_funcionario = uofun.id_funcionario
+                              left join  saldo sal on sal.id_funcionario = uofun.id_funcionario
+                              where tc.codigo in (''PLA'',''EVE'') and UOFUN.tipo = ''oficial'' and
+                              uofun.fecha_asignacion <= '''||v_parametros.fecha_fin||'''::date and
+                              (uofun.fecha_finalizacion is null or uofun.fecha_finalizacion >= '''||v_parametros.fecha_fin||'''::date) AND
+                              uofun.estado_reg != ''inactivo'' '||v_filtro||'
+                              order by uofun.id_funcionario, uofun.fecha_asignacion desc   ) ant
+                              order by desc_funcionario2 asc';
+		   --Devuelve la respuesta
+            return v_consulta;
+
+		end;
+
 	else
 
 		raise exception 'Transaccion inexistente';
@@ -337,7 +938,5 @@ LANGUAGE 'plpgsql'
 VOLATILE
 CALLED ON NULL INPUT
 SECURITY INVOKER
+PARALLEL UNSAFE
 COST 100;
-
-ALTER FUNCTION asis.f_reportes_sel (p_administrador integer, p_id_usuario integer, p_tabla varchar, p_transaccion varchar)
-  OWNER TO dbaamamani;

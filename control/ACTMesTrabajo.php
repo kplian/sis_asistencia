@@ -23,6 +23,7 @@ class ACTMesTrabajo extends ACTbase{
             }
             $this->objParam->addFiltro("smt.estado in (''aprobado'')");
         }
+
         if($this->objParam->getParametro('tipo_interfaz') == 'VoBo'){
             if($this->objParam->getParametro('id_periodo') != ''){
                 $this->objParam->addFiltro("smt.id_periodo = ".$this->objParam->getParametro('id_periodo'));
@@ -124,6 +125,24 @@ class ACTMesTrabajo extends ACTbase{
         $this->mensajeExito->setArchivoGenerado($nombreArchivo);
         $this->mensajeExito->imprimirRespuesta($this->mensajeExito->generarJson());
     }
+    function listarHojaTiempoAgrupador(){
+        $this->objParam->defecto('ordenacion','id_mes_trabajo');
+
+        $this->objParam->defecto('dir_ordenacion','asc');
+        if($this->objParam->getParametro('tipo_interfaz') == 'MesTrabajoVoBo'){
+            $this->objParam->addFiltro("hta.estado in (''asignado'')");
+        }
+        if($this->objParam->getParametro('tipoReporte')=='excel_grid' || $this->objParam->getParametro('tipoReporte')=='pdf_grid'){
+            $this->objReporte = new Reporte($this->objParam,$this);
+            $this->res = $this->objReporte->generarReporteListado('MODMesTrabajo','listarHojaTiempoAgrupador');
+        } else{
+            $this->objFunc=$this->create('MODMesTrabajo');
+
+            $this->res=$this->objFunc->listarHojaTiempoAgrupador($this->objParam);
+        }
+        $this->res->imprimirRespuesta($this->res->generarJson());
+    }
+
 }
 
 ?>

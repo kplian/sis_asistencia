@@ -18,8 +18,6 @@ header("content-type: text/javascript; charset=UTF-8");
 Phx.vista.MesTrabajo=Ext.extend(Phx.gridInterfaz,{
 	constructor:function(config){
         this.maestro=config.maestro;
-    	//llama al constructor de la clase padre
-        //this.initButtons=[this.cmbGestion, this.cmbPeriodo];
         Phx.vista.MesTrabajo.superclass.constructor.call(this,config);
         this.cmbGestion.on('select', function(combo, record, index){
             this.tmpGestion = record.data.gestion;
@@ -750,10 +748,10 @@ Phx.vista.MesTrabajo=Ext.extend(Phx.gridInterfaz,{
     }),
     tabsouth:[
         {
-            url:'../../../sis_asistencia/vista/mes_trabajo_det/MesTrabajoDet.php',
+            url:'../../../sis_asistencia/vista/mes_trabajo_det/MesTrabajoDetReg.php',
             title:'Detalle',
             height:'50%',
-            cls:'MesTrabajoDet'
+            cls:'MesTrabajoDetReg'
         },
         {
             url:'../../../sis_asistencia/vista/mes_trabajo_con/MesTrabajoCon.php',

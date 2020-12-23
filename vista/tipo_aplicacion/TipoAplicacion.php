@@ -37,7 +37,7 @@ Phx.vista.TipoAplicacion=Ext.extend(Phx.gridInterfaz,{
 				fieldLabel: 'Nombre',
 				allowBlank: true,
 				anchor: '80%',
-				gwidth: 70
+				gwidth: 100
 			},
 				type:'TextField',
 				filters:{pfiltro:'tas.nombre',type:'string'},
@@ -51,7 +51,7 @@ Phx.vista.TipoAplicacion=Ext.extend(Phx.gridInterfaz,{
 				fieldLabel: 'Descripcion',
 				allowBlank: true,
 				anchor: '80%',
-				gwidth: 70
+				gwidth: 100
 			},
 				type:'TextField',
 				filters:{pfiltro:'tas.descripcion',type:'string'},
@@ -65,7 +65,7 @@ Phx.vista.TipoAplicacion=Ext.extend(Phx.gridInterfaz,{
 				fieldLabel: 'Codigo Aplicacion',
 				allowBlank: false,
 				anchor: '80%',
-				gwidth: 70
+				gwidth: 100
 			},
 				type:'TextField',
 				filters:{pfiltro:'tas.codigo_aplicacion',type:'string'},
@@ -274,7 +274,7 @@ Phx.vista.TipoAplicacion=Ext.extend(Phx.gridInterfaz,{
 		direction: 'ASC'
 	},
 	bdel:true,
-	bsave:true
+	bsave:false
 	}
 )
 </script>

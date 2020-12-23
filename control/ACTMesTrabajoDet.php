@@ -1,9 +1,9 @@
 <?php
 /**
-*@package pXP
-*@file gen-ACTMesTrabajoDet.php
-*@author  (miguel.mamani)
-*@date 31-01-2019 16:36:51
+ *@package pXP
+ *@file gen-ACTMesTrabajoDet.php
+ *@author  (miguel.mamani)
+ *@date 31-01-2019 16:36:51
  * HISTORIAL DE MODIFICACIONES:
  * #ISSUE				FECHA				AUTOR				DESCRIPCION
  * #4	ERT			17/06/2019 				 MMV			corrección bug botón subir excel
@@ -13,22 +13,22 @@
  * #19	ERT			26/09/2019 				 MMV			Validar Archivo de nombre HT
  */
 include_once(dirname(__FILE__).'/../../lib/lib_general/ExcelInput.php');
-class ACTMesTrabajoDet extends ACTbase{    
-			
-	function listarMesTrabajoDet(){
-		$this->objParam->defecto('ordenacion','id_mes_trabajo_det');
-		$this->objParam->defecto('dir_ordenacion','asc');
+class ACTMesTrabajoDet extends ACTbase{
+
+    function listarMesTrabajoDet(){
+        $this->objParam->defecto('ordenacion','id_mes_trabajo_det');
+        $this->objParam->defecto('dir_ordenacion','asc');
         if($this->objParam->getParametro('id_mes_trabajo') != '') {
             $this->objParam->addFiltro("mtd.id_mes_trabajo = " . $this->objParam->getParametro('id_mes_trabajo'));
         }
-		if($this->objParam->getParametro('tipoReporte')=='excel_grid' || $this->objParam->getParametro('tipoReporte')=='pdf_grid'){
-			$this->objReporte = new Reporte($this->objParam,$this);
-			$this->res = $this->objReporte->generarReporteListado('MODMesTrabajoDet','listarMesTrabajoDet');
-		} else{
-			$this->objFunc=$this->create('MODMesTrabajoDet');
-			
-			$this->res=$this->objFunc->listarMesTrabajoDet($this->objParam);
-		}
+        if($this->objParam->getParametro('tipoReporte')=='excel_grid' || $this->objParam->getParametro('tipoReporte')=='pdf_grid'){
+            $this->objReporte = new Reporte($this->objParam,$this);
+            $this->res = $this->objReporte->generarReporteListado('MODMesTrabajoDet','listarMesTrabajoDet');
+        } else{
+            $this->objFunc=$this->create('MODMesTrabajoDet');
+
+            $this->res=$this->objFunc->listarMesTrabajoDet($this->objParam);
+        }
         $temp = Array();
         $temp['total_comp'] = $this->res->extraData['suma_comp']; //#12
         $temp['total_normal'] = $this->res->extraData['suma_normal'];
@@ -40,23 +40,23 @@ class ACTMesTrabajoDet extends ACTbase{
         $this->res->total++;
         $this->res->addLastRecDatos($temp);
         $this->res->imprimirRespuesta($this->res->generarJson());
-	}
-				
-	function insertarMesTrabajoDet(){
-		$this->objFunc=$this->create('MODMesTrabajoDet');	
-		if($this->objParam->insertar('id_mes_trabajo_det')){
-			$this->res=$this->objFunc->insertarMesTrabajoDet($this->objParam);			
-		} else{			
-			$this->res=$this->objFunc->modificarMesTrabajoDet($this->objParam);
-		}
-		$this->res->imprimirRespuesta($this->res->generarJson());
-	}
-						
-	function eliminarMesTrabajoDet(){
-			$this->objFunc=$this->create('MODMesTrabajoDet');	
-		$this->res=$this->objFunc->eliminarMesTrabajoDet($this->objParam);
-		$this->res->imprimirRespuesta($this->res->generarJson());
-	}
+    }
+
+    function insertarMesTrabajoDet(){
+        $this->objFunc=$this->create('MODMesTrabajoDet');
+        if($this->objParam->insertar('id_mes_trabajo_det')){
+            $this->res=$this->objFunc->insertarMesTrabajoDet($this->objParam);
+        } else{
+            $this->res=$this->objFunc->modificarMesTrabajoDet($this->objParam);
+        }
+        $this->res->imprimirRespuesta($this->res->generarJson());
+    }
+
+    function eliminarMesTrabajoDet(){
+        $this->objFunc=$this->create('MODMesTrabajoDet');
+        $this->res=$this->objFunc->eliminarMesTrabajoDet($this->objParam);
+        $this->res->imprimirRespuesta($this->res->generarJson());
+    }
     function subirArchivoExcel(){
         //validar extnsion del archivo
         if($this->objParam->getParametro('periodo') < 10){ //#19
@@ -64,6 +64,7 @@ class ACTMesTrabajoDet extends ACTbase{
         }else{
             $mes = $this->objParam->getParametro('periodo'); //19
         }
+        // var_dump('entras');exit;
         $codigoPeriodoGestion = $this->objParam->getParametro('desc_codigo').'_'.$mes.$this->objParam->getParametro('gestion');
 
         $arregloFiles = $this->objParam->getArregloFiles();
@@ -127,13 +128,13 @@ class ACTMesTrabajoDet extends ACTbase{
                             if (preg_replace('/\s+/', '', (string)$fila["ingreso_manana"]) == null){
                                 $entradaMm = '00:00';
                             }else{
-                                $entradaMm = $fila["ingreso_manana"];
+                                $entradaMm = $this->quitarEspacion($fila["ingreso_manana"]);
                             }
                             // Salida
                             if (preg_replace('/\s+/', '', (string)$fila["salida_manana"]) == null){
                                 $salidaMm = '00:00';
                             }else{
-                                $salidaMm = $fila["salida_manana"];
+                                $salidaMm = $this->quitarEspacion($fila["salida_manana"]);
                             }
 
                             // jornada tarde
@@ -141,26 +142,26 @@ class ACTMesTrabajoDet extends ACTbase{
                             if (preg_replace('/\s+/', '', (string)$fila["ingreso_tarde"]) == null){
                                 $entradaTa = '00:00';
                             }else{
-                                $entradaTa = $fila["ingreso_tarde"];
+                                $entradaTa = $this->quitarEspacion($fila["ingreso_tarde"]);
                             }
                             // Salida
                             if (preg_replace('/\s+/', '', (string)$fila["salida_tarde"]) == null){
                                 $salidaTa = '00:00';
                             }else{
-                                $salidaTa = $fila["salida_tarde"];
+                                $salidaTa = $this->quitarEspacion($fila["salida_tarde"]);
                             }
                             // jornada Noche
                             // Ingreos
                             if (preg_replace('/\s+/', '', (string)$fila["ingreso_noche"]) == null){
                                 $entradaNo = '00:00';
                             }else{
-                                $entradaNo = $fila["ingreso_noche"];
+                                $entradaNo = $this->quitarEspacion($fila["ingreso_noche"]);
                             }
                             // Salida
                             if ( preg_replace('/\s+/', '', (string)$fila["salida_noche"]) == null){
                                 $salidaNo = '00:00';
                             }else{
-                                $salidaNo = $fila["salida_noche"];
+                                $salidaNo = $this->quitarEspacion($fila["salida_noche"]);
                             }
                             $arra_excel_detalle[] = array(
                                 "dia" => (string)$fila["dia"],
@@ -184,8 +185,8 @@ class ACTMesTrabajoDet extends ACTbase{
                     }
                 } //#11
             }
-           // var_dump($arra_excel_detalle);exit;
-            $json = json_encode($arra_excel_detalle);
+            // var_dump(json_encode($arra_excel_detalle));exit;
+            $json =  json_encode($arra_excel_detalle);
             $this->objParam->addParametro('mes_trabajo_json',$json);
             $this->objFunc=$this->create('MODMesTrabajoDet');
             $this->res=$this->objFunc->insertarMesTrabajoSon($this->objParam);
@@ -215,10 +216,10 @@ class ACTMesTrabajoDet extends ACTbase{
     }
     function subirArchivoExcelCc(){ //#18
         //validar extnsion del archivo
-        if($this->objParam->getParametro('periodo') <= 9){
+        if($this->objParam->getParametro('periodo') < 10){ //#19
             $mes = '0'.$this->objParam->getParametro('periodo');
         }else{
-            $mes = '0'.$this->objParam->getParametro('periodo');
+            $mes = $this->objParam->getParametro('periodo'); //19
         }
         $codigoPeriodoGestion = $this->objParam->getParametro('desc_codigo').'_'.$mes.$this->objParam->getParametro('gestion');
 
@@ -286,13 +287,13 @@ class ACTMesTrabajoDet extends ACTbase{
                             if (preg_replace('/\s+/', '', (string)$fila["ingreso_manana"]) == null) {
                                 $entradaMm = '00:00';
                             } else {
-                                $entradaMm = $fila["ingreso_manana"];
+                                $entradaMm =  $this->quitarEspacion($fila["ingreso_manana"]);
                             }
                             // Salida
                             if (preg_replace('/\s+/', '', (string)$fila["salida_manana"]) == null) {
                                 $salidaMm = '00:00';
                             } else {
-                                $salidaMm = $fila["salida_manana"];
+                                $salidaMm =  $this->quitarEspacion($fila["salida_manana"]);
                             }
 
                             // jornada tarde
@@ -300,26 +301,26 @@ class ACTMesTrabajoDet extends ACTbase{
                             if (preg_replace('/\s+/', '', (string)$fila["ingreso_tarde"]) == null) {
                                 $entradaTa = '00:00';
                             } else {
-                                $entradaTa = $fila["ingreso_tarde"];
+                                $entradaTa =  $this->quitarEspacion($fila["ingreso_tarde"]);
                             }
                             // Salida
                             if (preg_replace('/\s+/', '', (string)$fila["salida_tarde"]) == null) {
                                 $salidaTa = '00:00';
                             } else {
-                                $salidaTa = $fila["salida_tarde"];
+                                $salidaTa =  $this->quitarEspacion($fila["salida_tarde"]);
                             }
                             // jornada Noche
                             // Ingreos
                             if (preg_replace('/\s+/', '', (string)$fila["ingreso_noche"]) == null) {
                                 $entradaNo = '00:00';
                             } else {
-                                $entradaNo = $fila["ingreso_noche"];
+                                $entradaNo =  $this->quitarEspacion($fila["ingreso_noche"]);
                             }
                             // Salida
                             if (preg_replace('/\s+/', '', (string)$fila["salida_noche"]) == null) {
                                 $salidaNo = '00:00';
                             } else {
-                                $salidaNo = $fila["salida_noche"];
+                                $salidaNo =  $this->quitarEspacion($fila["salida_noche"]);
                             }
 
                             $arra_excel_detalle[] = array(
@@ -364,7 +365,10 @@ class ACTMesTrabajoDet extends ACTbase{
         }
 
     }//#18
-
+    function quitarEspacion ($cadena){
+        return trim($cadena, chr(0xC2).chr(0xA0));
     }
+
+}
 
 ?>

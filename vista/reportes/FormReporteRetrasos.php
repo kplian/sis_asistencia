@@ -188,7 +188,7 @@ header("content-type: text/javascript; charset=UTF-8");
         clsSubmit : 'bprint',
 
         agregarArgsExtraSubmit: function() {
-            this.argumentExtraSubmit.eventodesc = this.Cmp.evento.getRawValue();
+             this.argumentExtraSubmit.eventodesc = this.Cmp.evento.getRawValue();
         },
 
         Grupos:

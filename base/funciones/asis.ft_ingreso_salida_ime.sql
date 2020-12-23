@@ -1,5 +1,3 @@
---------------- SQL ---------------
-
 CREATE OR REPLACE FUNCTION asis.ft_ingreso_salida_ime (
   p_administrador integer,
   p_id_usuario integer,
@@ -19,7 +17,7 @@ $body$
  HISTORIAL DE MODIFICACIONES:
 #ISSUE				FECHA				AUTOR				DESCRIPCION
  #0				14-08-2019 12:53:11							Funcion que gestiona las operaciones basicas (inserciones, modificaciones, eliminaciones de la tabla 'asis.tingreso_salida'
- #14		    23-08-2019 12:53:11		Juan 				Archivo Nuevo Control diario de ingreso salida a la empresa Ende Transmision S.A.'
+ #1			23-08-2019 12:53:11		Juan 				    Archivo Nuevo Control diario de ingreso salida a la empresa Ende Transmision S.A.'
  #
  ***************************************************************************/
 
@@ -163,3 +161,6 @@ VOLATILE
 CALLED ON NULL INPUT
 SECURITY INVOKER
 COST 100;
+
+ALTER FUNCTION asis.ft_ingreso_salida_ime (p_administrador integer, p_id_usuario integer, p_tabla varchar, p_transaccion varchar)
+  OWNER TO postgres;

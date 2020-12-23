@@ -324,4 +324,306 @@ ALTER TABLE asis.ttranscc_zka
 ALTER TABLE asis.tmes_trabajo_det
   ADD COLUMN id_centro_costo_anterior INTEGER;
 /***********************************F-SCP-MMV-ASIS-18-26/09/2019****************************************/
+/***********************************I-SCP-MMV-ASIS-1-22/19/2020****************************************/
+CREATE TABLE asis.ttipo_permiso (
+  id_tipo_permiso SERIAL,
+  codigo VARCHAR(20) NOT NULL,
+  nombre VARCHAR(100) NOT NULL,
+  tiempo TIME WITHOUT TIME ZONE DEFAULT '00:00:00'::time without time zone,
+  documento VARCHAR(5) DEFAULT 'no'::character varying,
+  reposcion VARCHAR(5) DEFAULT 'no'::character varying,
+  rango VARCHAR(5) DEFAULT 'no'::character varying,
+  CONSTRAINT ttipo_permiso_pkey PRIMARY KEY(id_tipo_permiso)
+) INHERITS (pxp.tbase)
+WITH (oids = false);
 
+CREATE TABLE asis.tpermiso (
+  id_permiso SERIAL,
+  id_funcionario INTEGER NOT NULL,
+  fecha_solicitud DATE NOT NULL,
+  motivo TEXT,
+  id_tipo_permiso INTEGER NOT NULL,
+  estado VARCHAR(50),
+  id_estado_wf INTEGER,
+  id_proceso_wf INTEGER,
+  nro_tramite VARCHAR(100),
+  hro_desde TIME WITHOUT TIME ZONE,
+  hro_hasta TIME WITHOUT TIME ZONE,
+  fecha_reposicion DATE,
+  hro_desde_reposicion TIME WITHOUT TIME ZONE,
+  hro_hasta_reposicion TIME WITHOUT TIME ZONE,
+  reposicion VARCHAR(20),
+  hro_total_permiso TIME WITHOUT TIME ZONE,
+  hro_total_reposicion TIME WITHOUT TIME ZONE,
+  jornada VARCHAR(10),
+  id_responsable INTEGER,
+  id_funcionario_sol INTEGER,
+  observaciones TEXT,
+  CONSTRAINT tpermiso_pkey PRIMARY KEY(id_permiso)
+) INHERITS (pxp.tbase)
+WITH (oids = false);
+
+ALTER TABLE asis.tpermiso
+  ALTER COLUMN id_permiso SET STATISTICS 0;
+
+ALTER TABLE asis.tpermiso
+  ALTER COLUMN id_funcionario SET STATISTICS 0;
+
+ALTER TABLE asis.tpermiso
+  ALTER COLUMN fecha_solicitud SET STATISTICS 0;
+
+ALTER TABLE asis.tpermiso
+  ALTER COLUMN motivo SET STATISTICS 0;
+
+ALTER TABLE asis.tpermiso
+  ALTER COLUMN id_tipo_permiso SET STATISTICS 0;
+
+ALTER TABLE asis.tpermiso
+  ALTER COLUMN estado SET STATISTICS 0;
+
+ALTER TABLE asis.tpermiso
+  ALTER COLUMN id_estado_wf SET STATISTICS 0;
+
+ALTER TABLE asis.tpermiso
+  ALTER COLUMN id_proceso_wf SET STATISTICS 0;
+
+ALTER TABLE asis.tpermiso
+  ALTER COLUMN nro_tramite SET STATISTICS 0;
+
+  CREATE TABLE asis.treposicion (
+  id_reposicion SERIAL,
+  id_permiso INTEGER NOT NULL,
+  fecha_reposicion DATE NOT NULL,
+  id_funcionario INTEGER,
+  evento VARCHAR(30),
+  tiempo VARCHAR(20),
+  id_transacion_zkb INTEGER,
+  CONSTRAINT treposicion_pkey PRIMARY KEY(id_reposicion)
+) INHERITS (pxp.tbase)
+WITH (oids = false);
+
+ALTER TABLE asis.treposicion
+  ALTER COLUMN id_reposicion SET STATISTICS 0;
+
+ALTER TABLE asis.treposicion
+  ALTER COLUMN id_permiso SET STATISTICS 0;
+
+ALTER TABLE asis.treposicion
+  ALTER COLUMN fecha_reposicion SET STATISTICS 0;
+
+ALTER TABLE asis.treposicion
+  ALTER COLUMN id_funcionario SET STATISTICS 0;
+
+ALTER TABLE asis.treposicion
+  ALTER COLUMN evento SET STATISTICS 0;
+
+ALTER TABLE asis.treposicion
+  ALTER COLUMN tiempo SET STATISTICS 0;
+
+  CREATE TABLE asis.tvacacion (
+  id_vacacion SERIAL,
+  id_funcionario INTEGER,
+  fecha_inicio DATE,
+  fecha_fin DATE,
+  dias NUMERIC,
+  descripcion TEXT,
+  id_proceso_wf INTEGER,
+  id_estado_wf INTEGER,
+  estado VARCHAR(50),
+  nro_tramite VARCHAR(100),
+  solicitud DATE DEFAULT now()::date,
+  id_gestion INTEGER,
+  medio_dia INTEGER,
+  dias_efectivo NUMERIC,
+  prestado VARCHAR(5) DEFAULT 'no'::character varying,
+  id_responsable INTEGER,
+  id_funcionario_sol INTEGER,
+  observaciones TEXT,
+  saldo NUMERIC DEFAULT 0,
+  CONSTRAINT tvacacion_id_proceso_wf_key UNIQUE(id_proceso_wf),
+  CONSTRAINT tvacacion_pkey PRIMARY KEY(id_vacacion)
+) INHERITS (pxp.tbase)
+WITH (oids = false);
+
+ALTER TABLE asis.tvacacion
+  ALTER COLUMN fecha_inicio SET STATISTICS 0;
+
+ALTER TABLE asis.tvacacion
+  ALTER COLUMN fecha_fin SET STATISTICS 0;
+
+ALTER TABLE asis.tvacacion
+  ALTER COLUMN dias SET STATISTICS 0;
+
+ALTER TABLE asis.tvacacion
+  ALTER COLUMN descripcion SET STATISTICS 0;
+
+COMMENT ON COLUMN asis.tvacacion.prestado
+IS 'bandera para sabe si la vacacion ya no tiene salgo y se puede prestar dias su proxima vacaciones';
+
+CREATE TABLE asis.tvacacion_det (
+  id_vacacion_det SERIAL,
+  id_vacacion INTEGER NOT NULL,
+  fecha_dia DATE NOT NULL,
+  tiempo VARCHAR(20) DEFAULT 'completo'::character varying NOT NULL,
+  CONSTRAINT tvacacion_det_pkey PRIMARY KEY(id_vacacion_det)
+) INHERITS (pxp.tbase)
+WITH (oids = false);
+
+ALTER TABLE asis.tvacacion_det
+  ALTER COLUMN fecha_dia SET STATISTICS 0;
+
+  CREATE TABLE asis.tmovimiento_vacacion (
+  id_movimiento_vacacion SERIAL,
+  id_funcionario INTEGER,
+  desde DATE,
+  hasta DATE,
+  dias_actual NUMERIC,
+  activo VARCHAR(10) DEFAULT 'no'::character varying,
+  codigo VARCHAR(50),
+  dias NUMERIC,
+  tipo VARCHAR(15),
+  dias_calendario INTEGER,
+  id_vacacion INTEGER,
+  id_gestion INTEGER,
+  tipo_contrato VARCHAR(100),
+  ci VARCHAR(100),
+  CONSTRAINT tmovimiento_vacacion_pkey PRIMARY KEY(id_movimiento_vacacion)
+) INHERITS (pxp.tbase)
+WITH (oids = false);
+
+ALTER TABLE asis.tmovimiento_vacacion
+  ALTER COLUMN id_movimiento_vacacion SET STATISTICS 0;
+
+ALTER TABLE asis.tmovimiento_vacacion
+  ALTER COLUMN id_funcionario SET STATISTICS 0;
+
+ALTER TABLE asis.tmovimiento_vacacion
+  ALTER COLUMN desde SET STATISTICS 0;
+
+ALTER TABLE asis.tmovimiento_vacacion
+  ALTER COLUMN hasta SET STATISTICS 0;
+
+ALTER TABLE asis.tmovimiento_vacacion
+  ALTER COLUMN dias_actual SET STATISTICS 0;
+
+/***********************************F-SCP-MMV-ASIS-1-22/19/2020****************************************/
+
+/***********************************I-SCP-MMV-ASIS-2-22/12/2020****************************************/
+CREATE TABLE asis.trango_horario (
+  id_rango_horario SERIAL,
+  codigo VARCHAR(5) NOT NULL,
+  descripcion VARCHAR(50) NOT NULL,
+  hora_entrada TIME(6) WITHOUT TIME ZONE NOT NULL,
+  hora_salida TIME(6) WITHOUT TIME ZONE NOT NULL,
+  rango_entrada_ini TIME(6) WITHOUT TIME ZONE NOT NULL,
+  rango_entrada_fin TIME(6) WITHOUT TIME ZONE NOT NULL,
+  rango_salida_ini TIME(6) WITHOUT TIME ZONE NOT NULL,
+  rango_salida_fin TIME(6) WITHOUT TIME ZONE NOT NULL,
+  fecha_desde DATE DEFAULT now() NOT NULL,
+  fecha_hasta DATE,
+  tolerancia_retardo INTEGER,
+  jornada_laboral INTEGER,
+  lunes VARCHAR(5) DEFAULT 'no'::character varying,
+  martes VARCHAR(5) DEFAULT 'no'::character varying,
+  miercoles VARCHAR(5) DEFAULT 'no'::character varying,
+  jueves VARCHAR(5) DEFAULT 'no'::character varying,
+  viernes VARCHAR(5) DEFAULT 'no'::character varying,
+  sabado VARCHAR(5) DEFAULT 'no'::character varying,
+  domingo VARCHAR(5) DEFAULT 'no'::character varying,
+  jornada VARCHAR(10),
+  CONSTRAINT trango_horario_codigo_key UNIQUE(codigo),
+  CONSTRAINT trango_horario_pkey PRIMARY KEY(id_rango_horario)
+) INHERITS (pxp.tbase)
+WITH (oids = false);
+
+COMMENT ON TABLE asis.trango_horario
+IS 'Tabla paramétrica que define el rango de horarios considerados como entradas o salidas';
+
+COMMENT ON COLUMN asis.trango_horario.id_rango_horario
+IS 'Identificador numérico de la tabla';
+
+COMMENT ON COLUMN asis.trango_horario.codigo
+IS 'Código del horario definido
+HNM: Horario Normal Mañana
+HNT: Horario Normal Tarde
+HC: Horario Continuo
+HNO: Horario Nocturno
+HE: Horario Especial';
+
+COMMENT ON COLUMN asis.trango_horario.descripcion
+IS 'Descripción del horario definido
+HNM: Horario Normal Mañana
+HNT: Horario Normal Tarde
+HC: Horario Continuo
+HNO: Horario Nocturno
+HE: Horario Especial';
+
+COMMENT ON COLUMN asis.trango_horario.hora_entrada
+IS 'Hora de entrada oficial definida por recursos humanos';
+
+COMMENT ON COLUMN asis.trango_horario.hora_salida
+IS 'Hora de salida oficial definida por recursos humanos';
+
+COMMENT ON COLUMN asis.trango_horario.rango_entrada_ini
+IS 'Rango de hora inicial del horario de entrada';
+
+COMMENT ON COLUMN asis.trango_horario.rango_entrada_fin
+IS 'Rango de hora final del horario de entrada';
+
+COMMENT ON COLUMN asis.trango_horario.rango_salida_ini
+IS 'Rango de hora inicial del horario de salida';
+
+COMMENT ON COLUMN asis.trango_horario.rango_salida_fin
+IS 'Rango de hora final del horario de salida';
+
+COMMENT ON COLUMN asis.trango_horario.fecha_desde
+IS 'Fecha desde que esta en uso el registro';
+
+COMMENT ON COLUMN asis.trango_horario.fecha_hasta
+IS 'Fecha de corte donde el registro ya no esta en uso';
+
+COMMENT ON COLUMN asis.trango_horario.tolerancia_retardo
+IS 'Cantidad de minutos de tolerancia para marcar la entrada';
+
+COMMENT ON COLUMN asis.trango_horario.jornada_laboral
+IS 'Cantidad de horas de la jornada laboral';
+
+COMMENT ON COLUMN asis.trango_horario.lunes
+IS 'Si el valor es verdadero, el horario considera el día lunes';
+
+COMMENT ON COLUMN asis.trango_horario.martes
+IS 'Si el valor es verdadero, el horario considera el día martes';
+
+COMMENT ON COLUMN asis.trango_horario.miercoles
+IS 'Si el valor es verdadero, el horario considera el día miercoles';
+
+COMMENT ON COLUMN asis.trango_horario.jueves
+IS 'Si el valor es verdadero, el horario considera el día jueves';
+
+COMMENT ON COLUMN asis.trango_horario.viernes
+IS 'Si el valor es verdadero, el horario considera el día viernes';
+
+COMMENT ON COLUMN asis.trango_horario.sabado
+IS 'Si el valor es verdadero, el horario considera el día sábado';
+
+CREATE TABLE asis.tasignar_rango (
+  asignar_rango SERIAL,
+  id_rango_horario INTEGER NOT NULL,
+  id_funcionario INTEGER,
+  id_uo SERIAL,
+  desde DATE,
+  hasta DATE,
+  id_grupo_asig INTEGER,
+  CONSTRAINT tasignar_rango_pkey PRIMARY KEY(asignar_rango)
+) INHERITS (pxp.tbase)
+WITH (oids = false);
+
+ALTER TABLE asis.tasignar_rango
+  ALTER COLUMN id_funcionario SET STATISTICS 0;
+
+ALTER TABLE asis.tasignar_rango
+  ALTER COLUMN id_uo SET STATISTICS 0;
+
+ALTER TABLE asis.tasignar_rango
+  ALTER COLUMN desde SET STATISTICS 0;
+/***********************************F-SCP-MMV-ASIS-2-22/12/2020****************************************/

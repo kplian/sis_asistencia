@@ -235,5 +235,46 @@ class MODMesTrabajo extends MODbase{
         //Devuelve la respuesta
         return $this->respuesta;
     }
+    function listarHojaTiempoAgrupador(){
+        //Definicion de variables para ejecucion del procedimientp
+        $this->procedimiento='asis.ft_mes_trabajo_sel';
+        $this->transaccion='ASIS_VBO_SEL';
+        $this->tipo_procedimiento='SEL';//tipo de transaccion
+
+        //Definicion de la lista del resultado del query
+        $this->captura('id_mes_trabajo','int4');
+        $this->captura('estado_reg','varchar');
+        $this->captura('id_proceso_wf','int4');
+        $this->captura('id_estado_wf','int4');
+        $this->captura('id_periodo','int4');
+        $this->captura('estado','varchar');
+        $this->captura('nro_tramite','varchar');
+        $this->captura('id_funcionario','int4');
+        $this->captura('id_usuario_reg','int4');
+        $this->captura('fecha_reg','timestamp');
+        $this->captura('id_usuario_ai','int4');
+        $this->captura('usuario_ai','varchar');
+        $this->captura('id_usuario_mod','int4');
+        $this->captura('fecha_mod','timestamp');
+        $this->captura('usr_reg','varchar');
+        $this->captura('usr_mod','varchar');
+        $this->captura('desc_funcionario1','text');
+
+        $this->captura('total_comp','numeric');
+        $this->captura('total_normal','numeric');
+        $this->captura('total_extra','numeric');
+        $this->captura('total_nocturna','numeric');
+        $this->captura('extra_autorizada','numeric');
+        $this->captura('periodo','int4');
+        $this->captura('gestion','int4');
+
+
+        //Ejecuta la instruccion
+        $this->armarConsulta();
+        $this->ejecutarConsulta();
+
+        //Devuelve la respuesta
+        return $this->respuesta;
+    }
 }
 ?>
