@@ -816,6 +816,42 @@ BEGIN
 
 
  		end;
+
+  /*********************************
+ 	#TRANSACCION:  'ASIS_ROL_INS'
+ 	#DESCRIPCION:	Eliminacion de registros
+ 	#AUTOR:		miguel.mamani
+ 	#FECHA:		16-10-2019 13:14:05
+	***********************************/
+
+	elsif(p_transaccion='ASIS_ROL_INS')then
+
+		begin
+        
+        
+        		if exists(select 1
+                          from segu.vusuario u
+                          inner join segu.tusuario_rol ur on ur.id_usuario = u.id_usuario
+                          inner join segu.trol r on r.id_rol = ur.id_rol
+                          where u.id_usuario = p_id_usuario and r.rol like '%ASIS - Rrhh')then
+                	
+               	 	v_rol = 1;
+                
+                else
+                
+                	v_rol = 0;
+                
+                end if;
+			
+            --Definicion de la respuesta
+            v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Rol Asignado)');
+            v_resp = pxp.f_agrega_clave(v_resp,'rol',v_rol::varchar);
+
+            --Devuelve la respuesta
+            return v_resp;
+
+		end;
+
 	else
 
     	raise exception 'Transaccion inexistente: %',p_transaccion;

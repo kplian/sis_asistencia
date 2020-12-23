@@ -282,5 +282,21 @@ class MODPermiso extends MODbase{
         $this->ejecutarConsulta();
         return $this->respuesta;
     }
+    function permisoRol(){
+        //Definicion de variables para ejecucion del procedimiento
+        $this->procedimiento='asis.ft_permiso_ime';
+        $this->transaccion='ASIS_ROL_INS';
+        $this->tipo_procedimiento='IME';
+
+        //Define los parametros para la funcion
+        $this->setParametro('rol_asignado','rol_asignado','varchar');
+
+        //Ejecuta la instruccion
+        $this->armarConsulta();
+        $this->ejecutarConsulta();
+
+        //Devuelve la respuesta
+        return $this->respuesta;
+    }
 }
 ?>
