@@ -18,7 +18,7 @@ class MODMesTrabajoCon extends MODbase{
 	function listarMesTrabajoCon(){
 		//Definicion de variables para ejecucion del procedimientp
 		$this->procedimiento='asis.ft_mes_trabajo_con_sel';
-		$this->transaccion='ASIS_MT_SEL';
+		$this->transaccion='ASIS_MTF_SEL';
 		$this->tipo_procedimiento='SEL';//tipo de transaccion
 				
 		//Definicion de la lista del resultado del query
@@ -54,7 +54,7 @@ class MODMesTrabajoCon extends MODbase{
 	function insertarMesTrabajoCon(){
 		//Definicion de variables para ejecucion del procedimiento
 		$this->procedimiento='asis.ft_mes_trabajo_con_ime';
-		$this->transaccion='ASIS_MT_INS';
+		$this->transaccion='ASIS_MTF_INS';
 		$this->tipo_procedimiento='IME';
 				
 		//Define los parametros para la funcion
@@ -77,7 +77,7 @@ class MODMesTrabajoCon extends MODbase{
 	function modificarMesTrabajoCon(){
 		//Definicion de variables para ejecucion del procedimiento
 		$this->procedimiento='asis.ft_mes_trabajo_con_ime';
-		$this->transaccion='ASIS_MT_MOD';
+		$this->transaccion='ASIS_MTF_MOD';
 		$this->tipo_procedimiento='IME';
 				
 		//Define los parametros para la funcion
@@ -101,7 +101,7 @@ class MODMesTrabajoCon extends MODbase{
 	function eliminarMesTrabajoCon(){
 		//Definicion de variables para ejecucion del procedimiento
 		$this->procedimiento='asis.ft_mes_trabajo_con_ime';
-		$this->transaccion='ASIS_MT_ELI';
+		$this->transaccion='ASIS_MTF_ELI';
 		$this->tipo_procedimiento='IME';
 				
 		//Define los parametros para la funcion
