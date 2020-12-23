@@ -107,12 +107,44 @@ BEGIN
                       
                       
                       else
-                                            
-                          update asis.tmovimiento_vacacion set
+                      
+                      
+                      
+                      
+                      if exists (select 1
+                        from asis.tmovimiento_vacacion mv
+                        where mv.id_funcionario = v_funcionario_plan.id_funcionario
+                              and mv.tipo_contrato = 'planta'
+                              and mv.fecha_reg::date >= v_funcionario_plan.fecha_asignacion )then
+                              
+                        	  update asis.tmovimiento_vacacion set
                           estado_reg = 'activo'
                           where id_funcionario = v_funcionario_plan.id_funcionario 
                     	  and tipo_contrato = 'planta';
-               
+                          
+                          else
+                    
+                    	SELECT EXTRACT(DAY FROM age(date(v_funcionario_plan.fecha_asignacion) ,date(v_fecha_anterior) ) ) as dif_dias into v_diferencia;
+                      
+                        if (v_diferencia = 1) then
+                        
+                            update asis.tmovimiento_vacacion set
+                            estado_reg = 'activo'
+                            where id_funcionario = v_funcionario_plan.id_funcionario 
+                            and tipo_contrato = 'planta';
+                        else
+                        
+                         update asis.tmovimiento_vacacion set
+                          estado_reg = 'activo'
+                          where id_funcionario = v_funcionario_plan.id_funcionario 
+                    	  and tipo_contrato = 'planta'
+                          and  fecha_reg::date >= v_funcionario_plan.fecha_asignacion;
+                          
+                        end if;
+                                            
+                         
+               			
+                        end if;
             	 end if;
                  
                  

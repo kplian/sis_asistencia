@@ -875,12 +875,19 @@ BEGIN
                                                p_id_usuario);
 
 
-
+/*
                       v_acceso_directo = '';
                       v_clase = '';
                       v_parametros_ad = '';
                       v_tipo_noti = 'notificacion';
-                      v_titulo  = 'Aprobado';
+                      v_titulo  = 'Aprobado';*/
+                      
+                      
+                       v_acceso_directo = '../../../sis_asistencia/vista/vacacion/VacacionVoBo.php';
+                       v_clase = 'VacacionVoBo';
+                       v_parametros_ad = '{filtro_directo:{campo:"pmo.id_proceso_wf",valor:"'||v_registro_estado.id_proceso_wf::varchar||'"}}';
+                       v_tipo_noti = 'notificacion';
+                       v_titulo  = 'Visto Bueno';
 
 
 		
