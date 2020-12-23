@@ -31,6 +31,13 @@ DECLARE
     v_id_funcionario	integer;
     v_id_funcionario_sol	integer;
     v_count					integer;
+     v_id_gestion_actual 			integer;
+    v_id_ultima_gestion_antiguedad 	integer;
+    v_dias_incremento_vacacion     	integer;
+    v_record_ultima_vacacion       	record;
+    item                			record;
+        v_record_tiempo     record;
+
 
 BEGIN
 
