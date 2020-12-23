@@ -106,3 +106,58 @@ select pxp.f_insert_testructura_gui ('RVS', 'AREP');
 select pxp.f_insert_testructura_gui ('CPO', 'ASIS');
 select pxp.f_insert_testructura_gui ('CVR', 'ASIS');
 /***********************************F-DEP-MMV-ASIS-1-22/12/2020*****************************************/
+/***********************************I-DEP-MMV-ASIS-2-22/12/2020*****************************************/
+CREATE VIEW asis.vpermiso (
+    id_permiso,
+    id_estado_wf,
+    id_proceso_wf,
+    fecha_solicitud,
+    hro_desde,
+    hro_hasta,
+    motivo,
+    tipo_permiso,
+    funcionario_solicitante)
+AS
+SELECT p.id_permiso,
+    p.id_estado_wf,
+    p.id_proceso_wf,
+    to_char(p.fecha_solicitud::timestamp with time zone, 'DD/MM/YYYY'::text) AS
+        fecha_solicitud,
+    p.hro_desde,
+    p.hro_hasta,
+    p.motivo,
+    tp.nombre AS tipo_permiso,
+    initcap(fu.desc_funcionario1) AS funcionario_solicitante
+FROM asis.tpermiso p
+     JOIN asis.ttipo_permiso tp ON tp.id_tipo_permiso = p.id_tipo_permiso
+     JOIN orga.vfuncionario fu ON fu.id_funcionario = p.id_funcionario
+     LEFT JOIN orga.vfuncionario sf ON sf.id_funcionario = p.id_funcionario_sol;
+
+CREATE VIEW asis.vvacacion (
+    id_vacacion,
+    id_estado_wf,
+    id_proceso_wf,
+    nro_tramite,
+    fecha_solicitud,
+    fecha_inicio,
+    fecha_fin,
+    descripcion,
+    funcionario_solicitante,
+    dias)
+AS
+SELECT va.id_vacacion,
+    va.id_estado_wf,
+    va.id_proceso_wf,
+    va.nro_tramite,
+    to_char(va.fecha_reg::date::timestamp with time zone, 'DD/MM/YYYY'::text)
+        AS fecha_solicitud,
+    to_char(va.fecha_inicio::timestamp with time zone, 'DD/MM/YYYY'::text) AS
+        fecha_inicio,
+    to_char(va.fecha_fin::timestamp with time zone, 'DD/MM/YYYY'::text) AS fecha_fin,
+    va.descripcion,
+    initcap(fu.desc_funcionario1) AS funcionario_solicitante,
+    va.dias
+FROM asis.tvacacion va
+     JOIN orga.vfuncionario fu ON fu.id_funcionario = va.id_funcionario
+     LEFT JOIN orga.vfuncionario sf ON sf.id_funcionario = va.id_funcionario_sol;
+/***********************************F-DEP-MMV-ASIS-2-22/12/2020*****************************************/

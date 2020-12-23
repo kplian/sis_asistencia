@@ -508,3 +508,122 @@ ALTER TABLE asis.tmovimiento_vacacion
 
 /***********************************F-SCP-MMV-ASIS-1-22/19/2020****************************************/
 
+/***********************************I-SCP-MMV-ASIS-2-22/12/2020****************************************/
+CREATE TABLE asis.trango_horario (
+  id_rango_horario SERIAL,
+  codigo VARCHAR(5) NOT NULL,
+  descripcion VARCHAR(50) NOT NULL,
+  hora_entrada TIME(6) WITHOUT TIME ZONE NOT NULL,
+  hora_salida TIME(6) WITHOUT TIME ZONE NOT NULL,
+  rango_entrada_ini TIME(6) WITHOUT TIME ZONE NOT NULL,
+  rango_entrada_fin TIME(6) WITHOUT TIME ZONE NOT NULL,
+  rango_salida_ini TIME(6) WITHOUT TIME ZONE NOT NULL,
+  rango_salida_fin TIME(6) WITHOUT TIME ZONE NOT NULL,
+  fecha_desde DATE DEFAULT now() NOT NULL,
+  fecha_hasta DATE,
+  tolerancia_retardo INTEGER,
+  jornada_laboral INTEGER,
+  lunes VARCHAR(5) DEFAULT 'no'::character varying,
+  martes VARCHAR(5) DEFAULT 'no'::character varying,
+  miercoles VARCHAR(5) DEFAULT 'no'::character varying,
+  jueves VARCHAR(5) DEFAULT 'no'::character varying,
+  viernes VARCHAR(5) DEFAULT 'no'::character varying,
+  sabado VARCHAR(5) DEFAULT 'no'::character varying,
+  domingo VARCHAR(5) DEFAULT 'no'::character varying,
+  jornada VARCHAR(10),
+  CONSTRAINT trango_horario_codigo_key UNIQUE(codigo),
+  CONSTRAINT trango_horario_pkey PRIMARY KEY(id_rango_horario)
+) INHERITS (pxp.tbase)
+WITH (oids = false);
+
+COMMENT ON TABLE asis.trango_horario
+IS 'Tabla paramétrica que define el rango de horarios considerados como entradas o salidas';
+
+COMMENT ON COLUMN asis.trango_horario.id_rango_horario
+IS 'Identificador numérico de la tabla';
+
+COMMENT ON COLUMN asis.trango_horario.codigo
+IS 'Código del horario definido
+HNM: Horario Normal Mañana
+HNT: Horario Normal Tarde
+HC: Horario Continuo
+HNO: Horario Nocturno
+HE: Horario Especial';
+
+COMMENT ON COLUMN asis.trango_horario.descripcion
+IS 'Descripción del horario definido
+HNM: Horario Normal Mañana
+HNT: Horario Normal Tarde
+HC: Horario Continuo
+HNO: Horario Nocturno
+HE: Horario Especial';
+
+COMMENT ON COLUMN asis.trango_horario.hora_entrada
+IS 'Hora de entrada oficial definida por recursos humanos';
+
+COMMENT ON COLUMN asis.trango_horario.hora_salida
+IS 'Hora de salida oficial definida por recursos humanos';
+
+COMMENT ON COLUMN asis.trango_horario.rango_entrada_ini
+IS 'Rango de hora inicial del horario de entrada';
+
+COMMENT ON COLUMN asis.trango_horario.rango_entrada_fin
+IS 'Rango de hora final del horario de entrada';
+
+COMMENT ON COLUMN asis.trango_horario.rango_salida_ini
+IS 'Rango de hora inicial del horario de salida';
+
+COMMENT ON COLUMN asis.trango_horario.rango_salida_fin
+IS 'Rango de hora final del horario de salida';
+
+COMMENT ON COLUMN asis.trango_horario.fecha_desde
+IS 'Fecha desde que esta en uso el registro';
+
+COMMENT ON COLUMN asis.trango_horario.fecha_hasta
+IS 'Fecha de corte donde el registro ya no esta en uso';
+
+COMMENT ON COLUMN asis.trango_horario.tolerancia_retardo
+IS 'Cantidad de minutos de tolerancia para marcar la entrada';
+
+COMMENT ON COLUMN asis.trango_horario.jornada_laboral
+IS 'Cantidad de horas de la jornada laboral';
+
+COMMENT ON COLUMN asis.trango_horario.lunes
+IS 'Si el valor es verdadero, el horario considera el día lunes';
+
+COMMENT ON COLUMN asis.trango_horario.martes
+IS 'Si el valor es verdadero, el horario considera el día martes';
+
+COMMENT ON COLUMN asis.trango_horario.miercoles
+IS 'Si el valor es verdadero, el horario considera el día miercoles';
+
+COMMENT ON COLUMN asis.trango_horario.jueves
+IS 'Si el valor es verdadero, el horario considera el día jueves';
+
+COMMENT ON COLUMN asis.trango_horario.viernes
+IS 'Si el valor es verdadero, el horario considera el día viernes';
+
+COMMENT ON COLUMN asis.trango_horario.sabado
+IS 'Si el valor es verdadero, el horario considera el día sábado';
+
+CREATE TABLE asis.tasignar_rango (
+  asignar_rango SERIAL,
+  id_rango_horario INTEGER NOT NULL,
+  id_funcionario INTEGER,
+  id_uo SERIAL,
+  desde DATE,
+  hasta DATE,
+  id_grupo_asig INTEGER,
+  CONSTRAINT tasignar_rango_pkey PRIMARY KEY(asignar_rango)
+) INHERITS (pxp.tbase)
+WITH (oids = false);
+
+ALTER TABLE asis.tasignar_rango
+  ALTER COLUMN id_funcionario SET STATISTICS 0;
+
+ALTER TABLE asis.tasignar_rango
+  ALTER COLUMN id_uo SET STATISTICS 0;
+
+ALTER TABLE asis.tasignar_rango
+  ALTER COLUMN desde SET STATISTICS 0;
+/***********************************F-SCP-MMV-ASIS-2-22/12/2020****************************************/

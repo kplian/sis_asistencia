@@ -151,3 +151,13 @@ select wf.f_import_testructura_estado ('insert','vobo','rechazado','PER-ASI',1,'
 select wf.f_import_testructura_estado ('insert','aprobado','cancelado','PER-ASI',1,'','no');
 
 /***********************************F-DAT-MMV-ASIS-2-22/12/2020*****************************************/
+
+
+/***********************************I-DAT-MMV-ASIS-3-22/12/2020*****************************************/
+
+INSERT INTO asis.ttipo_permiso ("id_usuario_reg", "id_usuario_mod", "fecha_reg", "fecha_mod", "estado_reg", "id_usuario_ai", "usuario_ai", "obs_dba", "codigo", "nombre", "tiempo", "documento", "reposcion", "rango")
+VALUES 
+  (430, NULL, E'2020-10-13 14:47:31.558', NULL, E'activo', NULL, E'NULL', NULL, E'CPS', E'Caja Petrolera de Salud', E'00:00:00', E'si', E'no', E'si'),
+  (430, 430, E'2020-10-13 14:58:42.489', E'2020-10-13 15:05:55.161', E'activo', NULL, E'NULL', NULL, E'PER', E'Personal', E'01:30:00', E'no', E'si', E'si'),
+  (430, NULL, E'2020-10-13 15:06:15.776', NULL, E'activo', NULL, E'NULL', NULL, E'TRA', E'Trabajo', E'00:00:00', E'no', E'no', E'no');
+/***********************************F-DAT-MMV-ASIS-3-22/12/2020*****************************************/
