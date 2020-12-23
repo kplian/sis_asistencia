@@ -49,7 +49,7 @@ BEGIN
                                   mtd.id_centro_costo,
                                   mtd.ingreso_tarde,
                                   mtd.extra_autorizada,
-                                  va.nro_tramite  as tipo,
+                                  mtd.tipo,
                                   mtd.ingreso_noche,
                                   mtd.total_normal,
                                   mtd.estado_reg,
@@ -68,27 +68,20 @@ BEGIN
                                   mtd.id_usuario_mod,
                                   usu1.cuenta as usr_reg,
                                   usu2.cuenta as usr_mod,
-                                  initcap(cc.codigo_cc) as codigo_cc,
+                                  cc.codigo_cc,
                                   mtd.tipo_dos,
                                   mtd.tipo_tres,
-                                  mtd.total_comp, --#12
-                                  mes.estado,
-                                  mtd.extra,
-                                  mtd.fecha,
-                                  asis.f_literal_periodo(to_char(mtd.fecha::date,''MM'')::integer) as literal,
-                                  mtd.id_periodo
+                                  mtd.total_comp --#12
                                   from asis.tmes_trabajo_det mtd
                                   inner join segu.tusuario usu1 on usu1.id_usuario = mtd.id_usuario_reg
-                                  inner join asis.tmes_trabajo mes on mes.id_mes_trabajo = mtd.id_mes_trabajo
-                                  left join param.vcentro_costo cc on cc.id_centro_costo = mtd.id_centro_costo
+                                  inner join param.vcentro_costo cc on cc.id_centro_costo = mtd.id_centro_costo
                                   left join segu.tusuario usu2 on usu2.id_usuario = mtd.id_usuario_mod
-                                   left join asis.tvacacion va on va.id_vacacion = mtd.id_vacacion
                                   where  ';
 
 			--Definicion de la respuesta
 			v_consulta:=v_consulta||v_parametros.filtro;
 			v_consulta:=v_consulta||' order by ' ||v_parametros.ordenacion|| ' ' || v_parametros.dir_ordenacion || ' limit ' || v_parametros.cantidad || ' offset ' || v_parametros.puntero;
-			raise notice '%',v_consulta;
+
 			--Devuelve la respuesta
 			return v_consulta;
 
@@ -113,10 +106,8 @@ BEGIN
                                 COALESCE(sum(mtd.extra_autorizada),0) as suma_autorizada
 					    from asis.tmes_trabajo_det mtd
 					    inner join segu.tusuario usu1 on usu1.id_usuario = mtd.id_usuario_reg
-                        inner join asis.tmes_trabajo mes on mes.id_mes_trabajo = mtd.id_mes_trabajo
-                        left join param.vcentro_costo cc on cc.id_centro_costo = mtd.id_centro_costo
+                        inner join param.vcentro_costo cc on cc.id_centro_costo = mtd.id_centro_costo
                         left join segu.tusuario usu2 on usu2.id_usuario = mtd.id_usuario_mod
-                         left join asis.tvacacion va on va.id_vacacion = mtd.id_vacacion
 					    where ';
 
 			--Definicion de la respuesta
@@ -148,6 +139,3 @@ CALLED ON NULL INPUT
 SECURITY INVOKER
 PARALLEL UNSAFE
 COST 100;
-
-ALTER FUNCTION asis.ft_mes_trabajo_det_sel (p_administrador integer, p_id_usuario integer, p_tabla varchar, p_transaccion varchar)
-  OWNER TO postgres;
