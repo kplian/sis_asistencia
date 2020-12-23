@@ -152,6 +152,11 @@ class ACTPermiso extends ACTbase{
         $this->res=$this->objFunc->listarEstados($this->objParam);
         $this->res->imprimirRespuesta($this->res->generarJson());
     }
+    function permisoRol(){
+        $this->objFunc=$this->create('MODPermiso');
+        $this->res=$this->objFunc->permisoRol($this->objParam);
+        $this->res->imprimirRespuesta($this->res->generarJson());
+    }
 
 }
 

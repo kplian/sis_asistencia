@@ -40,7 +40,7 @@ BEGIN
  	#FECHA:		14-08-2019 12:53:11
 	***********************************/
 
-	if(p_transaccion='ASIS_CONDIA_SEL')then
+	if(p_transaccion='ASIS_COND_SEL')then
 
     	begin
     		--Sentencia de la consulta
@@ -86,7 +86,7 @@ BEGIN
  	#FECHA:		14-08-2019 12:53:11
 	***********************************/
 
-	elsif(p_transaccion='ASIS_CONDIA_CONT')then
+	elsif(p_transaccion='ASIS_COND_CONT')then
 
 		begin
 			--Sentencia de la consulta de conteo de registros
@@ -124,7 +124,5 @@ LANGUAGE 'plpgsql'
 VOLATILE
 CALLED ON NULL INPUT
 SECURITY INVOKER
+PARALLEL UNSAFE
 COST 100;
-
-ALTER FUNCTION asis.ft_ingreso_salida_sel (p_administrador integer, p_id_usuario integer, p_tabla varchar, p_transaccion varchar)
-  OWNER TO postgres;

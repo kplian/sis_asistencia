@@ -636,8 +636,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 this.movimientoVacacion(record.data.id_funcionario);
                 this.Cmp.id_responsable.modificado = true;
             },this);
-
-
+            this.onPermisoRol();
         },
         onCargarResponsable:function(id){
             this.Cmp.id_responsable.store.baseParams = Ext.apply(this.Cmp.id_responsable.store.baseParams, {id_funcionario: id});
@@ -668,7 +667,27 @@ header("content-type: text/javascript; charset=UTF-8");
                 this.movimientoVacacion(record.data.id_funcionario);
                 this.Cmp.id_responsable.modificado = true;
             },this);
+            this.onPermisoRol();
         },
+        onPermisoRol:function(){
+                Ext.Ajax.request({
+                            url:'../../sis_asistencia/control/Permiso/permisoRol',
+                            params:{ rol_asignado : 'ASIS - Rrhh'},
+                            success:function(resp){
+                                const reg = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));
+                                if (Number(reg.ROOT.datos.rol) === 1){
+                                    this.Cmp.id_funcionario.enable();
+
+                                }else{
+                                    this.Cmp.id_funcionario.disable(true);
+
+                                }
+                            },
+                            failure: this.conexionFailure,
+                            timeout:this.timeout,
+                            scope:this
+                        });
+            },
         onAtras :function (res) {
             var rec=this.sm.getSelected();
             Phx.CP.loadWindows('../../../sis_workflow/vista/estado_wf/AntFormEstadoWf.php',
