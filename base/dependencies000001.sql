@@ -75,62 +75,34 @@ select pxp.f_insert_testructura_gui ('MTO', 'HFT');
 select pxp.f_insert_testructura_gui ('VOM', 'HFT');
 select pxp.f_insert_testructura_gui ('CCT', 'HFT');
 /***********************************F-DEP-MMV-ASIS-18-26/09/2019*****************************************/
-/***********************************I-DEP-MMV-ASIS-20-23/10/2019*****************************************/
+/***********************************I-DEP-MMV-ASIS-1-22/12/2020*****************************************/
 select pxp.f_insert_testructura_gui ('ASIS', 'SISTEMA');
+select pxp.f_insert_testructura_gui ('TPS', 'PARM');
 select pxp.f_insert_testructura_gui ('AREP', 'ASIS');
-select pxp.f_insert_testructura_gui ('RTH', 'AREP');
+select pxp.f_insert_testructura_gui ('INGSAL', 'CONDIA');
 select pxp.f_insert_testructura_gui ('RRET', 'AREP');
+select pxp.f_insert_testructura_gui ('HFT', 'ASIS');
+select pxp.f_insert_testructura_gui ('MTO', 'HFT');
+select pxp.f_insert_testructura_gui ('VOM', 'SBO');
+select pxp.f_insert_testructura_gui ('CCT', 'HFT');
+select pxp.f_insert_testructura_gui ('RTH', 'AREP');
 select pxp.f_insert_testructura_gui ('PARM', 'ASIS');
 select pxp.f_insert_testructura_gui ('RHO', 'PARM');
-select pxp.f_insert_testructura_gui ('TPS', 'PARM');
 select pxp.f_insert_testructura_gui ('RMAR', 'AREP');
 select pxp.f_insert_testructura_gui ('TLS', 'PARM');
-select pxp.f_insert_testructura_gui ('APR', 'ASIS');
-select pxp.f_insert_testructura_gui ('PRH', 'APR');
-select pxp.f_insert_testructura_gui ('MVA', 'APR');
-select pxp.f_insert_testructura_gui ('MTO', 'APR');
+select pxp.f_insert_testructura_gui ('PRH', 'CON');
 select pxp.f_insert_testructura_gui ('SBO', 'ASIS');
-select pxp.f_insert_testructura_gui ('PERMI', 'APR');
-select pxp.f_insert_testructura_gui ('SOLVAC', 'APR');
-select pxp.f_insert_testructura_gui ('VOB', 'SBO');
-select pxp.f_insert_testructura_gui ('PVO', 'SBO');
-select pxp.f_insert_testructura_gui ('VOM', 'SBO');
-select pxp.f_insert_testructura_gui ('ASM', 'ASIS');
-select pxp.f_insert_testructura_gui ('MFS', 'ASM');
-select pxp.f_insert_testructura_gui ('marc', 'ASM');
-select pxp.f_insert_testructura_gui ('PAR', 'ASM');
-select pxp.f_insert_testructura_gui ('CCT', 'ASM');
-select pxp.f_insert_testructura_gui ('INGSAL', 'ASIS');
-/***********************************F-DEP-MMV-ASIS-20-23/10/2019*****************************************/
-
-
-/***********************************I-DEP-APS-ASIS-22-31/10/2019*****************************************/
-select pxp.f_insert_testructura_gui ('VACFUN', 'APR');
-/***********************************F-DEP-APS-ASIS-22-31/10/2019*****************************************/
-
-/***********************************I-DEP-MMV-ASIS-22-18/08/2020*****************************************/
-select pxp.f_insert_testructura_gui ('ASIS', 'SISTEMA');
-select pxp.f_insert_testructura_gui ('PARM', 'ASIS');
-select pxp.f_insert_testructura_gui ('RHO', 'PARM');
-select pxp.f_insert_testructura_gui ('TPS', 'PARM');
-select pxp.f_insert_testructura_gui ('TLS', 'PARM');
 select pxp.f_insert_testructura_gui ('PERMI', 'ASIS');
 select pxp.f_insert_testructura_gui ('SOLVAC', 'ASIS');
-select pxp.f_insert_testructura_gui ('CSA', 'ASIS');
-select pxp.f_insert_testructura_gui ('CON', 'ASIS');
-select pxp.f_insert_testructura_gui ('AREP', 'ASIS');
-select pxp.f_insert_testructura_gui ('HFT', 'ASIS');
-select pxp.f_insert_testructura_gui ('SBO', 'ASIS');
-select pxp.f_insert_testructura_gui ('CONDIA', 'ASIS');
-select pxp.f_insert_testructura_gui ('VACFUN', 'CON');
-select pxp.f_insert_testructura_gui ('PRH', 'CON');
-select pxp.f_insert_testructura_gui ('MAB', 'CON');
-select pxp.f_insert_testructura_gui ('RRET', 'AREP');
-select pxp.f_insert_testructura_gui ('MTO', 'HFT');
-select pxp.f_insert_testructura_gui ('CCT', 'HFT');
 select pxp.f_insert_testructura_gui ('VOB', 'SBO');
 select pxp.f_insert_testructura_gui ('PVO', 'SBO');
-select pxp.f_insert_testructura_gui ('VOM', 'SBO');
-select pxp.f_insert_testructura_gui ('INGSAL', 'CONDIA');
-/***********************************F-DEP-MMV-ASIS-22-18/08/2020*****************************************/
-
+select pxp.f_insert_testructura_gui ('VACFUN', 'CON');
+select pxp.f_insert_testructura_gui ('CSA', 'ASIS');
+select pxp.f_insert_testructura_gui ('CON', 'ASIS');
+select pxp.f_insert_testructura_gui ('MAB', 'CON');
+select pxp.f_insert_testructura_gui ('FERIA', 'PARM');
+select pxp.f_insert_testructura_gui ('RPN', 'CON');
+select pxp.f_insert_testructura_gui ('RVS', 'AREP');
+select pxp.f_insert_testructura_gui ('CPO', 'ASIS');
+select pxp.f_insert_testructura_gui ('CVR', 'ASIS');
+/***********************************F-DEP-MMV-ASIS-1-22/12/2020*****************************************/
