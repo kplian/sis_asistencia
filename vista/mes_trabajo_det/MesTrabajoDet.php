@@ -21,11 +21,8 @@ Phx.vista.MesTrabajoDet=Ext.extend(Phx.gridInterfaz,{
     	//llama al constructor de la clase padre
 		Phx.vista.MesTrabajoDet.superclass.constructor.call(this,config);
 		this.init();
-        this.finCons = true;
-
-       /* this.addButton('btmBorrarTodo',
+        this.addButton('btmBorrarTodo',
             {
-                grupo:[2,3],
                 text: 'Borrar Todo HT',  //#4
                 iconCls: 'bdel',
                 disabled: true,
@@ -34,14 +31,13 @@ Phx.vista.MesTrabajoDet=Ext.extend(Phx.gridInterfaz,{
         );
         this.addButton('btnTransaccionesUpload',
             {
-                grupo:[2,3],
                 text: 'Subir HT.',  //#4
                 iconCls: 'bchecklist',
                 disabled: true,
                 handler: this.SubirArchivo,
                 tooltip: '<b>Subir Transacciones</b><br/>desde Excel (xlsx).'
             }
-        );*/
+        );
 	},
 			
 	Atributos:[
@@ -66,173 +62,6 @@ Phx.vista.MesTrabajoDet=Ext.extend(Phx.gridInterfaz,{
 			form:true
 		},
         {
-            //configuracion del componente
-            config:{
-                labelSeparator:'',
-                inputType:'hidden',
-                name: 'fecha'
-            },
-            type:'Field',
-            form:true
-        },
-        /*{
-            //configuracion del componente
-            config:{
-                labelSeparator:'',
-                inputType:'hidden',
-                name: 'literal'
-            },
-            type:'Field',
-            form:true
-        },*/
-        {
-            config:{
-                name: 'dia',
-                fieldLabel: 'Dia',
-                allowBlank: false,
-                anchor: '80%',
-                gwidth: 80,
-                maxLength:4
-            },
-            type:'NumberField',
-            filters:{pfiltro:'mtd.dia',type:'numeric'},
-            id_grupo:1,
-            grid:true,
-            form:false
-        },
-        {
-            config:{
-                name: 'ingreso_manana',
-                fieldLabel: 'Ingreso / ma',
-                allowBlank: true,
-                anchor: '80%',
-                gwidth: 90,
-                maxLength:8,
-                renderer:function(value, p, record){
-                    color = '#3f54b8';
-                    if (record.data.ingreso_manana !== '00:00:00'){
-                        var color = '#000000';
-                    }
-                    return String.format('<b><font size = 1 color="'+color+'" >{0}</font></b>', value);
-                }
-            },
-            type:'TextField',
-            filters:{pfiltro:'mtd.ingreso_manana',type:'string'},
-            id_grupo:1,
-            grid:true,
-            form:false
-        },
-        {
-            config:{
-                name: 'salida_manana',
-                fieldLabel: 'Salida / ma',
-                allowBlank: false,
-                anchor: '80%',
-                gwidth: 90,
-                maxLength:8,
-                renderer:function(value, p, record){
-                    color = '#3f54b8';
-                    if (record.data.ingreso_manana !== '00:00:00'){
-                        var color = '#000000';
-                    }
-                    return String.format('<b><font size = 1 color="'+color+'" >{0}</font></b>', value);
-                }
-            },
-            type:'TextField',
-            filters:{pfiltro:'mtd.salida_manana',type:'string'},
-            id_grupo:1,
-            grid:true,
-            form:false
-        },
-        {
-            config:{
-                name: 'ingreso_tarde',
-                fieldLabel: 'Ingreso / ta',
-                allowBlank: true,
-                anchor: '80%',
-                gwidth: 90,
-                maxLength:8,
-                renderer:function(value, p, record){
-                    color = '#3f54b8';
-                    if (record.data.ingreso_tarde !== '00:00:00'){
-                        var color = '#000000';
-                    }
-                    return String.format('<b><font size = 1 color="'+color+'" >{0}</font></b>', value);
-                }
-            },
-            type:'TextField',
-            filters:{pfiltro:'mtd.ingreso_tarde',type:'string'},
-            id_grupo:1,
-            grid:true,
-            form:false
-        },
-        {
-            config:{
-                name: 'salida_tarde',
-                fieldLabel: 'Salida / ta',
-                allowBlank: true,
-                anchor: '80%',
-                gwidth: 90,
-                maxLength:8,
-                renderer:function(value, p, record){
-                    color = '#3f54b8';
-                    if (record.data.salida_tarde !== '00:00:00'){
-                        var color = '#000000';
-                    }
-                    return String.format('<b><font size = 1 color="'+color+'" >{0}</font></b>', value);
-                }
-            },
-            type:'TextField',
-            filters:{pfiltro:'mtd.salida_tarde',type:'string'},
-            id_grupo:1,
-            grid:true,
-            form:false
-        },
-        {
-            config:{
-                name: 'ingreso_noche',
-                fieldLabel: 'Ingreso / no',
-                allowBlank: true,
-                anchor: '80%',
-                gwidth: 90,
-                maxLength:8,
-                renderer:function(value, p, record){
-                    color = '#3f54b8';
-                    if (record.data.ingreso_noche !== '00:00:00'){
-                        var color = '#000000';
-                    }
-                    return String.format('<b><font size = 1 color="'+color+'" >{0}</font></b>', value);
-                }
-            },
-            type:'TextField',
-            filters:{pfiltro:'mtd.ingreso_noche',type:'string'},
-            id_grupo:1,
-            grid:true,
-            form:false
-        },
-        {
-            config:{
-                name: 'salida_noche',
-                fieldLabel: 'Salida / no',
-                allowBlank: true,
-                anchor: '80%',
-                gwidth: 90,
-                maxLength:8,
-                renderer:function(value, p, record){
-                    color = '#3f54b8';
-                    if (record.data.salida_noche !== '00:00:00'){
-                        var color = '#000000';
-                    }
-                    return String.format('<b><font size = 1 color="'+color+'" >{0}</font></b>', value);
-                }
-            },
-            type:'TextField',
-            filters:{pfiltro:'mtd.salida_noche',type:'string'},
-            id_grupo:1,
-            grid:true,
-            form:false
-        },
-        {
             config:{
                 name: 'id_centro_costo',
                 fieldLabel: 'Centro Costo',
@@ -248,6 +77,21 @@ Phx.vista.MesTrabajoDet=Ext.extend(Phx.gridInterfaz,{
             id_grupo: 0,
             grid:true,
             form: true
+        },
+        {
+            config:{
+                name: 'dia',
+                fieldLabel: 'Dia',
+                allowBlank: false,
+                anchor: '80%',
+                gwidth: 100,
+                maxLength:4
+            },
+            type:'NumberField',
+            filters:{pfiltro:'mtd.dia',type:'numeric'},
+            id_grupo:1,
+            grid:true,
+            form:false
         },
         {//#12
             config:{
@@ -317,14 +161,7 @@ Phx.vista.MesTrabajoDet=Ext.extend(Phx.gridInterfaz,{
                 maxLength:6553602,
                 renderer: function(value,p,record){
                     if(record.data.estado_reg != 'summary'){
-                        var color = '';
-                        if (value > 0){
-                            color = '#f93513';
-                        }else
-                        {
-                            color = '#000000';
-                        }
-                        return String.format('<b><font size=2 color="'+color+'" >{0}</font></b>', value);
+                        return String.format('<b><font size = 2 >{0}</font></b>', value);
                     }else{
                         var color = '';
                         if (value > 0){
@@ -345,20 +182,6 @@ Phx.vista.MesTrabajoDet=Ext.extend(Phx.gridInterfaz,{
         },
         {
             config:{
-                name: 'justificacion_extra',
-                fieldLabel: 'Justificacion hrs. extra',
-                allowBlank: false,
-                anchor: '80%',
-                gwidth: 240
-            },
-            type:'TextArea',
-            filters:{pfiltro:'mtd.justificacion_extra',type:'string'},
-            id_grupo:1,
-            grid:true,
-            form:false
-        },
-        {
-            config:{
                 name: 'total_nocturna',
                 fieldLabel: 'Total Nocturna',
                 allowBlank: false,
@@ -367,13 +190,7 @@ Phx.vista.MesTrabajoDet=Ext.extend(Phx.gridInterfaz,{
                 maxLength:6553602,
                 renderer: function(value,p,record){
                     if(record.data.estado_reg != 'summary'){
-                        var color = '';
-                        if (value > 0){
-                            color = '#b8510b';
-                        }else {
-                            color = '#000000';
-                        }
-                        return String.format('<b><font size=2 color="'+color+'" >{0}</font></b>', value);
+                        return String.format('<b><font size = 2 >{0}</font></b>', value);
                     }else{
                         var color = '';
                         if (value > 0){
@@ -423,8 +240,112 @@ Phx.vista.MesTrabajoDet=Ext.extend(Phx.gridInterfaz,{
         },
         {
             config:{
+                name: 'justificacion_extra',
+                fieldLabel: 'Justificacion Extra',
+                allowBlank: false,
+                anchor: '80%',
+                gwidth: 100
+            },
+            type:'TextArea',
+            filters:{pfiltro:'mtd.justificacion_extra',type:'string'},
+            id_grupo:1,
+            grid:true,
+            form:false
+        },
+        {
+			config:{
+				name: 'ingreso_manana',
+				fieldLabel: 'Ingreso Mañana',
+				allowBlank: true,
+				anchor: '80%',
+				gwidth: 100,
+				maxLength:8
+			},
+				type:'TextField',
+				filters:{pfiltro:'mtd.ingreso_manana',type:'string'},
+				id_grupo:1,
+				grid:true,
+				form:false
+		},
+        {
+            config:{
+                name: 'salida_manana',
+                fieldLabel: 'Salida Mañana',
+                allowBlank: false,
+                anchor: '80%',
+                gwidth: 100,
+                maxLength:8
+            },
+            type:'TextField',
+            filters:{pfiltro:'mtd.salida_manana',type:'string'},
+            id_grupo:1,
+            grid:true,
+            form:false
+        },
+		{
+			config:{
+				name: 'ingreso_tarde',
+				fieldLabel: 'Ingreso Tarde',
+				allowBlank: true,
+				anchor: '80%',
+				gwidth: 100,
+				maxLength:8
+			},
+				type:'TextField',
+				filters:{pfiltro:'mtd.ingreso_tarde',type:'string'},
+				id_grupo:1,
+				grid:true,
+				form:false
+		},
+        {
+            config:{
+                name: 'salida_tarde',
+                fieldLabel: 'Salida Tarde',
+                allowBlank: true,
+                anchor: '80%',
+                gwidth: 100,
+                maxLength:8
+            },
+            type:'TextField',
+            filters:{pfiltro:'mtd.salida_tarde',type:'string'},
+            id_grupo:1,
+            grid:true,
+            form:false
+        },
+        {
+            config:{
+                name: 'ingreso_noche',
+                fieldLabel: 'Ingreso Noche',
+                allowBlank: true,
+                anchor: '80%',
+                gwidth: 100,
+                maxLength:8
+            },
+            type:'TextField',
+            filters:{pfiltro:'mtd.ingreso_noche',type:'string'},
+            id_grupo:1,
+            grid:true,
+            form:false
+        },
+        {
+            config:{
+                name: 'salida_noche',
+                fieldLabel: 'Salida Noche',
+                allowBlank: true,
+                anchor: '80%',
+                gwidth: 100,
+                maxLength:8
+            },
+            type:'TextField',
+            filters:{pfiltro:'mtd.salida_noche',type:'string'},
+            id_grupo:1,
+            grid:true,
+            form:false
+        },
+        {
+            config:{
                 name: 'tipo',
-                fieldLabel: 'Tipo',
+                fieldLabel: 'Tipo Mañana',
                 allowBlank: false,
                 anchor: '80%',
                 gwidth: 100,
@@ -462,20 +383,6 @@ Phx.vista.MesTrabajoDet=Ext.extend(Phx.gridInterfaz,{
             },
             type:'TextField',
             filters:{pfiltro:'mtd.tipo_tres',type:'string'},
-            id_grupo:1,
-            grid:true,
-            form:false
-        },
-        {
-            config:{
-                name: 'literal',
-                fieldLabel: '',
-                allowBlank: false,
-                anchor: '80%',
-                gwidth: 100,
-                maxLength:6
-            },
-            type:'TextField',
             id_grupo:1,
             grid:true,
             form:false
@@ -628,11 +535,7 @@ Phx.vista.MesTrabajoDet=Ext.extend(Phx.gridInterfaz,{
         {name:'codigo_cc', type: 'string'},
         {name:'tipo_dos', type: 'string'},
         {name:'tipo_tres', type: 'string'},
-        {name:'total_comp', type: 'numeric'}, //#12
-        {name:'estado', type: 'string'},
-        {name:'extra', type: 'string'},
-        {name:'fecha', type: 'date',dateFormat:'Y-m-d'},
-        {name:'literal', type: 'string'}
+        {name:'total_comp', type: 'numeric'} //#12
 	],
 	sortInfo:{
 		field: 'id_mes_trabajo_det',
@@ -641,7 +544,16 @@ Phx.vista.MesTrabajoDet=Ext.extend(Phx.gridInterfaz,{
 	bdel:false,
 	bsave:false,
     bnew:false,
-    
+    onReloadPage:function(m){
+        this.maestro=m;
+        this.store.baseParams = {id_mes_trabajo: this.maestro.id_mes_trabajo};
+        Ext.apply(this.Cmp.id_centro_costo.store.baseParams,{id_gestion: this.maestro.id_gestion});
+        this.load({params:{start:0, limit:50}})
+    },
+    loadValoresIniciales: function () {
+        this.Cmp.id_mes_trabajo.setValue(this.maestro.id_mes_trabajo);
+        Phx.vista.MesTrabajoDet.superclass.loadValoresIniciales.call(this);
+    },
     SubirArchivo : function(rec) {
         Phx.CP.loadWindows('../../../sis_asistencia/vista/mes_trabajo_det/SubirArchivo.php',
             'Subir Transacciones desde Excel',
@@ -651,6 +563,33 @@ Phx.vista.MesTrabajoDet=Ext.extend(Phx.gridInterfaz,{
                 height:150
             },this.maestro,this.idContenedor,'SubirArchivo');
     },
+    preparaMenu:function(n){
+        var tb =this.tbar;
+        Phx.vista.MesTrabajoDet.superclass.preparaMenu.call(this,n);
+        if( this.maestro.estado == 'borrador'){
+            this.getBoton('edit').enable();
+            this.getBoton('btnTransaccionesUpload').enable();
+            this.getBoton('btmBorrarTodo').enable();
+        }else{
+            this.getBoton('edit').disable();
+            this.getBoton('btnTransaccionesUpload').disable();
+            this.getBoton('btmBorrarTodo').disable();
+        }
+        return tb;
+    },
+    liberaMenu: function() {
+        var tb = Phx.vista.MesTrabajoDet.superclass.liberaMenu.call(this);
+        if(tb){
+            if( this.maestro.estado != 'borrador'){ //#4
+                this.getBoton('btnTransaccionesUpload').disable();
+                this.getBoton('btmBorrarTodo').disable();
+            }
+            this.getBoton('edit').disable();
+
+        }
+        return tb;
+    },
+
     //#4
     borrarTodo:function () {
         Phx.CP.loadingShow();
