@@ -321,7 +321,7 @@ BEGIN
                                from orga.tfuncionario f
                                join orga.tuo_funcionario uf on uf.id_funcionario=f.id_funcionario
                                join orga.tcargo c on c.id_cargo=uf.id_cargo
-                               join orga.ttipo_contrato tc on tc.id_tipo_contrato=c.id_tipo_contrato and tc.codigo='PLA'
+                               join orga.ttipo_contrato tc on tc.id_tipo_contrato=c.id_tipo_contrato and tc.codigo in ('PLA','EVE')
                                where uf.fecha_asignacion<=now() and coalesce(uf.fecha_finalizacion, now())>=now()
                                and uf.estado_reg = 'activo' and uf.tipo = 'oficial') LOOP
 
@@ -407,13 +407,36 @@ BEGIN
 
                          UPDATE asis.tmovimiento_vacacion
                          SET activo = 'inactivo'
-                         WHERE id_movimiento_vacacion = v_record_ultima_vacacion.id_movimiento_vacacion::INTEGER;
+                         WHERE id_movimiento_vacacion = v_record_ultima_vacacion.id_movimiento_vacacion::INTEGER
+                         AND estado_reg = 'activo';
 
                  ELSE
 
-                         IF NOT EXISTS (SELECT * FROM asis.tmovimiento_vacacion mv where mv.id_funcionario=item.id_funcionario)THEN
-                              INSERT INTO asis.tmovimiento_vacacion (id_funcionario,desde,hasta,dias_actual,activo,dias,tipo  ,id_usuario_reg,fecha_reg,estado_reg )
-                              VALUES (item.id_funcionario,NULL,NULL,0::NUMERIC,'activo',NULL::NUMERIC, 'ACUMULADA',1,item.fecha_asignacion,'activo');
+                         IF NOT EXISTS (SELECT * 
+                         			    FROM asis.tmovimiento_vacacion mv 
+                                        where mv.id_funcionario=item.id_funcionario
+                                        and mv.estado_reg = 'activo')THEN
+                                        
+                              INSERT INTO asis.tmovimiento_vacacion ( id_funcionario,
+                                                                      desde,
+                                                                      hasta,
+                                                                      dias_actual,
+                                                                      activo,
+                                                                      dias,
+                                                                      tipo,
+                                                                      id_usuario_reg,
+                                                                      fecha_reg,
+                                                                      estado_reg )
+                                                            VALUES (item.id_funcionario,
+                                                                      NULL,
+                                                                      NULL,
+                                                                      0::NUMERIC,
+                                                                      'activo',
+                                                                      NULL::NUMERIC,
+                                                                      'ACUMULADA',
+                                                                      1,
+                                                                      item.fecha_asignacion,
+                                                                      'activo');
                          END IF;
                  END IF;
 

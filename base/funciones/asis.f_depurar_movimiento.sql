@@ -24,7 +24,10 @@ DECLARE
    v_funcionario_odt					record;
    v_fecha_anterior						date;
    v_diferencia							integer;
-
+   v_asignacion_anterior				date;
+   v_viaje								date;
+   
+   v_record_id							record;
 BEGIN
 
 	if (p_asignar) then
@@ -60,7 +63,7 @@ BEGIN
                               from orga.vfuncionario_cargo ca
                               inner join orga.tcargo car on car.id_cargo = ca.id_cargo
                               inner join orga.ttipo_contrato tc on car.id_tipo_contrato = tc.id_tipo_contrato
-                              where tc.codigo in ('PLA') -- and  ca.id_funcionario = 546
+                              where tc.codigo in ('PLA') --and  ca.id_funcionario = 702
                               and ca.fecha_asignacion <= p_fecha and (ca.fecha_finalizacion is null or ca.fecha_finalizacion >= p_fecha)
                               order by ca.id_funcionario, ca.fecha_asignacion desc) loop
                               
@@ -166,7 +169,7 @@ BEGIN
                               from orga.vfuncionario_cargo ca
                               inner join orga.tcargo car on car.id_cargo = ca.id_cargo
                               inner join orga.ttipo_contrato tc on car.id_tipo_contrato = tc.id_tipo_contrato
-                              where tc.codigo in ('EVE')  -- and  ca.id_funcionario = 546
+                              where tc.codigo in ('EVE')   --and  ca.id_funcionario = 702
                               and ca.fecha_asignacion <= p_fecha and (ca.fecha_finalizacion is null or ca.fecha_finalizacion >= p_fecha)
                               order by ca.id_funcionario, ca.fecha_asignacion desc) loop
                               
@@ -175,6 +178,39 @@ BEGIN
                         from asis.tmovimiento_vacacion mv
                         where mv.id_funcionario = v_funcionario_odt.id_funcionario
                               and mv.tipo_contrato = 'obra_det')then
+                              
+                              
+            		 select co.fecha_finalizacion, co.fecha_asignacion into v_fecha_anterior,v_asignacion_anterior
+                    from orga.vfuncionario_cargo co
+                    where co.id_funcionario = v_funcionario_odt.id_funcionario 
+                          and co.fecha_asignacion != v_funcionario_odt.fecha_asignacion
+                          order by co.fecha_asignacion desc limit 1;
+                    
+                    
+                     --raise notice 'fecha_asignacion %  v_fecha_anterior %',v_funcionario_odt.fecha_asignacion,v_fecha_anterior;
+
+                      
+                      SELECT EXTRACT(DAY FROM age(date(v_funcionario_odt.fecha_asignacion) ,date(v_fecha_anterior) ) ) as dif_dias into v_diferencia;
+                      -- raise notice 'direr %',v_diferencia;
+                       
+                       
+                      if (v_diferencia = 1) then
+                     
+                      
+                     	 v_viaje = asis.f_contratos_continuos (v_funcionario_odt.id_funcionario,1);
+                    
+                       update asis.tmovimiento_vacacion set
+                        estado_reg = 'activo'
+                        where id_funcionario =  v_funcionario_odt.id_funcionario
+                            and tipo_contrato = 'obra_det'
+                            and fecha_reg::date >= v_viaje; -- v_asignacion_anterior ;
+                      
+                             
+                     
+                      
+                      
+                      end if;
+                      
             
             		update asis.tmovimiento_vacacion set
                     estado_reg = 'activo'

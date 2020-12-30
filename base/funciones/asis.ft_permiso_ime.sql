@@ -829,6 +829,8 @@ BEGIN
 
 		begin
         
+         
+        if p_administrador != 1  then
         
         		if exists(select 1
                           from segu.vusuario u
@@ -843,6 +845,9 @@ BEGIN
                 	v_rol = 0;
                 
                 end if;
+        else
+        v_rol = 1;
+        end if;
 			
             --Definicion de la respuesta
             v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Rol Asignado)');
