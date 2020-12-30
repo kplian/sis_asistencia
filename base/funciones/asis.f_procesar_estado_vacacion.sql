@@ -1,5 +1,3 @@
---------------- SQL ---------------
-
 CREATE OR REPLACE FUNCTION asis.f_procesar_estado_vacacion (
   p_id_usuario integer,
   p_id_usuario_ai integer,
@@ -137,7 +135,7 @@ BEGIN
                va.codigo
               into v_record
         from asis.tmovimiento_vacacion va
-        where va.id_funcionario = v_registro.id_funcionario and va.activo = 'activo';
+        where va.id_funcionario = v_registro.id_funcionario and va.activo = 'activo' and  va.estado_reg = 'activo';
         
         v_evento = 'TOMADA';
         v_resultado =  v_record.dias_actual - v_registro.dias;
@@ -196,7 +194,7 @@ BEGIN
 
           update asis.tmovimiento_vacacion set
           activo = 'inactivo'
-          where id_movimiento_vacacion = v_record.id_movimiento_vacacion;
+          where id_movimiento_vacacion = v_record.id_movimiento_vacacion ;
 
         update asis.tvacacion  set
         id_estado_wf =  p_id_estado_wf,

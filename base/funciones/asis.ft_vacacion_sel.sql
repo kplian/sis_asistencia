@@ -35,6 +35,8 @@ DECLARE
     v_dias_incremento_vacacion     integer;
     v_record_ultima_vacacion       record;
 	v_id_funcionario	           integer;
+    v_id_funcionario_sol		   integer;
+    v_count						   integer;
 
 BEGIN
 
@@ -55,9 +57,41 @@ BEGIN
 
 
              if v_parametros.tipo_interfaz = 'SolicitudVacaciones'then
-                v_filtro = '';
-                  if p_administrador != 1  then
-                     v_filtro = 'vac.id_usuario_reg =  '||p_id_usuario||' and ';
+             
+             
+                select  fp.id_funcionario into v_id_funcionario_sol
+                from segu.vusuario usu
+                inner join orga.vfuncionario_persona fp on fp.id_persona = usu.id_persona
+                inner join asis.tpermiso p on p.id_funcionario = fp.id_funcionario
+                where usu.id_usuario  = p_id_usuario;
+                 
+                
+            
+                  select count(p.id_permiso) into v_count
+                  from asis.tpermiso p
+                  where p.id_usuario_reg = p_id_usuario;
+             
+                  v_filtro = '';
+                  
+                  if p_administrador != 1  then                   
+                   
+                   if v_id_funcionario_sol is null and v_count = 0 then
+                		
+             
+                		v_filtro = '( vac.id_usuario_reg = '||p_id_usuario|| ') and ';
+					
+                	else
+                  
+                      if (v_id_funcionario_sol is null)then
+                      
+                          v_filtro = '( vac.id_usuario_reg = '||p_id_usuario|| ') and ';
+                      
+                      else
+                          v_filtro = '(vac.id_funcionario = '||v_id_funcionario_sol||' or vac.id_usuario_reg = '||p_id_usuario|| ') and ';
+
+                      end if;
+
+                	end if;
                   end if;
             end if;
 
@@ -141,9 +175,41 @@ BEGIN
 
 		begin
           if v_parametros.tipo_interfaz = 'SolicitudVacaciones'then
-                v_filtro = '';
-                  if p_administrador != 1  then
-                     v_filtro = 'vac.id_usuario_reg =  '||p_id_usuario||' and ';
+          
+          
+                select  fp.id_funcionario into v_id_funcionario_sol
+                from segu.vusuario usu
+                inner join orga.vfuncionario_persona fp on fp.id_persona = usu.id_persona
+                inner join asis.tpermiso p on p.id_funcionario = fp.id_funcionario
+                where usu.id_usuario  = p_id_usuario;
+                 
+                
+            
+                  select count(p.id_permiso) into v_count
+                  from asis.tpermiso p
+                  where p.id_usuario_reg = p_id_usuario;
+             
+                  v_filtro = '';
+                  
+                  if p_administrador != 1  then                   
+                   
+                   if v_id_funcionario_sol is null and v_count = 0 then
+                		
+             
+                		v_filtro = '( vac.id_usuario_reg = '||p_id_usuario|| ') and ';
+					
+                	else
+                  
+                      if (v_id_funcionario_sol is null)then
+                      
+                          v_filtro = '( vac.id_usuario_reg = '||p_id_usuario|| ') and ';
+                      
+                      else
+                          v_filtro = '(vac.id_funcionario = '||v_id_funcionario_sol||' or vac.id_usuario_reg = '||p_id_usuario|| ') and ';
+
+                      end if;
+
+                	end if;
                   end if;
             end if;
 
@@ -206,6 +272,7 @@ BEGIN
                         from orga.tuo_funcionario uofun
                         inner join orga.tfuncionario fun on fun.id_funcionario = uofun.id_funcionario
                         inner join segu.vpersona pe on pe.id_persona = fun.id_persona
+                        inner join segu.vusuario uo on uo.id_persona = pe.id_persona
                         inner join orga.tcargo car on car.id_cargo = uofun.id_cargo
                         inner join orga.ttipo_contrato tc on car.id_tipo_contrato = tc.id_tipo_contrato
                         inner join orga.tuo dep ON dep.id_uo = orga.f_get_uo_departamento(uofun.id_uo, NULL::integer, NULL::date)
@@ -236,6 +303,7 @@ BEGIN
                           from orga.tuo_funcionario uofun
                           inner join orga.tfuncionario fun on fun.id_funcionario = uofun.id_funcionario
                           inner join segu.vpersona pe on pe.id_persona = fun.id_persona
+                          inner join segu.vusuario uo on uo.id_persona = pe.id_persona
                           inner join orga.tcargo car on car.id_cargo = uofun.id_cargo
                           inner join orga.ttipo_contrato tc on car.id_tipo_contrato = tc.id_tipo_contrato
                           inner join orga.tuo dep ON dep.id_uo = orga.f_get_uo_departamento(uofun.id_uo, NULL::integer, NULL::date)
@@ -251,6 +319,216 @@ BEGIN
 			return v_consulta;
 
 		end;
+       /*********************************
+         #TRANSACCION:  'ASIS_ASIGVAC_SEL'
+         #DESCRIPCION:   Cron Asigna vacaciones segun su fecha de contrato y copia los ultimos datos de feriados a a gestion actual
+         #AUTOR:            Juan
+         #FECHA:            15-10-2019 14:48:35
+        ***********************************/
+
+        elsif(p_transaccion='ASIS_ASIGVAC_SEL')then
+
+            begin
+
+                SELECT g.id_gestion
+                INTO
+                v_id_gestion_actual
+                FROM param.tgestion g
+                WHERE now() BETWEEN g.fecha_ini and g.fecha_fin;
+                    
+                select a.id_gestion
+                INTO
+                v_id_ultima_gestion_antiguedad
+                from param.tantiguedad a order by a.id_gestion desc limit 1;
+
+                IF NOT EXISTS(select * 
+                              from param.tantiguedad a 
+                              where a.id_gestion = v_id_gestion_actual)THEN
+
+                    INSERT INTO param.tantiguedad (
+                                categoria_antiguedad,
+                                dias_asignados,
+                                desde_anhos,
+                                hasta_anhos,
+                                obs_antiguedad,
+                                id_gestion,
+                                id_usuario_reg,
+                                fecha_reg,
+                                estado_reg
+                                )SELECT a.categoria_antiguedad,
+                                        a.dias_asignados,
+                                        a.desde_anhos,
+                                        a.hasta_anhos,
+                                        a.obs_antiguedad,
+                                        v_id_gestion_actual,
+                                        a.id_usuario_reg,
+                                        now()::TIMESTAMP,
+                                        a.estado_reg 
+                                        FROM param.tantiguedad a  
+                                        WHERE a.id_gestion = v_id_ultima_gestion_antiguedad 
+                                        ORDER BY a.id_antiguedad ASC;
+
+                END IF;
+
+
+                for item in(select f.id_funcionario,
+                                   uf.fecha_asignacion,
+                                   UF.fecha_finalizacion,
+                                   tc.nombre,tc.codigo
+                                   from orga.tfuncionario f
+                                   join orga.tuo_funcionario uf on uf.id_funcionario=f.id_funcionario
+                                   join orga.tcargo c on c.id_cargo=uf.id_cargo
+                                   join orga.ttipo_contrato tc on tc.id_tipo_contrato=c.id_tipo_contrato and tc.codigo in ('PLA','EVE')
+                                   where uf.fecha_asignacion<=now() and coalesce(uf.fecha_finalizacion, now())>=now()
+                                   and uf.estado_reg = 'activo' and uf.tipo = 'oficial') LOOP
+
+
+                     IF EXISTS(with antiguedad AS (SELECT mv.id_funcionario,
+                                                          (age(now()::date,mv.fecha_reg::date))::varchar as tiempo_transcurrido 
+                                                   FROM asis.tmovimiento_vacacion mv 
+                                                   WHERE mv.tipo='ACUMULADA' 
+                                                        AND mv.id_funcionario=item.id_funcionario 
+                                                        AND mv.estado_reg = 'activo'
+                                                   ORDER BY mv.fecha_reg DESC LIMIT 1 )
+                              SELECT a.id_funcionario,
+                                     a.tiempo_transcurrido
+                              from antiguedad a 
+                              where a.tiempo_transcurrido like '%year%')THEN
+
+                              WITH antiguedad AS
+                              (SELECT  mv.id_funcionario,
+                                       (age(now()::date,mv.fecha_reg::date))::varchar as tiempo_transcurrido,
+                                       (age(now()::date,item.fecha_asignacion::date))::varchar as tiempo_antiguedad,
+                                       mv.fecha_reg,
+                                       mv.id_movimiento_vacacion
+                               FROM asis.tmovimiento_vacacion mv
+                               WHERE mv.tipo='ACUMULADA' 
+                               AND mv.id_funcionario=item.id_funcionario
+                               AND mv.estado_reg = 'activo'
+                               ORDER BY mv.fecha_reg DESC LIMIT 1 )
+                              SELECT a.id_funcionario,
+                                    a.tiempo_transcurrido,
+                                    a.tiempo_antiguedad,
+                                    a.fecha_reg,
+                                    a.id_movimiento_vacacion
+                              INTO
+                              v_record_ultima_vacacion
+                              FROM antiguedad a
+                              WHERE a.tiempo_transcurrido LIKE '%year%';
+
+                             with dias as(SELECT
+                                          SPLIT_PART(v_record_ultima_vacacion.tiempo_transcurrido, 'year', 1) AS anios_pasado,
+                                          SPLIT_PART(v_record_ultima_vacacion.tiempo_transcurrido, 'year', 1) AS anios_antiguedad,
+                                          (v_record_ultima_vacacion.fecha_reg::date+'1 year'::interval)::date as nueva_fecha,
+                                          (select mv.dias_actual 
+                                          from asis.tmovimiento_vacacion mv 
+                                          where mv.id_funcionario=item.id_funcionario
+                                                AND mv.estado_reg = 'activo'
+                                          ORDER BY mv.fecha_reg desc limit 1 )::integer as dias_actual )
+                                          SELECT d.anios_pasado,d.anios_antiguedad,d.nueva_fecha,d.dias_actual
+                                          INTO
+                                          v_record_tiempo
+                                          FROM dias d;
+
+
+                             SELECT
+                             a.dias_asignados
+                             INTO
+                             v_dias_incremento_vacacion
+                             FROM param.tantiguedad a
+                             WHERE a.id_gestion=v_id_gestion_actual
+                             AND (v_record_tiempo.anios_antiguedad::INTEGER BETWEEN a.desde_anhos AND a.hasta_anhos );
+
+
+                             INSERT INTO asis.tmovimiento_vacacion ( id_funcionario,
+                                                                     desde,
+                                                                     hasta,
+                                                                     dias_actual,
+                                                                     activo,
+                                                                     dias,
+                                                                     tipo,
+                                                                     id_usuario_reg,
+                                                                     fecha_reg,
+                                                                     estado_reg
+                                                                     )VALUES(
+                                                                     item.id_funcionario,
+                                                                     NULL,
+                                                                     NULL,(
+                                                                     v_record_tiempo.dias_actual+v_dias_incremento_vacacion)::NUMERIC,
+                                                                     'activo',
+                                                                     v_dias_incremento_vacacion::NUMERIC,
+                                                                     'ACUMULADA',
+                                                                     1,
+                                                                     v_record_tiempo.nueva_fecha::TIMESTAMP,
+                                                                     'activo');
+
+                             UPDATE asis.tmovimiento_vacacion
+                             SET activo = 'inactivo'
+                             WHERE id_movimiento_vacacion = v_record_ultima_vacacion.id_movimiento_vacacion::INTEGER
+                             AND estado_reg = 'activo';
+
+                     ELSE
+
+                             IF NOT EXISTS (SELECT * 
+                                            FROM asis.tmovimiento_vacacion mv 
+                                            where mv.id_funcionario=item.id_funcionario
+                                            and mv.estado_reg = 'activo')THEN
+                                            
+                                  INSERT INTO asis.tmovimiento_vacacion ( id_funcionario,
+                                                                          desde,
+                                                                          hasta,
+                                                                          dias_actual,
+                                                                          activo,
+                                                                          dias,
+                                                                          tipo,
+                                                                          id_usuario_reg,
+                                                                          fecha_reg,
+                                                                          estado_reg )
+                                                                VALUES (item.id_funcionario,
+                                                                          NULL,
+                                                                          NULL,
+                                                                          0::NUMERIC,
+                                                                          'activo',
+                                                                          NULL::NUMERIC,
+                                                                          'ACUMULADA',
+                                                                          1,
+                                                                          item.fecha_asignacion,
+                                                                          'activo');
+                             END IF;
+                     END IF;
+
+                end loop;
+
+                ---------------------Copiar ultimos datos de feriados a la nueva gestion-----------------------
+                v_id_gestion_actual := null;
+                v_id_ultima_gestion_antiguedad := null;
+
+                select
+                max(f.id_gestion)
+                into
+                v_id_gestion_actual
+                from param.tferiado f;
+
+                select
+                f.id_gestion
+                into
+                v_id_ultima_gestion_antiguedad
+                from param.tgestion f
+                where f.id_gestion> v_id_gestion_actual::integer
+                order by f.id_gestion asc limit 1;
+
+                insert into param.tferiado
+                (id_usuario_reg,id_usuario_mod,fecha_reg,fecha_mod,estado_reg,id_usuario_ai,usuario_ai,id_lugar,descripcion,fecha,tipo,id_gestion)
+                select
+                id_usuario_reg,id_usuario_mod,fecha_reg,fecha_mod,estado_reg,id_usuario_ai,usuario_ai,id_lugar,descripcion,fecha,tipo,v_id_ultima_gestion_antiguedad
+                from param.tferiado  where id_gestion=v_id_gestion_actual;
+                --------------------------------------------------------------------------------------------------
+
+
+                v_consulta:='select a.dias_asignados from param.tantiguedad a ';
+                return v_consulta;
+            end;
+
 
 	else
 
