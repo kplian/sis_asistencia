@@ -34,7 +34,8 @@ DECLARE
     v_id_vacacion			integer;
     v_dias					numeric;
     v_dias_efectivo			numeric;
-    
+    v_id_funcionario		integer;
+    v_saldo					numeric;
 
 BEGIN
 
@@ -94,13 +95,23 @@ BEGIN
 
             from asis.tvacacion_det vd
             where vd.id_vacacion = v_id_vacacion) d;
-
-            -- raise exception '% id %',v_dias_efectivo,v_id_vacacion;
+            
+            
+           select v.id_funcionario into v_id_funcionario
+           from asis.tvacacion v
+           where v.id_vacacion = v_id_vacacion;
+           
+           select mo.dias_actual into v_saldo
+           from asis.tmovimiento_vacacion mo
+           where mo.id_funcionario = v_id_funcionario and 
+           		mo.estado_reg= 'activo' and activo = 'activo';
+            
 
 
             update asis.tvacacion  set
             dias_efectivo = v_dias_efectivo,
-            dias = v_dias_efectivo
+            dias = v_dias_efectivo,
+            saldo = v_saldo - v_dias_efectivo
             where  id_vacacion  = v_id_vacacion;
 
             
@@ -179,6 +190,3 @@ CALLED ON NULL INPUT
 SECURITY INVOKER
 PARALLEL UNSAFE
 COST 100;
-
-ALTER FUNCTION asis.ft_vacacion_det_ime (p_administrador integer, p_id_usuario integer, p_tabla varchar, p_transaccion varchar)
-  OWNER TO postgres;

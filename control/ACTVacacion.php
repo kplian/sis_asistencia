@@ -135,10 +135,7 @@ class ACTVacacion extends ACTbase{
         $date = date('d/m/Y');
 
         if( $this->objParam->getParametro('es_combo_solicitud') == 'si' ) {
-			
-			$this->objParam->addFiltro("uofun.id_funcionario in (select * 
-										from orga.f_get_funcionarios_x_usuario_asistente(''" . $date . "'', " .
-																						 $_SESSION["ss_id_usuario"] . ") AS (id_funcionario INTEGER)) ");
+            $this->objParam->addFiltro(" uo.id_usuario =".$_SESSION["ss_id_usuario"]."");
 		}
         $this->objFunc=$this->create('MODVacacion');
 		$this->res=$this->objFunc->listarFuncionarioOficiales($this->objParam);

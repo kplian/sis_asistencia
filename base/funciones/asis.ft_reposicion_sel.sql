@@ -70,7 +70,7 @@ BEGIN
                         inner join asis.tpermiso pe on pe.id_permiso = rpc.id_permiso
                         inner join asis.ttipo_permiso tp on tp.id_tipo_permiso = pe.id_tipo_permiso
 						left join segu.tusuario usu2 on usu2.id_usuario = rpc.id_usuario_mod
-				        where  ';
+				        where  rpc.id_usuario_reg ='||p_id_usuario||' and' ;
 			
 			--Definicion de la respuesta
 			v_consulta:=v_consulta||v_parametros.filtro;
@@ -99,7 +99,7 @@ BEGIN
                         inner join asis.tpermiso pe on pe.id_permiso = rpc.id_permiso
                         inner join asis.ttipo_permiso tp on tp.id_tipo_permiso = pe.id_tipo_permiso
 						left join segu.tusuario usu2 on usu2.id_usuario = rpc.id_usuario_mod
-					    where ';
+					    where  rpc.id_usuario_reg ='||p_id_usuario||' and';
 			
 			--Definicion de la respuesta		    
 			v_consulta:=v_consulta||v_parametros.filtro;
@@ -131,6 +131,3 @@ CALLED ON NULL INPUT
 SECURITY INVOKER
 PARALLEL UNSAFE
 COST 100;
-
-ALTER FUNCTION asis.ft_reposicion_sel (p_administrador integer, p_id_usuario integer, p_tabla varchar, p_transaccion varchar)
-  OWNER TO postgres;
