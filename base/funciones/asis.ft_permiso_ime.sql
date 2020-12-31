@@ -150,9 +150,6 @@ BEGIN
 
 
 
-
-
-
             if (v_record_tipo.tiempo::time > '00:00:00'::time ) then
 
                     if (v_record_tipo.reposcion = 'si')then
@@ -523,9 +520,6 @@ BEGIN
 
                      end if;
 
-
-
-
                 else
 
                    v_desde_hrs = now()::date ||' '||v_parametros.desde;
@@ -718,11 +712,11 @@ BEGIN
                                       now()::date,--par_fecha: Indica la fecha de vencimiento de la alarma
                                       'notificacion', --notificacion
                                       'Solicitud Permiso',  --asunto
-                                      v_permiso.id_usuario_reg,
+                                      p_id_usuario,
                                       '', --clase
                                       'Solicitud Permiso',--titulo
                                       '',--par_parametros varchar,   parametros a mandar a la interface de acceso directo
-                                      p_id_usuario, --usuario a quien va dirigida la alarma
+                                      v_permiso.id_usuario_reg, --usuario a quien va dirigida la alarma
                                       'Solicitud Permiso',--titulo correo
                                       '', --correo funcionario
                                       null,--#9
@@ -749,11 +743,11 @@ BEGIN
                                     now()::date,--par_fecha: Indica la fecha de vencimiento de la alarma
                                     'notificacion', --notificacion
                                     'Solicitud Permiso Aprobado',  --asunto
-                                    v_permiso.id_usuario_reg,
+                                    p_id_usuario,
                                     '', --clase
                                     'Solicitud Permiso Aprobado',--titulo
                                     '',--par_parametros varchar,   parametros a mandar a la interface de acceso directo
-                                    p_id_usuario, --usuario a quien va dirigida la alarma
+                                    v_permiso.id_usuario_reg, --usuario a quien va dirigida la alarma
                                     'Solicitud Permiso Aprobado',--titulo correo
                                     '', --correo funcionario
                                     null,--#9
@@ -778,11 +772,11 @@ BEGIN
                                     now()::date,--par_fecha: Indica la fecha de vencimiento de la alarma
                                     'notificacion', --notificacion
                                     'Solicitud Permiso Rechazado',  --asunto
-                                    v_permiso.id_usuario_reg,
+                                    p_id_usuario,
                                     '', --clase
                                     'Solicitud Permiso Rechazado',--titulo
                                     '',--par_parametros varchar,   parametros a mandar a la interface de acceso directo
-                                    p_id_usuario, --usuario a quien va dirigida la alarma
+                                    v_permiso.id_usuario_reg, --usuario a quien va dirigida la alarma
                                     'Solicitud Permiso Rechazado',--titulo correo
                                     '', --correo funcionario
                                     null,--#9
