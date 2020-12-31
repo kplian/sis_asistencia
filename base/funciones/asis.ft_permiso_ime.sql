@@ -696,7 +696,7 @@ BEGIN
                 end if;
                 
                 
-                if (v_permiso.id_funcionario_sol is null) then
+                if (v_permiso.id_funcionario_sol is not null) then
                 
                    v_descripcion_correo = '<h3><b>SOLICITUD DE PERMISO</b></h3>
                                           <p style="font-size: 15px;"><b>Tipo permiso:</b> '||v_vista_permiso.tipo_permiso||'</p>
@@ -706,7 +706,7 @@ BEGIN
                                           <p style="font-size: 15px;"><b>Justificacion:</b> '||v_vista_permiso.motivo||'</p>';
 
                   v_id_alarma = param.f_inserta_alarma(
-                                      v_registro.id_funcionario,
+                                      v_permiso.id_funcionario,
                                       v_descripcion_correo,--par_descripcion
                                       '',--acceso directo
                                       now()::date,--par_fecha: Indica la fecha de vencimiento de la alarma
@@ -717,11 +717,11 @@ BEGIN
                                       'Solicitud Permiso',--titulo
                                       '',--par_parametros varchar,   parametros a mandar a la interface de acceso directo
                                       v_permiso.id_usuario_reg, --usuario a quien va dirigida la alarma
-                                      'Solicitud Permiso',--titulo correo
+                                      '',--titulo correo
                                       '', --correo funcionario
                                       null,--#9
-                                      p_id_proceso_wf,
-                                      v_registro.id_estado_wf--#9
+                                      v_permiso.id_tipo_permiso,
+                                      v_permiso.id_estado_wf--#9
                                      );
                 end if;
 
@@ -737,7 +737,7 @@ BEGIN
                                         <p style="font-size: 15px;"><b>Justificacion:</b> '||v_vista_permiso.motivo||'</p>';
 
                 v_id_alarma = param.f_inserta_alarma(
-                                    v_registro.id_funcionario,
+                                    v_permiso.id_funcionario,
                                     v_descripcion_correo,--par_descripcion
                                     '',--acceso directo
                                     now()::date,--par_fecha: Indica la fecha de vencimiento de la alarma
@@ -745,14 +745,14 @@ BEGIN
                                     'Solicitud Permiso Aprobado',  --asunto
                                     p_id_usuario,
                                     '', --clase
-                                    'Solicitud Permiso Aprobado',--titulo
+                                    '',--titulo
                                     '',--par_parametros varchar,   parametros a mandar a la interface de acceso directo
                                     v_permiso.id_usuario_reg, --usuario a quien va dirigida la alarma
-                                    'Solicitud Permiso Aprobado',--titulo correo
+                                    '',--titulo correo
                                     '', --correo funcionario
                                     null,--#9
-                                    p_id_proceso_wf,
-                                    v_registro.id_estado_wf--#9
+                                    v_permiso.id_tipo_permiso,
+                                    v_permiso.id_estado_wf--#9
                                    );
 			   end if;
    
@@ -763,10 +763,11 @@ BEGIN
                                         <p style="font-size: 15px;"><b>Fecha solicitud:</b> '||v_vista_permiso.fecha_solicitud||'</p>
                                         <p style="font-size: 15px;"><b>Solicitud para:</b> '||v_vista_permiso.funcionario_solicitante||'</p>
                                         <p style="font-size: 15px;"><b>Desde:</b> '||v_vista_permiso.hro_desde||' <b>Hasta:</b> '||v_vista_permiso.hro_hasta||'</p>
-                                        <p style="font-size: 15px;"><b>Justificacion:</b> '||v_vista_permiso.motivo||'</p>';
+                                        <p style="font-size: 15px;"><b>Justificacion:</b> '||v_vista_permiso.motivo||'</p>
+                                        <p style="font-size: 15px;"><b>Obs.:</b> '||v_parametros.obs||'</p>';
 
                 v_id_alarma = param.f_inserta_alarma(
-                                    v_registro.id_funcionario,
+                                    v_permiso.id_funcionario,
                                     v_descripcion_correo,--par_descripcion
                                     '',--acceso directo
                                     now()::date,--par_fecha: Indica la fecha de vencimiento de la alarma
@@ -774,14 +775,14 @@ BEGIN
                                     'Solicitud Permiso Rechazado',  --asunto
                                     p_id_usuario,
                                     '', --clase
-                                    'Solicitud Permiso Rechazado',--titulo
+                                    '',--titulo
                                     '',--par_parametros varchar,   parametros a mandar a la interface de acceso directo
                                     v_permiso.id_usuario_reg, --usuario a quien va dirigida la alarma
-                                    'Solicitud Permiso Rechazado',--titulo correo
+                                    '',--titulo correo
                                     '', --correo funcionario
                                     null,--#9
-                                    p_id_proceso_wf,
-                                    v_registro.id_estado_wf--#9
+                                    v_permiso.id_tipo_permiso,
+                                    v_permiso.id_estado_wf--#9
                                    );
 			   end if;
 
