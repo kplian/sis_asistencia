@@ -57,11 +57,12 @@ BEGIN
             me.id_funcionario_sol,
             me.id_estado_wf,
             fu.desc_funcionario1,
-            to_char(me.fecha_reg::date, 'DD/MM/YYYY') as fecha_solicitud,
+            to_char(me.fecha_reg::date, 'DD/MM/YYYY') as fecha_solictudo,
             to_char(me.fecha_inicio,'DD/MM/YYYY') as fecha_inicio,
             to_char(me.fecha_fin, 'DD/MM/YYYY') as fecha_fin,
             me.descripcion,
-            me.dias
+            me.dias,
+            me.id_usuario_reg
             into
             v_registro
     from asis.tvacacion me
@@ -73,7 +74,7 @@ BEGIN
 
     		if (v_registro.id_funcionario_sol is not null)then
                 v_descripcion_correo = '<h3><b>SOLICITUD DE VACACIÓN</b></h3>
-                                      <p style="font-size: 15px;"><b>Fecha solicitud:</b> '||v_registro.fecha_solictud||' </p>
+                                      <p style="font-size: 15px;"><b>Fecha solicitud:</b> '||v_registro.fecha_solictudo||' </p>
                                       <p style="font-size: 15px;"><b>Solicitud para:</b> '||v_registro.desc_funcionario1||'</p>
                                       <p style="font-size: 15px;"><b>Desde:</b> '||v_registro.fecha_inicio||' <b>Hasta:</b> '||v_registro.fecha_fin||'</p>
                                       <p style="font-size: 15px;"><b>Días solicitados:</b> '||v_registro.dias||'</p>
@@ -91,7 +92,7 @@ BEGIN
                                     'Solicitud Vacacion',--titulo
                                     '',--par_parametros varchar,   parametros a mandar a la interface de acceso directo
                                     p_id_usuario, --usuario a quien va dirigida la alarma
-                                    'Solicitud Vacacion',--titulo correo
+                                    '',--titulo correo
                                     '', --correo funcionario
                                     null,--#9
                                     p_id_proceso_wf,
@@ -128,7 +129,7 @@ BEGIN
       id_usuario_ai = p_id_usuario_ai,
       usuario_ai = p_usuario_ai,
       fecha_mod=now(),
-       observaciones =  p_obs
+       observaciones = p_obs
       where id_proceso_wf = p_id_proceso_wf;
         
       return true;
@@ -175,7 +176,7 @@ BEGIN
                             tipo,
                             id_vacacion
                             )values(
-                             p_id_usuario,
+                             v_registro.id_usuario_reg,
                             null,
                             now(),
                             null,
@@ -213,7 +214,7 @@ BEGIN
           
           
            		v_descripcion_correo = '<h3><b>SOLICITUD DE VACACIÓN</b></h3>
-                                      <p style="font-size: 15px;"><b>Fecha solicitud:</b> '||v_registro.fecha_solictud||' </p>
+                                      <p style="font-size: 15px;"><b>Fecha solicitud:</b> '||v_registro.fecha_solictudo||' </p>
                                       <p style="font-size: 15px;"><b>Solicitud para:</b> '||v_registro.desc_funcionario1||'</p>
                                       <p style="font-size: 15px;"><b>Desde:</b> '||v_registro.fecha_inicio||' <b>Hasta:</b> '||v_registro.fecha_fin||'</p>
                                       <p style="font-size: 15px;"><b>Días solicitados:</b> '||v_registro.dias||'</p>
@@ -231,7 +232,7 @@ BEGIN
                                     'Solicitud Vacacion Aprobada',--titulo
                                     '',--par_parametros varchar,   parametros a mandar a la interface de acceso directo
                                     p_id_usuario, --usuario a quien va dirigida la alarma
-                                    'Solicitud Vacacion Aprobada',--titulo correo
+                                    '',--titulo correo
                                     '', --correo funcionario
                                     null,--#9
                                     p_id_proceso_wf,
@@ -309,7 +310,7 @@ BEGIN
         where id_proceso_wf = p_id_proceso_wf;
         
         v_descripcion_correo = '<h3><b>SOLICITUD DE VACACIÓN</b></h3>
-                                      <p style="font-size: 15px;"><b>Fecha solicitud:</b> '||v_registro.fecha_solictud||' </p>
+                                      <p style="font-size: 15px;"><b>Fecha solicitud:</b> '||v_registro.fecha_solictudo||' </p>
                                       <p style="font-size: 15px;"><b>Solicitud para:</b> '||v_registro.desc_funcionario1||'</p>
                                       <p style="font-size: 15px;"><b>Desde:</b> '||v_registro.fecha_inicio||' <b>Hasta:</b> '||v_registro.fecha_fin||'</p>
                                       <p style="font-size: 15px;"><b>Días solicitados:</b> '||v_registro.dias||'</p>
@@ -328,7 +329,7 @@ BEGIN
                                     'Solicitud Vacacion Rechazado',--titulo
                                     '',--par_parametros varchar,   parametros a mandar a la interface de acceso directo
                                     p_id_usuario, --usuario a quien va dirigida la alarma
-                                    'Solicitud Vacacion Rechazado',--titulo correo
+                                    '',--titulo correo
                                     '', --correo funcionario
                                     null,--#9
                                     p_id_proceso_wf,
