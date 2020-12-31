@@ -91,7 +91,7 @@ BEGIN
                                     '', --clase
                                     'Solicitud Vacacion',--titulo
                                     '',--par_parametros varchar,   parametros a mandar a la interface de acceso directo
-                                    p_id_usuario, --usuario a quien va dirigida la alarma
+                                    v_registro.id_usuario_reg, --usuario a quien va dirigida la alarma
                                     '',--titulo correo
                                     '', --correo funcionario
                                     null,--#9
@@ -231,7 +231,7 @@ BEGIN
                                     '', --clase
                                     'Solicitud Vacacion Aprobada',--titulo
                                     '',--par_parametros varchar,   parametros a mandar a la interface de acceso directo
-                                    p_id_usuario, --usuario a quien va dirigida la alarma
+                                    v_registro.id_usuario_reg, --usuario a quien va dirigida la alarma
                                     '',--titulo correo
                                     '', --correo funcionario
                                     null,--#9
@@ -328,7 +328,7 @@ BEGIN
                                     '', --clase
                                     'Solicitud Vacacion Rechazado',--titulo
                                     '',--par_parametros varchar,   parametros a mandar a la interface de acceso directo
-                                    p_id_usuario, --usuario a quien va dirigida la alarma
+                                    v_registro.id_usuario_reg, --usuario a quien va dirigida la alarma
                                     '',--titulo correo
                                     '', --correo funcionario
                                     null,--#9

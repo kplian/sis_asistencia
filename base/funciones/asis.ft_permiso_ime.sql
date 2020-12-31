@@ -53,9 +53,9 @@ DECLARE
     v_diferencia				time;
     v_registro_funcionario		record;
     v_consulta					varchar;
-    v_inicio	varchar;
-    v_fin		varchar;
-    v_record_tipo record;
+    v_inicio					varchar;
+    v_fin						varchar;
+    v_record_tipo 				record;
 
     v_desde_hrs timestamp;
 	v_hasta_hrs timestamp;
@@ -75,14 +75,14 @@ DECLARE
     v_record_solicitud	  		record;
     v_id_sol_funcionario		integer;
 
-    v_descripcion_correo    varchar;
-	v_id_alarma        		integer;
-    v_vista_permiso			record;
+    v_descripcion_correo    	varchar;
+	v_id_alarma        			integer;
+    v_vista_permiso				record;
 
     v_estado_maestro			varchar;
     v_id_estado_maestro 		integer;
     v_estado_record             record;
-    v_rol integer;
+    v_rol 						integer;
 BEGIN
 
     v_nombre_funcion = 'asis.ft_permiso_ime';
@@ -247,8 +247,7 @@ BEGIN
 			)RETURNING id_permiso into v_id_permiso;
 
 			if (v_record_tipo.documento = 'si') then
-/*                   	PERFORM	wf.f_inserta_documento_wf(p_id_usuario, v_parametros.id_proceso_wf, v_id_estado_actual);
-*/
+
                          INSERT INTO
                                 wf.tdocumento_wf
                               (
@@ -345,96 +344,7 @@ BEGIN
 
 		end;
 
-     /*********************************
- 	#TRANSACCION:  'ASIS_SIGPMO_IME'
- 	#DESCRIPCION:	siguiente
- 	#AUTOR:		miguel.mamani
- 	#FECHA:		31-01-2019 13:53:10
-	***********************************/
-
-	elsif(p_transaccion='ASIS_SIGPMO_IME')then
-
-		begin
-			--raise exception 'entra';
-        	select 	me.id_permiso,
-            		me.id_estado_wf,
-                    me.estado,
-                    me.nro_tramite
-                    into
-                    v_record
-            from asis.tpermiso me
-            where me.id_proceso_wf = v_parametros.id_proceso_wf_act;
-
-
-            select ew.id_tipo_estado,
-                   te.pedir_obs,
-                   ew.id_estado_wf
-             into
-              v_id_tipo_estado,
-              v_pedir_obs,
-              v_id_estado_wf
-            from wf.testado_wf ew
-            inner join wf.ttipo_estado te on te.id_tipo_estado = ew.id_tipo_estado
-            where ew.id_estado_wf =  v_parametros.id_estado_wf_act;
-
-            select te.codigo
-            	into
-               v_codigo_estado_siguiente
-            from wf.ttipo_estado te
-            where te.id_tipo_estado = v_parametros.id_tipo_estado;
-
-           IF  pxp.f_existe_parametro(p_tabla,'id_depto_wf') THEN
-           	 v_id_depto = v_parametros.id_depto_wf;
-           END IF;
-
-           IF  pxp.f_existe_parametro(p_tabla,'obs') THEN
-           	 v_obs = v_parametros.obs;
-           ELSE
-           	 v_obs='---';
-           END IF;
-
-           --configurar acceso directo para la alarma
-             v_acceso_directo = '';
-             v_clase = '';
-             v_parametros_ad = '';
-             v_tipo_noti = 'notificacion';
-             v_titulo  = 'Visto Bueno';
-
-
-             -- hay que recuperar el supervidor que seria el estado inmediato...
-            v_id_estado_actual = wf.f_registra_estado_wf(v_parametros.id_tipo_estado,
-                                                         v_parametros.id_funcionario_wf,
-                                                         v_parametros.id_estado_wf_act,
-                                                         v_parametros.id_proceso_wf_act,
-                                                         p_id_usuario,
-                                                         v_parametros._id_usuario_ai,
-                                                         v_parametros._nombre_usuario_ai,
-                                                         v_id_depto,
-                                                         COALESCE(v_record.nro_tramite,'--')||' Obs:'||v_obs,
-                                                         v_acceso_directo ,
-                                                         v_clase,
-                                                         v_parametros_ad,
-                                                         v_tipo_noti,
-                                                         v_titulo);
-
-                 update asis.tpermiso set
-                  id_estado_wf =  v_id_estado_actual,
-                  estado = v_codigo_estado_siguiente,
-                  id_usuario_mod = p_id_usuario,
-                  id_usuario_ai = v_parametros._id_usuario_ai,
-                  usuario_ai = v_parametros._nombre_usuario_ai,
-                  fecha_mod = now()
-                  where id_proceso_wf = v_parametros.id_proceso_wf_act;
-
-            --Definicion de la respuesta
-            v_resp = pxp.f_agrega_clave(v_resp,'mensaje','mes trabajo cambio de estado (a)');
-            v_resp = pxp.f_agrega_clave(v_resp,'id_proceso_wf_act',v_parametros.id_proceso_wf_act::varchar);
-
-            --Devuelve la respuesta
-            return v_resp;
-
-		end;
-     /*********************************
+    /*********************************
  	#TRANSACCION:  'ASIS_ANTPMO_IME'
  	#DESCRIPCION:	Estado Anterior
  	#AUTOR: MMV
@@ -558,7 +468,6 @@ BEGIN
         v_fin = null;
 
 
-       --  raise notice '%',v_consulta;
         	execute (v_consulta) into  v_inicio, v_fin;
 
        		if (v_inicio is null and v_fin is null )then
@@ -575,7 +484,7 @@ BEGIN
 
  		end;
 
-        /*********************************
+    /*********************************
  	#TRANSACCION:  'ASIS_RAN_IME'
  	#DESCRIPCION:  optener los rango del funcionario
  	#AUTOR: MMV
@@ -595,10 +504,7 @@ BEGIN
                       v_desde_alm = now()::date ||' '||'12:30:00';
                       v_hasta_alm = now()::date ||' '||'14:30:00';
 
-                     /* if (v_parametros.hasta::time between '12:30:00'::time and  '14:30:00'::time)then
-                          raise exception '% esta en rango de almuerzo',v_parametros.hasta;
-                      end if ;
-                      */
+                     
                       if(v_parametros.hasta::time >= '12:30:00'::time and  v_parametros.hasta::time <= '14:30:00'::time)then
                            v_almuerzo = true;
                       end if;
@@ -609,10 +515,7 @@ BEGIN
 
                      if (v_almuerzo) then
 
-                         /*v_resultado = COALESCE(
-                         COALESCE(asis.f_date_diff('minute', v_desde_hrs, v_hasta_hrs),0)/60::numeric - COALESCE(asis.f_date_diff('minute', v_desde_alm, v_hasta_alm),0)/60::numeric
-                         		,0);  */
-                                                         v_resultado =  COALESCE(COALESCE(asis.f_date_diff('minute', v_desde_hrs, v_hasta_hrs),0)/60::numeric,0);
+                         v_resultado =  COALESCE(COALESCE(asis.f_date_diff('minute', v_desde_hrs, v_hasta_hrs),0)/60::numeric,0);
 
 
                      else
@@ -703,9 +606,6 @@ BEGIN
                        v_titulo  = 'Visto Bueno';
 
 
-
-                       
-
                       		
                    		if( array_length(va_codigo_estado, 1) >= 2) then
 
@@ -743,23 +643,32 @@ BEGIN
                                                                       v_parametros_ad,
                                                                       v_tipo_noti,
                                                                       v_titulo);
-
+			 
+          
+          	 select pe.tipo_permiso,
+             	    pe.fecha_solicitud,
+                    pe.funcionario_solicitante,
+                    pe.hro_desde,
+                    pe.hro_hasta,
+                    pe.motivo
+                    into v_vista_permiso
+             from asis.vpermiso pe
+             where pe.id_proceso_wf = v_parametros.id_proceso_wf;
+          	
               if (v_estado_maestro = 'vobo')then
 
-
-                 select  tp.documento,
-                          tp.reposcion,
-                          tp.rango,
-                          tp.tiempo
-                          into
-                          v_record_tipo
-                  from asis.ttipo_permiso tp
-                  where tp.id_tipo_permiso  = v_permiso.id_tipo_permiso;
+                 	select  tp.documento,
+                            tp.reposcion,
+                            tp.rango,
+                            tp.tiempo
+                            into
+                            v_record_tipo
+                    from asis.ttipo_permiso tp
+                    where tp.id_tipo_permiso = v_permiso.id_tipo_permiso;
 
                 if (v_record_tipo.reposcion = 'si') then
 
-                      INSERT INTO  asis.treposicion
-                          (
+                      insert into  asis.treposicion(
                             id_usuario_reg,
                             id_usuario_mod,
                             fecha_reg,
@@ -774,8 +683,7 @@ BEGIN
                             evento,
                             tiempo,
                             id_transacion_zkb
-                          )
-                          VALUES (
+                            )values(
                             p_id_usuario,
                             null,
                             now(),
@@ -792,20 +700,106 @@ BEGIN
                             null
                           );
                 end if;
+                
+                
+                if (v_permiso.id_funcionario_sol is null) then
+                
+                   v_descripcion_correo = '<h3><b>SOLICITUD DE PERMISO</b></h3>
+                                          <p style="font-size: 15px;"><b>Tipo permiso:</b> '||v_vista_permiso.tipo_permiso||'</p>
+                                          <p style="font-size: 15px;"><b>Fecha solicitud:</b> '||v_vista_permiso.fecha_solicitud||'</p>
+                                          <p style="font-size: 15px;"><b>Solicitud para:</b> '||v_vista_permiso.funcionario_solicitante||'</p>
+                                          <p style="font-size: 15px;"><b>Desde:</b> '||v_vista_permiso.hro_desde||' <b>Hasta:</b> '||v_vista_permiso.hro_hasta||'</p>
+                                          <p style="font-size: 15px;"><b>Justificacion:</b> '||v_vista_permiso.motivo||'</p>';
+
+                  v_id_alarma = param.f_inserta_alarma(
+                                      v_registro.id_funcionario,
+                                      v_descripcion_correo,--par_descripcion
+                                      '',--acceso directo
+                                      now()::date,--par_fecha: Indica la fecha de vencimiento de la alarma
+                                      'notificacion', --notificacion
+                                      'Solicitud Permiso',  --asunto
+                                      v_permiso.id_usuario_reg,
+                                      '', --clase
+                                      'Solicitud Permiso',--titulo
+                                      '',--par_parametros varchar,   parametros a mandar a la interface de acceso directo
+                                      p_id_usuario, --usuario a quien va dirigida la alarma
+                                      'Solicitud Permiso',--titulo correo
+                                      '', --correo funcionario
+                                      null,--#9
+                                      p_id_proceso_wf,
+                                      v_registro.id_estado_wf--#9
+                                     );
+                end if;
 
                end if;
+			    
+               if (v_estado_maestro = 'aprobado')then
+					
+               v_descripcion_correo = '<h3><b>SOLICITUD DE PERMISO</b></h3>
+                                        <p style="font-size: 15px;"><b>Tipo permiso:</b> '||v_vista_permiso.tipo_permiso||'</p>
+                                        <p style="font-size: 15px;"><b>Fecha solicitud:</b> '||v_vista_permiso.fecha_solicitud||'</p>
+                                        <p style="font-size: 15px;"><b>Solicitud para:</b> '||v_vista_permiso.funcionario_solicitante||'</p>
+                                        <p style="font-size: 15px;"><b>Desde:</b> '||v_vista_permiso.hro_desde||' <b>Hasta:</b> '||v_vista_permiso.hro_hasta||'</p>
+                                        <p style="font-size: 15px;"><b>Justificacion:</b> '||v_vista_permiso.motivo||'</p>';
 
+                v_id_alarma = param.f_inserta_alarma(
+                                    v_registro.id_funcionario,
+                                    v_descripcion_correo,--par_descripcion
+                                    '',--acceso directo
+                                    now()::date,--par_fecha: Indica la fecha de vencimiento de la alarma
+                                    'notificacion', --notificacion
+                                    'Solicitud Permiso Aprobado',  --asunto
+                                    v_permiso.id_usuario_reg,
+                                    '', --clase
+                                    'Solicitud Permiso Aprobado',--titulo
+                                    '',--par_parametros varchar,   parametros a mandar a la interface de acceso directo
+                                    p_id_usuario, --usuario a quien va dirigida la alarma
+                                    'Solicitud Permiso Aprobado',--titulo correo
+                                    '', --correo funcionario
+                                    null,--#9
+                                    p_id_proceso_wf,
+                                    v_registro.id_estado_wf--#9
+                                   );
+			   end if;
+   
+               if (v_estado_maestro = 'rechazado')then
+               
+                v_descripcion_correo = '<h3><b>SOLICITUD DE PERMISO</b></h3>
+                                        <p style="font-size: 15px;"><b>Tipo permiso:</b> '||v_vista_permiso.tipo_permiso||'</p>
+                                        <p style="font-size: 15px;"><b>Fecha solicitud:</b> '||v_vista_permiso.fecha_solicitud||'</p>
+                                        <p style="font-size: 15px;"><b>Solicitud para:</b> '||v_vista_permiso.funcionario_solicitante||'</p>
+                                        <p style="font-size: 15px;"><b>Desde:</b> '||v_vista_permiso.hro_desde||' <b>Hasta:</b> '||v_vista_permiso.hro_hasta||'</p>
+                                        <p style="font-size: 15px;"><b>Justificacion:</b> '||v_vista_permiso.motivo||'</p>';
 
+                v_id_alarma = param.f_inserta_alarma(
+                                    v_registro.id_funcionario,
+                                    v_descripcion_correo,--par_descripcion
+                                    '',--acceso directo
+                                    now()::date,--par_fecha: Indica la fecha de vencimiento de la alarma
+                                    'notificacion', --notificacion
+                                    'Solicitud Permiso Rechazado',  --asunto
+                                    v_permiso.id_usuario_reg,
+                                    '', --clase
+                                    'Solicitud Permiso Rechazado',--titulo
+                                    '',--par_parametros varchar,   parametros a mandar a la interface de acceso directo
+                                    p_id_usuario, --usuario a quien va dirigida la alarma
+                                    'Solicitud Permiso Rechazado',--titulo correo
+                                    '', --correo funcionario
+                                    null,--#9
+                                    p_id_proceso_wf,
+                                    v_registro.id_estado_wf--#9
+                                   );
+			   end if;
 
-             update asis.tpermiso set
+              update asis.tpermiso set
               id_estado_wf =  v_id_estado_actual,
               estado = v_estado_maestro,
               id_usuario_mod = p_id_usuario,
               id_usuario_ai = v_parametros._id_usuario_ai,
               usuario_ai = v_parametros._nombre_usuario_ai,
               fecha_mod = now(),
-             observaciones = v_parametros.obs
-             where id_proceso_wf  = v_parametros.id_proceso_wf;
+              observaciones = v_parametros.obs
+              where id_proceso_wf  = v_parametros.id_proceso_wf;
 
             --Definicion de la respuesta
             v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Exito');
