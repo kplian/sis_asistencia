@@ -239,7 +239,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     }),
                     valueField: 'id_funcionario',
                     displayField: 'desc_funcionario',
-                    gdisplayField: 'responsable',
+                    gdisplayField: 'desc_funcionario1',
                     hiddenName: 'Funcionario',
                     tpl: '<tpl for="."><div class="x-combo-list-item"><p><b>{desc_funcionario}</b></p><p>{codigo}</p><p>{cargo}</p><p>{departamento}</p><p>{oficina}</p> </div></tpl>',
                     forceSelection: true,
@@ -249,8 +249,8 @@ header("content-type: text/javascript; charset=UTF-8");
                     mode: 'remote',
                     pageSize: 15,
                     queryDelay: 1000,
-                    width: 300,
-                    gwidth:200,
+                    width: 320,
+                    gwidth:220,
                     minChars: 2,
                     renderer:function(value, p, record){
                         if(record.data['funcionario_sol'] !== ''){
@@ -264,9 +264,11 @@ header("content-type: text/javascript; charset=UTF-8");
                     }
                 },
                 type: 'ComboBox',
+                filters:{pfiltro:'vf.desc_funcionario1',type:'string'},
                 id_grupo: 1,
                 grid: true,
-                form: true
+                form: true,
+                bottom_filter:true
             },
             {
 
@@ -651,7 +653,6 @@ header("content-type: text/javascript; charset=UTF-8");
         },
         onButtonEdit:function(){
             Phx.vista.Vacacion.superclass.onButtonEdit.call(this);
-            this.movimientoVacacion(Phx.CP.config_ini.id_funcionario);
             let inicio;
             this.Cmp.fecha_inicio.on('select', function(menu, record){
                 inicio = record;
@@ -661,6 +662,7 @@ header("content-type: text/javascript; charset=UTF-8");
             for(var i=0; i<=parseInt(this.Cmp.dias.getValue()); i++){
                 this.arrayStore.Selección[i]=["ID"+(i),(i)];
             }
+            this.movimientoVacacion(this.Cmp.id_funcionario.getValue());
             this.Cmp.id_funcionario.on('select', function(combo, record, index){
                 this.Cmp.id_responsable.reset();
                 this.Cmp.id_responsable.store.baseParams = Ext.apply(this.Cmp.id_responsable.store.baseParams, {id_funcionario: record.data.id_funcionario});
@@ -746,7 +748,9 @@ header("content-type: text/javascript; charset=UTF-8");
         onSiguiente :function () {
             Phx.CP.loadingShow();
             const rec = this.sm.getSelected(); //obtine los datos selecionado en la grilla
-            if(confirm('¿Enviar solicitud?')) {
+
+            console.log(rec);
+            if(confirm('¿Enviar solicitud a '+rec.data.responsable+'?')) {
                 Ext.Ajax.request({
                     url: '../../sis_asistencia/control/Vacacion/aprobarEstado',
                     params: {

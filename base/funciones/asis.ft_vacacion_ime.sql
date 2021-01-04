@@ -78,6 +78,11 @@ DECLARE
     v_estado_record             record;
     v_saldo_resgistro			numeric;
     v_operacion_reg					numeric;
+    v_actual_vacacion				record;
+    v_saldo_anterior				numeric;
+    v_saldo							numeric;
+    v_saldo_ant						numeric;
+    -- v_movimiento_vacacion			record;
 
 BEGIN
 
@@ -437,6 +442,70 @@ BEGIN
 
 		begin
 			--Sentencia de la modificacion
+            
+            select va.estado  into v_actual_vacacion
+            from asis.tvacacion va
+            where va.id_vacacion = v_parametros.id_vacacion;
+            
+            v_saldo = 0;
+            
+            if (v_actual_vacacion.estado = 'aprobado') then
+            	
+            	if exists (	select 1
+                            from asis.tmovimiento_vacacion mo 
+                            where mo.id_vacacion = v_parametros.id_vacacion)then
+                            
+                        select mm.id_movimiento_vacacion,
+                               mm.dias,
+                               mm.dias_actual into v_movimiento_vacacion
+                        from asis.tmovimiento_vacacion mm
+                        where mm.id_vacacion = v_parametros.id_vacacion
+                        	and mm.estado_reg = 'activo' and mm.activo='activo';    
+                            
+                            
+                            
+                            select ma.dias_actual into v_saldo_anterior
+                            from asis.tmovimiento_vacacion ma
+                            where ma.id_funcionario =  v_parametros.id_funcionario
+                            	and ma.estado_reg = 'activo'
+                            		and ma.fecha_reg = (select max(m.fecha_reg)
+                                                        from asis.tmovimiento_vacacion m
+                                                        where m.id_funcionario = v_parametros.id_funcionario
+                                                            and m.estado_reg = 'activo'
+                                                             and m.id_movimiento_vacacion != v_movimiento_vacacion.id_movimiento_vacacion);
+                            
+                            v_saldo = v_saldo_anterior - v_parametros.dias;
+                            
+                            update asis.tmovimiento_vacacion set
+                            dias = v_parametros.dias,
+                            dias_actual = v_saldo,
+                            desde = v_parametros.fecha_inicio,
+                            hasta =  v_parametros.fecha_fin
+                            where id_movimiento_vacacion = v_movimiento_vacacion.id_movimiento_vacacion;
+                            
+                           
+                else
+                	
+                	raise exception 'Comuníquese con el administrador.';
+                
+                end if;
+                        
+            end if;
+            
+            
+            if (v_saldo = 0)then	
+            
+            	     
+               select mo.dias_actual into v_saldo_ant
+               from asis.tmovimiento_vacacion mo
+               where mo.id_funcionario = v_parametros.id_funcionario and 
+                    mo.estado_reg= 'activo' and activo = 'activo';
+                    
+               -- raise exception '%',v_saldo_ant;
+               v_saldo = v_saldo_ant - v_parametros.dias;
+            
+            end if;
+   
 			update asis.tvacacion set
 			id_funcionario = v_parametros.id_funcionario,
 			fecha_inicio = v_parametros.fecha_inicio,
@@ -447,7 +516,8 @@ BEGIN
 			fecha_mod = now(),
 			id_usuario_ai = v_parametros._id_usuario_ai,
 			usuario_ai = v_parametros._nombre_usuario_ai,
-            id_responsable = v_parametros.id_responsable
+            id_responsable = v_parametros.id_responsable,
+            saldo = v_saldo
 			where id_vacacion=v_parametros.id_vacacion;
 
 
@@ -456,17 +526,6 @@ BEGIN
 
             for v_record_det in (select dia::date as dia
                                   from generate_series(v_parametros.fecha_inicio,v_parametros.fecha_fin, '1 day'::interval) dia)loop
-
-		/*	if exists (select 1
-                from asis.tpermiso p
-                where p.id_funcionario = v_parametros.id_funcionario
-                        and p.fecha_solicitud = v_record_det.dia
-                        and p.estado <> 'registro' )then
-
-            	raise exception 'Tienes un registro en permiso con esta fecha (%)',v_record_det.dia;
-
-            end if;*/
-
 
                 if extract(dow from v_record_det.dia::date) <> 0 then
                     if extract(dow from v_record_det.dia::date) <> 6 then
@@ -495,6 +554,8 @@ BEGIN
                         end if;
                     end if;
                 end loop;
+            
+            
 
 			--Definicion de la respuesta
             v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Vacación modificado(a)');
@@ -874,14 +935,6 @@ BEGIN
                                                'siguiente',
                                                p_id_usuario);
 
-
-/*
-                      v_acceso_directo = '';
-                      v_clase = '';
-                      v_parametros_ad = '';
-                      v_tipo_noti = 'notificacion';
-                      v_titulo  = 'Aprobado';*/
-                      
                       
                        v_acceso_directo = '../../../sis_asistencia/vista/vacacion/VacacionVoBo.php';
                        v_clase = 'VacacionVoBo';

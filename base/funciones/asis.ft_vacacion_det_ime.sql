@@ -34,9 +34,12 @@ DECLARE
     v_id_vacacion			integer;
     v_dias					numeric;
     v_dias_efectivo			numeric;
-    v_id_funcionario		integer;
+    --v_id_funcionario		integer;
     v_saldo					numeric;
-
+	v_vacacion 				record;
+    v_movimiento_vacacion	record;
+    v_saldo_ant				numeric;
+    v_saldo_anterior		numeric;
 BEGIN
 
     v_nombre_funcion = 'asis.ft_vacacion_det_ime';
@@ -53,6 +56,9 @@ BEGIN
 
         begin
         	--Sentencia de la insercion
+            
+            v_saldo = 0;
+            
         	select va.tiempo, va.id_vacacion into v_tiempo, v_id_vacacion
         	from asis.tvacacion_det va
         	where va.id_vacacion_det = v_parametros.id_vacacion_det;
@@ -96,22 +102,72 @@ BEGIN
             from asis.tvacacion_det vd
             where vd.id_vacacion = v_id_vacacion) d;
             
-            
-           select v.id_funcionario into v_id_funcionario
+           
+          
+           
+           select v.id_funcionario, v.estado, v.id_funcionario into v_vacacion
            from asis.tvacacion v
            where v.id_vacacion = v_id_vacacion;
            
-           select mo.dias_actual into v_saldo
-           from asis.tmovimiento_vacacion mo
-           where mo.id_funcionario = v_id_funcionario and 
-           		mo.estado_reg= 'activo' and activo = 'activo';
-            
+           
+           if (v_vacacion.estado = 'aprobado')then
+           			if exists (	select 1
+                            from asis.tmovimiento_vacacion mo 
+                            where mo.id_vacacion = v_id_vacacion)then
+                            
+                        select mm.id_movimiento_vacacion,
+                               mm.dias,
+                               mm.dias_actual into v_movimiento_vacacion
+                        from asis.tmovimiento_vacacion mm
+                        where mm.id_vacacion = v_id_vacacion
+                        	and mm.estado_reg = 'activo' and mm.activo='activo';    
+                            
+                            
+                            
+                            select ma.dias_actual into v_saldo_anterior
+                            from asis.tmovimiento_vacacion ma
+                            where ma.id_funcionario =  v_vacacion.id_funcionario
+                            	and ma.estado_reg = 'activo'
+                            		and ma.fecha_reg = (select max(m.fecha_reg)
+                                                        from asis.tmovimiento_vacacion m
+                                                        where m.id_funcionario = v_vacacion.id_funcionario
+                                                            and m.estado_reg = 'activo'
+                                                             and m.id_movimiento_vacacion != v_movimiento_vacacion.id_movimiento_vacacion);
+                            
+                            v_saldo = v_saldo_anterior - v_dias_efectivo;
+                            
+                            update asis.tmovimiento_vacacion set
+                            dias = v_dias_efectivo,
+                            dias_actual = v_saldo
+                            where id_movimiento_vacacion = v_movimiento_vacacion.id_movimiento_vacacion;
+                            
+                           
+                else
+                	
+                	raise exception 'Comuníquese con el administrador.';
+                
+                end if;
+           end if;
+           
+           
+           
+          	if (v_saldo = 0) then
+           
+               select mo.dias_actual into v_saldo_ant
+               from asis.tmovimiento_vacacion mo
+               where mo.id_funcionario = v_vacacion.id_funcionario and 
+                    mo.estado_reg= 'activo' and activo = 'activo';
+                    
+               v_saldo = v_saldo_ant - v_dias_efectivo;
+     
+			end if;
+
 
 
             update asis.tvacacion  set
             dias_efectivo = v_dias_efectivo,
             dias = v_dias_efectivo,
-            saldo = v_saldo - v_dias_efectivo
+            saldo = v_saldo
             where  id_vacacion  = v_id_vacacion;
 
             

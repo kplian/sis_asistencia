@@ -247,7 +247,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 field: 'fecha_dia',
                 direction: 'ASC'
             },
-            bdel:true,
+            bdel:false,
             bsave:false,
             bnew:false,
             bedit:false,
@@ -264,7 +264,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 const record = this.store.getAt(rowIndex),
                     fieldName = grid.getColumnModel().getDataIndex(columnIndex); // Get field name
                 if (fieldName === 'tiempo'){
-                    if(this.maestro.estado === 'registro')
+                    // if(this.maestro.estado === 'registro')
                         this.cambiarAsignacion(record,fieldName);
                 }
             },

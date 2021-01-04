@@ -16,7 +16,7 @@ header("content-type: text/javascript; charset=UTF-8");
         title:'VoBo Vacaciones', // nombre de interaz
         nombreVista: 'VacacionRrhh',
         bnew:false,
-        bedit:false,
+        bedit:true,
         bdel:false,
         bsave:false,
         tam_pag:50,
@@ -46,9 +46,12 @@ header("content-type: text/javascript; charset=UTF-8");
         bnewGroups:[0,3],
         bactGroups:[0,1,2,3,4,5],
         bdelGroups:[0],
-        beditGroups:[0],
+        beditGroups:[2,5],
         bexcelGroups:[0,1,2,3,4,5],
+        grupoDateFin: [2,4,5],
+
         constructor: function(config) {
+            this.initButtons=[];
             Phx.vista.VacacionRrhh.superclass.constructor.call(this, config);
             this.store.baseParams.tipo_interfaz = this.nombreVista;
             this.store.baseParams.pes_estado = 'vobo';
@@ -71,7 +74,48 @@ header("content-type: text/javascript; charset=UTF-8");
                 disabled:true,
                 handler:this.onCancelar,
                 tooltip: '<b>Cancelar</b><p>el vacacion en caso que no tomara </p>'});
+
+            this.campo_fecha = new Ext.form.DateField({
+                name: 'fecha_reg',
+                grupo: this.grupoDateFin,
+                fieldLabel: 'Fecha',
+                allowBlank: false,
+                anchor: '70%',
+                gwidth: 100,
+                format: 'd/m/Y',
+                hidden : false
+            });
+
+            this.campo_uo =  new Ext.form.ComboRec({
+                name:'id_uo',
+                hiddenName: 'id_uo',
+                grupo: this.grupoDateFin,
+                origen:'UO',
+                fieldLabel:'UO',
+                gdisplayField:'desc_uo',//mapea al store del grid
+                gwidth:200,
+                emptyText:'Dejar blanco para toda la empresa...',
+                width : 230,
+                baseParams: {nivel: '0,1,2'},
+                allowBlank:true
+
+            })
+
             this.getBoton('btn_cancelar').setVisible(false);
+            this.tbar.addField(this.campo_fecha);
+            this.tbar.addField(this.campo_uo);
+            this.campo_fecha.setValue(new Date());
+            this.store.baseParams.fecha = this.campo_fecha.getValue().dateFormat('Ymd');
+
+            this.campo_fecha.on('select',function(value){
+                this.store.baseParams.fecha = this.campo_fecha.getValue().dateFormat('Ymd');
+                this.load();
+            },this);
+
+            this.campo_uo.on('select',function(value){
+                this.store.baseParams.id_uo = this.campo_uo.getValue();
+                this.load();
+            },this);
 
             this.load({params: {start: 0, limit: this.tam_pag}});
         },
@@ -80,9 +124,9 @@ header("content-type: text/javascript; charset=UTF-8");
         },
         initFiltro: function(param){
             this.store.baseParams.param = 'si';
-            this.store.baseParams.desde = param.desde;
-            this.store.baseParams.hasta = param.hasta;
-            this.store.baseParams.id_uo = param.id_uo;
+           //  this.store.baseParams.desde = param.desde;
+           //  this.store.baseParams.hasta = param.hasta;
+           //  this.store.baseParams.id_uo = param.id_uo;
             this.load( { params: { start:0, limit: this.tam_pag } });
         },
         preparaMenu:function(n){
@@ -142,11 +186,12 @@ header("content-type: text/javascript; charset=UTF-8");
             }
             Phx.CP.loadingHide();
         },
-        south:{
-            url:'../../../sis_asistencia/vista/vacacion_det/VacacionDetVoBo.php',
+        east:{
+            url:'../../../sis_asistencia/vista/vacacion_det/VacacionDet.php',
             title:'Detalle',
-            height:'50%',
-            cls:'VacacionDetVoBo'
+            // height:'50%',
+            width:'40%',
+            cls:'VacacionDet'
         }
     };
 </script>
