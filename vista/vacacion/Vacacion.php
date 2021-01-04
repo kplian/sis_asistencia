@@ -663,10 +663,12 @@ header("content-type: text/javascript; charset=UTF-8");
                 this.arrayStore.Selección[i]=["ID"+(i),(i)];
             }
             this.movimientoVacacion(this.Cmp.id_funcionario.getValue());
+            this.onCargarResponsable(this.Cmp.id_funcionario.getValue());
             this.Cmp.id_funcionario.on('select', function(combo, record, index){
                 this.Cmp.id_responsable.reset();
                 this.Cmp.id_responsable.store.baseParams = Ext.apply(this.Cmp.id_responsable.store.baseParams, {id_funcionario: record.data.id_funcionario});
                 this.movimientoVacacion(record.data.id_funcionario);
+                this.onCargarResponsable(record.data.id_funcionario);
                 this.Cmp.id_responsable.modificado = true;
             },this);
             this.onPermisoRol();
