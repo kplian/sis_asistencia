@@ -75,6 +75,14 @@ header("content-type: text/javascript; charset=UTF-8");
                 handler:this.onCancelar,
                 tooltip: '<b>Cancelar</b><p>el vacacion en caso que no tomara </p>'});
 
+            this.addButton('btn_reenviar',{grupo:[2],
+                text:'Reenviar correo',
+                iconCls: 'bemail',
+                disabled:true,
+                handler:this.onReenviar,
+                tooltip: '<b>Reenviar</b><p>al responsable asignado de la solicitud</p>'
+            });
+
             this.campo_fecha = new Ext.form.DateField({
                 name: 'fecha_reg',
                 grupo: this.grupoDateFin,
@@ -135,6 +143,7 @@ header("content-type: text/javascript; charset=UTF-8");
             this.getBoton('diagrama_gantt').enable();
             this.getBoton('btn_siguiente').enable();
             this.getBoton('btn_cancelar').enable();
+            this.getBoton('btn_reenviar').enable();
         },
         liberaMenu:function() {
             var tb = Phx.vista.VacacionRrhh.superclass.liberaMenu.call(this);
@@ -143,6 +152,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 this.getBoton('diagrama_gantt').disable();
                 this.getBoton('btn_siguiente').disable();
                 this.getBoton('btn_cancelar').disable();
+                this.getBoton('btn_reenviar').disable();
             }
         },
         onSiguiente :function () {
@@ -186,11 +196,28 @@ header("content-type: text/javascript; charset=UTF-8");
             }
             Phx.CP.loadingHide();
         },
+        onReenviar:function () {
+            Phx.CP.loadingShow();
+            const rec = this.sm.getSelected(); //obtine los datos selecionado en la grilla
+            if(confirm('¿Desea Reenviar el correo?')) {
+                Ext.Ajax.request({
+                    url: '../../sis_asistencia/control/Vacacion/reenviarCorreo',
+                    params: {
+                        id_vacacion:  rec.data.id_vacacion
+                    },
+                    success: this.successWizard,
+                    failure: this.conexionFailure,
+                    timeout: this.timeout,
+                    scope: this
+                });
+            }
+            Phx.CP.loadingHide();
+        },
         east:{
             url:'../../../sis_asistencia/vista/vacacion_det/VacacionDet.php',
             title:'Detalle',
             // height:'50%',
-            width:'40%',
+            width:'35%',
             cls:'VacacionDet'
         }
     };

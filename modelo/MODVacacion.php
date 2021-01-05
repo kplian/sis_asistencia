@@ -252,7 +252,6 @@ class MODVacacion extends MODbase{
         //Devuelve la respuesta
         return $this->respuesta;
 	}
-	
 	function aprobarEstado(){
         //Definicion de variables para ejecucion del procedimiento
         $this->procedimiento='asis.ft_vacacion_ime';
@@ -289,6 +288,21 @@ class MODVacacion extends MODbase{
 		//Devuelve la respuesta
 		return $this->respuesta;
 	}
+    function reenviarCorreo(){
+        //Definicion de variables para ejecucion del procedimiento
+        $this->procedimiento='asis.ft_vacacion_ime';
+        $this->transaccion='ASIS_EMAIL_INS';
+        $this->tipo_procedimiento='IME';
 
+        //Define los parametros para la funcion
+        $this->setParametro('id_vacacion','id_vacacion','int4');
+
+        //Ejecuta la instruccion
+        $this->armarConsulta();
+        $this->ejecutarConsulta();
+
+        //Devuelve la respuesta
+        return $this->respuesta;
+    }
 }
 ?>

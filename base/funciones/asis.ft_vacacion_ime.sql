@@ -82,6 +82,10 @@ DECLARE
     v_saldo_anterior				numeric;
     v_saldo							numeric;
     v_saldo_ant						numeric;
+    v_registro						record;
+    v_descripcion_correo    		varchar;
+    v_id_alarma        				integer;
+    
     -- v_movimiento_vacacion			record;
 
 BEGIN
@@ -883,7 +887,7 @@ BEGIN
 
 		end;
 
-        /****************************************************
+    /****************************************************
     #TRANSACCION:     'ASIS_VVB_IME'
     #DESCRIPCION:     Cambiar de estado
     #AUTOR:           MMV
@@ -1007,6 +1011,78 @@ BEGIN
 
 
  		end;
+    
+    /*********************************
+ 	#TRANSACCION:  'ASIS_EMAIL_INS'
+ 	#DESCRIPCION:	Reenviar Correo
+ 	#AUTOR:		MMV
+ 	#FECHA:		5-1-2021 
+	***********************************/
+
+	elsif(p_transaccion='ASIS_EMAIL_INS')then
+
+		begin
+			--Sentencia de la modificacion
+            
+            	select 	me.id_vacacion,
+                        me.fecha_inicio,
+                        me.fecha_fin,
+                        me.dias,
+                        me.id_funcionario,
+                        me.prestado,
+                        me.id_funcionario_sol,
+                        me.id_estado_wf,
+                        fu.desc_funcionario1,
+                        to_char(me.fecha_reg::date, 'DD/MM/YYYY') as fecha_solictudo,
+                        to_char(me.fecha_inicio,'DD/MM/YYYY') as fecha_inicio,
+                        to_char(me.fecha_fin, 'DD/MM/YYYY') as fecha_fin,
+                        me.descripcion,
+                        me.dias,
+                        me.id_usuario_reg,
+                        me.id_proceso_wf,
+                        me.id_responsable
+                        into
+                        v_registro
+                from asis.tvacacion me
+                inner join orga.vfuncionario fu on fu.id_funcionario = me.id_funcionario
+                where me.id_vacacion = v_parametros.id_vacacion;
+
+            
+               v_descripcion_correo = '<h3><b>SOLICITUD DE VACACIÓN</b></h3>
+                                      <p style="font-size: 15px;"><b>Fecha solicitud:</b> '||v_registro.fecha_solictudo||' </p>
+                                      <p style="font-size: 15px;"><b>Solicitud para:</b> '||v_registro.desc_funcionario1||'</p>
+                                      <p style="font-size: 15px;"><b>Desde:</b> '||v_registro.fecha_inicio||' <b>Hasta:</b> '||v_registro.fecha_fin||'</p>
+                                      <p style="font-size: 15px;"><b>Días solicitados:</b> '||v_registro.dias||'</p>
+                                      <p style="font-size: 15px;"><b>Justificación:</b> '||v_registro.descripcion||'</p>';
+
+                v_id_alarma = param.f_inserta_alarma(
+                                    v_registro.id_responsable,
+                                    v_descripcion_correo,--par_descripcion
+                                    '',--acceso directo
+                                    now()::date,--par_fecha: Indica la fecha de vencimiento de la alarma
+                                    'notificacion', --notificacion
+                                    'Solicitud Vacacion',  --asunto
+                                    p_id_usuario,
+                                    '', --clase
+                                    'Solicitud Vacacion',--titulo
+                                    '',--par_parametros varchar,   parametros a mandar a la interface de acceso directo
+                                    v_registro.id_usuario_reg, --usuario a quien va dirigida la alarma
+                                    '',--titulo correo
+                                    '', --correo funcionario
+                                    null,--#9
+                                    v_registro.id_proceso_wf,
+                                    v_registro.id_estado_wf--#9
+                                   );
+
+
+			--Definicion de la respuesta
+            v_resp = pxp.f_agrega_clave(v_resp,'mensaje','El existo papu');
+            v_resp = pxp.f_agrega_clave(v_resp,'id_vacacion',v_parametros.id_vacacion::varchar);
+
+            --Devuelve la respuesta
+            return v_resp;
+
+		end;
 
 	else
 
