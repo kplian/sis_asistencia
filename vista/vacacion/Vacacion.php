@@ -626,7 +626,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         this.Cmp.id_funcionario.fireEvent('select', this.Cmp.id_funcionario, r[0]);
                         this.Cmp.id_funcionario.modificado = true;
                         this.Cmp.id_funcionario.collapse();
-                        this.onCargarResponsable(r[0].data.id_funcionario);
+                        this.onCargarResponsable(r[0].data.id_funcionario,true);
                     }
 
                 }, scope : this
@@ -640,17 +640,7 @@ header("content-type: text/javascript; charset=UTF-8");
             },this);
             this.onPermisoRol();
         },
-        onCargarResponsable:function(id){
-            this.Cmp.id_responsable.store.baseParams = Ext.apply(this.Cmp.id_responsable.store.baseParams, {id_funcionario: id});
-            this.Cmp.id_responsable.modificado = true;
-            this.Cmp.id_responsable.store.load({params:{start:0,limit:this.tam_pag ,id_funcionario: id },
-                callback : function (r) {
-                    this.Cmp.id_responsable.setValue(r[0].data.id_funcionario);
-                    this.Cmp.id_responsable.fireEvent('select', this.Cmp.id_responsable, r[0]);
-                    this.Cmp.id_responsable.collapse();
-                }, scope : this
-            });
-        },
+
         onButtonEdit:function(){
             Phx.vista.Vacacion.superclass.onButtonEdit.call(this);
             let inicio;
@@ -663,15 +653,37 @@ header("content-type: text/javascript; charset=UTF-8");
                 this.arrayStore.Selección[i]=["ID"+(i),(i)];
             }
             this.movimientoVacacion(this.Cmp.id_funcionario.getValue());
-            this.onCargarResponsable(this.Cmp.id_funcionario.getValue());
+            this.onCargarResponsable(this.Cmp.id_funcionario.getValue(),false);
+
+
             this.Cmp.id_funcionario.on('select', function(combo, record, index){
                 this.Cmp.id_responsable.reset();
                 this.Cmp.id_responsable.store.baseParams = Ext.apply(this.Cmp.id_responsable.store.baseParams, {id_funcionario: record.data.id_funcionario});
                 this.movimientoVacacion(record.data.id_funcionario);
-                this.onCargarResponsable(record.data.id_funcionario);
+                this.onCargarResponsable(record.data.id_funcionario,true);
                 this.Cmp.id_responsable.modificado = true;
             },this);
+
+
             this.onPermisoRol();
+        },
+        onCargarResponsable:function(id, filtro = true){
+            const rec = this.sm.getSelected();
+
+            console.log(rec)
+
+            this.Cmp.id_responsable.store.baseParams = Ext.apply(this.Cmp.id_responsable.store.baseParams, {id_funcionario: id});
+            this.Cmp.id_responsable.modificado = true;
+            if(filtro) {
+                this.Cmp.id_responsable.store.load({
+                    params: {start: 0, limit: this.tam_pag, id_funcionario: id},
+                    callback: function (r) {
+                        this.Cmp.id_responsable.setValue(r[0].data.id_funcionario);
+                        this.Cmp.id_responsable.fireEvent('select', this.Cmp.id_responsable, r[0]);
+                        this.Cmp.id_responsable.collapse();
+                    }, scope: this
+                });
+            }
         },
         onPermisoRol:function(){
                 Ext.Ajax.request({
@@ -885,5 +897,3 @@ header("content-type: text/javascript; charset=UTF-8");
         },
     })
 </script>
-
-		
