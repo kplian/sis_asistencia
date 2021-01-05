@@ -525,11 +525,38 @@ BEGIN
 			where id_vacacion=v_parametros.id_vacacion;
 
 
+			select l.codigo
+            into v_lugar
+            from segu.tusuario us
+            join segu.tpersona p on p.id_persona=us.id_persona
+            join orga.tfuncionario f on f.id_persona = p.id_persona
+            join orga.tuo_funcionario uf on uf.id_funcionario=f.id_funcionario
+            join orga.tcargo c on c.id_cargo=uf.id_cargo
+            join param.tlugar l on l.id_lugar=c.id_lugar
+            where uf.estado_reg = 'activo' and uf.tipo = 'oficial' 
+            and uf.fecha_asignacion<=now() 
+            and coalesce(uf.fecha_finalizacion, now())>=now() and uf.id_funcionario = v_parametros.id_funcionario;
+
+			
+            SELECT g.id_gestion
+            INTO
+            v_id_gestion_actual
+            FROM param.tgestion g
+            WHERE now() BETWEEN g.fecha_ini and g.fecha_fin;
+
+
             delete from asis.tvacacion_det vd
             where vd.id_vacacion = v_parametros.id_vacacion;
 
             for v_record_det in (select dia::date as dia
                                   from generate_series(v_parametros.fecha_inicio,v_parametros.fecha_fin, '1 day'::interval) dia)loop
+
+			IF NOT EXISTS(select * from param.tferiado f
+                          JOIN param.tlugar l on l.id_lugar = f.id_lugar
+                          WHERE l.codigo in ('BO',v_lugar)
+                          AND (EXTRACT(MONTH from f.fecha))::integer = (EXTRACT(MONTH from v_record_det.dia::date))::integer
+                          AND (EXTRACT(DAY from f.fecha))::integer = (EXTRACT(DAY from v_record_det.dia)) AND f.id_gestion=v_id_gestion_actual )THEN
+    
 
                 if extract(dow from v_record_det.dia::date) <> 0 then
                     if extract(dow from v_record_det.dia::date) <> 6 then
@@ -557,6 +584,7 @@ BEGIN
                                 );
                         end if;
                     end if;
+    			 end if;
                 end loop;
             
             
