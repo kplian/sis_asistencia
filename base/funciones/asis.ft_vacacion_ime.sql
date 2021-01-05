@@ -1058,12 +1058,12 @@ BEGIN
                 v_id_alarma = param.f_inserta_alarma(
                                     v_registro.id_responsable,
                                     v_descripcion_correo,--par_descripcion
-                                    '',--acceso directo
+                                    '../../../sis_asistencia/vista/vacacion/VacacionVoBo.php',--acceso directo
                                     now()::date,--par_fecha: Indica la fecha de vencimiento de la alarma
                                     'notificacion', --notificacion
                                     'Solicitud Vacacion',  --asunto
                                     p_id_usuario,
-                                    '', --clase
+                                    'VacacionVoBo', --clase
                                     'Solicitud Vacacion',--titulo
                                     '',--par_parametros varchar,   parametros a mandar a la interface de acceso directo
                                     v_registro.id_usuario_reg, --usuario a quien va dirigida la alarma
