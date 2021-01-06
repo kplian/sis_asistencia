@@ -36,7 +36,6 @@ header("content-type: text/javascript; charset=UTF-8");
                 this.load({params: {start: 0, limit: this.tam_pag}});
             }
         },
-        // tab
         gruposBarraTareas:[
             {name:'vobo',title:'<h1 align="center"><i></i>VoBo</h1>',grupo:2,height:0},
             {name:'aprobado',title:'<h1 align="center"><i></i>Aprobado</h1>',grupo:5,height:0},
@@ -82,59 +81,18 @@ header("content-type: text/javascript; charset=UTF-8");
                 handler:this.onReenviar,
                 tooltip: '<b>Reenviar</b><p>al responsable asignado de la solicitud</p>'
             });
-
-            this.campo_fecha = new Ext.form.DateField({
-                name: 'fecha_reg',
-                grupo: this.grupoDateFin,
-                fieldLabel: 'Fecha',
-                allowBlank: false,
-                anchor: '70%',
-                gwidth: 100,
-                format: 'd/m/Y',
-                hidden : false
-            });
-
-            this.campo_uo =  new Ext.form.ComboRec({
-                name:'id_uo',
-                hiddenName: 'id_uo',
-                grupo: this.grupoDateFin,
-                origen:'UO',
-                fieldLabel:'UO',
-                gdisplayField:'desc_uo',//mapea al store del grid
-                gwidth:200,
-                emptyText:'Dejar blanco para toda la empresa...',
-                width : 230,
-                baseParams: {nivel: '0,1,2'},
-                allowBlank:true
-
-            })
-
             this.getBoton('btn_cancelar').setVisible(false);
-            this.tbar.addField(this.campo_fecha);
-            this.tbar.addField(this.campo_uo);
-            this.campo_fecha.setValue(new Date());
-            this.store.baseParams.fecha = this.campo_fecha.getValue().dateFormat('Ymd');
-
-            this.campo_fecha.on('select',function(value){
-                this.store.baseParams.fecha = this.campo_fecha.getValue().dateFormat('Ymd');
-                this.load();
-            },this);
-
-            this.campo_uo.on('select',function(value){
-                this.store.baseParams.id_uo = this.campo_uo.getValue();
-                this.load();
-            },this);
-
             this.load({params: {start: 0, limit: this.tam_pag}});
         },
         onReloadPage:function(param){
             this.initFiltro(param);
         },
         initFiltro: function(param){
+            console.log(param)
             this.store.baseParams.param = 'si';
-           //  this.store.baseParams.desde = param.desde;
-           //  this.store.baseParams.hasta = param.hasta;
-           //  this.store.baseParams.id_uo = param.id_uo;
+            this.store.baseParams.desde = param.desde;
+            this.store.baseParams.hasta = param.hasta;
+            this.store.baseParams.id_uo = param.id_uo;
             this.load( { params: { start:0, limit: this.tam_pag } });
         },
         preparaMenu:function(n){
@@ -212,6 +170,13 @@ header("content-type: text/javascript; charset=UTF-8");
                 });
             }
             Phx.CP.loadingHide();
+        },
+        west: {
+            url: '../../../sis_asistencia/vista/consulta_rrhh/FormFiltroVacacion.php',
+            width: '27%',
+            title:'Filtros',
+            collapsed: true,
+            cls: 'FormFiltroVacacion'
         },
         east:{
             url:'../../../sis_asistencia/vista/vacacion_det/VacacionDet.php',

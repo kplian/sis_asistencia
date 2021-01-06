@@ -86,35 +86,17 @@ header("content-type: text/javascript; charset=UTF-8");
             },
         ],
         labelSubmit: '<i class="fa fa-check"></i> Aplicar Filtro',
-        east: {
-            url: '../../../sis_asistencia/vista/consulta_rrhh/VacacionRrhh.php',
-            title: undefined,
-            width: '70%',
-            cls: 'VacacionRrhh'
-        },
         title: 'Filtro',
         autoScroll: true,
-
-        onSubmit:function(o){
+        onSubmit:function(){
             const me = this;
             if (this.form.getForm().isValid()) {
                 const parametros = me.getValForm();
-
-                const desde = this.Cmp.desde.getValue();
-                const hasta = this.Cmp.hasta.getValue();
-                const id_tipo_estado = null;
-                const id_uo = this.Cmp.id_uo.getValue();
-
-                this.onEnablePanel(this.idContenedor + '-east',
-                    Ext.apply(parametros,{
-                        'desde': desde,
-                        'hasta': hasta,
-                        'id_tipo_estado': id_tipo_estado,
-                        'id_uo': id_uo
-                    }));
+                this.fireEvent('beforesave',this,this.getValues());
+                this.getValues();
+                this.onEnablePanel(me.idContenedorPadre, parametros);
             }
         },
-
         getValues:function(){
             return {
                 desde: this.Cmp.desde.getValue(),
@@ -124,7 +106,7 @@ header("content-type: text/javascript; charset=UTF-8");
         },
         loadValoresIniciales: function(){
             Phx.vista.FormFiltroVacacion.superclass.loadValoresIniciales.call(this);
-        }
-
+        },
+        onReloadPage:function(){}
     })
 </script>

@@ -53,27 +53,18 @@ class ACTVacacion extends ACTbase{
                     $this->objParam->addFiltro("vac.estado = ''cancelado''");
                     break;
             }
-            if ($this->objParam->getParametro('fecha') != '') {
-                $fecha = $this->objParam->getParametro('fecha');
-                $filtroInit = "vac.fecha_reg::date <= ''" . date($fecha) . "''"; // "vac.fecha_reg::date = now()::date";
+            $filtroInit = "vac.fecha_reg::date = now()::date";
 
-                /*var_dump($this->objParam->getParametro('fecha'));
-                exit;*/
+            if ($this->objParam->getParametro('param') != '') {
+                if ($this->objParam->getParametro('desde') != '' && $this->objParam->getParametro('hasta') != '') {
+                    $filtroInit = "vac.fecha_reg::date >= '' " . $this->objParam->getParametro('desde') . "'' and vac.fecha_reg::date <= ''" . $this->objParam->getParametro('hasta') . "''";
+                }
+                if ($this->objParam->getParametro('id_uo') != '') {
 
-                /*if ($this->objParam->getParametro('param') != '') {
-                    if ($this->objParam->getParametro('desde') != '' && $this->objParam->getParametro('hasta') != '') {
-                        $filtroInit = "vac.fecha_reg::date >= '' " . $this->objParam->getParametro('desde') . "'' and vac.fecha_reg::date <= ''" . $this->objParam->getParametro('hasta') . "''";
-                    }
-                  if ($this->objParam->getParametro('id_uo') != '') {
-
-                      $filtroInit = "dep.id_uo =  " . $this->objParam->getParametro('id_uo') . "  ";
-                  }
-                }*/
-                $this->objParam->addFiltro($filtroInit);
+                    $filtroInit = "dep.id_uo =  " . $this->objParam->getParametro('id_uo') . "  ";
+                }
             }
-            if ($this->objParam->getParametro('id_uo') != '') {
-                $this->objParam->addFiltro("dep.id_uo =".$this->objParam->getParametro('id_uo')."");
-            }
+            $this->objParam->addFiltro($filtroInit);
         }
 		if($this->objParam->getParametro('tipoReporte')=='excel_grid' || $this->objParam->getParametro('tipoReporte')=='pdf_grid'){
 			$this->objReporte = new Reporte($this->objParam,$this);
