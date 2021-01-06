@@ -191,19 +191,21 @@ header("content-type: text/javascript; charset=UTF-8");
                         id: 'id_funcionario',
                         root: 'datos',
                         sortInfo: {
-                            field: 'desc_funcionario',
-                            direction: 'ASC'
+                            field: 'numero_nivel',
+                            direction: 'DESC'
                         },
                         totalProperty: 'total',
                         fields: ['id_funcionario','desc_funcionario'],
                         remoteSort: true,
-                        baseParams: {par_filtro: 'fun.desc_funcionario'}
+                        baseParams: {par_filtro: 'f.desc_funcionario1'}
                     }),
                     valueField: 'id_funcionario',
                     displayField: 'desc_funcionario',
                     gdisplayField: 'responsable',
                     hiddenName: 'id_responsable',
                     forceSelection: true,
+                    disableKeyFilter: true,
+                    editable: false,
                     typeAhead: false,
                     triggerAction: 'all',
                     lazyRender: true,
