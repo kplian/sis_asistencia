@@ -226,3 +226,24 @@ VALUES
   (1, 563, E'2020-12-09 16:07:19.505', E'2020-12-22 22:47:49.244', E'activo', NULL, E'NULL', NULL, 73, E'Feriado Departamental de Beni', E'2021-11-18', E'permanente', 5),
   (1, 563, E'2020-12-09 16:07:19.516', E'2020-12-22 22:47:56.085', E'activo', NULL, E'NULL', NULL, 1, E'Feriado Departamental de Chuquisaca', E'2021-05-25', E'permanente', 5);
 /***********************************F-DAT-MMV-ASIS-4-22/12/2020*****************************************/
+/***********************************I-DAT-MMV-ASIS-1-07/01/2021*****************************************/
+select pxp.f_insert_tgui ('Seguimiento Vacación', 'Seguimiento Vacación', 'CVR', 'si', 13, 'sis_asistencia/vista/consulta_rrhh/VacacionRrhh.php', 2, '', 'VacacionRrhh', 'ASIS');
+/***********************************F-DAT-MMV-ASIS-1-07/01/2021*****************************************/
+/***********************************I-DAT-MMV-ASIS-2-07/01/2021*****************************************/
+select wf.f_import_testructura_estado ('insert','rechazado','vobo','VAC-PRO',1,'','si');
+select wf.f_import_tplantilla_correo ('insert','SOCP','vobo','VAC-PRO','','<h3><b>SOLICITUD DE VACACIÓN</b></h3>
+<p style="font-size: 15px;"><b>Fecha solicitud:</b> {$tabla.fecha_solicitud}</p>
+<p style="font-size: 15px;"><b>Solicitud para:</b> {$tabla.funcionario_solicitante}</p>
+<p style="font-size: 15px;"><b>Desde:</b> {$tabla.fecha_inicio} <b>Hasta:</b> {$tabla.fecha_fin}</p>
+<p style="font-size: 15px;"><b>Días solicitados:</b> {$tabla.dias}</p>
+<p style="font-size: 15px;"><b>Justificación:</b> {$tabla.descripcion}</p>','magali.sinani@endetransmision.bo','Solicitud de vacación','','no','','','','no','','','','');
+/***********************************F-DAT-MMV-ASIS-2-07/01/2021*****************************************/
+/***********************************I-DAT-MMV-ASIS-2-07/01/2021*****************************************/
+select wf.f_import_testructura_estado ('insert','rechazado','vobo','PER-ASI',1,'','si');
+select wf.f_import_tplantilla_correo ('insert','CSOPE','vobo','PER-ASI','','<h3><b>SOLICITUD DE PERMISO</b></h3>
+<p style="font-size: 15px;"><b>Tipo permiso:</b> {$tabla.tipo_permiso}</p>
+<p style="font-size: 15px;"><b>Fecha solicitud:</b> {$tabla.fecha_solicitud}</p>
+<p style="font-size: 15px;"><b>Solicitud para:</b> {$tabla.funcionario_solicitante}</p>
+<p style="font-size: 15px;"><b>Desde:</b> {$tabla.hro_desde} <b>Hasta:</b> {$tabla.hro_hasta}</p>
+<p style="font-size: 15px;"><b>Justificacion:</b> {$tabla.motivo}</p>','magali.sinani@endetransmision.bo','Solicitud de persmiso','','no','','','','no','','','','');
+/***********************************F-DAT-MMV-ASIS-2-07/01/2021*****************************************/
