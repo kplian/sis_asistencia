@@ -264,9 +264,9 @@ BEGIN
             	and mv.activo = 'activo';
 
 
-            delete from asis.tpares pa
-            where pa.id_vacacion = v_registro.id_vacacion
-            	and pa.id_funcionario = v_vacacion_record.id_funcionario;
+            -- delete from asis.tpares pa
+            -- where pa.id_vacacion = v_registro.id_vacacion
+            -- 	and pa.id_funcionario = v_vacacion_record.id_funcionario;
 
            
             select mm.id_movimiento_vacacion into v_id_mov_actual
