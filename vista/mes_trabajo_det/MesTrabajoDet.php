@@ -566,7 +566,7 @@ Phx.vista.MesTrabajoDet=Ext.extend(Phx.gridInterfaz,{
     preparaMenu:function(n){
         var tb =this.tbar;
         Phx.vista.MesTrabajoDet.superclass.preparaMenu.call(this,n);
-        if( this.maestro.estado == 'borrador'){
+        /*if( this.maestro.estado == 'borrador'){
             this.getBoton('edit').enable();
             this.getBoton('btnTransaccionesUpload').enable();
             this.getBoton('btmBorrarTodo').enable();
@@ -574,19 +574,27 @@ Phx.vista.MesTrabajoDet=Ext.extend(Phx.gridInterfaz,{
             this.getBoton('edit').disable();
             this.getBoton('btnTransaccionesUpload').disable();
             this.getBoton('btmBorrarTodo').disable();
-        }
+        }*/
+
+        this.getBoton('edit').enable();
+        this.getBoton('btnTransaccionesUpload').enable();
+        this.getBoton('btmBorrarTodo').enable();
+
+
         return tb;
     },
     liberaMenu: function() {
         var tb = Phx.vista.MesTrabajoDet.superclass.liberaMenu.call(this);
-        if(tb){
+       /* if(tb){
             if( this.maestro.estado != 'borrador'){ //#4
                 this.getBoton('btnTransaccionesUpload').disable();
                 this.getBoton('btmBorrarTodo').disable();
             }
             this.getBoton('edit').disable();
 
-        }
+        }*/
+        this.getBoton('btnTransaccionesUpload').disable();
+        this.getBoton('btmBorrarTodo').disable();
         return tb;
     },
 

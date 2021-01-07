@@ -277,14 +277,30 @@ BEGIN
 
 		begin
 
-        	v_consulta := 'select  fun.id_funcionario,
-                                   fun.desc_funcionario1 as desc_funcionario,
-                                    ''''::text  as desc_funcionario_cargo,
-                                    fun.codigo
-                            from  orga.vfuncionario fun
-                            where fun.id_funcionario in (select *
-                                                         from orga.f_get_aprobadores_x_funcionario(CURRENT_DATE,'||v_parametros.id_funcionario||',''todos'',''todos'',''1,2,3,4,6'') as
-                                                        (id_funcionario integer)) and';
+        	
+        	v_consulta := 'WITH RECURSIVE path(id_funcionario,id_uo,presupuesta,gerencia,numero_nivel) AS (
+                                      SELECT uofun.id_funcionario,uo.id_uo,uo.presupuesta,uo.gerencia, no.numero_nivel
+                                      from orga.tuo_funcionario uofun
+                                      inner join orga.tuo uo on uo.id_uo = uofun.id_uo
+                                      inner join orga.tnivel_organizacional no on no.id_nivel_organizacional = uo.id_nivel_organizacional
+                                      where uofun.fecha_asignacion <= now()::date and (uofun.fecha_finalizacion is null or uofun.fecha_finalizacion >= now()::date)
+                                      and uofun.estado_reg = ''activo'' and uofun.id_funcionario = '||v_parametros.id_funcionario||'
+                                  UNION
+                                      SELECT uofun.id_funcionario,euo.id_uo_padre,uo.presupuesta,uo.gerencia,no.numero_nivel
+                                      from orga.testructura_uo euo
+                                      inner join orga.tuo uo on uo.id_uo = euo.id_uo_padre
+                                      inner join orga.tnivel_organizacional no on no.id_nivel_organizacional = uo.id_nivel_organizacional
+                                      inner join path hijo on hijo.id_uo = euo.id_uo_hijo
+                                      left join orga.tuo_funcionario uofun on uo.id_uo = uofun.id_uo and uofun.estado_reg = ''activo'' and
+                                      uofun.fecha_asignacion <= now()::date and (uofun.fecha_finalizacion is null or uofun.fecha_finalizacion >= now()::date)
+                             )
+                             SELECT p.id_funcionario,
+                                    f.desc_funcionario1,
+                                    f.codigo,
+                                    p.numero_nivel
+                             FROM path p
+                             inner join orga.vfuncionario f on f.id_funcionario = p.id_funcionario
+                             where p.id_funcionario != '||v_parametros.id_funcionario||' and ';
 
 			--Definicion de la respuesta
 			v_consulta:=v_consulta||v_parametros.filtro;
@@ -307,11 +323,26 @@ BEGIN
 		begin
 
 			--Sentencia de la consulta de conteo de registros
-			v_consulta:='select   count (fun.id_funcionario)
-                            from  orga.vfuncionario fun
-                            where fun.id_funcionario in (select *
-                                                         from orga.f_get_aprobadores_x_funcionario(CURRENT_DATE,'||v_parametros.id_funcionario||',''todos'',''todos'',''2,3,4,6'') as
-                                                        (id_funcionario integer)) and';
+			v_consulta:=' WITH RECURSIVE path(id_funcionario,id_uo,presupuesta,gerencia,numero_nivel) AS (
+                                        SELECT uofun.id_funcionario,uo.id_uo,uo.presupuesta,uo.gerencia, no.numero_nivel
+                                        from orga.tuo_funcionario uofun
+                                        inner join orga.tuo uo on uo.id_uo = uofun.id_uo
+                                        inner join orga.tnivel_organizacional no on no.id_nivel_organizacional = uo.id_nivel_organizacional
+                                        where uofun.fecha_asignacion <= now()::date and (uofun.fecha_finalizacion is null or uofun.fecha_finalizacion >= now()::date)
+                                        and uofun.estado_reg = ''activo'' and uofun.id_funcionario = '||v_parametros.id_funcionario||'
+                                    UNION
+                                        SELECT uofun.id_funcionario,euo.id_uo_padre,uo.presupuesta,uo.gerencia,no.numero_nivel
+                                        from orga.testructura_uo euo
+                                        inner join orga.tuo uo on uo.id_uo = euo.id_uo_padre
+                                        inner join orga.tnivel_organizacional no on no.id_nivel_organizacional = uo.id_nivel_organizacional
+                                        inner join path hijo on hijo.id_uo = euo.id_uo_hijo
+                                        left join orga.tuo_funcionario uofun on uo.id_uo = uofun.id_uo and uofun.estado_reg = ''activo'' and
+                                        uofun.fecha_asignacion <= now()::date and (uofun.fecha_finalizacion is null or uofun.fecha_finalizacion >= now()::date)
+                               )
+                               SELECT count(p.id_funcionario) 
+                               FROM path p
+                               inner join orga.vfuncionario f on f.id_funcionario = p.id_funcionario
+                               where p.id_funcionario != '||v_parametros.id_funcionario||' and ';
 
 			--Definicion de la respuesta
 			v_consulta:=v_consulta||v_parametros.filtro;

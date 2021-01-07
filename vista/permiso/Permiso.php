@@ -136,11 +136,11 @@ header("content-type: text/javascript; charset=UTF-8");
                             id: 'id_funcionario',
                             root: 'datos',
                             sortInfo: {
-                                field: 'desc_funcionario',
-                                direction: 'ASC'
+                                field: 'numero_nivel',
+                                direction: 'DESC'
                             },
                             totalProperty: 'total',
-                            fields: ['id_funcionario','desc_funcionario','desc_funcionario_cargo','codigo'],
+                            fields: ['id_funcionario','desc_funcionario','numero_nivel','codigo'],
                             remoteSort: true,
                             baseParams: {par_filtro: 'fun.desc_funcionario1#fun.codigo'}
                         }),
@@ -151,6 +151,8 @@ header("content-type: text/javascript; charset=UTF-8");
                         tpl: '<tpl for="."><div class="x-combo-list-item"><p><b>{desc_funcionario}</b></p><p>{desc_funcionario_cargo}</p></div></tpl>',
                         forceSelection: true,
                         typeAhead: false,
+                        disableKeyFilter: true,
+                        editable: false,
                         triggerAction: 'all',
                         lazyRender: true,
                         mode: 'remote',
@@ -653,13 +655,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 const rec = this.getSelectedData();
                 this.getBoton('btn_atras').enable();
                 this.getBoton('diagrama_gantt').enable();
-                if(rec.estado === 'rechazado'){
-                    this.getBoton('btn_siguiente').disable();
-                  //  this.getBoton('edit').disable();
-                }else{
-                    this.getBoton('btn_siguiente').enable();
-                 //   this.getBoton('edit').enable();
-                }
+                this.getBoton('btn_siguiente').enable();
                 this.getBoton('btnChequeoDocumentosWf').enable();
             },
             liberaMenu:function() {

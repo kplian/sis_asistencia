@@ -16,7 +16,7 @@ header("content-type: text/javascript; charset=UTF-8");
         title:'VoBo Vacaciones', // nombre de interaz
         nombreVista: 'VacacionRrhh',
         bnew:false,
-        bedit:false,
+        bedit:true,
         bdel:false,
         bsave:false,
         tam_pag:50,
@@ -36,7 +36,6 @@ header("content-type: text/javascript; charset=UTF-8");
                 this.load({params: {start: 0, limit: this.tam_pag}});
             }
         },
-        // tab
         gruposBarraTareas:[
             {name:'vobo',title:'<h1 align="center"><i></i>VoBo</h1>',grupo:2,height:0},
             {name:'aprobado',title:'<h1 align="center"><i></i>Aprobado</h1>',grupo:5,height:0},
@@ -46,9 +45,12 @@ header("content-type: text/javascript; charset=UTF-8");
         bnewGroups:[0,3],
         bactGroups:[0,1,2,3,4,5],
         bdelGroups:[0],
-        beditGroups:[0],
+        beditGroups:[2,5],
         bexcelGroups:[0,1,2,3,4,5],
+        grupoDateFin: [2,4,5],
+
         constructor: function(config) {
+            this.initButtons=[];
             Phx.vista.VacacionRrhh.superclass.constructor.call(this, config);
             this.store.baseParams.tipo_interfaz = this.nombreVista;
             this.store.baseParams.pes_estado = 'vobo';
@@ -71,14 +73,22 @@ header("content-type: text/javascript; charset=UTF-8");
                 disabled:true,
                 handler:this.onCancelar,
                 tooltip: '<b>Cancelar</b><p>el vacacion en caso que no tomara </p>'});
-            this.getBoton('btn_cancelar').setVisible(false);
 
+            this.addButton('btn_reenviar',{grupo:[2],
+                text:'Reenviar correo',
+                iconCls: 'bemail',
+                disabled:true,
+                handler:this.onReenviar,
+                tooltip: '<b>Reenviar</b><p>al responsable asignado de la solicitud</p>'
+            });
+            this.getBoton('btn_cancelar').setVisible(false);
             this.load({params: {start: 0, limit: this.tam_pag}});
         },
         onReloadPage:function(param){
             this.initFiltro(param);
         },
         initFiltro: function(param){
+            console.log(param)
             this.store.baseParams.param = 'si';
             this.store.baseParams.desde = param.desde;
             this.store.baseParams.hasta = param.hasta;
@@ -91,6 +101,7 @@ header("content-type: text/javascript; charset=UTF-8");
             this.getBoton('diagrama_gantt').enable();
             this.getBoton('btn_siguiente').enable();
             this.getBoton('btn_cancelar').enable();
+            this.getBoton('btn_reenviar').enable();
         },
         liberaMenu:function() {
             var tb = Phx.vista.VacacionRrhh.superclass.liberaMenu.call(this);
@@ -99,6 +110,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 this.getBoton('diagrama_gantt').disable();
                 this.getBoton('btn_siguiente').disable();
                 this.getBoton('btn_cancelar').disable();
+                this.getBoton('btn_reenviar').disable();
             }
         },
         onSiguiente :function () {
@@ -142,11 +154,36 @@ header("content-type: text/javascript; charset=UTF-8");
             }
             Phx.CP.loadingHide();
         },
-        south:{
-            url:'../../../sis_asistencia/vista/vacacion_det/VacacionDetVoBo.php',
+        onReenviar:function () {
+            Phx.CP.loadingShow();
+            const rec = this.sm.getSelected(); //obtine los datos selecionado en la grilla
+            if(confirm('¿Desea Reenviar el correo?')) {
+                Ext.Ajax.request({
+                    url: '../../sis_asistencia/control/Vacacion/reenviarCorreo',
+                    params: {
+                        id_vacacion:  rec.data.id_vacacion
+                    },
+                    success: this.successWizard,
+                    failure: this.conexionFailure,
+                    timeout: this.timeout,
+                    scope: this
+                });
+            }
+            Phx.CP.loadingHide();
+        },
+        west: {
+            url: '../../../sis_asistencia/vista/consulta_rrhh/FormFiltroVacacion.php',
+            width: '27%',
+            title:'Filtros',
+            collapsed: true,
+            cls: 'FormFiltroVacacion'
+        },
+        east:{
+            url:'../../../sis_asistencia/vista/vacacion_det/VacacionDet.php',
             title:'Detalle',
-            height:'50%',
-            cls:'VacacionDetVoBo'
+            // height:'50%',
+            width:'35%',
+            cls:'VacacionDet'
         }
     };
 </script>

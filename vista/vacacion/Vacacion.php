@@ -191,19 +191,21 @@ header("content-type: text/javascript; charset=UTF-8");
                         id: 'id_funcionario',
                         root: 'datos',
                         sortInfo: {
-                            field: 'desc_funcionario',
-                            direction: 'ASC'
+                            field: 'numero_nivel',
+                            direction: 'DESC'
                         },
                         totalProperty: 'total',
                         fields: ['id_funcionario','desc_funcionario'],
                         remoteSort: true,
-                        baseParams: {par_filtro: 'fun.desc_funcionario'}
+                        baseParams: {par_filtro: 'f.desc_funcionario1'}
                     }),
                     valueField: 'id_funcionario',
                     displayField: 'desc_funcionario',
                     gdisplayField: 'responsable',
                     hiddenName: 'id_responsable',
                     forceSelection: true,
+                    disableKeyFilter: true,
+                    editable: false,
                     typeAhead: false,
                     triggerAction: 'all',
                     lazyRender: true,
@@ -239,7 +241,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     }),
                     valueField: 'id_funcionario',
                     displayField: 'desc_funcionario',
-                    gdisplayField: 'responsable',
+                    gdisplayField: 'desc_funcionario1',
                     hiddenName: 'Funcionario',
                     tpl: '<tpl for="."><div class="x-combo-list-item"><p><b>{desc_funcionario}</b></p><p>{codigo}</p><p>{cargo}</p><p>{departamento}</p><p>{oficina}</p> </div></tpl>',
                     forceSelection: true,
@@ -249,8 +251,8 @@ header("content-type: text/javascript; charset=UTF-8");
                     mode: 'remote',
                     pageSize: 15,
                     queryDelay: 1000,
-                    width: 300,
-                    gwidth:200,
+                    width: 320,
+                    gwidth:220,
                     minChars: 2,
                     renderer:function(value, p, record){
                         if(record.data['funcionario_sol'] !== ''){
@@ -264,9 +266,11 @@ header("content-type: text/javascript; charset=UTF-8");
                     }
                 },
                 type: 'ComboBox',
+                filters:{pfiltro:'vf.desc_funcionario1',type:'string'},
                 id_grupo: 1,
                 grid: true,
-                form: true
+                form: true,
+                bottom_filter:true
             },
             {
 
@@ -624,7 +628,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         this.Cmp.id_funcionario.fireEvent('select', this.Cmp.id_funcionario, r[0]);
                         this.Cmp.id_funcionario.modificado = true;
                         this.Cmp.id_funcionario.collapse();
-                        this.onCargarResponsable(r[0].data.id_funcionario);
+                        this.onCargarResponsable(r[0].data.id_funcionario,true);
                     }
 
                 }, scope : this
@@ -638,20 +642,9 @@ header("content-type: text/javascript; charset=UTF-8");
             },this);
             this.onPermisoRol();
         },
-        onCargarResponsable:function(id){
-            this.Cmp.id_responsable.store.baseParams = Ext.apply(this.Cmp.id_responsable.store.baseParams, {id_funcionario: id});
-            this.Cmp.id_responsable.modificado = true;
-            this.Cmp.id_responsable.store.load({params:{start:0,limit:this.tam_pag ,id_funcionario: id },
-                callback : function (r) {
-                    this.Cmp.id_responsable.setValue(r[0].data.id_funcionario);
-                    this.Cmp.id_responsable.fireEvent('select', this.Cmp.id_responsable, r[0]);
-                    this.Cmp.id_responsable.collapse();
-                }, scope : this
-            });
-        },
+
         onButtonEdit:function(){
             Phx.vista.Vacacion.superclass.onButtonEdit.call(this);
-            this.movimientoVacacion(Phx.CP.config_ini.id_funcionario);
             let inicio;
             this.Cmp.fecha_inicio.on('select', function(menu, record){
                 inicio = record;
@@ -661,13 +654,38 @@ header("content-type: text/javascript; charset=UTF-8");
             for(var i=0; i<=parseInt(this.Cmp.dias.getValue()); i++){
                 this.arrayStore.Selección[i]=["ID"+(i),(i)];
             }
+            this.movimientoVacacion(this.Cmp.id_funcionario.getValue());
+            this.onCargarResponsable(this.Cmp.id_funcionario.getValue(),false);
+
+
             this.Cmp.id_funcionario.on('select', function(combo, record, index){
                 this.Cmp.id_responsable.reset();
                 this.Cmp.id_responsable.store.baseParams = Ext.apply(this.Cmp.id_responsable.store.baseParams, {id_funcionario: record.data.id_funcionario});
                 this.movimientoVacacion(record.data.id_funcionario);
+                this.onCargarResponsable(record.data.id_funcionario,true);
                 this.Cmp.id_responsable.modificado = true;
             },this);
+
+
             this.onPermisoRol();
+        },
+        onCargarResponsable:function(id, filtro = true){
+            const rec = this.sm.getSelected();
+
+            console.log(rec)
+
+            this.Cmp.id_responsable.store.baseParams = Ext.apply(this.Cmp.id_responsable.store.baseParams, {id_funcionario: id});
+            this.Cmp.id_responsable.modificado = true;
+            if(filtro) {
+                this.Cmp.id_responsable.store.load({
+                    params: {start: 0, limit: this.tam_pag, id_funcionario: id},
+                    callback: function (r) {
+                        this.Cmp.id_responsable.setValue(r[0].data.id_funcionario);
+                        this.Cmp.id_responsable.fireEvent('select', this.Cmp.id_responsable, r[0]);
+                        this.Cmp.id_responsable.collapse();
+                    }, scope: this
+                });
+            }
         },
         onPermisoRol:function(){
                 Ext.Ajax.request({
@@ -746,7 +764,9 @@ header("content-type: text/javascript; charset=UTF-8");
         onSiguiente :function () {
             Phx.CP.loadingShow();
             const rec = this.sm.getSelected(); //obtine los datos selecionado en la grilla
-            if(confirm('¿Enviar solicitud?')) {
+
+            console.log(rec);
+            if(confirm('¿Enviar solicitud a '+rec.data.responsable+'?')) {
                 Ext.Ajax.request({
                     url: '../../sis_asistencia/control/Vacacion/aprobarEstado',
                     params: {
@@ -879,5 +899,3 @@ header("content-type: text/javascript; charset=UTF-8");
         },
     })
 </script>
-
-		

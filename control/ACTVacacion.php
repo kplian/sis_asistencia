@@ -55,19 +55,17 @@ class ACTVacacion extends ACTbase{
             }
             $filtroInit = "vac.fecha_reg::date = now()::date";
 
-          if ($this->objParam->getParametro('param') != '') {
+            if ($this->objParam->getParametro('param') != '') {
                 if ($this->objParam->getParametro('desde') != '' && $this->objParam->getParametro('hasta') != '') {
                     $filtroInit = "vac.fecha_reg::date >= '' " . $this->objParam->getParametro('desde') . "'' and vac.fecha_reg::date <= ''" . $this->objParam->getParametro('hasta') . "''";
                 }
-              if ($this->objParam->getParametro('id_uo') != '') {
+                if ($this->objParam->getParametro('id_uo') != '') {
 
-                  $filtroInit = "dep.id_uo =  " . $this->objParam->getParametro('id_uo') . "  ";
-              }
+                    $filtroInit = "dep.id_uo =  " . $this->objParam->getParametro('id_uo') . "  ";
+                }
             }
             $this->objParam->addFiltro($filtroInit);
-
         }
-        //var_dump("hiola", $this->objParam); exit;
 		if($this->objParam->getParametro('tipoReporte')=='excel_grid' || $this->objParam->getParametro('tipoReporte')=='pdf_grid'){
 			$this->objReporte = new Reporte($this->objParam,$this);
 			$this->res = $this->objReporte->generarReporteListado('MODVacacion','listarVacacion');
@@ -128,7 +126,6 @@ class ACTVacacion extends ACTbase{
         $this->res=$this->objFunc->aprobarEstado($this->objParam);
         $this->res->imprimirRespuesta($this->res->generarJson());
     }
-
     function listarFuncionarioOficiales(){
 		$this->objParam->defecto('ordenacion','id_funcionario');
         // $this->objParam->defecto('dir_ordenacion','asc');
@@ -141,7 +138,11 @@ class ACTVacacion extends ACTbase{
 		$this->res=$this->objFunc->listarFuncionarioOficiales($this->objParam);
 		$this->res->imprimirRespuesta($this->res->generarJson());
 	}
-			
+    function reenviarCorreo(){
+        $this->objFunc=$this->create('MODVacacion');
+        $this->res=$this->objFunc->reenviarCorreo($this->objParam);
+        $this->res->imprimirRespuesta($this->res->generarJson());
+    }
 }
 
 ?>

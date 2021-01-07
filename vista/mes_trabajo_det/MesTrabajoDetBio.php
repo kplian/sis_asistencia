@@ -1,365 +1,584 @@
 <?php
 /**
  *@package pXP
- *@file RegistroSolicitud.php
- *@author  MAM
- *@date 27-12-2016 14:45
- *@Interface para el inicio de solicitudes de materiales
+ *@file gen-MesTrabajoDet.php
+ *@author  (miguel.mamani)
+ *@date 31-01-2019 16:36:51
+HISTORIAL DE MODIFICACIONES:
+#ISSUE				FECHA				AUTOR				DESCRIPCION
+#4	ERT			17/06/2019 				 MMV			corrección bug botón subir excel
+#12	ERT			21/08/2019 				 MMV			Nuevo campo COMP detalle hoja de trabajo
+
  */
+
 header("content-type: text/javascript; charset=UTF-8");
 ?>
-
 <script>
-    Phx.vista.MesTrabajoDetBio = {
-        bedit:false,
-        bnew:false,
-        bsave:false,
-        bdel:false,
-        lista:[],
-        id_proceso:null,
-        id_estado:null,
-        id_periodo:null,
-        require:'../../../sis_asistencia/vista/mes_trabajo_det/MesTrabajoDet.php',
-        requireclase:'Phx.vista.MesTrabajoDet',
-        title:'Hoja Tiempo',
-        nombreVista: 'MesTrabajoDetBio',
+    Phx.vista.MesTrabajoDetBio=Ext.extend(Phx.gridInterfaz,{
 
-        gruposBarraTareas:[
-            {name:'borrador',title:'<h1 align="center"><i></i>Borrador</h1>',grupo:1,height:0},
-            {name:'asignado',title:'<h1 align="center"><i></i>Asignado</h1>',grupo:0,height:0},
-            {name:'aprobado',title:'<h1 align="center"><i></i>Aprobado</h1>',grupo:0,height:0}
+        constructor:function(config){
+            this.initButtons=[this.cmbGestion, this.cmbPeriodo];
+
+            this.maestro=config.maestro;
+            Phx.vista.MesTrabajoDetBio.superclass.constructor.call(this,config);
+            this.init();
+        },
+
+        Atributos:[
+            {
+                //configuracion del componente
+                config:{
+                    labelSeparator:'',
+                    inputType:'hidden',
+                    name: 'id_mes_trabajo_det'
+                },
+                type:'Field',
+                form:true
+            },
+            {
+                config:{
+                    name: 'id_centro_costo',
+                    fieldLabel: 'Centro Costo',
+                    allowBlank: true,
+                    tinit: false,
+                    origen: 'CENTROCOSTO',
+                    gdisplayField: 'codigo_cc',
+                    width: 320,
+                    gwidth:300,
+                    disabled:false
+                },
+                type: 'ComboRec',
+                id_grupo: 0,
+                grid:true,
+                form: true
+            },
+            {
+                config:{
+                    name: 'dia',
+                    fieldLabel: 'Dia',
+                    allowBlank: false,
+                    anchor: '80%',
+                    gwidth: 100,
+                    maxLength:4
+                },
+                type:'NumberField',
+                filters:{pfiltro:'mtd.dia',type:'numeric'},
+                id_grupo:1,
+                grid:true,
+                form:false
+            },
+            {//#12
+                config:{
+                    name: 'total_comp',
+                    fieldLabel: 'Total Comp',
+                    allowBlank: false,
+                    anchor: '80%',
+                    gwidth: 100,
+                    maxLength:6553602,
+                    renderer: function(value,p,record){
+                        if(record.data.estado_reg != 'summary'){
+                            return String.format('<b><font size = 2 >{0}</font></b>', value);
+                        }else{
+                            var color = '';
+                            if (value > 0){
+                                color = 'green';
+                            }else
+                            {
+                                color = 'red';
+                            }
+                            return String.format('<b><font size = 3 color="'+color+'" >{0}</font></b>', value);
+                        }
+                    }
+                },
+                type:'NumberField',
+                filters:{pfiltro:'mtd.total_comp',type:'numeric'},
+                id_grupo:1,
+                grid:true,
+                form:false
+            },//#12
+            {
+                config:{
+                    name: 'total_normal',
+                    fieldLabel: 'Total Normal',
+                    allowBlank: false,
+                    anchor: '80%',
+                    gwidth: 100,
+                    maxLength:6553602,
+                    renderer: function(value,p,record){
+                        if(record.data.estado_reg !== 'summary'){
+                            return String.format('<b><font size = 2 >{0}</font></b>', value);
+                        }else{
+                            var color = '';
+                            if (value > 0){
+                                color = 'green';
+                            }else
+                            {
+                                color = 'red';
+                            }
+                            return String.format('<b><font size = 3 color="'+color+'" >{0}</font></b>', value);
+                        }
+                    }
+                },
+                type:'NumberField',
+                filters:{pfiltro:'mtd.total_normal',type:'numeric'},
+                id_grupo:1,
+                grid:true,
+                form:false
+            },
+            {
+                config:{
+                    name: 'total_extra',
+                    fieldLabel: 'Total Extra',
+                    allowBlank: false,
+                    anchor: '80%',
+                    gwidth: 100,
+                    maxLength:6553602,
+                    renderer: function(value,p,record){
+                        if(record.data.estado_reg !== 'summary'){
+                            return String.format('<b><font size = 2 >{0}</font></b>', value);
+                        }else{
+                            var color = '';
+                            if (value > 0){
+                                color = 'green';
+                            }else
+                            {
+                                color = 'red';
+                            }
+                            return String.format('<b><font size = 3 color="'+color+'" >{0}</font></b>', value);
+                        }
+                    }
+                },
+                type:'NumberField',
+                filters:{pfiltro:'mtd.total_extra',type:'numeric'},
+                id_grupo:1,
+                grid:true,
+                form:false
+            },
+            {
+                config:{
+                    name: 'total_nocturna',
+                    fieldLabel: 'Total Nocturna',
+                    allowBlank: false,
+                    anchor: '80%',
+                    gwidth: 100,
+                    maxLength:6553602,
+                    renderer: function(value,p,record){
+                        if(record.data.estado_reg !== 'summary'){
+                            return String.format('<b><font size = 2 >{0}</font></b>', value);
+                        }else{
+                            var color = '';
+                            if (value > 0){
+                                color = 'blue';
+                            }else
+                            {
+                                color = 'red';
+                            }
+                            return String.format('<b><font size = 3 color="'+color+'" >{0}</font></b>', value);
+                        }
+                    }
+                },
+                type:'NumberField',
+                filters:{pfiltro:'mtd.total_nocturna',type:'numeric'},
+                id_grupo:1,
+                grid:true,
+                form:false
+            },
+            {
+                config:{
+                    name: 'extra_autorizada',
+                    fieldLabel: 'Extra Autorizada',
+                    allowBlank: false,
+                    anchor: '80%',
+                    gwidth: 100,
+                    maxLength:6553602,
+                    renderer: function(value,p,record){
+                        if(record.data.estado_reg !== 'summary'){
+                            return String.format('<b><font size = 2 >{0}</font></b>', value);
+                        }else{
+                            var color = '';
+                            if (value > 0){
+                                color = '#ff8c00';
+                            }else
+                            {
+                                color = 'red';
+                            }
+                            return String.format('<b><font size = 3 color="'+color+'" >{0}</font></b>', value);
+                        }
+                    }
+                },
+                type:'NumberField',
+                filters:{pfiltro:'mtd.extra_autorizada',type:'numeric'},
+                id_grupo:1,
+                grid:true,
+                form:false
+            },
+            {
+                config:{
+                    name: 'justificacion_extra',
+                    fieldLabel: 'Justificacion Extra',
+                    allowBlank: false,
+                    anchor: '80%',
+                    gwidth: 100
+                },
+                type:'TextArea',
+                filters:{pfiltro:'mtd.justificacion_extra',type:'string'},
+                id_grupo:1,
+                grid:true,
+                form:false
+            },
+            {
+                config:{
+                    name: 'ingreso_manana',
+                    fieldLabel: 'Ingreso Mañana',
+                    allowBlank: true,
+                    anchor: '80%',
+                    gwidth: 100,
+                    maxLength:8
+                },
+                type:'TextField',
+                filters:{pfiltro:'mtd.ingreso_manana',type:'string'},
+                id_grupo:1,
+                grid:true,
+                form:false
+            },
+            {
+                config:{
+                    name: 'salida_manana',
+                    fieldLabel: 'Salida Mañana',
+                    allowBlank: false,
+                    anchor: '80%',
+                    gwidth: 100,
+                    maxLength:8
+                },
+                type:'TextField',
+                filters:{pfiltro:'mtd.salida_manana',type:'string'},
+                id_grupo:1,
+                grid:true,
+                form:false
+            },
+            {
+                config:{
+                    name: 'ingreso_tarde',
+                    fieldLabel: 'Ingreso Tarde',
+                    allowBlank: true,
+                    anchor: '80%',
+                    gwidth: 100,
+                    maxLength:8
+                },
+                type:'TextField',
+                filters:{pfiltro:'mtd.ingreso_tarde',type:'string'},
+                id_grupo:1,
+                grid:true,
+                form:false
+            },
+            {
+                config:{
+                    name: 'salida_tarde',
+                    fieldLabel: 'Salida Tarde',
+                    allowBlank: true,
+                    anchor: '80%',
+                    gwidth: 100,
+                    maxLength:8
+                },
+                type:'TextField',
+                filters:{pfiltro:'mtd.salida_tarde',type:'string'},
+                id_grupo:1,
+                grid:true,
+                form:false
+            },
+            {
+                config:{
+                    name: 'ingreso_noche',
+                    fieldLabel: 'Ingreso Noche',
+                    allowBlank: true,
+                    anchor: '80%',
+                    gwidth: 100,
+                    maxLength:8
+                },
+                type:'TextField',
+                filters:{pfiltro:'mtd.ingreso_noche',type:'string'},
+                id_grupo:1,
+                grid:true,
+                form:false
+            },
+            {
+                config:{
+                    name: 'salida_noche',
+                    fieldLabel: 'Salida Noche',
+                    allowBlank: true,
+                    anchor: '80%',
+                    gwidth: 100,
+                    maxLength:8
+                },
+                type:'TextField',
+                filters:{pfiltro:'mtd.salida_noche',type:'string'},
+                id_grupo:1,
+                grid:true,
+                form:false
+            },
+            {
+                config:{
+                    name: 'tipo',
+                    fieldLabel: 'Tipo Mañana',
+                    allowBlank: false,
+                    anchor: '80%',
+                    gwidth: 100,
+                    maxLength:6
+                },
+                type:'TextField',
+                filters:{pfiltro:'mtd.tipo',type:'string'},
+                id_grupo:1,
+                grid:true,
+                form:false
+            },
+            {
+                config:{
+                    name: 'tipo_dos',
+                    fieldLabel: 'Tipo Tarde',
+                    allowBlank: false,
+                    anchor: '80%',
+                    gwidth: 100,
+                    maxLength:6
+                },
+                type:'TextField',
+                filters:{pfiltro:'mtd.tipo_dos',type:'string'},
+                id_grupo:1,
+                grid:true,
+                form:false
+            },
+            {
+                config:{
+                    name: 'tipo_tres',
+                    fieldLabel: 'Tipo Noche',
+                    allowBlank: false,
+                    anchor: '80%',
+                    gwidth: 100,
+                    maxLength:6
+                },
+                type:'TextField',
+                filters:{pfiltro:'mtd.tipo_tres',type:'string'},
+                id_grupo:1,
+                grid:true,
+                form:false
+            },
+            {
+                config:{
+                    name: 'estado_reg',
+                    fieldLabel: 'Estado Reg.',
+                    allowBlank: true,
+                    anchor: '80%',
+                    gwidth: 100,
+                    maxLength:10,
+                    renderer:function (value,p,record){
+                        if(record.data.estado_reg !== 'summary'){
+                            return  String.format('{0}',record.data.estado_reg);
+                        }
+                    }
+                },
+                type:'TextField',
+                filters:{pfiltro:'mtd.estado_reg',type:'string'},
+                id_grupo:1,
+                grid:true,
+                form:false
+            },
+            {
+                config:{
+                    name: 'usuario_ai',
+                    fieldLabel: 'Funcionaro AI',
+                    allowBlank: true,
+                    anchor: '80%',
+                    gwidth: 100,
+                    maxLength:300
+                },
+                type:'TextField',
+                filters:{pfiltro:'mtd.usuario_ai',type:'string'},
+                id_grupo:1,
+                grid:true,
+                form:false
+            },
+            {
+                config:{
+                    name: 'fecha_reg',
+                    fieldLabel: 'Fecha creación',
+                    allowBlank: true,
+                    anchor: '80%',
+                    gwidth: 100,
+                    format: 'd/m/Y',
+                    renderer:function (value,p,record){return value?value.dateFormat('d/m/Y H:i:s'):''}
+                },
+                type:'DateField',
+                filters:{pfiltro:'mtd.fecha_reg',type:'date'},
+                id_grupo:1,
+                grid:true,
+                form:false
+            },
+            {
+                config:{
+                    name: 'usr_reg',
+                    fieldLabel: 'Creado por',
+                    allowBlank: true,
+                    anchor: '80%',
+                    gwidth: 100,
+                    maxLength:4
+                },
+                type:'Field',
+                filters:{pfiltro:'usu1.cuenta',type:'string'},
+                id_grupo:1,
+                grid:true,
+                form:false
+            },
+            {
+                config:{
+                    name: 'id_usuario_ai',
+                    fieldLabel: 'Creado por',
+                    allowBlank: true,
+                    anchor: '80%',
+                    gwidth: 100,
+                    maxLength:4
+                },
+                type:'Field',
+                filters:{pfiltro:'mtd.id_usuario_ai',type:'numeric'},
+                id_grupo:1,
+                grid:false,
+                form:false
+            },
+            {
+                config:{
+                    name: 'fecha_mod',
+                    fieldLabel: 'Fecha Modif.',
+                    allowBlank: true,
+                    anchor: '80%',
+                    gwidth: 100,
+                    format: 'd/m/Y',
+                    renderer:function (value,p,record){return value?value.dateFormat('d/m/Y H:i:s'):''}
+                },
+                type:'DateField',
+                filters:{pfiltro:'mtd.fecha_mod',type:'date'},
+                id_grupo:1,
+                grid:true,
+                form:false
+            },
+            {
+                config:{
+                    name: 'usr_mod',
+                    fieldLabel: 'Modificado por',
+                    allowBlank: true,
+                    anchor: '80%',
+                    gwidth: 100,
+                    maxLength:4
+                },
+                type:'Field',
+                filters:{pfiltro:'usu2.cuenta',type:'string'},
+                id_grupo:1,
+                grid:true,
+                form:false
+            }
         ],
         tam_pag:50,
+        title:'Mes trabajo detalle',
+        ActList:'../../sis_asistencia/control/MesTrabajoDet/listarMesTrabajoDet',
+        id_store:'id_mes_trabajo_det',
+        fields: [
+            {name:'id_mes_trabajo_det', type: 'numeric'},
+            {name:'ingreso_manana', type: 'string'},
+            {name:'id_mes_trabajo', type: 'numeric'},
+            {name:'id_centro_costo', type: 'numeric'},
+            {name:'ingreso_tarde', type: 'string'},
+            {name:'extra_autorizada', type: 'numeric'},
+            {name:'tipo', type: 'string'},
+            {name:'ingreso_noche', type: 'string'},
+            {name:'total_normal', type: 'numeric'},
+            {name:'estado_reg', type: 'string'},
+            {name:'total_extra', type: 'numeric'},
+            {name:'salida_manana', type: 'string'},
+            {name:'salida_tarde', type: 'string'},
+            {name:'justificacion_extra', type: 'string'},
+            {name:'salida_noche', type: 'string'},
+            {name:'dia', type: 'numeric'},
+            {name:'total_nocturna', type: 'numeric'},
+            {name:'usuario_ai', type: 'string'},
+            {name:'fecha_reg', type: 'date',dateFormat:'Y-m-d H:i:s.u'},
+            {name:'id_usuario_reg', type: 'numeric'},
+            {name:'id_usuario_ai', type: 'numeric'},
+            {name:'fecha_mod', type: 'date',dateFormat:'Y-m-d H:i:s.u'},
+            {name:'id_usuario_mod', type: 'numeric'},
+            {name:'usr_reg', type: 'string'},
+            {name:'usr_mod', type: 'string'}
+        ],
+        sortInfo:{
+            field: 'id_mes_trabajo_det',
+            direction: 'ASC'
+        },
+        bdel:false,
+        bsave:false,
+        bnew:false,
+        bedit: false,
 
-        bnewGroups:[0],
-        bactGroups:[0,1,2],
-        bdelGroups:[0],
-        beditGroups:[0],
-        bexcelGroups:[0,1,2],
-
-        tipoStore: 'GroupingStore',//GroupingStore o JsonStore #
-        remoteGroup: true,
-        groupField: 'literal',
-        viewGrid: new Ext.grid.GroupingView({
-            forceFit: false
+        cmbGestion: new Ext.form.ComboBox({
+            fieldLabel: 'Gestion',
+            allowBlank: false,
+            emptyText:'Gestion...',
+            blankText: 'Año',
+            grupo:[0,1,2,3,4],
+            store:new Ext.data.JsonStore(
+                {
+                    url: '../../sis_parametros/control/Gestion/listarGestion',
+                    id: 'id_gestion',
+                    root: 'datos',
+                    sortInfo:{
+                        field: 'gestion',
+                        direction: 'DESC'
+                    },
+                    totalProperty: 'total',
+                    fields: ['id_gestion','gestion'],
+                    // turn on remote sorting
+                    remoteSort: true,
+                    baseParams:{par_filtro:'gestion'}
+                }),
+            valueField: 'id_gestion',
+            triggerAction: 'all',
+            displayField: 'gestion',
+            hiddenName: 'id_gestion',
+            mode:'remote',
+            pageSize:50,
+            queryDelay:500,
+            listWidth:'280',
+            width:80
+        }),
+        cmbPeriodo: new Ext.form.ComboBox({
+            fieldLabel: 'Periodo',
+            allowBlank: false,
+            blankText : 'Mes',
+            emptyText:'Periodo...',
+            grupo:[0,1,2,3,4],
+            store:new Ext.data.JsonStore(
+                {
+                    url: '../../sis_parametros/control/Periodo/listarPeriodo',
+                    id: 'id_periodo',
+                    root: 'datos',
+                    sortInfo:{
+                        field: 'periodo',
+                        direction: 'ASC'
+                    },
+                    totalProperty: 'total',
+                    fields: ['id_periodo','periodo','id_gestion','literal'],
+                    // turn on remote sorting
+                    remoteSort: true,
+                    baseParams:{par_filtro:'gestion'}
+                }),
+            valueField: 'id_periodo',
+            triggerAction: 'all',
+            displayField: 'literal',
+            hiddenName: 'id_periodo',
+            mode:'remote',
+            pageSize:50,
+            disabled: true,
+            queryDelay:500,
+            listWidth:'280',
+            width:80
         }),
 
-        constructor: function(config) {
-           //  this.Atributos[this.getIndAtributo('tipo')].grid=false;
-            this.Atributos[this.getIndAtributo('tipo_dos')].grid=false;
-            this.Atributos[this.getIndAtributo('tipo_tres')].grid=false;
-
-
-            this.idContenedor = config.idContenedor;
-            this.maestro = config;
-
-            this.id_proceso = this.maestro.proceso_wfID;
-            this.id_estado = this.maestro.estado_wfID;
-            this.id_periodo = this.maestro.periodoID;
-            Phx.vista.MesTrabajoDetBio.superclass.constructor.call(this,config);
-            this.crearFormCc();
-            this.crearFormExtra();
-
-
-            this.store.baseParams = {tipo_interfaz: this.nombreVista};
-            // this.getBoton('btnTransaccionesUpload').setVisible(false);
-           // this.getBoton('btmBorrarTodo').setVisible(false);
-            this.addButton('btnCentro',{
-                    grupo:[1],
-                    text: 'Asignar CC',
-                    iconCls: 'blist',
-                    disabled: false,
-                    handler: this.onCentroCosto,
-                    tooltip: '<b>Asignar centro costo </b><br/>Puesde asignar tu centro costo en grupo o solo un registro'
-                }
-            );
-            this.addButton('btnExtra',{
-                    grupo:[1],
-                    text: 'Justificar Extras',
-                    iconCls: 'blist',
-                    disabled: false,
-                    handler: this.onJustificarExtra,
-                    tooltip: '<b>Justificar horas extras</b><br/>Puedes justificar tus horas extras por grupo o solo un registro'
-                }
-            );
-            this.addButton('btnSig',{ grupo:[1],
-                text:'Siguiente',
-                iconCls: 'badelante',
-                disabled:false,
-                handler:this.fin_registro,
-                tooltip: '<b>Siguiente</b><p>Pasa al siguiente estado</p>'});
-
-            this.store.baseParams.detalle = 'biometrico';
-            this.store.baseParams.pes_estado = 'borrador';
-            // this.store.baseParams.id_periodo = this.id_periodo;
-
-            this.load({params: {start: 0, limit: this.tam_pag, id_periodo : this.id_periodo}});
-        },
-        actualizarSegunTab: function(name, indice){
-            if (this.finCons) {
-                this.store.baseParams.pes_estado = name;
-                this.load({params: {start: 0, limit: this.tam_pag, id_periodo : this.id_periodo}});
-            }
-        },
-        preparaMenu:function(n){
-            var tb =this.tbar;
-            Phx.vista.MesTrabajoDetBio.superclass.preparaMenu.call(this,n);
-                this.getBoton('btnCentro').enable();
-                this.getBoton('btnExtra').enable();
-            return tb;
-        },
-        liberaMenu: function() {
-            var tb = Phx.vista.MesTrabajoDetBio.superclass.liberaMenu.call(this);
-            if(tb){
-                this.getBoton('btnCentro').disable();
-                this.getBoton('btnExtra').disable();
-            }
-            return tb;
-        },
-        onCentroCosto:function () {
-            var seleccionados = this.sm.getSelections();
-            for (var i = 0 ; i< seleccionados.length;i++){
-                this.lista.push(seleccionados[i].id);
-            }
-            this.mostarFormCc();
-        },
-        mostarFormCc:function(){
-            var seleccionados = this.sm.getSelections();
-            if(seleccionados){
-                this.ventanaCentroCosto.show();
-            }
-        },
-        crearFormCc:function(){
-            var storeCombo = new Ext.data.JsonStore({
-                url: '../../sis_parametros/control/CentroCosto/listarCentroCosto',
-                id: 'id_centro_costo',
-                root: 'datos',
-                sortInfo:{
-                    field: 'codigo_cc',
-                    direction: 'ASC'
-                },
-                totalProperty: 'total',
-                fields: ['id_centro_costo','codigo_cc','codigo_uo','ep','gestion','nombre_uo',
-                    'nombre_programa','nombre_proyecto','nombre_financiador','nombre_regional',
-                    'nombre_actividad','movimiento_tipo_pres'],
-                remoteSort: true,
-                baseParams: {par_filtro: 'id_centro_costo#codigo_cc#codigo_uo#nombre_uo#nombre_actividad#nombre_programa#nombre_proyecto#nombre_regional#nombre_financiador',
-                    aprobado: 'si',
-                    tipo_pres:"gasto,administrativo,recurso,ingreso_egreso"
-                }
-            });
-            var combo = new Ext.form.ComboBox({
-                name:'id_centro_costo',
-                fieldLabel:'Centro Costo',
-                allowBlank : false,
-                typeAhead: true,
-                store: storeCombo,
-                mode: 'remote',
-                pageSize: 15,
-                triggerAction: 'all',
-                valueField : 'id_centro_costo',
-                displayField : 'codigo_cc',
-                forceSelection: true,
-                allowBlank : false,
-                anchor: '100%',
-                resizable : true,
-                enableMultiSelect: false
-            });
-            this.formCc = new Ext.form.FormPanel({
-                baseCls: 'x-plain',
-                autoDestroy: true,
-                border: false,
-                layout: 'form',
-                autoHeight: true,
-                items: [combo]
-            });
-            this.ventanaCentroCosto = new Ext.Window({
-                title: 'Centro de costo',
-                collapsible: true,
-                maximizable: true,
-                autoDestroy: true,
-                width: 600,
-                height: 170,
-                layout: 'fit',
-                plain: true,
-                bodyStyle: 'padding:5px;',
-                buttonAlign: 'center',
-                items: this.formCc,
-                modal:true,
-                closeAction: 'hide',
-                buttons: [{
-                    text: 'Guardar',
-                    handler: this.saveAutorizacion,
-                    scope: this},
-                    {
-                        text: 'Cancelar',
-                        handler: function(){ this.ventanaCentroCosto.hide() },
-                        scope: this
-                    }]
-            });
-            this.cmpCc = this.formCc.getForm().findField('id_centro_costo');
-        },
-        saveAutorizacion: function(){
-           // var d = this.getSelectedData();
-            Phx.CP.loadingShow();
-            Ext.Ajax.request({
-                url: '../../sis_asistencia/control/MesTrabajoDet/insertarCentro',
-                params: {
-                    id_mes_trabajo_det: this.lista.toString(),
-                    id_centro_costo: this.cmpCc.getValue()
-                },
-                success: this.successSinc,
-                failure: this.conexionFailure,
-                timeout: this.timeout,
-                scope: this
-            });
-        },
-        successSinc:function(resp){
-            Phx.CP.loadingHide();
-            var reg = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));
-            if(!reg.ROOT.error){
-                if(this.ventanaCentroCosto){
-                    this.ventanaCentroCosto.hide();
-                }
-                this.lista = [];
-                // var sn = this.sm.getSelections();
-                this.load({params: {start: 0, limit: this.tam_pag, id_periodo : this.id_periodo}});
-                this.cmpCc.setValue(null);
-            }else{
-                alert('ocurrio un error durante el proceso')
-            }
-        },
-        onJustificarExtra:function () {
-            var seleccionados = this.sm.getSelections();
-            for (var i = 0 ; i< seleccionados.length;i++){
-              if (parseFloat(seleccionados[i].data.total_extra) > 0){
-                  this.lista.push(seleccionados[i].id);
-              }
-            }
-            this.ventanaExtra.show();
-        },
-        crearFormExtra:function(){
-            var justificar = new Ext.form.TextArea({
-                    name: 'justificar',
-                    msgTarget: 'title',
-                    fieldLabel: 'Justificar Hrs. Extras',
-                    allowBlank: true,
-                    anchor: '90%',
-                    maxLength:50
-                });
-            this.formExtra = new Ext.form.FormPanel({
-                baseCls: 'x-plain',
-                autoDestroy: true,
-                border: false,
-                layout: 'form',
-                autoHeight: true,
-                items: [justificar]
-            });
-            this.ventanaExtra = new Ext.Window({
-                title: 'Comentario',
-                collapsible: true,
-                maximizable: true,
-                autoDestroy: true,
-                width: 550,
-                height: 170,
-                layout: 'fit',
-                plain: true,
-                bodyStyle: 'padding:5px;',
-                buttonAlign: 'center',
-                items: this.formExtra,
-                modal:true,
-                closeAction: 'hide',
-                buttons: [{
-                    text: 'Guardar',
-                    handler: this.saveExtra,
-                    scope: this},
-                    {
-                        text: 'Cancelar',
-                        handler: function(){ this.ventanaExtra.hide() },
-                        scope: this
-                    }]
-            });
-            this.cmpjustificar = this.formExtra.getForm().findField('justificar');
-        },
-        saveExtra:function () {
-            Phx.CP.loadingShow();
-            Ext.Ajax.request({
-                url: '../../sis_asistencia/control/MesTrabajoDet/insertarExtra',
-                params: {
-                    id_mes_trabajo_det: this.lista.toString(),
-                    justificar: this.cmpjustificar.getValue()
-                },
-                success: this.successSincExtra,
-                failure: this.conexionFailure,
-                timeout: this.timeout,
-                scope: this
-            });
-        },
-        successSincExtra:function(resp){
-            Phx.CP.loadingHide();
-            var reg = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));
-            if(!reg.ROOT.error){
-                if(this.ventanaExtra){
-                    this.ventanaExtra.hide();
-                }
-                this.lista = [];
-                this.load({params: {start: 0, limit: this.tam_pag, id_periodo : this.id_periodo}});
-
-                this.cmpjustificar.setValue(null);
-            }else{
-                alert('ocurrio un error durante el proceso')
-            }
-        },
-        fin_registro: function(){
-            this.objWizard = Phx.CP.loadWindows('../../../sis_workflow/vista/estado_wf/FormEstadoWf.php',
-                'Estado de Wf',
-                {
-                    modal: true,
-                    width: 700,
-                    height: 450
-                },
-                {
-                    data: {
-                        id_estado_wf: this.id_estado ,
-                        id_proceso_wf:this.id_proceso
-                    }
-                }, this.idContenedor, 'FormEstadoWf',
-                {
-                    config: [{
-                        event: 'beforesave',
-                        delegate: this.onSaveWizard
-                    }],
-                    scope: this
-                }
-            );
-        },
-        onSaveWizard:function(wizard,resp){
-            var reg = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));
-            Phx.CP.loadingShow();
-            Ext.Ajax.request({
-                url:'../../sis_asistencia/control/MesTrabajo/siguienteEstado',
-                params:{
-                    id_proceso_wf_act:  resp.id_proceso_wf_act,
-                    id_estado_wf_act:   resp.id_estado_wf_act,
-                    id_tipo_estado:     resp.id_tipo_estado,
-                    id_funcionario_wf:  resp.id_funcionario_wf,
-                    id_depto_wf:        resp.id_depto_wf,
-                    obs:                resp.obs,
-                    json_procesos:      Ext.util.JSON.encode(resp.procesos)
-                },
-                success:this.successWizard,
-                failure: this.conexionFailure,
-                argument:{wizard:wizard},
-                timeout:this.timeout,
-                scope:this
-            });
-        },
-        successWizard:function(resp){
-            Phx.CP.loadingHide();
-            resp.argument.wizard.panel.destroy();
-            this.load({params: {start: 0, limit: this.tam_pag, id_periodo : this.id_periodo}});
         }
-
-    };
+    )
 </script>
 
