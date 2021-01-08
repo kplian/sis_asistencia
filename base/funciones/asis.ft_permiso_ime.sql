@@ -720,7 +720,7 @@ BEGIN
                                       '',--titulo correo
                                       '', --correo funcionario
                                       null,--#9
-                                      v_permiso.id_tipo_permiso,
+                                      v_permiso.id_proceso_wf,
                                       v_permiso.id_estado_wf--#9
                                      );
                 end if;
@@ -751,7 +751,7 @@ BEGIN
                                     '',--titulo correo
                                     '', --correo funcionario
                                     null,--#9
-                                    v_permiso.id_tipo_permiso,
+                                    v_permiso.id_proceso_wf,
                                     v_permiso.id_estado_wf--#9
                                    );
 			   end if;
@@ -781,7 +781,7 @@ BEGIN
                                     '',--titulo correo
                                     '', --correo funcionario
                                     null,--#9
-                                    v_permiso.id_tipo_permiso,
+                                    v_permiso.id_proceso_wf,
                                     v_permiso.id_estado_wf--#9
                                    );
 			   end if;
