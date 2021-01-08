@@ -85,6 +85,7 @@ DECLARE
     v_registro						record;
     v_descripcion_correo    		varchar;
     v_id_alarma        				integer;
+    v_dia_anerior					numeric;
     
     -- v_movimiento_vacacion			record;
 
@@ -446,15 +447,17 @@ BEGIN
 
 		begin
 			--Sentencia de la modificacion
-
-        IF v_parametros.fecha_inicio::DATE > v_parametros.fecha_fin::DATE THEN
-	            RAISE EXCEPTION 'ERROR: FECHA INICIO MAYOR A FECHA FIN.';
-        END IF;
             
             select va.estado  into v_actual_vacacion
             from asis.tvacacion va
             where va.id_vacacion = v_parametros.id_vacacion;
             
+
+            ----
+            select v.dias into v_dia_anerior
+            from asis.tvacacion v
+			where v.id_vacacion = v_parametros.id_vacacion;
+                
             v_saldo = 0;
             
             if (v_actual_vacacion.estado = 'aprobado') then
@@ -549,6 +552,10 @@ BEGIN
             WHERE now() BETWEEN g.fecha_ini and g.fecha_fin;
 
 
+				
+                
+            if (v_dia_anerior != v_parametros.dias) then    
+                
             delete from asis.tvacacion_det vd
             where vd.id_vacacion = v_parametros.id_vacacion;
 
@@ -590,7 +597,7 @@ BEGIN
                     end if;
     			 end if;
                 end loop;
-            
+            end if;
             
 
 			--Definicion de la respuesta
