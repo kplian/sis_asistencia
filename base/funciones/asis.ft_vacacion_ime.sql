@@ -446,6 +446,10 @@ BEGIN
 
 		begin
 			--Sentencia de la modificacion
+
+        IF v_parametros.fecha_inicio::DATE > v_parametros.fecha_fin::DATE THEN
+	            RAISE EXCEPTION 'ERROR: FECHA INICIO MAYOR A FECHA FIN.';
+        END IF;
             
             select va.estado  into v_actual_vacacion
             from asis.tvacacion va
