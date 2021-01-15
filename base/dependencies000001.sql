@@ -160,3 +160,6 @@ FROM asis.tvacacion va
      JOIN orga.vfuncionario fu ON fu.id_funcionario = va.id_funcionario
      LEFT JOIN orga.vfuncionario sf ON sf.id_funcionario = va.id_funcionario_sol;
 /***********************************F-DEP-MMV-ASIS-2-22/12/2020*****************************************/
+/***********************************I-DEP-MMV-ASIS-2-22/12/2020*****************************************/
+select pxp.f_insert_testructura_gui ('ACF', 'ASIS');
+/***********************************F-DEP-MMV-ASIS-2-22/12/2020*****************************************/

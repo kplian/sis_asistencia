@@ -300,7 +300,7 @@ BEGIN
                                     p.numero_nivel
                              FROM path p
                              inner join orga.vfuncionario f on f.id_funcionario = p.id_funcionario
-                             where p.id_funcionario != '||v_parametros.id_funcionario||' and ';
+                             where p.numero_nivel in (1,2,4) and p.id_funcionario != '||v_parametros.id_funcionario||' and ';
 
 			--Definicion de la respuesta
 			v_consulta:=v_consulta||v_parametros.filtro;
@@ -342,7 +342,7 @@ BEGIN
                                SELECT count(p.id_funcionario) 
                                FROM path p
                                inner join orga.vfuncionario f on f.id_funcionario = p.id_funcionario
-                               where p.id_funcionario != '||v_parametros.id_funcionario||' and ';
+                               where p.numero_nivel in (1,2,4) and p.id_funcionario != '||v_parametros.id_funcionario||' and ';
 
 			--Definicion de la respuesta
 			v_consulta:=v_consulta||v_parametros.filtro;
