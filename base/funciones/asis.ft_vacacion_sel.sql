@@ -458,7 +458,7 @@ BEGIN
                                           FROM dias d;
                      	      
                                
-
+							
 
                              SELECT
                              a.dias_asignados
@@ -468,6 +468,7 @@ BEGIN
                              WHERE a.id_gestion=v_id_gestion_actual
                              AND (v_record_tiempo.anios_antiguedad::INTEGER BETWEEN a.desde_anhos AND a.hasta_anhos );
 
+								--raise exception '%',v_record_tiempo;
 
                              INSERT INTO asis.tmovimiento_vacacion ( id_funcionario,
                                                                      desde,

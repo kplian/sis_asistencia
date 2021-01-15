@@ -688,7 +688,7 @@ BEGIN
                           uofun.estado_reg != ''inactivo'' and uofun.id_funcionario = '||v_parametros.id_funcionario||'
                           order by uofun.id_funcionario, uofun.fecha_asignacion desc ) fun
                           left join asis.tmovimiento_vacacion mv on mv.id_funcionario = fun.id_funcionario and  mv.estado_reg = ''activo''
-                          order by mv.id_movimiento_vacacion asc';
+                          order by mv.fecha_reg';
 
 
 
