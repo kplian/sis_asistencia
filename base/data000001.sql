@@ -247,6 +247,6 @@ select wf.f_import_tplantilla_correo ('insert','CSOPE','vobo','PER-ASI','','<h3>
 <p style="font-size: 15px;"><b>Desde:</b> {$tabla.hro_desde} <b>Hasta:</b> {$tabla.hro_hasta}</p>
 <p style="font-size: 15px;"><b>Justificacion:</b> {$tabla.motivo}</p>','magali.sinani@endetransmision.bo','Solicitud de persmiso','','no','','','','no','','','','');
 /***********************************F-DAT-MMV-ASIS-2-07/01/2021*****************************************/
-/***********************************I-DAT-VAN-ASIS-1-14/01/2021*****************************************/
+/***********************************I-DAT-VAN-ASIS-0-15/01/2021*****************************************/
 select pxp.f_insert_tgui ('Consulta fondos', 'Consulta de Fondos', 'ACF', 'si', 14, 'sis_cuenta_documentada/vista/cuenta_doc/CuentaDocConsultaAsis.php', 2, '', 'CuentaDocConsultaAsis', 'ASIS');
-/***********************************F-DAT-MMV-ASIS-1-14/01/2021*****************************************/
+/***********************************F-DAT-VAN-ASIS-0-15/01/2021*****************************************/
