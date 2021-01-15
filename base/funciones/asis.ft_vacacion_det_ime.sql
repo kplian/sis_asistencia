@@ -113,14 +113,16 @@ BEGIN
            if (v_vacacion.estado = 'aprobado')then
            			if exists (	select 1
                             from asis.tmovimiento_vacacion mo 
-                            where mo.id_vacacion = v_id_vacacion)then
+                            where mo.id_vacacion = v_id_vacacion
+                            and mo.id_funcionario = v_vacacion.id_funcionario)then
                             
                         select mm.id_movimiento_vacacion,
                                mm.dias,
                                mm.dias_actual into v_movimiento_vacacion
                         from asis.tmovimiento_vacacion mm
                         where mm.id_vacacion = v_id_vacacion
-                        	and mm.estado_reg = 'activo' and mm.activo='activo';    
+                        	and mm.estado_reg = 'activo' and mm.activo='activo'
+                            and mm.id_funcionario = v_vacacion.id_funcionario;    
                             
                             
                             
@@ -137,7 +139,7 @@ BEGIN
                             v_saldo = v_saldo_anterior - v_dias_efectivo;
                             
                             update asis.tmovimiento_vacacion set
-                            dias = v_dias_efectivo,
+                            dias = -1*v_dias_efectivo,
                             dias_actual = v_saldo
                             where id_movimiento_vacacion = v_movimiento_vacacion.id_movimiento_vacacion;
                             

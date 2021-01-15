@@ -37,6 +37,7 @@ header("content-type: text/javascript; charset=UTF-8");
             }
         },
         gruposBarraTareas:[
+            {name:'registro',title:'<h1 align="center"><i></i>Borrador</h1>',grupo:1,height:0},
             {name:'vobo',title:'<h1 align="center"><i></i>VoBo</h1>',grupo:2,height:0},
             {name:'aprobado',title:'<h1 align="center"><i></i>Aprobado</h1>',grupo:5,height:0},
             {name:'rechazado',title:'<h1 align="center"><i></i>Rechazados</h1>',grupo:4,height:0},
@@ -45,7 +46,7 @@ header("content-type: text/javascript; charset=UTF-8");
         bnewGroups:[0,3],
         bactGroups:[0,1,2,3,4,5],
         bdelGroups:[0],
-        beditGroups:[2,5],
+        beditGroups:[1,2,5],
         bexcelGroups:[0,1,2,3,4,5],
         grupoDateFin: [2,4,5],
 
@@ -53,7 +54,15 @@ header("content-type: text/javascript; charset=UTF-8");
             this.initButtons=[];
             Phx.vista.VacacionRrhh.superclass.constructor.call(this, config);
             this.store.baseParams.tipo_interfaz = this.nombreVista;
-            this.store.baseParams.pes_estado = 'vobo';
+            this.store.baseParams.pes_estado = 'registro';
+
+            this.addButton('btn_para_giles',{grupo:[1],
+                text:'Enviar Solicitud',
+                iconCls: 'bemail',
+                disabled:true,
+                handler:this.onGiles});
+
+
             this.addButton('btn_siguiente',{grupo:[0,2,3],
                 text:'Aprobar',
                 iconCls: 'bok',
@@ -82,6 +91,9 @@ header("content-type: text/javascript; charset=UTF-8");
                 tooltip: '<b>Reenviar</b><p>al responsable asignado de la solicitud</p>'
             });
             this.getBoton('btn_cancelar').setVisible(false);
+            this.getBoton('btn_siguiente').setVisible(false);
+            this.getBoton('btn_atras').setVisible(false);
+            this.getBoton('btn_reenviar').setVisible(false);
             this.load({params: {start: 0, limit: this.tam_pag}});
         },
         onReloadPage:function(param){
@@ -102,6 +114,7 @@ header("content-type: text/javascript; charset=UTF-8");
             this.getBoton('btn_siguiente').enable();
             this.getBoton('btn_cancelar').enable();
             this.getBoton('btn_reenviar').enable();
+            this.getBoton('btn_para_giles').enable();
         },
         liberaMenu:function() {
             var tb = Phx.vista.VacacionRrhh.superclass.liberaMenu.call(this);
@@ -111,6 +124,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 this.getBoton('btn_siguiente').disable();
                 this.getBoton('btn_cancelar').disable();
                 this.getBoton('btn_reenviar').disable();
+                this.getBoton('btn_para_giles').disable();
             }
         },
         onSiguiente :function () {
@@ -171,6 +185,27 @@ header("content-type: text/javascript; charset=UTF-8");
             }
             Phx.CP.loadingHide();
         },
+        onGiles :function () {
+            Phx.CP.loadingShow();
+            const rec = this.sm.getSelected(); //obtine los datos selecionado en la grilla
+            console.log(rec);
+            if(confirm('¿Enviar solicitud a '+rec.data.responsable+'?')) {
+                Ext.Ajax.request({
+                    url: '../../sis_asistencia/control/Vacacion/aprobarEstado',
+                    params: {
+                        id_proceso_wf:  rec.data.id_proceso_wf,
+                        id_estado_wf:  rec.data.id_estado_wf,
+                        evento : 'siguiente',
+                        obs : ''
+                    },
+                    success: this.successWizard,
+                    failure: this.conexionFailure,
+                    timeout: this.timeout,
+                    scope: this
+                });
+            }
+            Phx.CP.loadingHide();
+        },
         west: {
             url: '../../../sis_asistencia/vista/consulta_rrhh/FormFiltroVacacion.php',
             width: '27%',
@@ -179,11 +214,10 @@ header("content-type: text/javascript; charset=UTF-8");
             cls: 'FormFiltroVacacion'
         },
         east:{
-            url:'../../../sis_asistencia/vista/vacacion_det/VacacionDet.php',
+            url:'../../../sis_asistencia/vista/vacacion_det/VacacionDetRrhh.php',
             title:'Detalle',
-            // height:'50%',
             width:'35%',
-            cls:'VacacionDet'
+            cls:'VacacionDetRrhh'
         }
     };
 </script>

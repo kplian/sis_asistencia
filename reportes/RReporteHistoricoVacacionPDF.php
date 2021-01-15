@@ -118,6 +118,7 @@ EOD;
     }
     function reporteRequerimiento(){
         $this->ln();
+
         $table = ' <table cellspacing="0" cellpadding="1">';
         foreach ($this->datos as $value){
 
@@ -128,13 +129,13 @@ EOD;
             $dia = $value['dia'];
             $saldo = $value['saldo'];
 
-            if ($dia > 0 and  $saldo > 0) {
+            if ($dia != 0 and  $saldo != 0) {
                 $table .= '<tr>';
-                $table .= '<td  align="center" >' . $tipo . '</td>
-                        <td  align="center" >' . $fecha . '</td>
-                        <td  align="center" >' . $desde . ' - ' . $hasta . '</td>
-                        <td  align="center" >' . $dia . '</td>
-                        <td  align="center" >' . $saldo . '</td>';
+                $table .= ' <td  align="center" >' . $tipo . '</td>
+                            <td  align="center" >' . $fecha . '</td>
+                            <td  align="center" >' . $desde . ' - ' . $hasta . '</td>
+                            <td  align="center" >' . $dia .   '</td>
+                            <td  align="center" >' . $saldo . '</td>';
                 $table .= '</tr>';
             }
         }

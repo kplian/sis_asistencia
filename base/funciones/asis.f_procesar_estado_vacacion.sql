@@ -44,9 +44,20 @@ DECLARE
     v_vacacion_record      			record;
     v_movimiento_vacacion			record;
     v_id_mov_actual					integer;
+    v_id_alarma_copiar				integer;
+    v_id_funcionario_copia			integer;
+    v_validar_vacacion				record;
+    v_vacacion_anterior				record;
+    v_mensaje_error					varchar;
+    v_id_alarma_secretaria			integer;
+    v_secretaria					record;
+    v_saldo_actual					numeric;
+    v_dia_actual					numeric;
+    v_operacion						numeric;
+    v_conversor						numeric;
 
 BEGIN
-  v_nombre_funcion = 'mat.f_procesar_estados_solicitud';
+  v_nombre_funcion = 'asis.f_procesar_estado_vacacion';
 
 	select 	me.id_vacacion,
     		me.fecha_inicio,
@@ -71,50 +82,245 @@ BEGIN
 
 
    if p_codigo_estado = 'vobo' then
+   
+    create temporary table tmp_error_vacacion(  id serial, 
+    											fecha_dia date, 
+                                                tiempo varchar, 
+                                                id_funcionario integer,
+                                                estado varchar
+                                                )ON COMMIT DROP;
+                                                
+  	for v_validar_vacacion in ( select vd.fecha_dia,
+                                       vd.tiempo
+                                 from asis.tvacacion v
+                                 inner join asis.tvacacion_det vd on vd.id_vacacion = v.id_vacacion
+                                 where v.id_vacacion = v_registro.id_vacacion ) loop
+                                 
+    
+    					if exists (select 1
+                               from asis.tvacacion va
+                               inner join asis.tvacacion_det vd on vd.id_vacacion = va.id_vacacion
+                               where va.id_funcionario = v_registro.id_funcionario 
+                                      and vd.fecha_dia = v_validar_vacacion.fecha_dia
+                                      and va.estado in ('aprobado','vobo'))then
+                                
+                                            
+                                  
+                                  for v_vacacion_anterior in (select  vd.fecha_dia, 
+                                                                       vd.tiempo,
+                                                                       va.estado
+                                                                  from asis.tvacacion va
+                                                                  inner join asis.tvacacion_det vd on vd.id_vacacion = va.id_vacacion
+                                                                  where va.id_funcionario = v_registro.id_funcionario 
+                                                                          and vd.fecha_dia = v_validar_vacacion.fecha_dia
+                                                                          and va.estado in ('aprobado','vobo')) loop
+                                                                          
+                                                                          
+           						if v_validar_vacacion.tiempo = 'completo' then
+                                        if exists (select 1
+                                                   from asis.tvacacion va
+                                                   inner join asis.tvacacion_det vd on vd.id_vacacion = va.id_vacacion
+                                                   where va.id_funcionario = v_registro.id_funcionario 
+                                                          and vd.fecha_dia = v_validar_vacacion.fecha_dia
+                                                          and vd.tiempo = 'completo'
+                                                          and vd.tiempo = v_validar_vacacion.tiempo
+                                                          and va.estado in ('aprobado','vobo'))then
+                                                                    
+                                                      insert into tmp_error_vacacion(  fecha_dia,
+                                                                                       tiempo,
+                                                                                       id_funcionario,
+                                                                                       estado
+                                                                                       )values(
+                                                                                       v_vacacion_anterior.fecha_dia,
+                                                                                       v_vacacion_anterior.tiempo,
+                                                                                       v_registro.id_funcionario,
+                                                                                       v_vacacion_anterior.estado);    
+                                            else
+                                               
+                                                    if(v_validar_vacacion.tiempo != v_vacacion_anterior.tiempo)then
+                                                          
+                                                    insert into tmp_error_vacacion(  fecha_dia,
+                                                                                     tiempo,
+                                                                                     id_funcionario,
+                                                                                     estado
+                                                                                     )values(
+                                                                                     v_vacacion_anterior.fecha_dia,
+                                                                                     v_vacacion_anterior.tiempo,
+                                                                                     v_registro.id_funcionario,
+                                                                                     v_vacacion_anterior.estado); 
+                                                          
+                                                      end if;
+                                          end if;
+                                 end if; 
+                                 
+                                   if v_validar_vacacion.tiempo != 'completo' then
+                               
+                                      if(v_validar_vacacion.tiempo = v_vacacion_anterior.tiempo)then
+                                                              
+                                                        insert into tmp_error_vacacion( fecha_dia,
+                                                                                         tiempo,
+                                                                                         id_funcionario,
+                                                                                         estado
+                                                                                         )values(
+                                                                                         v_vacacion_anterior.fecha_dia,
+                                                                                         v_vacacion_anterior.tiempo,
+                                                                                         v_registro.id_funcionario,
+                                                                                         v_vacacion_anterior.estado); 
+                                                              
+                                      end if;
+                                      
+                                      if (v_vacacion_anterior.tiempo = 'completo') then
+                                       insert into tmp_error_vacacion( fecha_dia,
+                                                                                         tiempo,
+                                                                                         id_funcionario,
+                                                                                         estado
+                                                                                         )values(
+                                                                                         v_vacacion_anterior.fecha_dia,
+                                                                                         v_vacacion_anterior.tiempo,
+                                                                                         v_registro.id_funcionario,
+                                                                                         v_vacacion_anterior.estado); 
+                                      end if;
+                                   		
+                                   end if;
+                                 
+                                 
+                                 end loop;
+                                              
+                                      
+                                      
+                               
+                                 
+                    	end if;
+    end loop;
+    
+    
+      if exists (  select 1
+                   from tmp_error_vacacion t
+                   where t.id_funcionario = v_registro.id_funcionario )then
+   
+   
+   select pxp.list(' Dia: '||tm.fecha_dia || ' - '||tm.tiempo||'' || ' Estado: '||tm.estado) into v_mensaje_error
+   from tmp_error_vacacion tm
+   where tm.id_funcionario = v_registro.id_funcionario;
+   
+   
+   raise exception 'Vacacion registrado: %',v_mensaje_error;
+   
+   end if;
+ 
+	
+    
+    v_descripcion_correo = '<h3><b>SOLICITUD DE VACACIÓN</b></h3>
+                            <p style="font-size: 15px;"><b>Fecha solicitud:</b> '||v_registro.fecha_solictudo||' </p>
+                            <p style="font-size: 15px;"><b>Solicitud para:</b> '||v_registro.desc_funcionario1||'</p>
+                            <p style="font-size: 15px;"><b>Desde:</b> '||v_registro.fecha_inicio||' <b>Hasta:</b> '||v_registro.fecha_fin||'</p>
+                            <p style="font-size: 15px;"><b>Días solicitados:</b> '||v_registro.dias||'</p>
+                            <p style="font-size: 15px;"><b>Justificación:</b> '||v_registro.descripcion||'</p>';
 
-    		if (v_registro.id_funcionario_sol is not null)then
-                v_descripcion_correo = '<h3><b>SOLICITUD DE VACACIÓN</b></h3>
-                                      <p style="font-size: 15px;"><b>Fecha solicitud:</b> '||v_registro.fecha_solictudo||' </p>
-                                      <p style="font-size: 15px;"><b>Solicitud para:</b> '||v_registro.desc_funcionario1||'</p>
-                                      <p style="font-size: 15px;"><b>Desde:</b> '||v_registro.fecha_inicio||' <b>Hasta:</b> '||v_registro.fecha_fin||'</p>
-                                      <p style="font-size: 15px;"><b>Días solicitados:</b> '||v_registro.dias||'</p>
-                                      <p style="font-size: 15px;"><b>Justificación:</b> '||v_registro.descripcion||'</p>';
 
-                v_id_alarma = param.f_inserta_alarma(
-                                    v_registro.id_funcionario,
-                                    v_descripcion_correo,--par_descripcion
-                                    '',--acceso directo
-                                    now()::date,--par_fecha: Indica la fecha de vencimiento de la alarma
-                                    'notificacion', --notificacion
-                                    'Solicitud Vacacion',  --asunto
-                                    p_id_usuario,
-                                    '', --clase
-                                    'Solicitud Vacacion',--titulo
-                                    '',--par_parametros varchar,   parametros a mandar a la interface de acceso directo
-                                    v_registro.id_usuario_reg, --usuario a quien va dirigida la alarma
-                                    '',--titulo correo
-                                    '', --correo funcionario
-                                    null,--#9
-                                    p_id_proceso_wf,
-                                    v_registro.id_estado_wf--#9
-                                   );
-               end if;
+    if (v_registro.id_funcionario_sol is not null)then
+      v_id_alarma = param.f_inserta_alarma(
+                          v_registro.id_funcionario,
+                          v_descripcion_correo,--par_descripcion
+                          '',--acceso directo
+                          now()::date,--par_fecha: Indica la fecha de vencimiento de la alarma
+                          'notificacion', --notificacion
+                          'Solicitud Vacacion',  --asunto
+                          p_id_usuario,
+                          '', --clase
+                          'Solicitud Vacacion',--titulo
+                          '',--par_parametros varchar,   parametros a mandar a la interface de acceso directo
+                          v_registro.id_funcionario, --usuario a quien va dirigida la alarma
+                          '',--titulo correo
+                          '', --correo funcionario
+                          null,--#9
+                          p_id_proceso_wf,
+                          v_registro.id_estado_wf--#9
+                         );
+     end if;
+               
+               
+                                     
+      select f.id_funcionario into v_id_funcionario_copia
+      from orga.vfuncionario_cargo f
+      where (f.fecha_finalizacion is null or f.fecha_asignacion >= now()::date)
+            and f.desc_funcionario1 like '%MAGALI SIÑANI IRAHOLA%';
+                      
+                      
+      v_id_funcionario_copia = param.f_inserta_alarma(
+                          v_id_funcionario_copia,
+                          v_descripcion_correo,--par_descripcion
+                          '',--acceso directo
+                          now()::date,--par_fecha: Indica la fecha de vencimiento de la alarma
+                          'notificacion', --notificacion
+                          'Solicitud Vacacion',  --asunto
+                          p_id_usuario,
+                          '', --clase
+                          'Solicitud Vacacion',--titulo
+                          '',--par_parametros varchar,   parametros a mandar a la interface de acceso directo
+                          v_id_funcionario_copia, --usuario a quien va dirigida la alarma
+                          '',--titulo correo
+                          '', --correo funcionario
+                          null,--#9
+                          p_id_proceso_wf,
+                          v_registro.id_estado_wf--#9
+                         );
+                         
+       with secretaria as ( select distinct on (ca.id_funcionario) ca.id_funcionario,
+                ca.desc_funcionario1 as funcioanrio,
+                ca.nombre_cargo,
+                ger.id_uo,
+                ger.nombre_unidad as gerencia
+                from orga.vfuncionario_cargo ca
+                inner join orga.tcargo car on car.id_cargo = ca.id_cargo
+                inner join orga.tuo ger on ger.id_uo = orga.f_get_uo_gerencia(ca.id_uo, NULL::integer, NULL::date)
+                where ca.id_funcionario = v_registro.id_funcionario
+                and ca.fecha_asignacion <= now()::date and (ca.fecha_finalizacion is null or ca.fecha_finalizacion >= now()::date)
+                order by ca.id_funcionario, ca.fecha_asignacion desc
+                ) select fg.id_funcionario as id_secretaria,
+                         fg.desc_funcionario1 as secretaria,
+                         u.nombre_unidad into v_secretaria
+                from orga.testructura_uo es
+                inner join orga.tuo u on u.id_uo = es.id_uo_hijo
+                inner join orga.tnivel_organizacional n on n.id_nivel_organizacional = u.id_nivel_organizacional
+                inner join secretaria s on s.id_uo = es.id_uo_padre 
+                inner join orga.vfuncionario_cargo fg on fg.id_uo = u.id_uo 
+                and fg.fecha_asignacion <= now()::date 
+                and (fg.fecha_finalizacion is null or fg.fecha_finalizacion >= now()::date)
+                where n.numero_nivel = 9;
+                
+                v_id_alarma_secretaria =  param.f_inserta_alarma( v_secretaria.id_secretaria,
+                                                                  v_descripcion_correo,--par_descripcion
+                                                                  '',--acceso directo
+                                                                  now()::date,--par_fecha: Indica la fecha de vencimiento de la alarma
+                                                                  'notificacion', --notificacion
+                                                                  'Solicitud Vacacion '||v_secretaria.nombre_unidad,  --asunto
+                                                                  p_id_usuario,
+                                                                  '', --clase
+                                                                  'Solicitud Vacacion '||v_secretaria.nombre_unidad,--titulo
+                                                                  '',--par_parametros varchar,   parametros a mandar a la interface de acceso directo
+                                                                  v_secretaria.id_secretaria, --usuario a quien va dirigida la alarma
+                                                                  '',--titulo correo
+                                                                  '', --correo funcionario
+                                                                  null,--#9
+                                                                  p_id_proceso_wf,
+                                                                  v_registro.id_estado_wf);
 
-      select sum(d.dias_efectico) into v_dias_efectivo
-      from (
-      select
-              (case
-                              when vd.tiempo  = 'completo' then
-                               1
-                              when vd.tiempo  = 'mañana' then
-                              0.5
-                              when vd.tiempo  = 'tarde' then
-                              0.5
-                              else
-                              0
-                              end ::numeric ) as dias_efectico
-      from asis.tvacacion_det vd
-      where vd.id_vacacion =  v_registro.id_vacacion ) d;
+        select sum(d.dias_efectico) into v_dias_efectivo
+        from (
+        select
+                (case
+                                when vd.tiempo  = 'completo' then
+                                 1
+                                when vd.tiempo  = 'mañana' then
+                                0.5
+                                when vd.tiempo  = 'tarde' then
+                                0.5
+                                else
+                                0
+                                end ::numeric ) as dias_efectico
+        from asis.tvacacion_det vd
+        where vd.id_vacacion =  v_registro.id_vacacion ) d;
 
       update asis.tvacacion  set
       dias_efectivo = v_dias_efectivo,
@@ -189,7 +395,7 @@ BEGIN
                             v_resultado,-- v_record.dias_actual - v_registro.dias,
                             'activo',
                             v_record.codigo,
-                            -1*v_registro.dias,
+                            -1 * v_registro.dias,
                             v_evento,
                             v_registro.id_vacacion
                             )returning id_movimiento_vacacion into v_id_movimiento_vacacion;
@@ -251,36 +457,69 @@ BEGIN
             select v.id_vacacion, v.id_funcionario into v_vacacion_record
             from asis.tvacacion v
             where v.id_proceso_wf = p_id_proceso_wf;
+            
+            
+            if exists ( select 1
+                        from asis.tmovimiento_vacacion m
+                        where m.id_vacacion = v_registro.id_vacacion
+                                and m.id_funcionario = v_vacacion_record.id_funcionario
+                                 and m.activo = 'activo' and m.estado_reg = 'activo')then
+                                 
+            			select m.id_movimiento_vacacion, 
+                        	   m.id_funcionario 
+                               	into 
+                               v_movimiento_vacacion
+                       from asis.tmovimiento_vacacion m
+                       where m.id_vacacion = v_registro.id_vacacion
+                              and m.id_funcionario = v_vacacion_record.id_funcionario
+                               and m.activo = 'activo' and m.estado_reg = 'activo';
+                               
+                       delete from asis.tmovimiento_vacacion  mv
+                       where mv.id_movimiento_vacacion = v_movimiento_vacacion.id_movimiento_vacacion
+                            and mv.activo = 'activo';
+                            
+                       select mm.id_movimiento_vacacion into v_id_mov_actual
+                       from asis.tmovimiento_vacacion mm
+                       where mm.id_funcionario = v_movimiento_vacacion.id_funcionario
+                              and mm.fecha_reg = (select max(m.fecha_reg)
+                                                  from asis.tmovimiento_vacacion m
+                                                  where m.id_funcionario = v_movimiento_vacacion.id_funcionario);
+                                                  
+                        update asis.tmovimiento_vacacion set
+                        activo = 'activo',
+                        estado_reg = 'activo'
+                        where id_movimiento_vacacion = v_id_mov_actual;
+            else
+            
+            
+                       select  m.id_movimiento_vacacion, 
+                        	   m.id_funcionario,
+                               m.dias 
+                               	into 
+                               v_movimiento_vacacion
+                       from asis.tmovimiento_vacacion m
+                       where m.id_vacacion = v_registro.id_vacacion
+                              and m.id_funcionario = v_vacacion_record.id_funcionario
+                               and m.estado_reg = 'activo';
+            
+            		  
+            		  delete from asis.tmovimiento_vacacion m
+                      where m.id_movimiento_vacacion  = v_movimiento_vacacion.id_movimiento_vacacion;
+            
+            		  select  sum(m.dias) into v_dia_actual
+                      from asis.tmovimiento_vacacion m
+                      where m.id_funcionario = v_vacacion_record.id_funcionario
+                      		and m.estado_reg = 'activo';
+                            
+                      update asis.tmovimiento_vacacion set
+                      dias_actual = v_dia_actual
+                      where id_funcionario = v_vacacion_record.id_funcionario
+                      		and estado_reg = 'activo'
+            		 		and activo = 'activo';
+            		  
+            
+            end if;
 
-
-            select m.id_movimiento_vacacion, m.id_funcionario into v_movimiento_vacacion
-            from asis.tmovimiento_vacacion m
-            where m.id_vacacion = v_registro.id_vacacion
-				 and m.activo = 'activo';
-
-
-            delete from asis.tmovimiento_vacacion  mv
-            where mv.id_movimiento_vacacion = v_movimiento_vacacion.id_movimiento_vacacion
-            	and mv.activo = 'activo';
-
-
-            -- delete from asis.tpares pa
-            -- where pa.id_vacacion = v_registro.id_vacacion
-            -- 	and pa.id_funcionario = v_vacacion_record.id_funcionario;
-
-           
-            select mm.id_movimiento_vacacion into v_id_mov_actual
-            from asis.tmovimiento_vacacion mm
-            where mm.id_funcionario = v_movimiento_vacacion.id_funcionario
-            		and mm.fecha_reg = (select max(m.fecha_reg)
-                                        from asis.tmovimiento_vacacion m
-                                        where m.id_funcionario = v_movimiento_vacacion.id_funcionario);
-
-
-            update asis.tmovimiento_vacacion set
-            activo = 'activo',
-            estado_reg = 'activo'
-            where id_movimiento_vacacion = v_id_mov_actual;
 
 
             update asis.tvacacion  set

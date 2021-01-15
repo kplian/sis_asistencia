@@ -40,6 +40,9 @@ class ACTVacacion extends ACTbase{
         }
         if ($this->objParam->getParametro('tipo_interfaz') == 'VacacionRrhh') {
             switch ($this->objParam->getParametro('pes_estado')) {
+                case 'registro':
+                    $this->objParam->addFiltro("vac.estado = ''registro''");
+                    break;
                 case 'vobo':
                     $this->objParam->addFiltro("vac.estado = ''vobo''");
                     break;
@@ -78,12 +81,17 @@ class ACTVacacion extends ACTbase{
 	}
 				
 	function insertarVacacion(){
-		$this->objFunc=$this->create('MODVacacion');	
-		if($this->objParam->insertar('id_vacacion')){
-			$this->res=$this->objFunc->insertarVacacion($this->objParam);			
-		} else{			
-			$this->res=$this->objFunc->modificarVacacion($this->objParam);
-		}
+		$this->objFunc=$this->create('MODVacacion');
+
+        if($this->objParam->insertar('id_vacacion')){
+            $this->res=$this->objFunc->insertarVacacion($this->objParam);
+        }
+
+        if ($this->objParam->getParametro('id_vacacion') != ''){
+            $this->res=$this->objFunc->modificarVacacion($this->objParam);
+        }
+
+
 		$this->res->imprimirRespuesta($this->res->generarJson());
 	}
 						

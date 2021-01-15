@@ -62,9 +62,8 @@ header("content-type: text/javascript; charset=UTF-8");
                     timeout: this.timeout,
                     scope: this
                 });
-
-
             }, this);
+
             this.Cmp.fecha_fin.on('select', function (Fecha, dato) {
                 Ext.Ajax.request({
                     url: '../../sis_asistencia/control/Vacacion/getDias', //llamando a la funcion getDias.
@@ -83,8 +82,45 @@ header("content-type: text/javascript; charset=UTF-8");
                     timeout: this.timeout,
                     scope: this
                 });
+            }, this);
+
+            this.Cmp.fecha_inicio.on('change', function (Fecha, dato) {
+                Ext.Ajax.request({
+                    url: '../../sis_asistencia/control/Vacacion/getDias', //llamando a la funcion getDias.
+                    params: {
+                        'fecha_fin': this.Cmp.fecha_fin.getValue(),
+                        'fecha_inicio': Fecha.getValue(),
+                        'dias': 0,
+
+                        'medios_dias':  '',
+                        'id_funcionario':  this.Cmp.id_funcionario.getValue()
+
+                    },
+                    success: this.respuestaValidacion,
+                    failure: this.conexionFailure,
+                    timeout: this.timeout,
+                    scope: this
+                });
+            }, this);
+
+            this.Cmp.fecha_fin.on('change', function (Fecha, dato) {
+                Ext.Ajax.request({
+                    url: '../../sis_asistencia/control/Vacacion/getDias', //llamando a la funcion getDias.
+                    params: {
+                        'fecha_fin': Fecha.getValue(),
+                        'fecha_inicio': this.Cmp.fecha_inicio.getValue(),
+                        'dias': 0,
+
+                        'medios_dias':  '',
+                        'id_funcionario':  this.Cmp.id_funcionario.getValue()
 
 
+                    },
+                    success: this.respuestaValidacion,
+                    failure: this.conexionFailure,
+                    timeout: this.timeout,
+                    scope: this
+                });
             }, this);
         },
         arrayStore :{
@@ -212,7 +248,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     mode: 'remote',
                     pageSize: 15,
                     queryDelay: 1000,
-                    width: 300,
+                    width: 320,
                     gwidth:200,
                     minChars: 2,
                     renderer : function(value, p, record) {
@@ -335,6 +371,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     readOnly :true,
                     style: 'background-image: none; border: 0; font-weight: bold; font-size: 12px;',
 
+
                 },
                 type:'NumberField',
                 id_grupo:6,
@@ -364,8 +401,8 @@ header("content-type: text/javascript; charset=UTF-8");
                     allowBlank: true,
                     anchor: '35%',
                     gwidth: 100,
-                    readOnly :true,
-                    style: 'background-image: none;'
+                    style: 'background-image: none;',
+                    disabled:true,
                 },
                 type:'NumberField',
                 filters:{pfiltro:'vac.dias',type:'numeric'},
@@ -621,6 +658,8 @@ header("content-type: text/javascript; charset=UTF-8");
         onButtonNew:function(){
             Phx.vista.Vacacion.superclass.onButtonNew.call(this);//habilita el boton y se abre
             this.movimientoVacacion(Phx.CP.config_ini.id_funcionario);
+            this.Cmp.id_vacacion.setValue(null);
+            this.Cmp.dias.setValue(0);
             this.Cmp.id_funcionario.store.load({params:{start:0,limit:this.tam_pag,es_combo_solicitud:'si'},
                 callback : function (r) {
                     if(r.length > 0){
@@ -886,14 +925,15 @@ header("content-type: text/javascript; charset=UTF-8");
                 params:{
                     id_vacacion:  data.id_vacacion
                 },
-                success: this.succesNew,
+                success: this.succesCn,
                 failure: this.conexionFailure,
                 timeout: this.timeout,
                 scope: this
             });
         },
-        succesNew: function(resp){
+        succesCn: function(resp){
             Phx.CP.loadingHide();
+            console.log('2323')
             const reg = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));
             this.load({params:{start:0, limit:this.tam_pag}});
         },

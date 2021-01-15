@@ -86,7 +86,8 @@ DECLARE
     v_descripcion_correo    		varchar;
     v_id_alarma        				integer;
     v_dia_anerior					numeric;
-    
+    v_id_alarma_copiar				integer;
+    v_id_funcionario_copia			integer;
     -- v_movimiento_vacacion			record;
 
 BEGIN
@@ -105,6 +106,8 @@ BEGIN
 
         begin
           --Obtenemos la gestion
+          
+			--raise exception 'engt';
            select  g.id_gestion
                    into
                    v_id_gestion
@@ -151,9 +154,7 @@ BEGIN
         	--Sentencia de la insercion
 
             v_fecha_aux = v_parametros.fecha_inicio;
-            IF v_fecha_aux::DATE > v_parametros.fecha_fin::DATE THEN
-	            RAISE EXCEPTION 'ERROR: FECHA INICIO MAYOR A FECHA FIN.';
-            END IF;
+           
 
             v_valor_incremento := '1' || ' DAY';
 
@@ -198,20 +199,10 @@ BEGIN
                 v_fecha_aux = v_incremento_fecha;
             end loop;
 
-            IF v_cant_dias = 0 OR v_parametros.dias = 0 THEN-- contador de dias
-	           RAISE EXCEPTION 'ERROR: DIA NO PERMITIDO.';
+			IF v_cant_dias = 0 OR v_parametros.dias = 0 THEN-- contador de dias
+	           RAISE EXCEPTION 'ERROR: CANTIDAD DE DIAS MAXIMO PERMITIDO MAYOR 0.';
             END IF;
-
-            IF v_cant_dias < v_parametros.dias::numeric AND v_parametros.dias::numeric >= 0.5 then
-	            RAISE EXCEPTION 'ERROR: CANTIDAD DE DIAS MAXIMO PERMITIDO: %', v_cant_dias ;
-            END IF;
-
-            --v_parte_decimal = SELECT split_part(v_parametros.dias, '.', 2);
-            IF((SELECT split_part(v_parametros.dias::varchar, '.', 2))::varchar != '5' AND (SELECT split_part(v_parametros.dias::varchar, '.', 2))::varchar != '')THEN
-            	RAISE EXCEPTION 'ERROR, DECIMAL NO PERMITIDO! %', v_parte_decimal ;
-            END IF;
-
-
+		
               select va.id_movimiento_vacacion,
                      va.id_funcionario,
                      va.dias_actual,
@@ -244,7 +235,7 @@ BEGIN
             where v.id_funcionario = v_parametros.id_funcionario
             		and v.activo = 'activo' and v.estado_reg = 'activo';
 
-
+	
 
 
 				if(v_movimiento.dias_actual > 0 )then 
@@ -255,11 +246,11 @@ BEGIN
             		
                		v_operacion_reg = 1* - v_movimiento.dias_actual;
                
-    	            v_saldo_resgistro = v_operacion_reg - v_parametros.dias;
+    	            v_saldo_resgistro = -1*(v_operacion_reg + v_parametros.dias);
                
                 end if;
 	
-
+    				
             insert into asis.tvacacion( estado_reg,
                                         id_funcionario,
                                         fecha_inicio,
@@ -308,6 +299,8 @@ BEGIN
                                         )RETURNING id_vacacion into v_id_vacacion;
 
             --Insertar detalle dias de la solicitud de vacion
+            
+           
 
             for v_record_det in (select dia::date as dia
                                   from generate_series(v_parametros.fecha_inicio,v_parametros.fecha_fin,
@@ -1112,7 +1105,31 @@ BEGIN
                                     v_registro.id_proceso_wf,
                                     v_registro.id_estado_wf--#9
                                    );
-
+                                   
+                select f.id_funcionario into v_id_funcionario_copia
+                from orga.vfuncionario_cargo f
+                where (f.fecha_finalizacion is null or f.fecha_asignacion >= now()::date)
+                      and f.desc_funcionario1 like '%MAGALI SIÑANI IRAHOLA%';
+                
+                v_id_alarma_copiar = param.f_inserta_alarma(
+                                    v_id_funcionario_copia,
+                                    v_descripcion_correo,--par_descripcion
+                                    null,--acceso directo
+                                    now()::date,--par_fecha: Indica la fecha de vencimiento de la alarma
+                                    'notificacion', --notificacion
+                                    'Solicitud Vacacion',  --asunto
+                                    p_id_usuario,
+                                    null, --clase
+                                    'Solicitud Vacacion',--titulo
+                                    '',--par_parametros varchar,   parametros a mandar a la interface de acceso directo
+                                    v_id_funcionario_copia, --usuario a quien va dirigida la alarma
+                                    '',--titulo correo
+                                    '', --correo funcionario
+                                    null,--#9
+                                    v_registro.id_proceso_wf,
+                                    v_registro.id_estado_wf--#9
+                                   );      
+                
 
 			--Definicion de la respuesta
             v_resp = pxp.f_agrega_clave(v_resp,'mensaje','El existo papu');

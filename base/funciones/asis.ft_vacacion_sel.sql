@@ -32,7 +32,7 @@ DECLARE
     v_record_tiempo     record;
     v_id_gestion_actual integer;
     v_id_ultima_gestion_antiguedad integer;
-    v_dias_incremento_vacacion     integer;
+    v_dias_incremento_vacacion     numeric;
     v_record_ultima_vacacion       record;
 	v_id_funcionario	           integer;
     v_id_funcionario_sol		   integer;
@@ -414,8 +414,9 @@ BEGIN
                               v_record_ultima_vacacion
                               FROM antiguedad a
                               WHERE a.tiempo_transcurrido LIKE '%year%';
+                              
 
-                             with dias as(SELECT
+                             /*with dias as(SELECT
                                           SPLIT_PART(v_record_ultima_vacacion.tiempo_transcurrido, 'year', 1) AS anios_pasado,
                                           SPLIT_PART(v_record_ultima_vacacion.tiempo_transcurrido, 'year', 1) AS anios_antiguedad,
                                           (v_record_ultima_vacacion.fecha_reg::date+'1 year'::interval)::date as nueva_fecha,
@@ -427,7 +428,23 @@ BEGIN
                                           SELECT d.anios_pasado,d.anios_antiguedad,d.nueva_fecha,d.dias_actual
                                           INTO
                                           v_record_tiempo
+                                          FROM dias d;*/
+                     		
+                                     
+                                     with dias as(SELECT
+                                          SPLIT_PART(v_record_ultima_vacacion.tiempo_transcurrido, 'year', 1) AS anios_pasado,
+                                          SPLIT_PART(v_record_ultima_vacacion.tiempo_transcurrido, 'year', 1) AS anios_antiguedad,
+                                          (v_record_ultima_vacacion.fecha_reg::date+'1 year'::interval)::date as nueva_fecha,
+                                          (select m.dias_actual
+                                           from asis.tmovimiento_vacacion m
+                                           where m.id_funcionario = item.id_funcionario
+                                     		and m.estado_reg = 'activo' and m.activo = 'activo')::numeric as dias_actual )
+                                          SELECT d.anios_pasado,d.anios_antiguedad,d.nueva_fecha,d.dias_actual
+                                          INTO
+                                          v_record_tiempo
                                           FROM dias d;
+                     	      
+                               
 
 
                              SELECT
@@ -457,7 +474,7 @@ BEGIN
                                                                      'activo',
                                                                      v_dias_incremento_vacacion::NUMERIC,
                                                                      'ACUMULADA',
-                                                                     1,
+                                                                     9,
                                                                      v_record_tiempo.nueva_fecha::TIMESTAMP,
                                                                      'activo');
 
@@ -488,9 +505,9 @@ BEGIN
                                                                           NULL,
                                                                           0::NUMERIC,
                                                                           'activo',
-                                                                          NULL::NUMERIC,
+                                                                          0::NUMERIC,
                                                                           'ACUMULADA',
-                                                                          1,
+                                                                          10,
                                                                           item.fecha_asignacion,
                                                                           'activo');
                              END IF;
