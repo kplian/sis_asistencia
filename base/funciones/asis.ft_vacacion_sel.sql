@@ -37,7 +37,8 @@ DECLARE
 	v_id_funcionario	           integer;
     v_id_funcionario_sol		   integer;
     v_count						   integer;
-
+    v_id_movimiento				   integer;
+    v_fecha_acomulado				date;
 BEGIN
 
 	v_nombre_funcion = 'asis.ft_vacacion_sel';
@@ -379,7 +380,7 @@ BEGIN
                                    join orga.tcargo c on c.id_cargo=uf.id_cargo
                                    join orga.ttipo_contrato tc on tc.id_tipo_contrato=c.id_tipo_contrato and tc.codigo in ('PLA','EVE')
                                    where uf.fecha_asignacion<=now() and coalesce(uf.fecha_finalizacion, now())>=now()
-                                   and uf.estado_reg = 'activo' and uf.tipo = 'oficial') LOOP
+                                   and uf.estado_reg = 'activo' and uf.tipo = 'oficial' /*and f.id_funcionario = 408*/) LOOP
 
 
                      IF EXISTS(with antiguedad AS (SELECT mv.id_funcionario,
@@ -394,6 +395,8 @@ BEGIN
                               from antiguedad a 
                               where a.tiempo_transcurrido like '%year%')THEN
 
+
+							
                               WITH antiguedad AS
                               (SELECT  mv.id_funcionario,
                                        (age(now()::date,mv.fecha_reg::date))::varchar as tiempo_transcurrido,
@@ -404,7 +407,7 @@ BEGIN
                                WHERE mv.tipo='ACUMULADA' 
                                AND mv.id_funcionario=item.id_funcionario
                                AND mv.estado_reg = 'activo'
-                               ORDER BY mv.fecha_reg DESC LIMIT 1 )
+                               ORDER BY mv.fecha_reg ASC LIMIT 1 )
                               SELECT a.id_funcionario,
                                     a.tiempo_transcurrido,
                                     a.tiempo_antiguedad,
@@ -415,6 +418,8 @@ BEGIN
                               FROM antiguedad a
                               WHERE a.tiempo_transcurrido LIKE '%year%';
                               
+                              
+                              	--raise exception '%',v_record_ultima_vacacion;
 
                              /*with dias as(SELECT
                                           SPLIT_PART(v_record_ultima_vacacion.tiempo_transcurrido, 'year', 1) AS anios_pasado,
@@ -429,12 +434,20 @@ BEGIN
                                           INTO
                                           v_record_tiempo
                                           FROM dias d;*/
+                                          
+                               SELECT mv.fecha_reg::date into v_fecha_acomulado
+                               FROM asis.tmovimiento_vacacion mv
+                               WHERE mv.tipo='ACUMULADA' 
+                               AND mv.id_funcionario=item.id_funcionario
+                               AND mv.estado_reg = 'activo'
+                               ORDER BY mv.fecha_reg DESC LIMIT 1;
+                                          
                      		
                                      
                                      with dias as(SELECT
                                           SPLIT_PART(v_record_ultima_vacacion.tiempo_transcurrido, 'year', 1) AS anios_pasado,
                                           SPLIT_PART(v_record_ultima_vacacion.tiempo_transcurrido, 'year', 1) AS anios_antiguedad,
-                                          (v_record_ultima_vacacion.fecha_reg::date+'1 year'::interval)::date as nueva_fecha,
+                                          (v_fecha_acomulado::date+'1 year'::interval)::date as nueva_fecha,
                                           (select m.dias_actual
                                            from asis.tmovimiento_vacacion m
                                            where m.id_funcionario = item.id_funcionario
@@ -478,9 +491,15 @@ BEGIN
                                                                      v_record_tiempo.nueva_fecha::TIMESTAMP,
                                                                      'activo');
 
+							 select m.id_movimiento_vacacion into  v_id_movimiento
+                             from asis.tmovimiento_vacacion m
+                             where m.id_funcionario = item.id_funcionario
+                                     		and m.estado_reg = 'activo' and m.activo = 'activo';
+
+
                              UPDATE asis.tmovimiento_vacacion
                              SET activo = 'inactivo'
-                             WHERE id_movimiento_vacacion = v_record_ultima_vacacion.id_movimiento_vacacion::INTEGER
+                             WHERE id_movimiento_vacacion = v_id_movimiento
                              AND estado_reg = 'activo';
 
                      ELSE
