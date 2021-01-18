@@ -627,3 +627,36 @@ ALTER TABLE asis.tasignar_rango
 ALTER TABLE asis.tasignar_rango
   ALTER COLUMN desde SET STATISTICS 0;
 /***********************************F-SCP-MMV-ASIS-2-22/12/2020****************************************/
+/***********************************I-SCP-MMV-ASIS-2-18/01/2021****************************************/
+CREATE TABLE asis.tprogramacion (
+                                    id_programacion SERIAL,
+                                    id_periodo INTEGER,
+                                    fecha_programada DATE NOT NULL,
+                                    id_funcionario INTEGER,
+                                    estado VARCHAR(50),
+                                    tiempo VARCHAR(30),
+                                    valor NUMERIC,
+                                    id_vacacion_det INTEGER,
+                                    CONSTRAINT tprogramacion_pkey PRIMARY KEY(id_programacion)
+) INHERITS (pxp.tbase)
+WITH (oids = false);
+
+ALTER TABLE asis.tprogramacion
+ALTER COLUMN id_programacion SET STATISTICS 0;
+
+ALTER TABLE asis.tprogramacion
+ALTER COLUMN id_periodo SET STATISTICS 0;
+
+ALTER TABLE asis.tprogramacion
+ALTER COLUMN fecha_programada SET STATISTICS 0;
+
+ALTER TABLE asis.tprogramacion
+ALTER COLUMN id_funcionario SET STATISTICS 0;
+
+ALTER TABLE asis.tprogramacion
+ALTER COLUMN estado SET STATISTICS 0;
+
+ALTER TABLE asis.tprogramacion
+ALTER COLUMN tiempo SET STATISTICS 0;
+
+/***********************************F-SCP-MMV-ASIS-2-18/01/2021****************************************/
