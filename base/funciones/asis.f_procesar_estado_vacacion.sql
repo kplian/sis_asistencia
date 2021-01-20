@@ -294,10 +294,10 @@ BEGIN
                                                                   '',--acceso directo
                                                                   now()::date,--par_fecha: Indica la fecha de vencimiento de la alarma
                                                                   'notificacion', --notificacion
-                                                                  'Solicitud Vacacion '||v_secretaria.nombre_unidad,  --asunto
+                                                                  'Solicitud Vacacion',  --asunto
                                                                   p_id_usuario,
                                                                   '', --clase
-                                                                  'Solicitud Vacacion '||v_secretaria.nombre_unidad,--titulo
+                                                                  'Solicitud Vacacion'||,--titulo
                                                                   '',--par_parametros varchar,   parametros a mandar a la interface de acceso directo
                                                                   v_secretaria.id_secretaria, --usuario a quien va dirigida la alarma
                                                                   '',--titulo correo
