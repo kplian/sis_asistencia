@@ -54,11 +54,15 @@ class MODProgramacion extends MODbase
         $this->tipo_procedimiento = 'IME';
 
         //Define los parametros para la funcion
+        $this->setParametro('id_programacion', 'id_programacion', 'int4');
         $this->setParametro('id_funcionario', 'id_funcionario', 'int4');
         $this->setParametro('fecha_programada', 'fecha_programada', 'date');
-        $this->setParametro('tiempo', 'tiempo', 'varchar');
-        $this->setParametro('valor', 'valor', 'numeric');
         $this->setParametro('fecha_fin', 'fecha_fin', 'date');
+        $this->setParametro('estado_reg', 'estado_reg', 'varchar');
+        $this->setParametro('estado', 'estado', 'varchar');
+        $this->setParametro('tiempo', 'tiempo', 'varchar');
+        $this->setParametro('valor', 'valor', 'int4');
+        $this->setParametro('id_vacacion_det', 'id_vacacion_det', 'int4');
 
         //Ejecuta la instruccion
         $this->armarConsulta();
@@ -77,15 +81,14 @@ class MODProgramacion extends MODbase
 
         //Define los parametros para la funcion
         $this->setParametro('id_programacion', 'id_programacion', 'int4');
-        $this->setParametro('estado_reg', 'estado_reg', 'varchar');
-        $this->setParametro('id_periodo', 'id_periodo', 'int4');
-        $this->setParametro('fecha_programada', 'fecha_programada', 'date');
         $this->setParametro('id_funcionario', 'id_funcionario', 'int4');
+        $this->setParametro('fecha_programada', 'fecha_programada', 'date');
+        $this->setParametro('fecha_fin', 'fecha_fin', 'date');
+        $this->setParametro('estado_reg', 'estado_reg', 'varchar');
         $this->setParametro('estado', 'estado', 'varchar');
         $this->setParametro('tiempo', 'tiempo', 'varchar');
-        $this->setParametro('valor', 'valor', 'numeric');
+        $this->setParametro('valor', 'valor', 'int4');
         $this->setParametro('id_vacacion_det', 'id_vacacion_det', 'int4');
-        $this->setParametro('fecha_fin', 'fecha_fin', 'date');
 
         //Ejecuta la instruccion
         $this->armarConsulta();

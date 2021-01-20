@@ -27,6 +27,7 @@ DECLARE
     v_mensaje_error     TEXT;
     v_id_programacion   INTEGER;
     v_date              date;
+    v_valor             numeric;
 BEGIN
 
     v_nombre_funcion = 'asis.ft_programacion_ime';
@@ -43,6 +44,12 @@ BEGIN
 
         BEGIN
             --Sentencia de la insercion
+            if (v_parametros.tiempo = 'C') then
+                v_valor = 8;
+            else
+                v_valor = 4;
+            end if;
+
             for v_date in (SELECT d.date
                            FROM GENERATE_SERIES(v_parametros.fecha_programada, v_parametros.fecha_fin,
                                                 '1 day'::INTERVAL) d)
@@ -67,7 +74,7 @@ BEGIN
                             v_parametros.id_funcionario,
                             'pendiente',
                             v_parametros.tiempo,
-                            v_parametros.valor,
+                            v_valor,
                             null,
                             p_id_usuario,
                             now(),

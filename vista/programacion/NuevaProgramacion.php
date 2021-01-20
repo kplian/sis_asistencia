@@ -114,25 +114,12 @@ header("content-type: text/javascript; charset=UTF-8");
                 grid: true,
                 form: true
             },
-            {
-                config: {
-                    name: 'valor',
-                    allowBlank: false,
-                    currencyChar: ' ',
-                    fieldLabel: 'Valor',
-                    width: '100%'
-                },
-                type: 'NumberField',
-                id_group: 0,
-                form: true
-            },
         ],
         fields: [
             {name: 'id_programacion', type: 'numeric'},
             {name: 'id_funcionario', type: 'numeric'},
             {name: 'fecha_programada', type: 'date', dateFormat: 'Y-m-d H:i:s'},
             {name: 'fecha_fin', type: 'date', dateFormat: 'Y-m-d H:i:s'},
-            {name: 'valor', type: 'numeric'},
             {name: 'tiempo', type: 'string'}
         ],
         ActSave: '../../sis_asistencia/control/Programacion/insertarProgramacion',
@@ -284,7 +271,6 @@ header("content-type: text/javascript; charset=UTF-8");
             self.getComponente('id_programacion').setValue(id_programacion);
             self.getComponente('fecha_programada').setValue(start);
             self.getComponente('fecha_fin').setValue(end);
-            self.getComponente('valor').setValue(valor);
             self.getComponente('tiempo').setValue(tiempo);
             Ext.getCmp('btn-eliminar').setVisible(btnEliminarVisible);
             this.Cmp.id_funcionario.store.baseParams.query = id_funcionario;
