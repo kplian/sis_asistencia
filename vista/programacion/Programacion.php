@@ -133,7 +133,7 @@ header("content-type: text/javascript; charset=UTF-8");
                             grupo: this.bactGroups,
                             tooltip: '<b>Actualizar</b>',
                             text: 'Actualizar',
-                            handler: this.onButtonAct,
+                            handler: this.refresh,
                             scope: this
                         }]
                     }),
@@ -145,25 +145,6 @@ header("content-type: text/javascript; charset=UTF-8");
                         region: 'center',
                         layout: 'border',
                         items: [
-                            {
-                                id: 'app-west',
-                                region: 'west',
-                                width: 176,
-                                border: false,
-                                items: [{
-                                    xtype: 'datepicker',
-                                    id: 'app-nav-picker',
-                                    cls: 'ext-cal-nav-picker',
-                                    listeners: {
-                                        'select': {
-                                            fn: function (dp, dt) {
-                                                Ext.getCmp('calendar-progrmacion').setStartDate(dt);
-                                            },
-                                            scope: this
-                                        }
-                                    }
-                                }]
-                            },
                             {
                                 xtype: 'calendarpanel',
                                 eventStore: self.eventStore,
@@ -193,46 +174,9 @@ header("content-type: text/javascript; charset=UTF-8");
                                         },
                                         scope: this
                                     },
-                                    'eventover': {
-                                        fn: function (cp, rec) {
-                                            console.log("EVENT: eventover", cp, rec)
-                                        },
-                                        scope: this
-                                    },
-                                    'eventout': {
-                                        fn: function (cp, rec) {
-                                            console.log("EVENT: eventout")
-                                        },
-                                        scope: this
-                                    },
-                                    'eventadd': {
-                                        fn: function (cp, rec) {
-                                            console.log("EVENT: eventadd")
-                                        },
-                                        scope: this
-                                    },
-                                    'eventupdate': {
-                                        fn: function (cp, rec) {
-                                            console.log("EVENT: eventupdate")
-                                        },
-                                        scope: this
-                                    },
-                                    'eventdelete': {
-                                        fn: function (cp, rec) {
-                                            console.log("EVENT: eventdelete")
-                                        },
-                                        scope: this
-                                    },
-                                    'eventcancel': {
-                                        fn: function (cp, rec) {
-                                            console.log("EVENT: eventadd")
-                                        },
-                                        scope: this
-                                    },
-                                    'viewchange': {
-                                        fn: function (p, vw, dateInfo) {
-                                            Phx.CP.loadingHide();
-                                            console.log("EVENT: viewchange")
+                                    'datechange': {
+                                        fn: function (vw, starDate, viewStart, viewEnd) {
+                                            this.refresh(starDate);
                                         },
                                         scope: this
                                     },
@@ -261,37 +205,11 @@ header("content-type: text/javascript; charset=UTF-8");
                                         fn: function (vw, rec) {
                                             console.log("EVENT: eventmove", rec)
                                             rec.commit();
-                                            Phx.CP.loadingShow();
                                             var programacion = {
                                                 id_programacion: rec.data.EventId,
                                                 fecha_programada: rec.data.StartDate
                                             }
-                                            Ext.Ajax.request({
-                                                url: '../../sis_asistencia/control/Programacion/cambiarFecha',
-                                                params: programacion,
-                                                isUpload: this.fileUpload,
-                                                success: this.successCambiarFecha,
-                                                argument: this.argumentSave,
-                                                failure: this.conexionFailure,
-                                                timeout: this.timeout,
-                                                scope: this
-                                            });
-                                        },
-                                        scope: this
-                                    },
-                                    'eventresize': {
-                                        fn: function (vw, rec) {
-                                            console.log("EVENT: eventresize")
-                                            rec.commit();
-                                        },
-                                        scope: this
-                                    },
-                                    'initdrag': {
-                                        fn: function (vw) {
-                                            console.log("EVENT: initdrag")
-                                            // if (this.editWin && this.editWin.isVisible()) {
-                                            //     this.editWin.hide();
-                                            // }
+                                            this.cambiarAsignacion(programacion);
                                         },
                                         scope: this
                                     }
@@ -321,11 +239,35 @@ header("content-type: text/javascript; charset=UTF-8");
             bsave: true,
             bnew: false,
             bedit: false,
-            onButtonAct: function () {
-                Phx.CP.loadingShow();
-                Ext.getCmp('calendar-progrmacion').fireViewChange();
-                this.eventStore.reload();
+            east: {
+                url: '../../../sis_asistencia/vista/programacion/ListaProgramacion.php',
+                cls: 'ListaProgramacion',
+                width: '30%',
+                height: '100%',
+                title: "Programaciones",
+                layout: 'accordion',
+                floating: true,
+                collapsed: true,
+                animCollapse: true,
+                collapsible: true
             },
+            refresh: function (date = undefined) {
+                var calendar = Ext.getCmp('calendar-progrmacion');
+                var pe = Phx.CP.getPagina(this.idContenedor + '-east');
+                var vdate = calendar.startDate;
+                if (Boolean(date) && date instanceof Date) {
+                    vdate = date;
+                }
+                this.eventStore.reload();
+                calendar.fireViewChange();
+                var data = {
+                    programacion: {
+                        fecha_programada: vdate
+                    }
+                }
+                pe.onReloadPage(data);
+            },
+
             nuevaProgramacion: function (programacion) {
                 self.winProgramacionForm = Phx.CP.loadWindows('../../../sis_asistencia/vista/programacion/NuevaProgramacion.php',
                     'Nueva Progrmación',
@@ -345,26 +287,22 @@ header("content-type: text/javascript; charset=UTF-8");
                     {
                         config: [{
                             event: 'refresh',
-                            delegate: this.onSaveProgramacion
+                            delegate: this.refresh
                         }],
                         scope: this
                     });
             },
-            reload: function () {
-                Phx.CP.loadingShow();
-                Ext.getCmp('calendar-progrmacion').fireViewChange();
-            },
-            successCambiarFecha: function (resp) {
-                var res = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));
-                Phx.CP.loadingHide();
-                Ext.getCmp('calendar-progrmacion').fireViewChange();
-                this.eventStore.reload();
-            },
-            onSaveProgramacion: function (wizard, resp) {
-                Phx.CP.loadingShow();
-                Ext.getCmp('calendar-progrmacion').fireViewChange();
-                this.eventStore.reload();
-
+            cambiarAsignacion: function (programacion) {
+                Ext.Ajax.request({
+                    url: '../../sis_asistencia/control/Programacion/cambiarFecha',
+                    params: programacion,
+                    isUpload: this.fileUpload,
+                    success: this.refresh,
+                    argument: this.argumentSave,
+                    failure: this.conexionFailure,
+                    timeout: this.timeout,
+                    scope: this
+                });
             }
         }
     )

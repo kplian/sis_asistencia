@@ -107,11 +107,16 @@ BEGIN
 
         BEGIN
             --Sentencia de la modificacion
+            if (v_parametros.tiempo = 'C') then
+                v_valor = 8;
+            else
+                v_valor = 4;
+            end if;
             UPDATE asis.tprogramacion
             SET fecha_programada = v_parametros.fecha_programada,
                 id_funcionario   = v_parametros.id_funcionario,
                 tiempo           = v_parametros.tiempo,
-                valor            = v_parametros.valor,
+                valor            = v_valor,
                 id_usuario_mod   = p_id_usuario,
                 fecha_mod        = now(),
                 id_usuario_ai    = v_parametros._id_usuario_ai,
