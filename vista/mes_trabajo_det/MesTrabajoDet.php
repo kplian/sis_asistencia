@@ -593,8 +593,8 @@ Phx.vista.MesTrabajoDet=Ext.extend(Phx.gridInterfaz,{
             this.getBoton('edit').disable();
 
         }*/
-        this.getBoton('btnTransaccionesUpload').disable();
-        this.getBoton('btmBorrarTodo').disable();
+        this.getBoton('btnTransaccionesUpload').enable();
+        this.getBoton('btmBorrarTodo').enable();
         return tb;
     },
 
