@@ -244,6 +244,7 @@ class MODReportes extends MODbase{
         $this->captura('desde','text');
         $this->captura('hasta','text');
         $this->captura('tipo_contrato','varchar');
+        $this->captura('ordenar','varchar');
 
         //Ejecuta la instruccion
         $this->armarConsulta();
