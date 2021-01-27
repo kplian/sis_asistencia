@@ -45,7 +45,7 @@ DECLARE
     v_movimiento_vacacion			record;
     v_id_mov_actual					integer;
     v_id_alarma_copiar				integer;
-    v_id_funcionario_copia			integer;
+    v_id_funcionario_copia			record;
     v_validar_vacacion				record;
     v_vacacion_anterior				record;
     v_mensaje_error					varchar;
@@ -80,6 +80,30 @@ BEGIN
     inner join orga.vfuncionario fu on fu.id_funcionario = me.id_funcionario
     where me.id_proceso_wf = p_id_proceso_wf;
 
+	with secretaria as ( select distinct on (ca.id_funcionario) ca.id_funcionario,
+                ca.desc_funcionario1 as funcioanrio,
+                ca.nombre_cargo,
+                ger.id_uo,
+                ger.nombre_unidad as gerencia
+                from orga.vfuncionario_cargo ca
+                inner join orga.tcargo car on car.id_cargo = ca.id_cargo
+                inner join orga.tuo ger on ger.id_uo = orga.f_get_uo_gerencia(ca.id_uo, NULL::integer, NULL::date)
+                where ca.id_funcionario = v_registro.id_funcionario
+                and ca.fecha_asignacion <= now()::date and (ca.fecha_finalizacion is null or ca.fecha_finalizacion >= now()::date)
+                order by ca.id_funcionario, ca.fecha_asignacion desc
+                ) select fg.id_funcionario as id_secretaria,
+                         fg.desc_funcionario1 as secretaria,
+                         u.nombre_unidad into v_secretaria
+                from orga.testructura_uo es
+                inner join orga.tuo u on u.id_uo = es.id_uo_hijo
+                inner join orga.tnivel_organizacional n on n.id_nivel_organizacional = u.id_nivel_organizacional
+                inner join secretaria s on s.id_uo = es.id_uo_padre 
+                inner join orga.vfuncionario_cargo fg on fg.id_uo = u.id_uo 
+                and fg.fecha_asignacion <= now()::date 
+                and (fg.fecha_finalizacion is null or fg.fecha_finalizacion >= now()::date)
+                where n.numero_nivel = 9;
+                
+                
 
    if p_codigo_estado = 'vobo' then
    
@@ -238,74 +262,34 @@ BEGIN
                           v_registro.id_estado_wf--#9
                          );
      end if;
-               
-               
-                                     
-      select f.id_funcionario into v_id_funcionario_copia
-      from orga.vfuncionario_cargo f
-      where (f.fecha_finalizacion is null or f.fecha_asignacion >= now()::date)
-            and f.desc_funcionario1 like '%MAGALI SIÑANI IRAHOLA%';
-                      
-                      
-      v_id_funcionario_copia = param.f_inserta_alarma(
-                          v_id_funcionario_copia,
-                          v_descripcion_correo,--par_descripcion
-                          '',--acceso directo
-                          now()::date,--par_fecha: Indica la fecha de vencimiento de la alarma
-                          'notificacion', --notificacion
-                          'Solicitud Vacacion',  --asunto
-                          p_id_usuario,
-                          '', --clase
-                          'Solicitud Vacacion',--titulo
-                          '',--par_parametros varchar,   parametros a mandar a la interface de acceso directo
-                          v_id_funcionario_copia, --usuario a quien va dirigida la alarma
-                          '',--titulo correo
-                          '', --correo funcionario
-                          null,--#9
-                          p_id_proceso_wf,
-                          v_registro.id_estado_wf--#9
-                         );
-                         
-       with secretaria as ( select distinct on (ca.id_funcionario) ca.id_funcionario,
-                ca.desc_funcionario1 as funcioanrio,
-                ca.nombre_cargo,
-                ger.id_uo,
-                ger.nombre_unidad as gerencia
-                from orga.vfuncionario_cargo ca
-                inner join orga.tcargo car on car.id_cargo = ca.id_cargo
-                inner join orga.tuo ger on ger.id_uo = orga.f_get_uo_gerencia(ca.id_uo, NULL::integer, NULL::date)
-                where ca.id_funcionario = v_registro.id_funcionario
-                and ca.fecha_asignacion <= now()::date and (ca.fecha_finalizacion is null or ca.fecha_finalizacion >= now()::date)
-                order by ca.id_funcionario, ca.fecha_asignacion desc
-                ) select fg.id_funcionario as id_secretaria,
-                         fg.desc_funcionario1 as secretaria,
-                         u.nombre_unidad into v_secretaria
-                from orga.testructura_uo es
-                inner join orga.tuo u on u.id_uo = es.id_uo_hijo
-                inner join orga.tnivel_organizacional n on n.id_nivel_organizacional = u.id_nivel_organizacional
-                inner join secretaria s on s.id_uo = es.id_uo_padre 
-                inner join orga.vfuncionario_cargo fg on fg.id_uo = u.id_uo 
-                and fg.fecha_asignacion <= now()::date 
-                and (fg.fecha_finalizacion is null or fg.fecha_finalizacion >= now()::date)
-                where n.numero_nivel = 9;
-                
-                v_id_alarma_secretaria =  param.f_inserta_alarma( v_secretaria.id_secretaria,
-                                                                  v_descripcion_correo,--par_descripcion
-                                                                  '',--acceso directo
-                                                                  now()::date,--par_fecha: Indica la fecha de vencimiento de la alarma
-                                                                  'notificacion', --notificacion
-                                                                  'Solicitud Vacacion',  --asunto
-                                                                  p_id_usuario,
-                                                                  '', --clase
-                                                                  'Solicitud Vacacion'||,--titulo
-                                                                  '',--par_parametros varchar,   parametros a mandar a la interface de acceso directo
-                                                                  v_secretaria.id_secretaria, --usuario a quien va dirigida la alarma
-                                                                  '',--titulo correo
-                                                                  '', --correo funcionario
-                                                                  null,--#9
-                                                                  p_id_proceso_wf,
-                                                                  v_registro.id_estado_wf);
-
+     
+     
+     	-- correo copia SURAY AGREDA LAZARTE MAGALI SIÑANI IRAHOLA
+    	for v_id_funcionario_copia in (select   f.id_funcionario,
+                                                f.desc_funcionario1 as funcionario
+                                              from orga.vfuncionario_cargo f
+                                              where (f.fecha_finalizacion is null or f.fecha_finalizacion >= now()::date)
+                                              and f.id_funcionario in (373,700,v_secretaria.id_secretaria )) loop
+                                            
+         v_id_alarma = param.f_inserta_alarma( v_id_funcionario_copia.id_funcionario,
+                                                          v_descripcion_correo,--par_descripcion
+                                                          '',--acceso directo
+                                                          now()::date,--par_fecha: Indica la fecha de vencimiento de la alarma
+                                                          'notificacion', --notificacion
+                                                          'Solicitud Vacacion',  --asunto
+                                                          p_id_usuario,
+                                                          '', --clase
+                                                          'Solicitud Vacacion',--titulo
+                                                          '',--par_parametros varchar,   parametros a mandar a la interface de acceso directo
+                                                          v_id_funcionario_copia.id_funcionario, --usuario a quien va dirigida la alarma
+                                                          '',--titulo correo
+                                                          '', --correo funcionario
+                                                          null,--#9
+                                                          p_id_proceso_wf,
+                                                          v_registro.id_estado_wf);
+                             
+        end loop;
+     
         select sum(d.dias_efectico) into v_dias_efectivo
         from (
         select
@@ -321,6 +305,7 @@ BEGIN
                                 end ::numeric ) as dias_efectico
         from asis.tvacacion_det vd
         where vd.id_vacacion =  v_registro.id_vacacion ) d;
+        
 
       update asis.tvacacion  set
       dias_efectivo = v_dias_efectivo,
@@ -419,31 +404,42 @@ BEGIN
           where id_proceso_wf = p_id_proceso_wf;
           
           
-           		v_descripcion_correo = '<h3><b>SOLICITUD DE VACACIÓN</b></h3>
-                                      <p style="font-size: 15px;"><b>Fecha solicitud:</b> '||v_registro.fecha_solictudo||' </p>
-                                      <p style="font-size: 15px;"><b>Solicitud para:</b> '||v_registro.desc_funcionario1||'</p>
-                                      <p style="font-size: 15px;"><b>Desde:</b> '||v_registro.fecha_inicio||' <b>Hasta:</b> '||v_registro.fecha_fin||'</p>
-                                      <p style="font-size: 15px;"><b>Días solicitados:</b> '||v_registro.dias||'</p>
-                                      <p style="font-size: 15px;"><b>Justificación:</b> '||v_registro.descripcion||'</p>';
+          v_descripcion_correo = '<h3><b>SOLICITUD DE VACACIÓN</b></h3>
+                                <p style="font-size: 15px;"><b>Fecha solicitud:</b> '||v_registro.fecha_solictudo||' </p>
+                                <p style="font-size: 15px;"><b>Solicitud para:</b> '||v_registro.desc_funcionario1||'</p>
+                                <p style="font-size: 15px;"><b>Desde:</b> '||v_registro.fecha_inicio||' <b>Hasta:</b> '||v_registro.fecha_fin||'</p>
+                                <p style="font-size: 15px;"><b>Días solicitados:</b> '||v_registro.dias||'</p>
+                                <p style="font-size: 15px;"><b>Justificación:</b> '||v_registro.descripcion||'</p>';
 
-                v_id_alarma = param.f_inserta_alarma(
-                                    v_registro.id_funcionario,
-                                    v_descripcion_correo,--par_descripcion
-                                    '',--acceso directo
-                                    now()::date,--par_fecha: Indica la fecha de vencimiento de la alarma
-                                    'notificacion', --notificacion
-                                    'Solicitud Vacacion Aprobada',  --asunto
-                                    p_id_usuario,
-                                    '', --clase
-                                    'Solicitud Vacacion Aprobada',--titulo
-                                    '',--par_parametros varchar,   parametros a mandar a la interface de acceso directo
-                                    v_registro.id_usuario_reg, --usuario a quien va dirigida la alarma
-                                    '',--titulo correo
-                                    '', --correo funcionario
-                                    null,--#9
-                                    p_id_proceso_wf,
-                                    v_registro.id_estado_wf--#9
-                                   );
+
+
+			-- correo copia SURAY AGREDA LAZARTE MAGALI SIÑANI IRAHOLA
+    	for v_id_funcionario_copia in (select   f.id_funcionario,
+                                                f.desc_funcionario1 as funcionario
+                                              from orga.vfuncionario_cargo f
+                                              where (f.fecha_finalizacion is null or f.fecha_finalizacion >= now()::date)
+                                              and f.id_funcionario in (373,700,v_secretaria.id_secretaria,v_registro.id_funcionario )) loop
+       
+           v_id_alarma = param.f_inserta_alarma( v_id_funcionario_copia.id_funcionario,
+                                                    v_descripcion_correo,--par_descripcion
+                                                    '',--acceso directo
+                                                    now()::date,--par_fecha: Indica la fecha de vencimiento de la alarma
+                                                    'notificacion', --notificacion
+                                                    'Solicitud Vacacion Aprobada',  --asunto
+                                                    p_id_usuario,
+                                                    '', --clase
+                                                    'Solicitud Vacacion Aprobada',--titulo
+                                                    '',--par_parametros varchar,   parametros a mandar a la interface de acceso directo
+                                                     v_id_funcionario_copia.id_funcionario, --usuario a quien va dirigida la alarma
+                                                    '',--titulo correo
+                                                    '', --correo funcionario
+                                                    null,--#9
+                                                    p_id_proceso_wf,
+                                                    v_registro.id_estado_wf--#9
+                                                   );
+                                            
+        end loop;
+             
 
           return true;
 
@@ -555,25 +551,32 @@ BEGIN
                                       <p style="font-size: 15px;"><b>Días solicitados:</b> '||v_registro.dias||'</p>
                                       <p style="font-size: 15px;"><b>Justificación:</b> '||v_registro.descripcion||'</p>
                                       <p style="font-size: 15px;"><b>Obs.:</b> '||p_obs||'</p>';
-
-                v_id_alarma = param.f_inserta_alarma(
-                                    v_registro.id_funcionario,
-                                    v_descripcion_correo,--par_descripcion
-                                    '',--acceso directo
-                                    now()::date,--par_fecha: Indica la fecha de vencimiento de la alarma
-                                    'notificacion', --notificacion
-                                    'Solicitud Vacacion Rechazado',  --asunto
-                                    p_id_usuario,
-                                    '', --clase
-                                    'Solicitud Vacacion Rechazado',--titulo
-                                    '',--par_parametros varchar,   parametros a mandar a la interface de acceso directo
-                                    v_registro.id_usuario_reg, --usuario a quien va dirigida la alarma
-                                    '',--titulo correo
-                                    '', --correo funcionario
-                                    null,--#9
-                                    p_id_proceso_wf,
-                                    v_registro.id_estado_wf--#9
-                                   );
+		
+        for v_id_funcionario_copia in (select   f.id_funcionario,
+                                                f.desc_funcionario1 as funcionario
+                                              from orga.vfuncionario_cargo f
+                                              where (f.fecha_finalizacion is null or f.fecha_finalizacion >= now()::date)
+                                              and f.id_funcionario in (373,700,v_secretaria.id_secretaria,v_registro.id_funcionario )) loop
+       
+           v_id_alarma = param.f_inserta_alarma( v_id_funcionario_copia.id_funcionario,
+                                                    v_descripcion_correo,--par_descripcion
+                                                    '',--acceso directo
+                                                    now()::date,--par_fecha: Indica la fecha de vencimiento de la alarma
+                                                    'notificacion', --notificacion
+                                                    'Solicitud Vacacion Rechazado',  --asunto
+                                                    p_id_usuario,
+                                                    '', --clase
+                                                    'Solicitud Vacacion Rechazado',--titulo
+                                                    '',--par_parametros varchar,   parametros a mandar a la interface de acceso directo
+                                                     v_id_funcionario_copia.id_funcionario, --usuario a quien va dirigida la alarma
+                                                    '',--titulo correo
+                                                    '', --correo funcionario
+                                                    null,--#9
+                                                    p_id_proceso_wf,
+                                                    v_registro.id_estado_wf--#9
+                                                   );
+                                            
+        end loop;
 	
     	return true;
       end if;
