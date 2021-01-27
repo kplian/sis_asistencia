@@ -250,3 +250,7 @@ select wf.f_import_tplantilla_correo ('insert','CSOPE','vobo','PER-ASI','','<h3>
 /***********************************I-DAT-VAN-ASIS-0-15/01/2021*****************************************/
 select pxp.f_insert_tgui ('Consulta fondos', 'Consulta de Fondos', 'ACF', 'si', 14, 'sis_cuenta_documentada/vista/cuenta_doc/CuentaDocConsultaAsis.php', 2, '', 'CuentaDocConsultaAsis', 'ASIS');
 /***********************************F-DAT-VAN-ASIS-0-15/01/2021*****************************************/
+/***********************************I-DAT-VAN-ASIS-0-27/01/2021*****************************************/
+select pxp.f_insert_tgui ('Programación Vacación', 'Programación Vacación', 'PVN', 'si', 3, 'sis_asistencia/vista/programacion/Programacion.php', 2, '', 'Programacion', 'ASIS');
+select pxp.f_insert_tgui ('Calendario', 'Calendario', 'CLO', 'si', 2, 'sis_asistencia/vista/programacion/ProgramacionVoBo.php', 2, '', 'ProgramacionVoBo', 'ASIS');
+/***********************************F-DAT-VAN-ASIS-0-27/01/2021*****************************************/

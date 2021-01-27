@@ -101,28 +101,21 @@ header("content-type: text/javascript; charset=UTF-8");
 </style>
 <script>
 
-    Phx.vista.Programacion = {
+    Phx.vista.ProgramacionVoBo = {
 
         constructor: function (config) {
             var self = this;
-            Phx.vista.Programacion.superclass.constructor.call(this, config);
             this.maestro = config.maestro;
+            Phx.vista.ProgramacionVoBo.superclass.constructor.call(this, config);
             this.init();
+            console.log(this.calendar.events.dayclick)
+            this.calendar.events.dayclick = false;
+            this.calendar.events.rangeselect = false;
+            this.calendar.events.eventclick = false;
         },
-
-        Atributos: [],
-        tam_pag: 31,
-        title: 'Programacion',
-        require: '../../../sis_asistencia/vista/programacion/ProgramacionBase.php',
-        requireclase: 'Phx.vista.ProgramacionBase',
-        nombreVista: 'Programacion',
-        bdel: false,
-        bsave: true,
-        bnew: false,
-        bedit: false,
         east: {
-            url: '../../../sis_asistencia/vista/programacion/ListaProgramacion.php',
-            cls: 'ListaProgramacion',
+            url: '../../../sis_asistencia/vista/programacion/ListaProgramacionVoBo.php',
+            cls: 'ListaProgramacionVoBo',
             width: '30%',
             height: '100%',
             title: "Programaciones",
@@ -132,7 +125,17 @@ header("content-type: text/javascript; charset=UTF-8");
             animCollapse: true,
             collapsible: true
         },
-        refresh: function (res) {
+        Atributos: [],
+        tam_pag: 31,
+        title: 'Programacion',
+        require: '../../../sis_asistencia/vista/programacion/ProgramacionBase.php',
+        requireclase: 'Phx.vista.ProgramacionBase',
+        nombreVista: 'ProgramacionVoBo',
+        bdel: false,
+        bsave: true,
+        bnew: false,
+        bedit: false,
+        refresh: function (date = undefined) {
             var vStartDate = this.calendar.layout.activeItem.viewStart.format('Y-m-d');
             var vEndDate = this.calendar.layout.activeItem.viewEnd.format('Y-m-d');
             this.eventStore.baseParams = {nombreVista: this.nombreVista}
@@ -186,9 +189,11 @@ header("content-type: text/javascript; charset=UTF-8");
             });
         },
         conexionFailure: function (res) {
-            Phx.vista.Programacion.superclass.conexionFailure.call(this, res);
+            Phx.vista.ProgramacionVoBo.superclass.conexionFailure.call(this, res);
             this.refresh();
         }
+
     }
 </script>
-
+        
+        

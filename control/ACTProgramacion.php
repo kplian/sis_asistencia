@@ -20,9 +20,15 @@ class ACTProgramacion extends ACTbase
         $this->objParam->defecto('ordenacion', 'id_programacion');
         $this->objParam->defecto('dir_ordenacion', 'asc');
 
-        if ($this->objParam->getParametro('id_programacion') != '') {
-            $this->objParam->addFiltro(" prn.id_programacion = ''" . $this->objParam->getParametro('id_programacion') . "''");
+        if ($this->objParam->getParametro('start') != '' && $this->objParam->getParametro('end') != '') {
+            $fmtstart = DateTime::createFromFormat('m-d-Y', $this->objParam->getParametro('start'));
+            $newFmtStart = $fmtstart->format('Y-m-d');
+            $fmtEnd = DateTime::createFromFormat('m-d-Y', $this->objParam->getParametro('end'));
+            $newFmtEnd = $fmtEnd->format('Y-m-d');
+            $this->objParam->addFiltro(" prn.fecha_programada between ''" . $newFmtStart . "'' AND ''" . $newFmtEnd . "'' ");
         }
+        $this->objParam->addParametro('id_funcionario', $_SESSION["ss_id_funcionario"]);
+
         $this->objFunc = $this->create('MODProgramacion');
         $this->res = $this->objFunc->listarProgramacion($this->objParam);
         $datos = $this->res->getDatos();
@@ -52,6 +58,12 @@ class ACTProgramacion extends ACTbase
         $this->objParam->defecto('ordenacion', 'id_programacion');
         $this->objParam->defecto('dir_ordenacion', 'desc');
 
+        if ($this->objParam->getParametro('fecha_inicio') != '' && $this->objParam->getParametro('fecha_fin') != '') {
+            $this->objParam->addFiltro(" prn.fecha_programada between ''" . $this->objParam->getParametro('fecha_inicio') . "'' AND ''" . $this->objParam->getParametro('fecha_fin') . "'' ");
+        }
+        $this->objParam->addFiltro(" prn.estado = ''pendiente'' ");
+        $this->objParam->addParametro('id_funcionario', $_SESSION["ss_id_funcionario"]);
+
         if ($this->objParam->getParametro('tipoReporte') == 'excel_grid' || $this->objParam->getParametro('tipoReporte') == 'pdf_grid') {
             $this->objReporte = new Reporte($this->objParam, $this);
             $this->res = $this->objReporte->generarReporteListado('MODProgramacion', 'listar');
@@ -72,6 +84,7 @@ class ACTProgramacion extends ACTbase
         if ($this->objParam->getParametro('id_programacion') != '') {
             $this->objParam->addFiltro(" prn.id_programacion = ''" . $this->objParam->getParametro('id_programacion') . "''");
         }
+        $this->objParam->addParametro('id_funcionario', $_SESSION["ss_id_funcionario"]);
         $this->objFunc = $this->create('MODProgramacion');
         $this->res = $this->objFunc->listarProgramacion($this->objParam);
 
@@ -103,6 +116,12 @@ class ACTProgramacion extends ACTbase
         $this->res->imprimirRespuesta($this->res->generarJson());
     }
 
+    function generarSolicitudes()
+    {
+        $this->objFunc = $this->create('MODProgramacion');
+        $this->res = $this->objFunc->generarSolicitudes($this->objParam);
+        $this->res->imprimirRespuesta($this->res->generarJson());
+    }
 }
 
 ?>
