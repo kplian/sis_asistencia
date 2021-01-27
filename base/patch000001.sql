@@ -660,3 +660,8 @@ ALTER TABLE asis.tprogramacion
 ALTER COLUMN tiempo SET STATISTICS 0;
 
 /***********************************F-SCP-MMV-ASIS-2-18/01/2021****************************************/
+/***********************************I-SCP-MMV-ASIS-0-26/01/2021****************************************/
+
+ALTER TABLE asis.tvacacion
+    ADD COLUMN programacion VARCHAR(5) DEFAULT 'no' NOT NULL;
+/***********************************F-SCP-MMV-ASIS-0-26/01/2021****************************************/

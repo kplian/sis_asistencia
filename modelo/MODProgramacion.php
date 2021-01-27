@@ -27,7 +27,8 @@ class MODProgramacion extends MODbase
         $this->transaccion = 'ASIS_PRNCAL_SEL';
         $this->tipo_procedimiento = 'SEL';//tipo de transaccion
         $this->setCount(false);
-
+        $this->setParametro('id_funcionario', 'id_funcionario', 'int4');
+        $this->setParametro('nombreVista', 'nombreVista', 'varchar');
         //Definicion de la lista del resultado del query
         $this->captura('id_programacion', 'int4');
         $this->captura('fecha_inicio', 'date');
@@ -36,7 +37,7 @@ class MODProgramacion extends MODbase
         $this->captura('valor', 'numeric');
         $this->captura('desc_funcionario1', 'text');
         $this->captura('id_funcionario', 'int4');
-
+        $this->captura('estado', 'varchar');
 
         //Ejecuta la instruccion
         $this->armarConsulta();
@@ -54,6 +55,8 @@ class MODProgramacion extends MODbase
         $this->tipo_procedimiento = 'SEL';//tipo de transaccion
         $this->setCount(false);
         $this->setParametro('fecha_programada', 'fecha_programada', 'date');
+        $this->setParametro('id_funcionario', 'id_funcionario', 'int4');
+        $this->setParametro('nombreVista', 'nombreVista', 'varchar');
         //Definicion de la lista del resultado del query
         $this->captura('id_programacion','int4');
         $this->captura('estado_reg','varchar');
@@ -158,8 +161,28 @@ class MODProgramacion extends MODbase
         $this->tipo_procedimiento = 'IME';
 
         //Define los parametros para la funcion
+        $this->setParametro('id_funcionario', 'id_funcionario', 'int4');
         $this->setParametro('id_programacion', 'id_programacion', 'int4');
         $this->setParametro('fecha_programada', 'fecha_programada', 'date');
+
+        //Ejecuta la instruccion
+        $this->armarConsulta();
+        $this->ejecutarConsulta();
+
+        //Devuelve la respuesta
+        return $this->respuesta;
+    }
+
+    function generarSolicitudes()
+    {
+        //Definicion de variables para ejecucion del procedimiento
+        $this->procedimiento = 'asis.ft_programacion_ime';
+        $this->transaccion = 'ASIS_GEN_SOL';
+        $this->tipo_procedimiento = 'IME';
+
+        //Define los parametros para la funcion
+        $this->setParametro('fecha_inicio', 'fecha_inicio', 'date');
+        $this->setParametro('fecha_fin', 'fecha_fin', 'date');
 
         //Ejecuta la instruccion
         $this->armarConsulta();

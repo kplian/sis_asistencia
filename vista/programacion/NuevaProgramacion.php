@@ -32,6 +32,30 @@ header("content-type: text/javascript; charset=UTF-8");
             },
             {
                 config: {
+                    name: 'id_funcionario',
+                    hiddenName: 'id_funcionario',
+                    origen: 'FUNCIONARIO',
+                    fieldLabel: 'Funcionario',
+                    allowBlank: false,
+                    disabled: true,
+                    width: '100%',
+                    anchor: '100%',
+                    valueField: 'id_funcionario',
+                    gdisplayField: 'desc_funcionario',
+                    baseParams: {par_filtro: 'VFUN.desc_funcionario1#FUNCIO.id_funcionario'},
+                    renderer: function (value, p, record) {
+                        return String.format('{0}', record.data['desc_funcionario']);
+                    }
+                },
+                type: 'ComboRec',
+                id_grupo: 2,
+                filters: {pfiltro: 'fun.desc_funcionario1', type: 'string'},
+                bottom_filter: true,
+                grid: true,
+                form: true
+            },
+            {
+                config: {
                     name: 'fecha_programada',
                     fieldLabel: 'Fecha Inicio',
                     allowBlank: false,
@@ -60,29 +84,6 @@ header("content-type: text/javascript; charset=UTF-8");
                 type: 'DateField',
                 id_grupo: 1,
                 grid: false,
-                form: true
-            },
-            {
-                config: {
-                    name: 'id_funcionario',
-                    hiddenName: 'id_funcionario',
-                    origen: 'FUNCIONARIO',
-                    fieldLabel: 'Funcionario',
-                    allowBlank: false,
-                    width: '100%',
-                    anchor: '100%',
-                    valueField: 'id_funcionario',
-                    gdisplayField: 'desc_funcionario',
-                    baseParams: {par_filtro: 'VFUN.desc_funcionario1#FUNCIO.id_funcionario'},
-                    renderer: function (value, p, record) {
-                        return String.format('{0}', record.data['desc_funcionario']);
-                    }
-                },
-                type: 'ComboRec',
-                id_grupo: 2,
-                filters: {pfiltro: 'fun.desc_funcionario1', type: 'string'},
-                bottom_filter: true,
-                grid: true,
                 form: true
             },
             {
@@ -165,7 +166,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         items: [{
                             columnWidth: '.5',
                             border: false,
-                            hidden: me.band,
+                            hidden: false,
                             items: [{
                                 xtype: 'fieldset',
                                 title: 'Datos Obligaci&oacute;n',
@@ -178,7 +179,7 @@ header("content-type: text/javascript; charset=UTF-8");
                                 columnWidth: '.5',
                                 padding: '0px 5px 0px',
                                 border: false,
-                                hidden: me.band,
+                                hidden: false,
                                 items: [{
                                     xtype: 'fieldset',
                                     title: 'Datos Contrato',
@@ -223,7 +224,8 @@ header("content-type: text/javascript; charset=UTF-8");
                     url: '../../sis_asistencia/control/Programacion/obtenerProgramacion',
                     params:
                         {
-                            id_programacion: programacion.id
+                            id_programacion: programacion.id,
+                            nombreVista: self.nombreVista
                         },
                     success: self.resultProgramacion,
                     failure: self.conexionFailure,
@@ -236,7 +238,6 @@ header("content-type: text/javascript; charset=UTF-8");
         },
         resultProgramacion: function (data) {
             var res = Ext.util.JSON.decode(Ext.util.Format.trim(data.responseText));
-            console.log(res)
             Phx.CP.loadingHide();
             this.llenarFormulario(res.datos[0])
         },
@@ -258,6 +259,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 end = programacion.start.dateFormat('Y-m-d');
             } else {
                 start = programacion.fecha_inicio;
+                end = programacion.fecha_inicio;
             }
 
             if (Boolean(programacion.id_funcionario)) {
@@ -268,11 +270,12 @@ header("content-type: text/javascript; charset=UTF-8");
                 btnEliminarVisible = true;
             }
 
-            self.getComponente('id_programacion').setValue(id_programacion);
-            self.getComponente('fecha_programada').setValue(start);
             self.getComponente('fecha_fin').setValue(end);
+            self.getComponente('id_programacion').setValue(id_programacion);
+            self.getComponente('fecha_programada').setValue(start)
             self.getComponente('tiempo').setValue(tiempo);
             Ext.getCmp('btn-eliminar').setVisible(btnEliminarVisible);
+
             this.Cmp.id_funcionario.store.baseParams.query = id_funcionario;
             this.Cmp.id_funcionario.store.load({
                 params: {start: 0, limit: this.tam_pag},
