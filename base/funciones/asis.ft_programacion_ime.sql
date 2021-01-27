@@ -79,6 +79,11 @@ BEGIN
                             v_crear = false;
                         end if;
                     end if;
+
+                    if(select EXTRACT(ISODOW FROM  v_date) IN (6, 7)) then
+                        v_crear = false;
+                    end if;
+
                     if (v_crear) then
                         INSERT INTO asis.tprogramacion(estado_reg,
                                                        id_periodo,
