@@ -147,7 +147,7 @@ header("content-type: text/javascript; charset=UTF-8");
                                 xtype: 'calendarpanel',
                                 eventStore: self.eventStore,
                                 border: false,
-                                id: 'calendar-progrmacion',
+                                id: self.id_calendario,
                                 region: 'center',
                                 activeItem: 2,
                                 monthViewCfg: {
@@ -155,8 +155,6 @@ header("content-type: text/javascript; charset=UTF-8");
                                     showWeekLinks: true,
                                     showWeekNumbers: true
                                 },
-
-                                // Some optional CalendarPanel configs to experiment with:
                                 showDayView: false,
                                 showWeekView: false,
                                 showMonthView: true,
@@ -200,7 +198,6 @@ header("content-type: text/javascript; charset=UTF-8");
                                     },
                                     'eventmove': {
                                         fn: function (vw, rec) {
-                                            console.log("EVENT: eventmove", rec)
                                             rec.commit();
                                             var programacion = {
                                                 id_programacion: rec.data.EventId,
@@ -220,12 +217,13 @@ header("content-type: text/javascript; charset=UTF-8");
                 self.regiones.push(self.graf);
                 self.definirRegiones();
                 self.init();
-                self.calendar = Ext.getCmp('calendar-progrmacion');
+                self.calendar = Ext.getCmp(self.id_calendario);
             },
             Atributos: [],
             tam_pag: 31,
             title: 'Programacion',
             id_store: 'id_programacion',
+            id_calendario: 'calendar-progrmacion-base',
             fields: [],
             sortInfo: {
                 field: 'id',

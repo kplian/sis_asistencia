@@ -41,7 +41,23 @@ header("content-type: text/javascript; charset=UTF-8");
                 }
             );
             this.init();
-            this.load({params: {start: 0, limit: 50, nombreVista: this.nombreVista}});
+            var calendar = Phx.CP.getPagina(this.idContenedorPadre).calendar;
+            var vStartDate = calendar.layout.activeItem.viewStart.format('Y-m-d');
+            var vEndDate = calendar.layout.activeItem.viewEnd.format('Y-m-d');
+            if (!Boolean(this.maestro)) {
+                this.maestro = {
+                    programacion: {
+                        start: vStartDate,
+                        end: vEndDate
+                    }
+                }
+            }
+            this.store.baseParams = {
+                fecha_inicio: vStartDate,
+                fecha_fin: vEndDate,
+                nombreVista: this.nombreVista
+            };
+            this.load({params: {start: 0, limit: 50}});
         },
         require: '../../../sis_asistencia/vista/programacion/ListaProgramacionBase.php',
         requireclase: 'Phx.vista.ListaProgramacionBase',
@@ -52,14 +68,17 @@ header("content-type: text/javascript; charset=UTF-8");
         bedit: false,
         onReloadPage: function (m) {
             this.maestro = m;
+            var start = this.maestro.programacion.start;
+            var end = this.maestro.programacion.end;
             this.store.baseParams = {
-                fecha_inicio: this.maestro.programacion.start,
-                fecha_fin: this.maestro.programacion.end,
+                fecha_inicio: start,
+                fecha_fin: end,
                 nombreVista: this.nombreVista
             };
             this.load({params: {start: 0, limit: 50}});
         },
         generar: function () {
+            console.log(this.maestro)
             Ext.Ajax.request({
                 url: '../../sis_asistencia/control/Programacion/generarSolicitudes',
                 params: {
@@ -68,7 +87,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     nombreVista: this.nombreVista
                 },
                 isUpload: this.fileUpload,
-                success: this.refresh,
+                success: this.successGenerar,
                 argument: this.argumentSave,
                 failure: this.conexionFailure,
                 timeout: this.timeout,
@@ -91,6 +110,11 @@ header("content-type: text/javascript; charset=UTF-8");
             }
             return tb;
         },
+        successGenerar: function (resp) {
+            Phx.CP.loadingHide();
+            var reg = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));
+            Phx.CP.getPagina(this.idContenedorPadre).refresh();
+        }
     }
 </script>
 

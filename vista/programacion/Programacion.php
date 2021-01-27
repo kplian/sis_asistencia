@@ -120,6 +120,7 @@ header("content-type: text/javascript; charset=UTF-8");
         bsave: true,
         bnew: false,
         bedit: false,
+        id_calendario: 'calendar-progrmacion',
         east: {
             url: '../../../sis_asistencia/vista/programacion/ListaProgramacion.php',
             cls: 'ListaProgramacion',

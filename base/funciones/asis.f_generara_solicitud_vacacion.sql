@@ -177,7 +177,6 @@ BEGIN
                     0, --v_saldo_resgistro,
                     'si')
             RETURNING id_vacacion into v_id_vacacion;
-
             select l.codigo
             into v_lugar
             from segu.tusuario us

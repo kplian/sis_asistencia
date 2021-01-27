@@ -108,7 +108,6 @@ header("content-type: text/javascript; charset=UTF-8");
             this.maestro = config.maestro;
             Phx.vista.ProgramacionVoBo.superclass.constructor.call(this, config);
             this.init();
-            console.log(this.calendar.events.dayclick)
             this.calendar.events.dayclick = false;
             this.calendar.events.rangeselect = false;
             this.calendar.events.eventclick = false;
@@ -135,6 +134,7 @@ header("content-type: text/javascript; charset=UTF-8");
         bsave: true,
         bnew: false,
         bedit: false,
+        id_calendario: 'calendar-progrmacion-vobo',
         refresh: function (date = undefined) {
             var vStartDate = this.calendar.layout.activeItem.viewStart.format('Y-m-d');
             var vEndDate = this.calendar.layout.activeItem.viewEnd.format('Y-m-d');
