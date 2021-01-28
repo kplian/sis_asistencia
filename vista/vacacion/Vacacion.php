@@ -186,7 +186,15 @@ header("content-type: text/javascript; charset=UTF-8");
                     allowBlank: true,
                     anchor: '80%',
                     gwidth: 130,
-                    maxLength:10
+                    maxLength:10,
+                    renderer: function(value,p,record){
+                        const color = 'red';
+                        if(record.data['programacion'] === 'si'){
+                            return '<font>'+record.data['nro_tramite']+'</font> <br/> <font color="#b8860b">Progamado</font>';
+                        }else{
+                            return '<font>'+record.data['nro_tramite']+'</font>';
+                        }
+                    }
                 },
                 type:'TextField',
                 filters:{pfiltro:'vac.nro_tramite',type:'string'},
@@ -599,7 +607,8 @@ header("content-type: text/javascript; charset=UTF-8");
             {name:'observaciones', type: 'string'},
             {name:'id_uo', type: 'numeric'},
             {name:'departamento', type: 'string'},
-            {name:'saldo', type: 'numeric'}
+            {name:'saldo', type: 'numeric'},
+            {name:'programacion', type: 'string'},
         ],
         sortInfo:{
             field: 'id_vacacion',
@@ -889,6 +898,12 @@ header("content-type: text/javascript; charset=UTF-8");
         },
         preparaMenu:function(n){
             Phx.vista.Vacacion.superclass.preparaMenu.call(this, n);
+            const data = this.sm.getSelected().data;
+
+            console.log(data)
+            if (data.programacion === 'si'){
+                this.getBoton('edit').disable();
+            }
             this.getBoton('btn_atras').enable();
             this.getBoton('diagrama_gantt').enable();
             this.getBoton('btn_siguiente').enable();

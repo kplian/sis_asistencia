@@ -1,9 +1,11 @@
-CREATE OR REPLACE FUNCTION asis.f_generara_solicitud_vacacion(p_id_usuario integer,
-                                                              p_fecha_inicio date,
-                                                              p_fecha_fin date,
-                                                              p_id_usuario_ai integer default null,
-                                                              p_nombre_usuario_ai varchar default null)
-    RETURNS void AS
+CREATE OR REPLACE FUNCTION asis.f_generara_solicitud_vacacion (
+  p_id_usuario integer,
+  p_fecha_inicio date,
+  p_fecha_fin date,
+  p_id_usuario_ai integer = NULL::integer,
+  p_nombre_usuario_ai varchar = NULL::character varying
+)
+RETURNS void AS
 $body$
 DECLARE
     v_resp             varchar;
@@ -32,7 +34,10 @@ DECLARE
     v_id_uo            integer;
     v_sub              text;
     v_id_usuario_reg   integer;
-
+    v_descripcion_correo   varchar;
+    v_registro			   record;
+	v_id_alarma			   integer;
+    v_id_vacacion_det	   integer;
 BEGIN
     v_nombre_funcion = 'asis.f_generara_solicitud_vacacion';
 
@@ -97,7 +102,12 @@ BEGIN
                                  and fun.id_funcionario != v_id_resposable)
                            order by ca.id_funcionario, ca.fecha_asignacion desc)
         loop
-
+		
+		if exists ( select 1
+              from asis.tprogramacion p
+              where p.fecha_programada  between p_fecha_inicio and p_fecha_fin
+                    and p.id_funcionario = v_funcionarios.id_funcionario) then
+       
             -- insertar cabezera
 
             select ps_num_tramite,
@@ -232,25 +242,25 @@ BEGIN
                                                                id_vacacion,
                                                                fecha_dia,
                                                                tiempo)
-                                values (p_id_usuario,
-                                        null,
-                                        now(),
-                                        null,
-                                        p_id_usuario_ai,
-                                        p_nombre_usuario_ai,
-                                        v_id_vacacion,
-                                        v_record_pro.fecha_programada,
-                                        case
-                                            when v_record_pro.tiempo = 'M' then
-                                                'mañana'
-                                            when v_record_pro.tiempo = 'T' then
-                                                'tarde'
-                                            else
-                                                'completo'
-                                            end);
-
+                                                                values (p_id_usuario,
+                                                                        null,
+                                                                        now(),
+                                                                        null,
+                                                                        p_id_usuario_ai,
+                                                                        p_nombre_usuario_ai,
+                                                                        v_id_vacacion,
+                                                                        v_record_pro.fecha_programada,
+                                                                        case
+                                                                            when v_record_pro.tiempo = 'M' then
+                                                                                'mañana'
+                                                                            when v_record_pro.tiempo = 'T' then
+                                                                                'tarde'
+                                                                            else
+                                                                                'completo'
+                                                                            end)RETURNING id_vacacion_det into v_id_vacacion_det;
                                 update asis.tprogramacion
-                                set estado='programado'
+                                set estado='programado',
+                                	id_vacacion_det = v_id_vacacion_det
                                 where id_programacion = v_record_pro.id_programacion;
                             end if;
                         end if;
@@ -291,6 +301,83 @@ BEGIN
                 fecha_fin    = v_fecha_max,
                 dias         = v_dias_efectivo
             where id_vacacion = v_id_vacacion;
+            
+            select 	me.id_vacacion,
+                    me.fecha_inicio,
+                    me.fecha_fin,
+                    me.dias,
+                    me.id_funcionario,
+                    me.prestado,
+                    me.id_funcionario_sol,
+                    me.id_estado_wf,
+                    fu.desc_funcionario1,
+                    to_char(me.fecha_reg::date, 'DD/MM/YYYY') as fecha_solictudo,
+                    to_char(me.fecha_inicio,'DD/MM/YYYY') as fecha_inicio,
+                    to_char(me.fecha_fin, 'DD/MM/YYYY') as fecha_fin,
+                    me.descripcion,
+                    me.dias,
+                    me.id_usuario_reg,
+                    fu.desc_funcionario2,
+                    me.id_proceso_wf,
+                      ('<table border="1"><TR>
+   								<TH>Fecha</TH>
+   								<TH>Tiempo</TH>'::text ||
+                                 pxp.html_rows((((('<td>'::text || COALESCE( to_char(vd.fecha_dia::date, 'DD/MM/YYYY')::text, '-'::text)) || '</td>		
+             					<td>'::text) || COALESCE(vd.tiempo::text, '-'::text)) || '</td>'::character varying::text)::character varying)::text) as detalle 
+                    into
+                    v_registro
+            from asis.tvacacion me
+            inner join orga.vfuncionario fu on fu.id_funcionario = me.id_funcionario
+            inner join asis.tvacacion_det vd on vd.id_vacacion = me.id_vacacion
+            where me.id_vacacion = v_id_vacacion
+            group by  me.id_vacacion,
+                      me.fecha_inicio,
+                      me.fecha_fin,
+                      me.dias,
+                      me.id_funcionario,
+                      me.prestado,
+                      me.id_funcionario_sol,
+                      me.id_estado_wf,
+                      fu.desc_funcionario1,
+                      me.fecha_reg::date,
+                      me.fecha_inicio,
+            		  me.fecha_fin,
+                      me.descripcion,
+                      me.dias,
+                      me.id_usuario_reg,
+                      fu.desc_funcionario2,
+                      me.id_proceso_wf,
+                      vd.fecha_dia,
+                      vd.tiempo
+            order by fecha_dia;
+               
+          v_descripcion_correo = '<h3><b>PROGRAMACION DE VACACIÓN</b></h3>
+                                  <p style="font-size: 15px;"><b>Fecha solicitud:</b> '||v_registro.fecha_solictudo||' </p>
+                                  <p style="font-size: 15px;"><b>Solicitud para:</b> '||v_registro.desc_funcionario1||'</p>
+                                  <p style="font-size: 15px;"><b>Desde:</b> '||v_registro.fecha_inicio||' <b>Hasta:</b> '||v_registro.fecha_fin||'</p>
+                                  <p style="font-size: 15px;"><b>Días solicitados:</b> '||v_registro.dias||'</p>
+                                  <p style="font-size: 15px;"><b>Justificación:</b> '||v_registro.descripcion||'</p>
+                                  <br/>'||  v_registro.detalle||'';
+          
+           v_id_alarma = param.f_inserta_alarma(
+                          v_registro.id_funcionario,
+                          v_descripcion_correo,--par_descripcion
+                          '',--acceso directo
+                          now()::date,--par_fecha: Indica la fecha de vencimiento de la alarma
+                          'notificacion', --notificacion
+                          'Programación Vacacion',  --asunto
+                          p_id_usuario,
+                          '', --clase
+                          'Programación Vacacion',--titulo
+                          '',--par_parametros varchar,   parametros a mandar a la interface de acceso directo
+                          v_registro.id_funcionario, --usuario a quien va dirigida la alarma
+                          '',--titulo correo
+                          '', --correo funcionario
+                          null,--#9
+                          v_registro.id_proceso_wf,
+                          v_registro.id_estado_wf--#9
+                         );
+           end if;
         end loop;
 
 
@@ -304,9 +391,9 @@ EXCEPTION
         raise exception '%',v_resp;
 END;
 $body$
-    LANGUAGE 'plpgsql'
-    VOLATILE
-    CALLED ON NULL INPUT
-    SECURITY INVOKER
-    PARALLEL UNSAFE
-    COST 100;
+LANGUAGE 'plpgsql'
+VOLATILE
+CALLED ON NULL INPUT
+SECURITY INVOKER
+PARALLEL UNSAFE
+COST 100;

@@ -106,7 +106,7 @@ BEGIN
                     where u.id_usuario = p_id_usuario;
 
                      if v_id_funcionario is not null then
-                    	v_filtro = 'wet.id_funcionario =  '||v_id_funcionario||' and ';
+                    	v_filtro = 'vac.id_responsable =  '||v_id_funcionario||' and ';
                      end if;
                	end if; 
             end if;
@@ -143,7 +143,8 @@ BEGIN
                         vac.observaciones,
                         dep.id_uo,
                         dep.nombre_unidad as departamento,
-                        vac.saldo
+                        vac.saldo,
+                        vac.programacion
 						from asis.tvacacion vac
 						inner join segu.tusuario usu1 on usu1.id_usuario = vac.id_usuario_reg
                         inner join wf.testado_wf wet on wet.id_estado_wf = vac.id_estado_wf
