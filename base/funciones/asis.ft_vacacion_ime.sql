@@ -615,17 +615,18 @@ BEGIN
 		begin
 			--Sentencia de la eliminacion
             
-            select v.estado, v.prestado into v_vacacion_record
+            select v.estado, v.programacion into v_vacacion_record
             from asis.tvacacion v
             where v.id_vacacion = v_parametros.id_vacacion;
             
-            if(v_vacacion_record.prestado = 'si')then
+            if(v_vacacion_record.programacion = 'si')then
             
             
             	
             	for v_detalle_vac in (select d.id_vacacion_det
                                       from asis.tvacacion_det d
-                                      where d.id_vacacion)loop
+                                      where d.id_vacacion = v_parametros.id_vacacion)loop
+            
             
             			update asis.tprogramacion set
                         estado = 'rechazado'

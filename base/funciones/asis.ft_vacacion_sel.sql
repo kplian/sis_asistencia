@@ -106,7 +106,7 @@ BEGIN
                     where u.id_usuario = p_id_usuario;
 
                      if v_id_funcionario is not null then
-                    	v_filtro = 'vac.id_responsable =  '||v_id_funcionario||' and ';
+                    	v_filtro = 'wet.id_funcionario =  '||v_id_funcionario||' and ';
                      end if;
                	end if; 
             end if;

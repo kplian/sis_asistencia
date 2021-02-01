@@ -828,8 +828,10 @@ header("content-type: text/javascript; charset=UTF-8");
                     timeout: this.timeout,
                     scope: this
                 });
+            }else{
+                Phx.CP.loadingHide();
             }
-            Phx.CP.loadingHide();
+
         },
         onSaveWizard:function(wizard,resp){
             var reg = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));

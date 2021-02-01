@@ -59,53 +59,36 @@ DECLARE
 
 BEGIN
   v_nombre_funcion = 'asis.f_procesar_estado_vacacion';
+     
+  	select    v.id_vacacion,
+              v.id_estado_wf,
+              v.id_proceso_wf,
+              v.nro_tramite,
+              v.fecha_solicitud,
+              v.fecha_inicio,
+              v.fecha_fin,
+              v.id_funcionario,
+              v.id_funcionario_sol,
+              v.id_responsable,
+              v.id_secretaria,
+              v.funcionario_solicitante,
+              v.codigo,
+              v.reponsable,
+              v.codigo_res,
+              v.solicitante_tercero,
+              v.codigo_terc,
+              v.codigo_secretaria,
+              v.secretaria,
+              v.descripcion,
+              v.dias,
+              v.saldo,
+              v.id_usuario_reg,
+    		  v.detalle_saldo
+              into 
+              v_registro
+    from asis.vvacacion v
+    where v.id_proceso_wf = p_id_proceso_wf;
 
-	select 	me.id_vacacion,
-    		me.fecha_inicio,
-    		me.fecha_fin,
-            me.dias,
-            me.id_funcionario,
-            me.prestado,
-            me.id_funcionario_sol,
-            me.id_estado_wf,
-            fu.desc_funcionario1,
-            to_char(me.fecha_reg::date, 'DD/MM/YYYY') as fecha_solictudo,
-            to_char(me.fecha_inicio,'DD/MM/YYYY') as fecha_inicio,
-            to_char(me.fecha_fin, 'DD/MM/YYYY') as fecha_fin,
-            me.descripcion,
-            me.dias,
-            me.id_usuario_reg,
-            fu.desc_funcionario2
-            into
-            v_registro
-    from asis.tvacacion me
-    inner join orga.vfuncionario fu on fu.id_funcionario = me.id_funcionario
-    where me.id_proceso_wf = p_id_proceso_wf;
-
-	with secretaria as ( select distinct on (ca.id_funcionario) ca.id_funcionario,
-                ca.desc_funcionario1 as funcioanrio,
-                ca.nombre_cargo,
-                ger.id_uo,
-                ger.nombre_unidad as gerencia
-                from orga.vfuncionario_cargo ca
-                inner join orga.tcargo car on car.id_cargo = ca.id_cargo
-                inner join orga.tuo ger on ger.id_uo = orga.f_get_uo_gerencia(ca.id_uo, NULL::integer, NULL::date)
-                where ca.id_funcionario = v_registro.id_funcionario
-                and ca.fecha_asignacion <= now()::date and (ca.fecha_finalizacion is null or ca.fecha_finalizacion >= now()::date)
-                order by ca.id_funcionario, ca.fecha_asignacion desc
-                ) select fg.id_funcionario as id_secretaria,
-                         fg.desc_funcionario1 as secretaria,
-                         u.nombre_unidad into v_secretaria
-                from orga.testructura_uo es
-                inner join orga.tuo u on u.id_uo = es.id_uo_hijo
-                inner join orga.tnivel_organizacional n on n.id_nivel_organizacional = u.id_nivel_organizacional
-                inner join secretaria s on s.id_uo = es.id_uo_padre 
-                inner join orga.vfuncionario_cargo fg on fg.id_uo = u.id_uo 
-                and fg.fecha_asignacion <= now()::date 
-                and (fg.fecha_finalizacion is null or fg.fecha_finalizacion >= now()::date)
-                where n.numero_nivel = 9;
-                
-                
 
    if p_codigo_estado = 'vobo' then
    
@@ -121,129 +104,288 @@ BEGIN
                                  from asis.tvacacion v
                                  inner join asis.tvacacion_det vd on vd.id_vacacion = v.id_vacacion
                                  where v.id_vacacion = v_registro.id_vacacion ) loop
-                                 
     
-    					if exists (select 1
-                               from asis.tvacacion va
-                               inner join asis.tvacacion_det vd on vd.id_vacacion = va.id_vacacion
-                               where va.id_funcionario = v_registro.id_funcionario 
-                                      and vd.fecha_dia = v_validar_vacacion.fecha_dia
-                                      and va.estado in ('aprobado','vobo'))then
+        if exists (select 1
+               from asis.tvacacion va
+               inner join asis.tvacacion_det vd on vd.id_vacacion = va.id_vacacion
+               where va.id_funcionario = v_registro.id_funcionario 
+                      and vd.fecha_dia = v_validar_vacacion.fecha_dia
+                      and va.estado in ('aprobado','vobo'))then
                                 
-                                            
-                                  
-                                  for v_vacacion_anterior in (select  vd.fecha_dia, 
-                                                                       vd.tiempo,
-                                                                       va.estado
-                                                                  from asis.tvacacion va
-                                                                  inner join asis.tvacacion_det vd on vd.id_vacacion = va.id_vacacion
-                                                                  where va.id_funcionario = v_registro.id_funcionario 
-                                                                          and vd.fecha_dia = v_validar_vacacion.fecha_dia
-                                                                          and va.estado in ('aprobado','vobo')) loop
+              for v_vacacion_anterior in (select  vd.fecha_dia, 
+                                                   vd.tiempo,
+                                                   va.estado
+                                              from asis.tvacacion va
+                                              inner join asis.tvacacion_det vd on vd.id_vacacion = va.id_vacacion
+                                              where va.id_funcionario = v_registro.id_funcionario 
+                                                      and vd.fecha_dia = v_validar_vacacion.fecha_dia
+                                                      and va.estado in ('aprobado','vobo')) loop
                                                                           
-                                                                          
-           						if v_validar_vacacion.tiempo = 'completo' then
-                                        if exists (select 1
-                                                   from asis.tvacacion va
-                                                   inner join asis.tvacacion_det vd on vd.id_vacacion = va.id_vacacion
-                                                   where va.id_funcionario = v_registro.id_funcionario 
-                                                          and vd.fecha_dia = v_validar_vacacion.fecha_dia
-                                                          and vd.tiempo = 'completo'
-                                                          and vd.tiempo = v_validar_vacacion.tiempo
-                                                          and va.estado in ('aprobado','vobo'))then
+                  if v_validar_vacacion.tiempo = 'completo' then
+                          if exists (select 1
+                                     from asis.tvacacion va
+                                     inner join asis.tvacacion_det vd on vd.id_vacacion = va.id_vacacion
+                                     where va.id_funcionario = v_registro.id_funcionario 
+                                            and vd.fecha_dia = v_validar_vacacion.fecha_dia
+                                            and vd.tiempo = 'completo'
+                                            and vd.tiempo = v_validar_vacacion.tiempo
+                                            and va.estado in ('aprobado','vobo'))then
                                                                     
-                                                      insert into tmp_error_vacacion(  fecha_dia,
-                                                                                       tiempo,
-                                                                                       id_funcionario,
-                                                                                       estado
-                                                                                       )values(
-                                                                                       v_vacacion_anterior.fecha_dia,
-                                                                                       v_vacacion_anterior.tiempo,
-                                                                                       v_registro.id_funcionario,
-                                                                                       v_vacacion_anterior.estado);    
-                                            else
+                                        insert into tmp_error_vacacion(  fecha_dia,
+                                                                         tiempo,
+                                                                         id_funcionario,
+                                                                         estado
+                                                                         )values(
+                                                                         v_vacacion_anterior.fecha_dia,
+                                                                         v_vacacion_anterior.tiempo,
+                                                                         v_registro.id_funcionario,
+                                                                         v_vacacion_anterior.estado);    
+                              else
                                                
-                                                    if(v_validar_vacacion.tiempo != v_vacacion_anterior.tiempo)then
+                                      if(v_validar_vacacion.tiempo != v_vacacion_anterior.tiempo)then
                                                           
-                                                    insert into tmp_error_vacacion(  fecha_dia,
-                                                                                     tiempo,
-                                                                                     id_funcionario,
-                                                                                     estado
-                                                                                     )values(
-                                                                                     v_vacacion_anterior.fecha_dia,
-                                                                                     v_vacacion_anterior.tiempo,
-                                                                                     v_registro.id_funcionario,
-                                                                                     v_vacacion_anterior.estado); 
+                                      insert into tmp_error_vacacion(  fecha_dia,
+                                                                       tiempo,
+                                                                       id_funcionario,
+                                                                       estado
+                                                                       )values(
+                                                                       v_vacacion_anterior.fecha_dia,
+                                                                       v_vacacion_anterior.tiempo,
+                                                                       v_registro.id_funcionario,
+                                                                       v_vacacion_anterior.estado); 
                                                           
-                                                      end if;
-                                          end if;
-                                 end if; 
-                                 
-                                   if v_validar_vacacion.tiempo != 'completo' then
+                                        end if;
+                            end if;
+                   end if; 
+                   if v_validar_vacacion.tiempo != 'completo' then
                                
-                                      if(v_validar_vacacion.tiempo = v_vacacion_anterior.tiempo)then
+                      if(v_validar_vacacion.tiempo = v_vacacion_anterior.tiempo)then
                                                               
-                                                        insert into tmp_error_vacacion( fecha_dia,
-                                                                                         tiempo,
-                                                                                         id_funcionario,
-                                                                                         estado
-                                                                                         )values(
-                                                                                         v_vacacion_anterior.fecha_dia,
-                                                                                         v_vacacion_anterior.tiempo,
-                                                                                         v_registro.id_funcionario,
-                                                                                         v_vacacion_anterior.estado); 
+                                        insert into tmp_error_vacacion( fecha_dia,
+                                                                         tiempo,
+                                                                         id_funcionario,
+                                                                         estado
+                                                                         )values(
+                                                                         v_vacacion_anterior.fecha_dia,
+                                                                         v_vacacion_anterior.tiempo,
+                                                                         v_registro.id_funcionario,
+                                                                         v_vacacion_anterior.estado); 
                                                               
-                                      end if;
+                      end if;
                                       
-                                      if (v_vacacion_anterior.tiempo = 'completo') then
-                                       insert into tmp_error_vacacion( fecha_dia,
-                                                                                         tiempo,
-                                                                                         id_funcionario,
-                                                                                         estado
-                                                                                         )values(
-                                                                                         v_vacacion_anterior.fecha_dia,
-                                                                                         v_vacacion_anterior.tiempo,
-                                                                                         v_registro.id_funcionario,
-                                                                                         v_vacacion_anterior.estado); 
-                                      end if;
+                      if (v_vacacion_anterior.tiempo = 'completo') then
+                       insert into tmp_error_vacacion( fecha_dia,
+                                                                         tiempo,
+                                                                         id_funcionario,
+                                                                         estado
+                                                                         )values(
+                                                                         v_vacacion_anterior.fecha_dia,
+                                                                         v_vacacion_anterior.tiempo,
+                                                                         v_registro.id_funcionario,
+                                                                         v_vacacion_anterior.estado); 
+                      end if;
                                    		
-                                   end if;
-                                 
-                                 
-                                 end loop;
-                                              
-                                      
-                                      
-                               
-                                 
-                    	end if;
+                   end if;
+               end loop;                   
+         end if;
     end loop;
-    
-    
-      if exists (  select 1
-                   from tmp_error_vacacion t
-                   where t.id_funcionario = v_registro.id_funcionario )then
+     
+    if exists (  select 1
+                 from tmp_error_vacacion t
+                 where t.id_funcionario = v_registro.id_funcionario )then
    
-   
-   select pxp.list(' Dia: '||tm.fecha_dia || ' - '||tm.tiempo||'' || ' Estado: '||tm.estado) into v_mensaje_error
-   from tmp_error_vacacion tm
-   where tm.id_funcionario = v_registro.id_funcionario;
-   
-   
-   raise exception 'Vacacion registrado: %',v_mensaje_error;
+           
+         select pxp.list(' Dia: '||tm.fecha_dia || ' - '||tm.tiempo||'' || ' Estado: '||tm.estado) into v_mensaje_error
+         from tmp_error_vacacion tm
+         where tm.id_funcionario = v_registro.id_funcionario;
+           
+           
+         raise exception 'Vacacion registrado: %',v_mensaje_error;
    
    end if;
  
-	
-    
-    v_descripcion_correo = '<h3><b>SOLICITUD DE VACACIÓN</b></h3>
-                            <p style="font-size: 15px;"><b>Fecha solicitud:</b> '||v_registro.fecha_solictudo||' </p>
-                            <p style="font-size: 15px;"><b>Solicitud para:</b> '||v_registro.desc_funcionario1||'</p>
-                            <p style="font-size: 15px;"><b>Desde:</b> '||v_registro.fecha_inicio||' <b>Hasta:</b> '||v_registro.fecha_fin||'</p>
-                            <p style="font-size: 15px;"><b>Días solicitados:</b> '||v_registro.dias||'</p>
-                            <p style="font-size: 15px;"><b>Justificación:</b> '||v_registro.descripcion||'</p>';
 
-
+	v_descripcion_correo = ' <table border="1" align="center" bgcolor="#FFFFFF">
+        <tbody>
+            <tr>
+                <td align="center" bgcolor="#12125A">
+                    <font color="#FFFFCC"><b>Solicitud de Vacaciones</b></font>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <table border="0" cellpadding="2" cellspacing="3">
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <table align="center" cellspacing="0" cellpadding="0" width="457" border="0">
+                                        <tbody>
+                                            <tr>
+                                                <td bgcolor="#12125A">
+                                                    <font color="#FFFFCC"><b>Solicitante de la Vacación</b></font>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td height="7"></td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <table width="100%" cellpadding="1" cellspacing="1" border="1">
+                                                        <tbody>
+                                                            <tr>
+                                                                <td bgcolor="#EEEEFB" width="30%">Cod Solicitante :</td>
+                                                                <td>'||v_registro.codigo||'</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td bgcolor="#EEEEFB">Nombre Solicitante :</td>
+                                                                <td>'||v_registro.funcionario_solicitante||'</td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <table align="center" cellspacing="0" cellpadding="0" width="457" border="0">
+                                        <tbody>
+                                            <tr>
+                                                <td bgcolor="#12125A">
+                                                    <font color="#FFFFCC"><b>Solicitud de Vacación para...</b></font>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td height="7"></td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <table width="100%" cellpadding="1" cellspacing="1" border="1">
+                                                        <tbody>
+                                                            <tr>
+                                                                <td bgcolor="#EEEEFB" width="30%">Empleado :</td>
+                                                                <td>'||v_registro.codigo||' - '||v_registro.funcionario_solicitante||'</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td bgcolor="#EEEEFB" width="30%">Observación :</td>
+                                                                <td>'||v_registro.descripcion||'</td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <table align="center" cellspacing="0" cellpadding="0" width="457" border="0">
+                                        <tbody>
+                                            <tr>
+                                                <td bgcolor="#12125A">
+                                                    <font color="#FFFFCC"><b>Detalle a Completar</b></font>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td height="7"></td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <table width="100%" cellpadding="1" cellspacing="1" border="1">
+                                                        <tbody>
+                                                            <tr>
+                                                                <td bgcolor="#EEEEFB">De Fecha :</td>
+                                                                <td>'||v_registro.fecha_inicio||'</td>
+                                                                <td bgcolor="#EEEEFB">Días :</td>
+                                                                <td>'||v_registro.dias||'</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td bgcolor="#EEEEFB" width="30%">A Fecha :</td>
+                                                                <td>'||v_registro.fecha_fin||'</td>
+                                                                <td bgcolor="#EEEEFB" colspan="2"><strong>No</strong>
+                                                                    Trabaja Sábados</td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <table align="center" cellspacing="0" cellpadding="0" width="457" border="0">
+                                        <tbody>
+                                            <tr>
+                                                <td bgcolor="#12125A">
+                                                    <font color="#FFFFCC"><b>Saldo</b></font>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td height="7"></td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <table width="100%" cellpadding="1" cellspacing="1" border="1">
+                                                        <tbody>
+                                                            <tr>
+                                                                <td bgcolor="#EEEEFB" width="30%">Saldo Vacación :</td>
+                                                                <td colspan="3">'||v_registro.saldo||'</td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <table align="center" cellspacing="0" cellpadding="0" width="457" border="0">
+                                        <tbody>
+                                            <tr>
+                                                <td bgcolor="#12125A">
+                                                    <font color="#FFFFCC"><b>Destinatarios</b></font>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td height="7"></td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <table width="100%" cellpadding="1" cellspacing="1" border="1">
+                                                        <tbody>
+                                                            <tr>
+                                                                <td bgcolor="#EEEEFB" width="30%">Responsable :</td>
+                                                                <td>'||v_registro.codigo_res||' - '||v_registro.reponsable||'</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td bgcolor="#EEEEFB" width="30%">Secretaria/Adm.
+                                                                    Regional :</td>
+                                                                <td>'||v_registro.codigo_secretaria||' - '||v_registro.secretaria||'</td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </td>
+                            </tr>
+                            <tr>
+                                '||v_registro.detalle_saldo||'
+                            </tr>
+                        </tbody>
+                    </table>
+                </td>
+            </tr>
+        </tbody>
+    </table>';
     if (v_registro.id_funcionario_sol is not null)then
       v_id_alarma = param.f_inserta_alarma(
                           v_registro.id_funcionario,
@@ -271,10 +413,10 @@ BEGIN
                                                 f.desc_funcionario1 as funcionario
                                               from orga.vfuncionario_cargo f
                                               where (f.fecha_finalizacion is null or f.fecha_finalizacion >= now()::date)
-                                              and f.id_funcionario in (373,700,v_secretaria.id_secretaria,v_registro.id_funcionario )) loop
+                                              and f.id_funcionario in (373,700,v_registro.id_secretaria,v_registro.id_funcionario )) loop
                      
          if v_registro.id_funcionario <> v_id_funcionario_copia.id_funcionario then 
-         	v_nombre_funcionario = initcap(v_registro.desc_funcionario2);
+         	v_nombre_funcionario = initcap(v_registro.funcionario_solicitante);
          end if;
                              
          v_id_alarma = param.f_inserta_alarma( v_id_funcionario_copia.id_funcionario,
@@ -381,8 +523,8 @@ BEGIN
                             p_id_usuario_ai,
                             p_usuario_ai,
                             v_registro.id_funcionario,
-                            v_registro.fecha_inicio,
-                            v_registro.fecha_fin,
+                            v_registro.fecha_inicio::date,
+                            v_registro.fecha_fin::date,
                             v_resultado,-- v_record.dias_actual - v_registro.dias,
                             'activo',
                             v_record.codigo,
@@ -410,12 +552,123 @@ BEGIN
           where id_proceso_wf = p_id_proceso_wf;
           
           
-          v_descripcion_correo = '<h3><b>SOLICITUD DE VACACIÓN</b></h3>
-                                <p style="font-size: 15px;"><b>Fecha solicitud:</b> '||v_registro.fecha_solictudo||' </p>
-                                <p style="font-size: 15px;"><b>Solicitud para:</b> '||v_registro.desc_funcionario1||'</p>
-                                <p style="font-size: 15px;"><b>Desde:</b> '||v_registro.fecha_inicio||' <b>Hasta:</b> '||v_registro.fecha_fin||'</p>
-                                <p style="font-size: 15px;"><b>Días solicitados:</b> '||v_registro.dias||'</p>
-                                <p style="font-size: 15px;"><b>Justificación:</b> '||v_registro.descripcion||'</p>';
+          v_descripcion_correo = '<table border="1" align="center" bgcolor="#FFFFFF">
+        <tbody>
+            <tr>
+                <td align="center" bgcolor="#12125A">
+                    <font color="#FFFFCC">Solicitud de Vacaciones</b></font>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <table border="0" cellpadding="2" cellspacing="3">
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <table align="center" cellspacing="0" cellpadding="0" width="457" border="0">
+                                        <tbody>
+                                            <tr>
+                                                <td align="center" bgcolor="#12125A">
+                                                    <font color="lime"><b>SOLICITUD APROBADA</b></font>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td height="7"></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <table align="center" cellspacing="0" cellpadding="0" width="457" border="0">
+                                        <tbody>
+                                            <tr>
+                                                <td bgcolor="#12125A">
+                                                    <font color="#FFFFCC"><b>Detalle de la Solicitud</b></font>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td height="7"></td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <table width="100%" cellpadding="1" cellspacing="1" border="1"
+                                                        class="textoAzulPequeno">
+                                                        <tbody>
+                                                            <tr>
+                                                                <td bgcolor="#EEEEFB" width="30%">Cod Solicitante :</td>
+                                                                <td>'||v_registro.codigo||'</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td bgcolor="#EEEEFB" width="30%">Nombre Solicitante :
+                                                                </td>
+                                                                <td>'||v_registro.funcionario_solicitante||'</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td bgcolor="#EEEEFB" width="30%">Solicitud Para :</td>
+                                                                <td>'||v_registro.codigo||' - '||v_registro.funcionario_solicitante||'</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td colspan="2">&nbsp;</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td bgcolor="#EEEEFB" width="30%">Fecha De :</td>
+                                                                <td>'||v_registro.fecha_inicio||'</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td bgcolor="#EEEEFB" width="30%">Fecha A :</td>
+                                                                <td>'||v_registro.fecha_fin||'</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td bgcolor="#EEEEFB" width="30%">Días Solicitados :
+                                                                </td>
+                                                                <td>'||v_registro.dias||'</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td bgcolor="#EEEEFB" width="30%">Observación :</td>
+                                                                <td>'||v_registro.descripcion||'</td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td bgcolor="#12125A">
+                                                    <font color="#FFFFCC"><b>Responsable</b></font>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td></td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <table width="100%" cellpadding="1" cellspacing="1" border="1"
+                                                        class="textoAzulPequeno">
+                                                        <tbody>
+                                                            <tr>
+                                                                <td bgcolor="#EEEEFB" width="30%">Responsable :</td>
+                                                                <td>'||v_registro.codigo_res||' - '||v_registro.reponsable||'</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td bgcolor="#EEEEFB" width="30%">Secretaria/Adm.
+                                                                    Regional :</td>
+                                                                <td>'||v_registro.codigo_secretaria||' - '||v_registro.secretaria||'</td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </td>
+            </tr>
+        </tbody>
+    </table>';
 
 
 			v_nombre_funcionario = '';
@@ -424,11 +677,11 @@ BEGIN
                                                 f.desc_funcionario1 as funcionario
                                               from orga.vfuncionario_cargo f
                                               where (f.fecha_finalizacion is null or f.fecha_finalizacion >= now()::date)
-                                              and f.id_funcionario in (373,700,v_secretaria.id_secretaria,v_registro.id_funcionario )) loop
+                                              and f.id_funcionario in (373,700,v_registro.id_secretaria,v_registro.id_funcionario )) loop
        
     
     	   if v_registro.id_funcionario <> v_id_funcionario_copia.id_funcionario then 
-         		v_nombre_funcionario = initcap(v_registro.desc_funcionario2);
+         		v_nombre_funcionario = initcap(v_registro.funcionario_solicitante);
          	end if;
     
            v_id_alarma = param.f_inserta_alarma( v_id_funcionario_copia.id_funcionario,
@@ -556,22 +809,132 @@ BEGIN
         observaciones =  p_obs
         where id_proceso_wf = p_id_proceso_wf;
         
-        v_descripcion_correo = '<h3><b>SOLICITUD DE VACACIÓN</b></h3>
-                                      <p style="font-size: 15px;"><b>Fecha solicitud:</b> '||v_registro.fecha_solictudo||' </p>
-                                      <p style="font-size: 15px;"><b>Solicitud para:</b> '||v_registro.desc_funcionario1||'</p>
-                                      <p style="font-size: 15px;"><b>Desde:</b> '||v_registro.fecha_inicio||' <b>Hasta:</b> '||v_registro.fecha_fin||'</p>
-                                      <p style="font-size: 15px;"><b>Días solicitados:</b> '||v_registro.dias||'</p>
-                                      <p style="font-size: 15px;"><b>Justificación:</b> '||v_registro.descripcion||'</p>
-                                      <p style="font-size: 15px;"><b>Obs.:</b> '||p_obs||'</p>';
+        v_descripcion_correo = '<table border="1" align="center" bgcolor="#FFFFFF">
+        <tbody>
+            <tr>
+                <td align="center" bgcolor="#12125A">
+                    <font color="#FFFFCC">Solicitud de Vacaciones</b></font>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <table border="0" cellpadding="2" cellspacing="3">
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <table align="center" cellspacing="0" cellpadding="0" width="457" border="0">
+                                        <tbody>
+                                            <tr>
+                                                <td align="center" bgcolor="#12125A">
+                                                    <font color="#E01010"><b>SOLICITUD RECHAZADA</b></font>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td height="7"></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <table align="center" cellspacing="0" cellpadding="0" width="457" border="0">
+                                        <tbody>
+                                            <tr>
+                                                <td bgcolor="#12125A">
+                                                    <font color="#FFFFCC"><b>Detalle de la Solicitud</b></font>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td height="7"></td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <table width="100%" cellpadding="1" cellspacing="1" border="1"
+                                                        class="textoAzulPequeno">
+                                                        <tbody>
+                                                            <tr>
+                                                                <td bgcolor="#EEEEFB" width="30%">Cod Solicitante :</td>
+                                                                <td>'||v_registro.codigo||'</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td bgcolor="#EEEEFB" width="30%">Nombre Solicitante :
+                                                                </td>
+                                                                <td>'||v_registro.funcionario_solicitante||'</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td bgcolor="#EEEEFB" width="30%">Solicitud Para :</td>
+                                                                <td>'||v_registro.codigo||' - '||v_registro.funcionario_solicitante||'</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td colspan="2">&nbsp;</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td bgcolor="#EEEEFB" width="30%">Fecha De :</td>
+                                                                <td>'||v_registro.fecha_inicio||'</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td bgcolor="#EEEEFB" width="30%">Fecha A :</td>
+                                                                <td>'||v_registro.fecha_fin||'</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td bgcolor="#EEEEFB" width="30%">Días Solicitados :
+                                                                </td>
+                                                                <td>'||v_registro.dias||'</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td bgcolor="#EEEEFB" width="30%">Observación :</td>
+                                                                <td>'||v_registro.descripcion||'</td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td bgcolor="#12125A">
+                                                    <font color="#FFFFCC"><b>Responsable</b></font>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td></td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <table width="100%" cellpadding="1" cellspacing="1" border="1"
+                                                        class="textoAzulPequeno">
+                                                        <tbody>
+                                                            <tr>
+                                                                <td bgcolor="#EEEEFB" width="30%">Responsable :</td>
+                                                                <td>'||v_registro.codigo_res||' - '||v_registro.reponsable||'</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td bgcolor="#EEEEFB" width="30%">Secretaria/Adm.
+                                                                    Regional :</td>
+                                                                <td>'||v_registro.codigo_secretaria||' - '||v_registro.secretaria||'</td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </td>
+            </tr>
+        </tbody>
+    </table>';
 		v_nombre_funcionario = '';
         for v_id_funcionario_copia in (select   f.id_funcionario,
                                                 f.desc_funcionario1 as funcionario
                                               from orga.vfuncionario_cargo f
                                               where (f.fecha_finalizacion is null or f.fecha_finalizacion >= now()::date)
-                                              and f.id_funcionario in (373,700,v_secretaria.id_secretaria,v_registro.id_funcionario )) loop
+                                              and f.id_funcionario in (373,700,v_registro.id_secretaria,v_registro.id_funcionario  )) loop
        		
       		if v_registro.id_funcionario <> v_id_funcionario_copia.id_funcionario then 
-         		v_nombre_funcionario = initcap(v_registro.desc_funcionario2);
+         		v_nombre_funcionario = initcap(v_registro.funcionario_solicitante);
          	end if;
     
            v_id_alarma = param.f_inserta_alarma( v_id_funcionario_copia.id_funcionario,
