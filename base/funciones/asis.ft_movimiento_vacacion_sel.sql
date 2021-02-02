@@ -153,11 +153,11 @@ BEGIN
 						left join segu.tusuario usu2 on usu2.id_usuario = mvs.id_usuario_mod
                         join orga.tfuncionario f on f.id_funcionario = mvs.id_funcionario
                         join segu.tpersona p on p.id_persona = f.id_persona
-					    where mvs.estado_reg = ''activo'' and'||v_filtro;
+					    where mvs.estado_reg = ''activo'' and '||v_filtro;
 
 			--Definicion de la respuesta
 			v_consulta:=v_consulta||v_parametros.filtro;
-
+			raise notice '%',v_consulta;
 			--Devuelve la respuesta
 			return v_consulta;
 
