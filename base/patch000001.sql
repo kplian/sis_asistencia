@@ -665,3 +665,38 @@ ALTER COLUMN tiempo SET STATISTICS 0;
 ALTER TABLE asis.tvacacion
     ADD COLUMN programacion VARCHAR(5) DEFAULT 'no' NOT NULL;
 /***********************************F-SCP-MMV-ASIS-0-26/01/2021****************************************/
+
+/***********************************I-SCP-MMV-ASIS-SDA-54-02/02/2021****************************************/
+CREATE TABLE asis.ttele_trabajo (
+  id_tele_trabajo SERIAL,
+  id_funcionario INTEGER,
+  id_responsable INTEGER,
+  fecha_inicio DATE,
+  fecha_fin DATE,
+  justificacion TEXT,
+  estado VARCHAR(50),
+  nro_tramite VARCHAR(100),
+  id_proceso_wf INTEGER,
+  id_estado_wf INTEGER,
+  CONSTRAINT ttele_trabajo_pkey PRIMARY KEY(id_tele_trabajo)
+) INHERITS (pxp.tbase)
+WITH (oids = false);
+
+ALTER TABLE asis.ttele_trabajo
+  ALTER COLUMN id_tele_trabajo SET STATISTICS 0;
+
+ALTER TABLE asis.ttele_trabajo
+  ALTER COLUMN id_funcionario SET STATISTICS 0;
+
+ALTER TABLE asis.ttele_trabajo
+  ALTER COLUMN id_responsable SET STATISTICS 0;
+
+ALTER TABLE asis.ttele_trabajo
+  ALTER COLUMN fecha_inicio SET STATISTICS 0;
+
+ALTER TABLE asis.ttele_trabajo
+  ALTER COLUMN fecha_fin SET STATISTICS 0;
+
+ALTER TABLE asis.ttele_trabajo
+  ALTER COLUMN justificacion SET STATISTICS 0;
+/***********************************F-SCP-MMV-ASIS-SDA-54-02/02/2021****************************************/
