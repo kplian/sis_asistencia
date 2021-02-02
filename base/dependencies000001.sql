@@ -285,4 +285,8 @@ WITH movimiento AS(
       JOIN movimiento mm ON mm.id_funcionario = vaca.id_funcionario;
 /***********************************F-DEP-MMA-ASIS-SDA-50-01/02/2021*****************************************/
 
+/***********************************I-DEP-MMV-ASIS-SDA-51-02/02/2021*****************************************/
+select pxp.f_insert_testructura_gui ('SASL', 'ASIS');
+/***********************************F-DEP-MMV-ASIS-SDA-51-02/02/2021*****************************************/
+
 

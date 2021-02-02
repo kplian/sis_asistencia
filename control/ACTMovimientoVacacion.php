@@ -25,11 +25,11 @@ class ACTMovimientoVacacion extends ACTbase{
         //     $this->objParam->defecto('ordenacion','id_movimiento_vacacion');
         //     $this->objParam->defecto('dir_ordenacion','asc');
 
-        //     if($this->objParam->getParametro('id_funcionarios') != ''){
-        //         $this->objParam->addFiltro("mvs.id_funcionario = ".$this->objParam->getParametro('id_funcionarios'));
-        //     }
-        // }
 
+        // }
+        if($this->objParam->getParametro('id_funcionarios') != ''){
+            $this->objParam->addFiltro("mvs.id_funcionario = ".$this->objParam->getParametro('id_funcionarios'));
+        }
 		if($this->objParam->getParametro('tipoReporte')=='excel_grid' || $this->objParam->getParametro('tipoReporte')=='pdf_grid'){
 			$this->objReporte = new Reporte($this->objParam,$this);
 			$this->res = $this->objReporte->generarReporteListado('MODMovimientoVacacion','listarMovimientoVacacion');

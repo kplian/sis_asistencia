@@ -29,6 +29,7 @@ DECLARE
 	v_nombre_funcion        text;
 	v_mensaje_error         text;
 	v_id_movimiento_vacacion	integer;
+    v_recorrer					record;
 
 BEGIN
 
@@ -100,20 +101,44 @@ BEGIN
 	elsif(p_transaccion='ASIS_MVS_MOD')then
 
 		begin
+        
+            select  m.id_movimiento_vacacion,
+             		 m.id_funcionario,
+                     m.id_vacacion,
+                     m.desde,
+                     m.hasta,
+                     m.dias,
+                     m.tipo
+                     into 
+                     v_recorrer
+              from asis.tmovimiento_vacacion m
+              where m.id_movimiento_vacacion = v_parametros.id_movimiento_vacacion;
+        	
+             if (v_recorrer.tipo = 'ACUMULADA') then
+        		raise exception 'No puede eliminar un transacion del tipo ACUMULADA.';
+             end if;
+        
+        		
+            if exists ( select 1
+                        from asis.tvacacion v
+                        where v.id_vacacion = v_recorrer.id_vacacion) then
+            	raise exception 'Esta relacionado con un solicitud de vacacion';
+            end if;
+            
+            
+            
 			--Sentencia de la modificacion
 			update asis.tmovimiento_vacacion set
-			id_funcionario = v_parametros.id_funcionario,
 			desde = v_parametros.desde,
 			hasta = v_parametros.hasta,
-			dias_asignado = v_parametros.dias_asignado,
-			dias_acumulado = v_parametros.dias_acumulado,
-			dias_tomado = v_parametros.dias_tomado,
-			dias_actual = v_parametros.dias_actual,
+			dias =  -1 * v_parametros.dias,
 			id_usuario_mod = p_id_usuario,
 			fecha_mod = now(),
 			id_usuario_ai = v_parametros._id_usuario_ai,
 			usuario_ai = v_parametros._nombre_usuario_ai
 			where id_movimiento_vacacion=v_parametros.id_movimiento_vacacion;
+
+			PERFORM asis.f_recalcular_vacacion(v_recorrer.id_funcionario);
 
 			--Definicion de la respuesta
             v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Movimiento Vacaciones modificado(a)');
@@ -134,9 +159,39 @@ BEGIN
 	elsif(p_transaccion='ASIS_MVS_ELI')then
 
 		begin
+        
+        		
+             select  m.id_movimiento_vacacion,
+             		 m.id_funcionario,
+                     m.id_vacacion,
+                     m.desde,
+                     m.hasta,
+                     m.dias,
+                     m.tipo
+                     into 
+                     v_recorrer
+              from asis.tmovimiento_vacacion m
+              where m.id_movimiento_vacacion = v_parametros.id_movimiento_vacacion;
+        	
+             if (v_recorrer.tipo = 'ACUMULADA') then
+        		raise exception 'No puede eliminar un transacion del tipo ACUMULADA.';
+             end if;
+        
+        		
+            if exists ( select 1
+                        from asis.tvacacion v
+                        where v.id_vacacion = v_recorrer.id_vacacion) then
+            	raise exception 'Esta relacionado con un solicitud de vacacion';
+            end if;
+        
+        
 			--Sentencia de la eliminacion
 			delete from asis.tmovimiento_vacacion
             where id_movimiento_vacacion=v_parametros.id_movimiento_vacacion;
+
+
+			PERFORM asis.f_recalcular_vacacion(v_recorrer.id_funcionario);
+
 
             --Definicion de la respuesta
             v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Movimiento Vacaciones eliminado(a)');
@@ -168,4 +223,5 @@ LANGUAGE 'plpgsql'
 VOLATILE
 CALLED ON NULL INPUT
 SECURITY INVOKER
+PARALLEL UNSAFE
 COST 100;
