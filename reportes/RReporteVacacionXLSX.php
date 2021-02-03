@@ -99,14 +99,16 @@ class RReporteVacacionXLSX{
         $this->docexcel->getActiveSheet()->getColumnDimension('C')->setWidth(10);
         $this->docexcel->getActiveSheet()->getColumnDimension('D')->setWidth(20);
         $this->docexcel->getActiveSheet()->getColumnDimension('E')->setWidth(20);
-        $this->docexcel->getActiveSheet()->getStyle('A5:E5')->getAlignment()->setWrapText(true);
-        $this->docexcel->getActiveSheet()->getStyle('A5:E5')->applyFromArray($styleTitulos2);
+        $this->docexcel->getActiveSheet()->getColumnDimension('F')->setWidth(20);
+        $this->docexcel->getActiveSheet()->getStyle('A5:F5')->getAlignment()->setWrapText(true);
+        $this->docexcel->getActiveSheet()->getStyle('A5:F5')->applyFromArray($styleTitulos2);
 
         $this->docexcel->getActiveSheet()->setCellValue('A5','Codigo');
         $this->docexcel->getActiveSheet()->setCellValue('B5','Empleando');
+        $this->docexcel->getActiveSheet()->setCellValue('D5','Tipo Contrato');
         $this->docexcel->getActiveSheet()->setCellValue('C5','Dias');
-        $this->docexcel->getActiveSheet()->setCellValue('D5','Fecha Inicio');
-        $this->docexcel->getActiveSheet()->setCellValue('E5','Fecha Fin');
+        $this->docexcel->getActiveSheet()->setCellValue('E5','Fecha Inicio');
+        $this->docexcel->getActiveSheet()->setCellValue('F5','Fecha Fin');
     }
     function generarDatos(){
         $this->imprimeCabecera();
@@ -137,6 +139,7 @@ class RReporteVacacionXLSX{
         $dep = '';
         $codigo = '';
         $funcionario = '';
+        $tipo_contrato = '';
         foreach ($datos as $value) {
             if ($value['gerencia'] != $ger) {
                 $this->imprimeSubtitulo($fila,$value['gerencia']);
@@ -158,10 +161,16 @@ class RReporteVacacionXLSX{
                 $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(1, $fila, $value['desc_funcionario1']);
                 $funcionario=  $value['desc_funcionario1'];
             }
-
+            if( $value['tipo_contrato'] != $tipo_contrato){
+                $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(3, $fila, $value['tipo_contrato']);
+                $tipo_contrato =  $value['tipo_contrato'];
+                if($tipo_contrato == 'Total'){
+                    $this->docexcel->getActiveSheet()->getStyle("C$fila:D$fila")->applyFromArray($styleTitulos);
+                }
+            }
             $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(2, $fila, $value['dia']);
-            $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(3, $fila, $value['desde']);
-            $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(4, $fila, $value['hasta']);
+            $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(4, $fila, $value['desde']);
+            $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(5, $fila, $value['hasta']);
             $this->docexcel->getActiveSheet()->getStyle("C$fila:E$fila")->applyFromArray($styleTitulos3);
 
             $fila++;
