@@ -78,7 +78,13 @@ BEGIN
                                mvs.desde
                                end  ) as desde,
                           mvs.hasta,
-                          mvs.dias,
+                          (
+                          case
+                          	when mvs.dias < 0 then
+                            -1 * mvs.dias
+                            else
+                          	mvs.dias
+                            end ) as dias,
                           mvs.tipo,
                           mvs.dias_actual,
                           mvs.id_usuario_reg,
@@ -100,7 +106,7 @@ BEGIN
                           join orga.tfuncionario f on f.id_funcionario = mvs.id_funcionario
                           join segu.tpersona p on p.id_persona = f.id_persona
 
-                          where '||v_filtro;
+                          where  mvs.estado_reg = ''activo'' and '||v_filtro;
 
               --Definicion de la respuesta
               v_consulta:=v_consulta||v_parametros.filtro;
@@ -147,11 +153,11 @@ BEGIN
 						left join segu.tusuario usu2 on usu2.id_usuario = mvs.id_usuario_mod
                         join orga.tfuncionario f on f.id_funcionario = mvs.id_funcionario
                         join segu.tpersona p on p.id_persona = f.id_persona
-					    where '||v_filtro;
+					    where mvs.estado_reg = ''activo'' and '||v_filtro;
 
 			--Definicion de la respuesta
 			v_consulta:=v_consulta||v_parametros.filtro;
-
+			raise notice '%',v_consulta;
 			--Devuelve la respuesta
 			return v_consulta;
 
@@ -179,6 +185,3 @@ CALLED ON NULL INPUT
 SECURITY INVOKER
 PARALLEL UNSAFE
 COST 100;
-
-ALTER FUNCTION asis.ft_movimiento_vacacion_sel (p_administrador integer, p_id_usuario integer, p_tabla varchar, p_transaccion varchar)
-  OWNER TO postgres;

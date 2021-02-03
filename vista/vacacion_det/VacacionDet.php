@@ -264,8 +264,10 @@ header("content-type: text/javascript; charset=UTF-8");
                 const record = this.store.getAt(rowIndex),
                     fieldName = grid.getColumnModel().getDataIndex(columnIndex); // Get field name
                 if (fieldName === 'tiempo'){
-                     if(this.maestro.estado === 'registro')
-                        this.cambiarAsignacion(record,fieldName);
+                     if(this.maestro.estado === 'registro' && this.maestro.programacion === 'no'){
+                         this.cambiarAsignacion(record,fieldName);
+                     }
+
                 }
             },
             cambiarAsignacion: function(record,name){

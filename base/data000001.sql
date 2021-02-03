@@ -250,3 +250,12 @@ select wf.f_import_tplantilla_correo ('insert','CSOPE','vobo','PER-ASI','','<h3>
 /***********************************I-DAT-VAN-ASIS-0-15/01/2021*****************************************/
 select pxp.f_insert_tgui ('Consulta fondos', 'Consulta de Fondos', 'ACF', 'si', 14, 'sis_cuenta_documentada/vista/cuenta_doc/CuentaDocConsultaAsis.php', 2, '', 'CuentaDocConsultaAsis', 'ASIS');
 /***********************************F-DAT-VAN-ASIS-0-15/01/2021*****************************************/
+/***********************************I-DAT-VAN-ASIS-0-27/01/2021*****************************************/
+select pxp.f_insert_tgui ('Programación Vacación', 'Programación Vacación', 'PVN', 'si', 3, 'sis_asistencia/vista/programacion/Programacion.php', 2, '', 'Programacion', 'ASIS');
+select pxp.f_insert_tgui ('Calendario', 'Calendario', 'CLO', 'si', 2, 'sis_asistencia/vista/programacion/ProgramacionVoBo.php', 2, '', 'ProgramacionVoBo', 'ASIS');
+/***********************************F-DAT-VAN-ASIS-0-27/01/2021*****************************************/
+/***********************************I-DAT-MMV-ASIS-SDA-51-02/02/2021*****************************************/
+select pxp.f_insert_tgui ('Seguimiento Saldos', 'Seguimiento Saldos', 'SASL', 'si', 19, 'sis_asistencia/vista/movimiento_vacacion/MovVacListaFuncionario.php', 2, '', 'MovVacListaFuncionario', 'ASIS');
+/***********************************F-DAT-MMV-ASIS-SDA-51-02/02/2021*****************************************/
+
+

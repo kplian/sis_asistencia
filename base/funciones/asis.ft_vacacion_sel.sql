@@ -143,7 +143,8 @@ BEGIN
                         vac.observaciones,
                         dep.id_uo,
                         dep.nombre_unidad as departamento,
-                        vac.saldo
+                        vac.saldo,
+                        vac.programacion
 						from asis.tvacacion vac
 						inner join segu.tusuario usu1 on usu1.id_usuario = vac.id_usuario_reg
                         inner join wf.testado_wf wet on wet.id_estado_wf = vac.id_estado_wf

@@ -688,7 +688,7 @@ BEGIN
                           uofun.estado_reg != ''inactivo'' and uofun.id_funcionario = '||v_parametros.id_funcionario||'
                           order by uofun.id_funcionario, uofun.fecha_asignacion desc ) fun
                           left join asis.tmovimiento_vacacion mv on mv.id_funcionario = fun.id_funcionario and  mv.estado_reg = ''activo''
-                          order by mv.fecha_reg';
+                          order by mv.activo DESC, mv.fecha_reg::TIMESTAMP';
 
 
 
@@ -726,7 +726,7 @@ BEGIN
 
             end if;
 
-         	v_consulta:='select   funs.gerencia,
+         v_consulta:='select   funs.gerencia,
                                   funs.departamento,
                                   funs.desc_funcionario2  as desc_funcionario,
                                   funs.codigo,
@@ -738,7 +738,8 @@ BEGIN
                                         end) as dias,
                                   to_char(mm.desde,''DD/MM/YYYY'') as desde,
                                   to_char(mm.hasta,''DD/MM/YYYY'') as hasta,
-                                  funs.tipo_contrato
+                                  funs.tipo_contrato,
+                                   ''a''::varchar as ordenar
                           from (
                           select distinct on (uofun.id_funcionario) uofun.id_funcionario,
                                 trim(both ''FUNODTPR'' from  fun.codigo)::varchar as codigo,
@@ -754,17 +755,55 @@ BEGIN
                           inner join orga.tuo ger ON ger.id_uo = orga.f_get_uo_gerencia(uofun.id_uo, NULL::integer, NULL::date)
                           inner join orga.tuo dep ON dep.id_uo = orga.f_get_uo_departamento(uofun.id_uo, NULL::integer, NULL::date)
                           where tc.codigo in (''PLA'', ''EVE'') and UOFUN.tipo = ''oficial'' and
-                          uofun.fecha_asignacion <= '''||v_parametros.fecha_fin||'''::date and
-                          (uofun.fecha_finalizacion is null or uofun.fecha_finalizacion >= '''||v_parametros.fecha_ini||''' ::date) AND
+                          uofun.fecha_asignacion <= '''||v_parametros.fecha_fin||'''::date  and
+                          (uofun.fecha_finalizacion is null or uofun.fecha_finalizacion >=  '''||v_parametros.fecha_ini||''' ::date) AND
                           uofun.estado_reg != ''inactivo'' '||v_filtro||'
                           order by uofun.id_funcionario, uofun.fecha_asignacion desc)funs
                           inner join asis.tmovimiento_vacacion mm on mm.id_funcionario = funs.id_funcionario
-                          where mm.tipo = ''TOMADA'' and mm.estado_reg = ''activo'' and mm.desde::date >= '''||v_parametros.fecha_ini||''' ::date and mm.hasta::date <='''||v_parametros.fecha_fin||'''::date
-                          order by gerencia, departamento,tipo_contrato, desc_funcionario2 asc';
+						  where mm.tipo = ''TOMADA'' and mm.estado_reg = ''activo'' and mm.desde::date >= '''||v_parametros.fecha_ini||''' ::date and mm.hasta::date <='''||v_parametros.fecha_fin||'''::date                          union all 
+                          select  funs.gerencia,
+                                  funs.departamento,
+                                  funs.desc_funcionario2  as desc_funcionario,
+                                  funs.codigo,
+                                  sum(case
+                                  		when mm.dias < 0 then
+                                        -1 * mm.dias
+                                        else
+                                        mm.dias
+                                        end) as dias,
+                                  null as desde,
+                                  null as hasta,
+                                  ''Total'' as tipo_contrato,
+                                  ''b''::varchar as ordenar
 
+                          from (
+                          select distinct on (uofun.id_funcionario) uofun.id_funcionario,
+                                trim(both ''FUNODTPR'' from  fun.codigo)::varchar as codigo,
+                                fun.desc_funcionario2,
+                                ger.nombre_unidad as gerencia,
+                                dep.nombre_unidad as departamento,
+                                plani.f_get_fecha_primer_contrato_empleado(uofun.id_uo_funcionario, uofun.id_funcionario, uofun.fecha_asignacion) as fecha_contrato,
+                                tc.nombre as tipo_contrato
+                          from orga.tuo_funcionario uofun
+                          inner join orga.tcargo car on car.id_cargo = uofun.id_cargo
+                          inner join orga.ttipo_contrato tc on car.id_tipo_contrato = tc.id_tipo_contrato
+                          inner join orga.vfuncionario fun on fun.id_funcionario = uofun.id_funcionario
+                          inner join orga.tuo ger ON ger.id_uo = orga.f_get_uo_gerencia(uofun.id_uo, NULL::integer, NULL::date)
+                          inner join orga.tuo dep ON dep.id_uo = orga.f_get_uo_departamento(uofun.id_uo, NULL::integer, NULL::date)
+                          where tc.codigo in (''PLA'', ''EVE'') and UOFUN.tipo = ''oficial'' and
+                          uofun.fecha_asignacion <= '''||v_parametros.fecha_fin||'''::date  and
+                          (uofun.fecha_finalizacion is null or uofun.fecha_finalizacion >=  '''||v_parametros.fecha_ini||''' ::date) AND
+                          uofun.estado_reg != ''inactivo'' '||v_filtro||'
+                          order by uofun.id_funcionario, uofun.fecha_asignacion desc)funs
+                          inner join asis.tmovimiento_vacacion mm on mm.id_funcionario = funs.id_funcionario
+                          where mm.tipo = ''TOMADA'' and mm.estado_reg = ''activo'' and mm.desde::date >= '''||v_parametros.fecha_ini||''' ::date and mm.hasta::date <='''||v_parametros.fecha_fin||'''::date                          group by funs.gerencia,
+                                  funs.departamento,
+                                  funs.desc_funcionario2,
+                                  funs.codigo
+                         order by gerencia, departamento,desc_funcionario,ordenar,tipo_contrato';
             --Devuelve la respuesta
 
-        	raise notice '%',v_consulta;
+        
             return v_consulta;
 
 		end;

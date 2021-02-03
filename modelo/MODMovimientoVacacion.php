@@ -88,14 +88,9 @@ class MODMovimientoVacacion extends MODbase{
 				
 		//Define los parametros para la funcion
 		$this->setParametro('id_movimiento_vacacion','id_movimiento_vacacion','int4');
-		$this->setParametro('estado_reg','estado_reg','varchar');
-		$this->setParametro('id_funcionario','id_funcionario','int4');
 		$this->setParametro('desde','desde','date');
 		$this->setParametro('hasta','hasta','date');
-		$this->setParametro('dias_asignado','dias_asignado','numeric');
-		$this->setParametro('dias_acumulado','dias_acumulado','numeric');
-		$this->setParametro('dias_tomado','dias_tomado','numeric');
-		$this->setParametro('dias_actual','dias_actual','numeric');
+		$this->setParametro('dias','dias','numeric');
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();

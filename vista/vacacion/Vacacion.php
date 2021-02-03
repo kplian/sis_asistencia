@@ -186,7 +186,15 @@ header("content-type: text/javascript; charset=UTF-8");
                     allowBlank: true,
                     anchor: '80%',
                     gwidth: 130,
-                    maxLength:10
+                    maxLength:10,
+                    renderer: function(value,p,record){
+                        const color = 'red';
+                        if(record.data['programacion'] === 'si'){
+                            return '<font>'+record.data['nro_tramite']+'</font> <br/> <font color="#b8860b">Progamado</font>';
+                        }else{
+                            return '<font>'+record.data['nro_tramite']+'</font>';
+                        }
+                    }
                 },
                 type:'TextField',
                 filters:{pfiltro:'vac.nro_tramite',type:'string'},
@@ -599,7 +607,8 @@ header("content-type: text/javascript; charset=UTF-8");
             {name:'observaciones', type: 'string'},
             {name:'id_uo', type: 'numeric'},
             {name:'departamento', type: 'string'},
-            {name:'saldo', type: 'numeric'}
+            {name:'saldo', type: 'numeric'},
+            {name:'programacion', type: 'string'},
         ],
         sortInfo:{
             field: 'id_vacacion',
@@ -695,8 +704,7 @@ header("content-type: text/javascript; charset=UTF-8");
             }
             this.movimientoVacacion(this.Cmp.id_funcionario.getValue());
             this.onCargarResponsable(this.Cmp.id_funcionario.getValue(),false);
-
-
+            
             this.Cmp.id_funcionario.on('select', function(combo, record, index){
                 this.Cmp.id_responsable.reset();
                 this.Cmp.id_responsable.store.baseParams = Ext.apply(this.Cmp.id_responsable.store.baseParams, {id_funcionario: record.data.id_funcionario});
@@ -704,15 +712,10 @@ header("content-type: text/javascript; charset=UTF-8");
                 this.onCargarResponsable(record.data.id_funcionario,true);
                 this.Cmp.id_responsable.modificado = true;
             },this);
-
-
             this.onPermisoRol();
         },
         onCargarResponsable:function(id, filtro = true){
             const rec = this.sm.getSelected();
-
-            console.log(rec)
-
             this.Cmp.id_responsable.store.baseParams = Ext.apply(this.Cmp.id_responsable.store.baseParams, {id_funcionario: id});
             this.Cmp.id_responsable.modificado = true;
             if(filtro) {
@@ -779,21 +782,6 @@ header("content-type: text/javascript; charset=UTF-8");
                 timeout:this.timeout,
                 scope:this
             });
-            /* Phx.CP.loadingShow();
-             Ext.Ajax.request({
-                 url:'../../sis_asistencia/control/Vacacion/anteriorEstado',
-                 params:{
-                     id_proceso_wf: resp.id_proceso_wf,
-                     id_estado_wf:  resp.id_estado_wf,
-                     obs: resp.obs,
-                     estado_destino: resp.estado_destino
-                 },
-                 argument:{wizard:wizard},
-                 success:this.successEstadoSinc,
-                 failure: this.conexionFailure,
-                 timeout:this.timeout,
-                 scope:this
-             });*/
         },
         successEstadoSinc:function(resp){
             Phx.CP.loadingHide();
@@ -803,8 +791,6 @@ header("content-type: text/javascript; charset=UTF-8");
         onSiguiente :function () {
             Phx.CP.loadingShow();
             const rec = this.sm.getSelected(); //obtine los datos selecionado en la grilla
-
-            console.log(rec);
             if(confirm('¿Enviar solicitud a '+rec.data.responsable+'?')) {
                 Ext.Ajax.request({
                     url: '../../sis_asistencia/control/Vacacion/aprobarEstado',
@@ -819,8 +805,10 @@ header("content-type: text/javascript; charset=UTF-8");
                     timeout: this.timeout,
                     scope: this
                 });
+            }else{
+                Phx.CP.loadingHide();
             }
-            Phx.CP.loadingHide();
+
         },
         onSaveWizard:function(wizard,resp){
             var reg = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));
@@ -889,6 +877,11 @@ header("content-type: text/javascript; charset=UTF-8");
         },
         preparaMenu:function(n){
             Phx.vista.Vacacion.superclass.preparaMenu.call(this, n);
+            const data = this.sm.getSelected().data;
+            if (data.programacion === 'si'){
+                this.getBoton('edit').disable();
+                this.getBoton('del').disable();
+            }
             this.getBoton('btn_atras').enable();
             this.getBoton('diagrama_gantt').enable();
             this.getBoton('btn_siguiente').enable();
@@ -933,7 +926,6 @@ header("content-type: text/javascript; charset=UTF-8");
         },
         succesCn: function(resp){
             Phx.CP.loadingHide();
-            console.log('2323')
             const reg = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));
             this.load({params:{start:0, limit:this.tam_pag}});
         },

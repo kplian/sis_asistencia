@@ -54,8 +54,9 @@ class MODVacacion extends MODbase{
         $this->captura('funcionario_sol','text');
         $this->captura('observaciones','text');
         $this->captura('id_uo','int4');
-        $this->captura('departamento','varchar');
+        $this->captura('departamento','varchar'); 
         $this->captura('saldo', 'numeric');
+        $this->captura('programacion','varchar');
         //Ejecuta la instruccion
 		$this->armarConsulta();
 		$this->ejecutarConsulta();

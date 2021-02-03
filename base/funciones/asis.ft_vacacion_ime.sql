@@ -88,6 +88,7 @@ DECLARE
     v_dia_anerior					numeric;
     v_id_alarma_copiar				integer;
     v_id_funcionario_copia			integer;
+    v_detalle_vac					record;
     -- v_movimiento_vacacion			record;
 
 BEGIN
@@ -613,11 +614,37 @@ BEGIN
 
 		begin
 			--Sentencia de la eliminacion
+            
+            select v.estado, v.programacion into v_vacacion_record
+            from asis.tvacacion v
+            where v.id_vacacion = v_parametros.id_vacacion;
+            
+            if(v_vacacion_record.programacion = 'si')then
+            
+            
+            	
+            	for v_detalle_vac in (select d.id_vacacion_det
+                                      from asis.tvacacion_det d
+                                      where d.id_vacacion = v_parametros.id_vacacion)loop
+            
+            
+            			update asis.tprogramacion set
+                        estado = 'rechazado'
+                        where id_vacacion_det = v_detalle_vac.id_vacacion_det;
+            	    
+                end loop;
+            
+            
+            end if;
+            
             delete from asis.tvacacion_det
 			where id_vacacion = v_parametros.id_vacacion;
 
 			delete from asis.tvacacion
-            where id_vacacion=v_parametros.id_vacacion;
+            where id_vacacion = v_parametros.id_vacacion;
+            
+            
+            
 
             --Definicion de la respuesta
             v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Vacación eliminado(a)');

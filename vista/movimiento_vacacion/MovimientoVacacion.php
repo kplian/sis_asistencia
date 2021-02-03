@@ -13,11 +13,24 @@
 
 header("content-type: text/javascript; charset=UTF-8");
 ?>
+<style type="text/css" rel="stylesheet">
+    .prioridad_menor {
+        background-color: #bdffb2;
+        color: #090;
+    }
+</style>
+
 <script>
 var colorFila='#E9F4FF';
 
 Phx.vista.MovimientoVacacion=Ext.extend(Phx.gridInterfaz,{
-
+    viewConfig: {
+        getRowClass: function(record) {
+            if(record.data.activo === 'activo'){
+                return 'prioridad_menor';
+            }
+        }
+    },
 	constructor:function(config){
 		this.maestro=config.maestro;
     	//llama al constructor de la clase padre
@@ -94,7 +107,8 @@ Phx.vista.MovimientoVacacion=Ext.extend(Phx.gridInterfaz,{
 				fieldLabel: 'Evento',
 				allowBlank: true,
 				anchor: '80%',
-				gwidth: 100
+				gwidth: 100,
+                disabled: true
 			},
 				type:'Field',
 				filters:{pfiltro:'mvs.tipo',type:'string'},
@@ -131,7 +145,7 @@ Phx.vista.MovimientoVacacion=Ext.extend(Phx.gridInterfaz,{
 				filters:{pfiltro:'mvs.dias_actual',type:'numeric'},
 				id_grupo:1,
 				grid:true,
-				form:true
+				form:false
 		},
         {
             config:{
