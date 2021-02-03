@@ -1,12 +1,14 @@
 <?php
-class RReporteHistoricoVacacionXls{
+class RReporteVacacionXLSX{
     private $docexcel;
     private $objWriter;
     public $fila_aux = 0;
     private $equivalencias=array();
     private $objParam;
     public  $url_archivo;
-    function __construct(CTParametro $objParam){
+    private $fill = 0;
+    function __construct(CTParametro $objParam)
+    {
         $this->objParam = $objParam;
         $this->url_archivo = "../../../reportes_generados/".$this->objParam->getParametro('nombre_archivo');
         set_time_limit(400);
@@ -37,7 +39,7 @@ class RReporteHistoricoVacacionXls{
 
     function imprimeCabecera() {
         $this->docexcel->createSheet();
-        $this->docexcel->getActiveSheet()->setTitle('Historial Vacaciones');
+        $this->docexcel->getActiveSheet()->setTitle('Total Horaz');
         $this->docexcel->setActiveSheetIndex(0);
         $styleTitulos1 = array(
             'font'  => array(
@@ -56,17 +58,28 @@ class RReporteHistoricoVacacionXls{
                 'size'  => 9,
                 'name'  => 'Arial',
                 'color' => array(
-                    'rgb' => '0000'
+                    'rgb' => 'FFFFFF'
                 )
             ),
             'alignment' => array(
                 'horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_CENTER,
                 'vertical' => PHPExcel_Style_Alignment::VERTICAL_CENTER,
+            ),
+            'fill' => array(
+                'type' => PHPExcel_Style_Fill::FILL_SOLID,
+                'color' => array(
+                    'rgb' => '0066CC'
+                )
+            ),
+            'borders' => array(
+                'allborders' => array(
+                    'style' => PHPExcel_Style_Border::BORDER_THIN
+                )
             ));
         $styleTitulos3 = array(
             'font'  => array(
-                'bold'  => false,
-                'size'  => 8,
+                'bold'  => true,
+                'size'  => 11,
                 'name'  => 'Arial'
             ),
             'alignment' => array(
@@ -75,30 +88,25 @@ class RReporteHistoricoVacacionXls{
             ),
         );
         //modificacionw
-        $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(0,2,'HISTORIAL DE VACACIONES');
-        $this->docexcel->getActiveSheet()->getStyle('A2:E2')->applyFromArray($styleTitulos1);
-        $this->docexcel->getActiveSheet()->mergeCells('A2:E2');
-        $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(0,4,'EMPLEADO: '.$this->objParam->getParametro('datos')[0]['desc_funcionario1']);
-        $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(0,5,'CÓDIGO: '.$this->objParam->getParametro('datos')[0]['codigo']);
-        $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(3,4,'CARGO: '.$this->objParam->getParametro('datos')[0]['descripcion_cargo']);
-        $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(3,5,'ÁREA: '.$this->objParam->getParametro('datos')[0]['nombre_unidad']);
-        $this->docexcel->getActiveSheet()->getStyle('A4:E5')->applyFromArray($styleTitulos3);
-         //$this->docexcel->getActiveSheet()->mergeCells('A3:F3');
-        $this->docexcel->getActiveSheet()->getColumnDimension('A')->setWidth(15);
-        $this->docexcel->getActiveSheet()->getColumnDimension('B')->setWidth(15);
-        $this->docexcel->getActiveSheet()->getColumnDimension('C')->setWidth(25);
-        $this->docexcel->getActiveSheet()->getColumnDimension('D')->setWidth(10);
-        $this->docexcel->getActiveSheet()->getColumnDimension('E')->setWidth(15);
-        $this->docexcel->getActiveSheet()->getStyle('A6:E7')->getAlignment()->setWrapText(true);
-        $this->docexcel->getActiveSheet()->getStyle('A6:E7')->applyFromArray($styleTitulos2);
+        $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(0,2,'PERSONAL EN VACACIÓN' );
+        $this->docexcel->getActiveSheet()->getStyle('A2:F2')->applyFromArray($styleTitulos1);
+        $this->docexcel->getActiveSheet()->mergeCells('A2:F2');
+        $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(0,3,'de: '.$this->objParam->getParametro('fecha_ini').' al: '.$this->objParam->getParametro('fecha_fin'));
+        $this->docexcel->getActiveSheet()->getStyle('A3:F3')->applyFromArray($styleTitulos3);
+        $this->docexcel->getActiveSheet()->mergeCells('A3:F3');
+        $this->docexcel->getActiveSheet()->getColumnDimension('A')->setWidth(10);
+        $this->docexcel->getActiveSheet()->getColumnDimension('B')->setWidth(40);
+        $this->docexcel->getActiveSheet()->getColumnDimension('C')->setWidth(10);
+        $this->docexcel->getActiveSheet()->getColumnDimension('D')->setWidth(20);
+        $this->docexcel->getActiveSheet()->getColumnDimension('E')->setWidth(20);
+        $this->docexcel->getActiveSheet()->getStyle('A5:E5')->getAlignment()->setWrapText(true);
+        $this->docexcel->getActiveSheet()->getStyle('A5:E5')->applyFromArray($styleTitulos2);
 
-        $this->docexcel->getActiveSheet()->setCellValue('A7','EVENTO');
-        $this->docexcel->getActiveSheet()->setCellValue('B7','FECHA');
-        $this->docexcel->getActiveSheet()->setCellValue('C7','RANGO DE FECHAS');
-        $this->docexcel->getActiveSheet()->setCellValue('D7','DÍAS');
-        $this->docexcel->getActiveSheet()->setCellValue('E7','SALDO');
-
-
+        $this->docexcel->getActiveSheet()->setCellValue('A5','Codigo');
+        $this->docexcel->getActiveSheet()->setCellValue('B5','Empleando');
+        $this->docexcel->getActiveSheet()->setCellValue('C5','Dias');
+        $this->docexcel->getActiveSheet()->setCellValue('D5','Fecha Inicio');
+        $this->docexcel->getActiveSheet()->setCellValue('E5','Fecha Fin');
     }
     function generarDatos(){
         $this->imprimeCabecera();
@@ -122,19 +130,40 @@ class RReporteHistoricoVacacionXls{
                 'name'  => 'Calibri'
             ));
         $this->numero = 1;
-        $fila = 8;
+        $fila = 6;
         $datos = $this->objParam->getParametro('datos');
 
-
+        $ger = '';
+        $dep = '';
+        $codigo = '';
+        $funcionario = '';
         foreach ($datos as $value) {
+            if ($value['gerencia'] != $ger) {
+                $this->imprimeSubtitulo($fila,$value['gerencia']);
+                $ger = $value['gerencia'];
+                $fila++;
+            }
+            if ($value['departamento'] != $dep && $value['departamento'] != $value['gerencia']){
+                $this->imprimeSubtituloDep($fila,$value['departamento']);
+                $dep = $value['departamento'];
+                $fila++;
+            }
 
+            if( $value['codigo'] != $codigo){
+                $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(0, $fila, $value['codigo']);
+                $codigo=  $value['codigo'];
+            }
 
-            $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(0, $fila, $value['tipo']);
-            $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(1, $fila, $value['fecha']);
-            $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(2, $fila, $value['desde'].' - '.$value['hasta']);
-            $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(3, $fila, $value['dia']);
-            $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(4, $fila, $value['saldo']);
-            $this->docexcel->getActiveSheet()->getStyle("A$fila:E$fila")->applyFromArray($styleTitulos3);
+            if( $value['desc_funcionario1'] != $funcionario){
+                $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(1, $fila, $value['desc_funcionario1']);
+                $funcionario=  $value['desc_funcionario1'];
+            }
+
+            $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(2, $fila, $value['dia']);
+            $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(3, $fila, $value['desde']);
+            $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(4, $fila, $value['hasta']);
+            $this->docexcel->getActiveSheet()->getStyle("C$fila:E$fila")->applyFromArray($styleTitulos3);
+
             $fila++;
         }
     }
@@ -170,4 +199,3 @@ class RReporteHistoricoVacacionXls{
 
 }
 ?>
-
