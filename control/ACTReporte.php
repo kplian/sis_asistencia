@@ -26,7 +26,7 @@ require_once(dirname(__FILE__).'/../reportes/RReporteSaldoPDF.php');
 require_once(dirname(__FILE__).'/../reportes/RReporteAncticipo.php');
 require_once(dirname(__FILE__).'/../reportes/RReporteAncticipoXls.php');
 require_once(dirname(__FILE__).'/../reportes/RReporteVacacionResumenXls.php');
-// require_once(dirname(__FILE__).'/../reportes/RReporteHistoricoVacacionXls.php');
+require_once(dirname(__FILE__).'/../reportes/RReporteVacacionXLSX.php');
 require_once(dirname(__FILE__).'/../reportes/RVencimientoPDF.php');
 require_once(dirname(__FILE__).'/../reportes/RVencimientoXLS.php');
 class ACTReporte extends ACTbase{
