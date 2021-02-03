@@ -36,7 +36,37 @@ class ACTTeleTrabajo extends ACTbase{
         if ($this->objParam->getParametro('tipo_interfaz') == 'TeleTrabajoVoBo'){
             $this->objParam->addFiltro("tlt.estado = ''vobo''");
         }
+        if ($this->objParam->getParametro('tipo_interfaz') == 'TeleTrabajoRrhh') {
+            switch ($this->objParam->getParametro('pes_estado')) {
+                case 'registro':
+                    $this->objParam->addFiltro("tlt.estado = ''registro''");
+                    break;
+                case 'vobo':
+                    $this->objParam->addFiltro("tlt.estado = ''vobo''");
+                    break;
+                case 'aprobado':
+                    $this->objParam->addFiltro("tlt.estado = ''aprobado''");
+                    break;
+                case 'rechazado':
+                    $this->objParam->addFiltro("tlt.estado = ''rechazado''");
+                    break;
+                case 'cancelado':
+                    $this->objParam->addFiltro("tlt.estado = ''cancelado''");
+                    break;
+            }
+            $filtroInit = "tlt.fecha_reg::date = now()::date";
 
+            if ($this->objParam->getParametro('param') != '') {
+                if ($this->objParam->getParametro('desde') != '' && $this->objParam->getParametro('hasta') != '') {
+                    $filtroInit = "tlt.fecha_reg::date >= '' " . $this->objParam->getParametro('desde') . "'' and tlt.fecha_reg::date <= ''" . $this->objParam->getParametro('hasta') . "''";
+                }
+                if ($this->objParam->getParametro('id_uo') != '') {
+
+                    $filtroInit = "dep.id_uo =  " . $this->objParam->getParametro('id_uo') . "  ";
+                }
+            }
+            $this->objParam->addFiltro($filtroInit);
+        }
 		if($this->objParam->getParametro('tipoReporte')=='excel_grid' || $this->objParam->getParametro('tipoReporte')=='pdf_grid'){
             $this->objReporte = new Reporte($this->objParam,$this);
             $this->res = $this->objReporte->generarReporteListado('MODTeleTrabajo','listarTeleTrabajo');

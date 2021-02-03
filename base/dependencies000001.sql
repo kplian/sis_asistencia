@@ -293,3 +293,7 @@ select pxp.f_insert_testructura_gui ('SASL', 'ASIS');
 select pxp.f_insert_testructura_gui ('STO', 'ASIS');
 select pxp.f_insert_testructura_gui ('VTO', 'SBO');
 /***********************************F-DEP-MMV-ASIS-SDA-54-02/02/2021*****************************************/
+
+/***********************************I-DEP-MMV-ASIS-SDA-54-03/02/2021*****************************************/
+select pxp.f_insert_testructura_gui ('STT', 'ASIS');
+/***********************************F-DEP-MMV-ASIS-SDA-54-03/02/2021*****************************************/

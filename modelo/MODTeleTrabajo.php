@@ -47,6 +47,8 @@ class MODTeleTrabajo extends MODbase{
         $this->captura('id_estado_wf','int4');
         $this->captura('funcionario','text');
         $this->captura('responsable','text');
+        $this->captura('id_uo','int4');
+        $this->captura('departamento','varchar');
         //Ejecuta la instruccion
         $this->armarConsulta();
         $this->ejecutarConsulta();

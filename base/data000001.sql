@@ -276,3 +276,7 @@ select wf.f_import_testructura_estado ('insert','aprobado','cancelado','SOL-TTO'
 select wf.f_import_testructura_estado ('insert','rechazado','vobo','SOL-TTO',1,'','si');
 /***********************************F-DAT-MMV-ASIS-SDA-54-02/02/2021*****************************************/
 
+/***********************************I-DAT-MMV-ASIS-SDA-55-03/02/2021*****************************************/
+select pxp.f_insert_tgui ('Seguimiento Teletrabajo', 'Seguimiento Teletrabajo', 'STT', 'si', 20, 'sis_asistencia/vista/consulta_rrhh/FormFiltroTele.php', 2, '', 'FormFiltroTele', 'ASIS');
+
+/***********************************F-DAT-MMV-ASIS-SDA-55-03/02/2021*****************************************/

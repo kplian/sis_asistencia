@@ -357,7 +357,7 @@ Phx.vista.TeleTrabajo=Ext.extend(Phx.gridInterfaz,{
     ],
     sortInfo:{
         field: 'id_tele_trabajo',
-        direction: 'ASC'
+        direction: 'DESC'
     },
     bdel:true,
     bsave:false,
@@ -380,7 +380,6 @@ Phx.vista.TeleTrabajo=Ext.extend(Phx.gridInterfaz,{
         this.Cmp.id_funcionario.on('select', function(combo, record, index){
             this.Cmp.id_responsable.reset();
             this.Cmp.id_responsable.store.baseParams = Ext.apply(this.Cmp.id_responsable.store.baseParams, {id_funcionario: record.data.id_funcionario});
-            this.movimientoVacacion(record.data.id_funcionario);
             this.Cmp.id_responsable.modificado = true;
         },this);
 
@@ -391,7 +390,6 @@ Phx.vista.TeleTrabajo=Ext.extend(Phx.gridInterfaz,{
         this.Cmp.id_funcionario.on('select', function(combo, record, index){
             this.Cmp.id_responsable.reset();
             this.Cmp.id_responsable.store.baseParams = Ext.apply(this.Cmp.id_responsable.store.baseParams, {id_funcionario: record.data.id_funcionario});
-            this.movimientoVacacion(record.data.id_funcionario);
             this.onCargarResponsable(record.data.id_funcionario,true);
             this.Cmp.id_responsable.modificado = true;
         },this);
