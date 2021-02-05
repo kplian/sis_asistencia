@@ -297,11 +297,4 @@ select wf.f_import_ttipo_estado ('insert','enviado','SOL-BMA','Enviado','no','no
 select wf.f_import_ttipo_documento ('insert','BM-EV','SOL-BMA','Evidencia','Evidencia','','escaneado',1.00,'{}','no','',NULL,'');
 select wf.f_import_testructura_estado ('delete','registro','aprobado','SOL-BMA',NULL,NULL,NULL);
 select wf.f_import_testructura_estado ('insert','registro','enviado','SOL-BMA',1,'','no');
-
-
-INSERT INTO asis.ttipo_bm ("id_usuario_reg", "id_usuario_mod", "fecha_reg", "fecha_mod", "estado_reg", "id_usuario_ai", "usuario_ai", "obs_dba", "id_tipo_bm", "nombre", "descripcion", "id_usuario_reg", "id_usuario_mod", "fecha_reg", "fecha_mod", "estado_reg", "id_usuario_ai", "usuario_ai", "obs_dba", "nombre", "descripcion")
-VALUES
-(563, NULL, E'2021-02-05 10:49:24.586', NULL, E'activo', NULL, E'NULL', NULL, 1, E'Enfermedad común', E'Enfermedad común', 563, NULL, E'2021-02-05 10:49:24.586', NULL, E'activo', NULL, E'NULL', NULL, E'Enfermedad común', E'Enfermedad común'),
-(563, NULL, E'2021-02-05 10:49:39.853', NULL, E'activo', NULL, E'NULL', NULL, 2, E'Maternidad', E'Maternidad', 563, NULL, E'2021-02-05 10:49:39.853', NULL, E'activo', NULL, E'NULL', NULL, E'Maternidad', E'Maternidad'),
-(563, NULL, E'2021-02-05 10:50:02.648', NULL, E'activo', NULL, E'NULL', NULL, 3, E'Accidente de Trabajo', E'Accidente de Trabajo', 563, NULL, E'2021-02-05 10:50:02.648', NULL, E'activo', NULL, E'NULL', NULL, E'Accidente de Trabajo', E'Accidente de Trabajo');
 /***********************************F-DAT-MMV-ASIS-SDA-56-05/02/2021*****************************************/
