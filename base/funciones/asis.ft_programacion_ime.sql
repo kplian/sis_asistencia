@@ -159,7 +159,8 @@ BEGIN
                      where pro.estado = 'pendiente'
                        AND (pro.tiempo = 'T' OR pro.tiempo = 'M')
                        and pro.fecha_programada = v_parametros.fecha_programada
-                       AND pro.id_funcionario = v_parametros.id_funcionario) > 0) then
+                       AND pro.id_funcionario = v_parametros.id_funcionario
+                       AND pro.id_programacion <> v_parametros.id_programacion) > 0) then
                     raise exception 'Ya existe una vacacion programada para la fecha %',v_parametros.fecha_programada;
 
                 end if;
@@ -169,7 +170,8 @@ BEGIN
                      where pro.estado = 'pendiente'
                        AND (pro.tiempo = 'C' OR pro.tiempo = v_parametros.tiempo)
                        and pro.fecha_programada = v_parametros.fecha_programada
-                       AND pro.id_funcionario = v_parametros.id_funcionario) > 0) then
+                       AND pro.id_funcionario = v_parametros.id_funcionario
+                       AND pro.id_programacion <> v_parametros.id_programacion) > 0) then
                     raise exception 'Ya existe una vacacion programada para la fecha %',v_parametros.fecha_programada;
                 end if;
             end if;
