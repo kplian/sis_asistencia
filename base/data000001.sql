@@ -283,3 +283,25 @@ select pxp.f_insert_tgui ('Seguimiento Teletrabajo', 'Seguimiento Teletrabajo', 
 /***********************************I-DAT-VAN-ASIS-SDA-0-04/02/2021*****************************************/
 select pxp.f_insert_tgui ('Seguimiento a Programación de Vacaciones', 'Seguimiento a Programación de Vacaciones', 'CLO', 'si', 2, 'sis_asistencia/vista/programacion/ProgramacionVoBo.php', 2, '', 'ProgramacionVoBo', 'ASIS');
 /***********************************F-DAT-VAN-ASIS-SDA-0-04/02/2021*****************************************/
+
+/***********************************I-DAT-MMV-ASIS-SDA-56-05/02/2021*****************************************/
+select pxp.f_insert_tgui ('Registro Bajas Medica', 'Registro Bajas Medicas', 'RBM', 'si', 3, 'sis_asistencia/vista/baja_medica/BajaMedicaSol.php', 2, '', 'BajaMedicaSol', 'ASIS');
+
+select wf.f_import_tproceso_macro ('insert','BMA', 'ASIS', 'Baja Medica','si');
+select wf.f_import_ttipo_proceso ('insert','SOL-BMA',NULL,NULL,'BMA','Baja Medica','','','si','','','','SOL-BMA',NULL);
+select wf.f_import_ttipo_estado ('insert','registro','SOL-BMA','Registro','si','no','no','ninguno','','ninguno','','','no','no',NULL,'<font color="99CC00" size="5"><font size="4">{TIPO_PROCESO}</font></font><br><br><b>&nbsp;</b>Tramite:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp; &nbsp;&nbsp; <b>{NUM_TRAMITE}</b><br><b>&nbsp;</b>Usuario :<b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {USUARIO_PREVIO} </b>en estado<b>&nbsp; {ESTADO_ANTERIOR}<br></b>&nbsp;<b>Responsable:&nbsp;&nbsp; &nbsp;&nbsp; </b><b>{FUNCIONARIO_PREVIO}&nbsp; {DEPTO_PREVIO}<br>&nbsp;</b>Estado Actual<b>: &nbsp; &nbsp;&nbsp; {ESTADO_ACTUAL}</b><br><br><br>&nbsp;{OBS} <br>','Aviso WF ,  {PROCESO_MACRO}  ({NUM_TRAMITE})','','no','','','','','','','',NULL,'no','Registro','','',NULL,'no',NULL,'','');
+select wf.f_import_ttipo_estado ('delete','aprobado','SOL-BMA',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,
+                                 NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,
+                                 NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL);
+select wf.f_import_ttipo_estado ('insert','enviado','SOL-BMA','Enviado','no','no','si','ninguno','','ninguno','','','no','no',NULL,'<font color="99CC00" size="5"><font size="4">{TIPO_PROCESO}</font></font><br><br><b>&nbsp;</b>Tramite:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp; &nbsp;&nbsp; <b>{NUM_TRAMITE}</b><br><b>&nbsp;</b>Usuario :<b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {USUARIO_PREVIO} </b>en estado<b>&nbsp; {ESTADO_ANTERIOR}<br></b>&nbsp;<b>Responsable:&nbsp;&nbsp; &nbsp;&nbsp; </b><b>{FUNCIONARIO_PREVIO}&nbsp; {DEPTO_PREVIO}<br>&nbsp;</b>Estado Actual<b>: &nbsp; &nbsp;&nbsp; {ESTADO_ACTUAL}</b><br><br><br>&nbsp;{OBS} <br>','Aviso WF ,  {PROCESO_MACRO}  ({NUM_TRAMITE})','','no','','','','','','','',NULL,'no','Enviado','','',NULL,'no',NULL,'','');
+select wf.f_import_ttipo_documento ('insert','BM-EV','SOL-BMA','Evidencia','Evidencia','','escaneado',1.00,'{}','no','',NULL,'');
+select wf.f_import_testructura_estado ('delete','registro','aprobado','SOL-BMA',NULL,NULL,NULL);
+select wf.f_import_testructura_estado ('insert','registro','enviado','SOL-BMA',1,'','no');
+
+
+INSERT INTO asis.ttipo_bm ("id_usuario_reg", "id_usuario_mod", "fecha_reg", "fecha_mod", "estado_reg", "id_usuario_ai", "usuario_ai", "obs_dba", "id_tipo_bm", "nombre", "descripcion", "id_usuario_reg", "id_usuario_mod", "fecha_reg", "fecha_mod", "estado_reg", "id_usuario_ai", "usuario_ai", "obs_dba", "nombre", "descripcion")
+VALUES
+(563, NULL, E'2021-02-05 10:49:24.586', NULL, E'activo', NULL, E'NULL', NULL, 1, E'Enfermedad común', E'Enfermedad común', 563, NULL, E'2021-02-05 10:49:24.586', NULL, E'activo', NULL, E'NULL', NULL, E'Enfermedad común', E'Enfermedad común'),
+(563, NULL, E'2021-02-05 10:49:39.853', NULL, E'activo', NULL, E'NULL', NULL, 2, E'Maternidad', E'Maternidad', 563, NULL, E'2021-02-05 10:49:39.853', NULL, E'activo', NULL, E'NULL', NULL, E'Maternidad', E'Maternidad'),
+(563, NULL, E'2021-02-05 10:50:02.648', NULL, E'activo', NULL, E'NULL', NULL, 3, E'Accidente de Trabajo', E'Accidente de Trabajo', 563, NULL, E'2021-02-05 10:50:02.648', NULL, E'activo', NULL, E'NULL', NULL, E'Accidente de Trabajo', E'Accidente de Trabajo');
+/***********************************F-DAT-MMV-ASIS-SDA-56-05/02/2021*****************************************/

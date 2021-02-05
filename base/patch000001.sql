@@ -700,3 +700,72 @@ ALTER TABLE asis.ttele_trabajo
 ALTER TABLE asis.ttele_trabajo
   ALTER COLUMN justificacion SET STATISTICS 0;
 /***********************************F-SCP-MMV-ASIS-SDA-54-02/02/2021****************************************/
+
+/***********************************I-SCP-MMV-ASIS-SDA-55-05/02/2021****************************************/
+
+CREATE TABLE asis.ttipo_bm (
+                               id_tipo_bm SERIAL,
+                               nombre VARCHAR(100) NOT NULL,
+                               descripcion VARCHAR(20),
+                               CONSTRAINT ttipo_bm_pkey PRIMARY KEY(id_tipo_bm)
+) INHERITS (pxp.tbase)
+WITH (oids = false);
+
+ALTER TABLE asis.ttipo_bm
+ALTER COLUMN id_tipo_bm SET STATISTICS 0;
+
+ALTER TABLE asis.ttipo_bm
+ALTER COLUMN nombre SET STATISTICS 0;
+
+ALTER TABLE asis.ttipo_bm
+ALTER COLUMN descripcion SET STATISTICS 0;
+
+
+
+CREATE TABLE asis.tbaja_medica (
+                                   id_baja_medica SERIAL,
+                                   id_funcionario INTEGER NOT NULL,
+                                   id_tipo_bm INTEGER NOT NULL,
+                                   fecha_inicio DATE,
+                                   fecha_fin DATE,
+                                   dias_efectivo NUMERIC,
+                                   id_proceso_wf INTEGER,
+                                   id_estado_wf INTEGER,
+                                   estado VARCHAR(100),
+                                   nro_tramite VARCHAR(200),
+                                   documento VARCHAR(10) DEFAULT 'no'::character varying NOT NULL,
+                                   CONSTRAINT tbaja_medica_pkey PRIMARY KEY(id_baja_medica)
+) INHERITS (pxp.tbase)
+WITH (oids = false);
+
+ALTER TABLE asis.tbaja_medica
+ALTER COLUMN id_baja_medica SET STATISTICS 0;
+
+ALTER TABLE asis.tbaja_medica
+ALTER COLUMN id_funcionario SET STATISTICS 0;
+
+ALTER TABLE asis.tbaja_medica
+ALTER COLUMN id_tipo_bm SET STATISTICS 0;
+
+ALTER TABLE asis.tbaja_medica
+ALTER COLUMN fecha_inicio SET STATISTICS 0;
+
+ALTER TABLE asis.tbaja_medica
+ALTER COLUMN fecha_fin SET STATISTICS 0;
+
+ALTER TABLE asis.tbaja_medica
+ALTER COLUMN dias_efectivo SET STATISTICS 0;
+
+ALTER TABLE asis.tbaja_medica
+ALTER COLUMN id_proceso_wf SET STATISTICS 0;
+
+ALTER TABLE asis.tbaja_medica
+ALTER COLUMN id_estado_wf SET STATISTICS 0;
+
+ALTER TABLE asis.tbaja_medica
+ALTER COLUMN estado SET STATISTICS 0;
+
+ALTER TABLE asis.tbaja_medica
+ALTER COLUMN nro_tramite SET STATISTICS 0;
+
+/***********************************F-SCP-MMV-ASIS-SDA-55-05/02/2021****************************************/
