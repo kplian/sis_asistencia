@@ -11,7 +11,7 @@ header("content-type: text/javascript; charset=UTF-8");
 
 <script>
     Phx.vista.BajaMedicaSol = {
-        require:'../../../sis_asistencia/vista/baja_medica/BajaMedica.php',
+        require:'../../../sis_asistencia/vista/baja_medica/BajaMedica.php', // nueo
         requireclase:'Phx.vista.BajaMedica',
         title:'Solicitud Baja Medica',
         nombreVista: 'BajaMedica',

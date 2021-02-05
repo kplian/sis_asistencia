@@ -26,6 +26,7 @@ v_consulta            VARCHAR;
     v_parametros          RECORD;
     v_nombre_funcion      TEXT;
     v_resp                VARCHAR;
+    v_filtro		      varchar;
 
 BEGIN
 
@@ -43,6 +44,12 @@ BEGIN
 
 BEGIN
             --Sentencia de la consulta
+               v_filtro = '';
+
+               if p_administrador != 1  then
+
+                		v_filtro = '( bma.id_usuario_reg = '||p_id_usuario|| ') and ';
+end if;
             v_consulta:='SELECT
                         bma.id_baja_medica,
                         bma.estado_reg,
@@ -72,7 +79,7 @@ BEGIN
                         JOIN asis.ttipo_bm tp on tp.id_tipo_bm = bma.id_tipo_bm
                         JOIN orga.vfuncionario fu on fu.id_funcionario = bma.id_funcionario
                         LEFT JOIN segu.tusuario usu2 ON usu2.id_usuario = bma.id_usuario_mod
-                        WHERE  ';
+                        WHERE  '||v_filtro;
 
             --Definicion de la respuesta
             v_consulta:=v_consulta||v_parametros.filtro;
@@ -94,13 +101,19 @@ END;
 
 BEGIN
             --Sentencia de la consulta de conteo de registros
+            v_filtro = '';
+
+               if p_administrador != 1  then
+
+                		v_filtro = '( bma.id_usuario_reg = '||p_id_usuario|| ') and ';
+end if;
             v_consulta:='SELECT COUNT(id_baja_medica)
                           	FROM asis.tbaja_medica bma
                         	JOIN segu.tusuario usu1 ON usu1.id_usuario = bma.id_usuario_reg
                         	JOIN asis.ttipo_bm tp on tp.id_tipo_bm = bma.id_tipo_bm
                         	JOIN orga.vfuncionario fu on fu.id_funcionario = bma.id_funcionario
                         	LEFT JOIN segu.tusuario usu2 ON usu2.id_usuario = bma.id_usuario_mod
-                         	WHERE ';
+                         	WHERE '||v_filtro;
 
             --Definicion de la respuesta
             v_consulta:=v_consulta||v_parametros.filtro;
