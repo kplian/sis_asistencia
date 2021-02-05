@@ -280,3 +280,6 @@ select wf.f_import_testructura_estado ('insert','rechazado','vobo','SOL-TTO',1,'
 select pxp.f_insert_tgui ('Seguimiento Teletrabajo', 'Seguimiento Teletrabajo', 'STT', 'si', 20, 'sis_asistencia/vista/consulta_rrhh/FormFiltroTele.php', 2, '', 'FormFiltroTele', 'ASIS');
 
 /***********************************F-DAT-MMV-ASIS-SDA-55-03/02/2021*****************************************/
+/***********************************I-DAT-VAN-ASIS-SDA-0-04/02/2021*****************************************/
+select pxp.f_insert_tgui ('Seguimiento a Programación de Vacaciones', 'Seguimiento a Programación de Vacaciones', 'CLO', 'si', 2, 'sis_asistencia/vista/programacion/ProgramacionVoBo.php', 2, '', 'ProgramacionVoBo', 'ASIS');
+/***********************************F-DAT-VAN-ASIS-SDA-0-04/02/2021*****************************************/
