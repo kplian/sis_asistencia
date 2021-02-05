@@ -80,7 +80,7 @@ BEGIN
                         end if;
                     end if;
 
-                    if not asis.f_validad_fecha(v_parametros.id_funcionario, v_date) then
+                    if not asis.f_valida_fecha(v_parametros.id_funcionario, v_date) then
                         v_crear = false;
                     end if;
 
@@ -141,7 +141,7 @@ BEGIN
         BEGIN
             --Sentencia de la modificacion
 
-            if (not asis.f_validad_fecha(v_parametros.id_funcionario, v_parametros.fecha_programada::date)) then
+            if (not asis.f_valida_fecha(v_parametros.id_funcionario, v_parametros.fecha_programada::date)) then
                 raise exception 'No es posible programar vacaciones en dias no hábiles y dias feriados';
             end if;
 
@@ -214,7 +214,7 @@ BEGIN
             from asis.tprogramacion pro
             where pro.id_programacion = v_parametros.id_programacion;
 
-            if (not asis.f_validad_fecha(v_id_funcionario, v_parametros.fecha_programada::date)) then
+            if (not asis.f_valida_fecha(v_id_funcionario, v_parametros.fecha_programada::date)) then
                 raise exception 'No es posible programar vacaciones en dias no hábiles y dias feriados';
             end if;
 

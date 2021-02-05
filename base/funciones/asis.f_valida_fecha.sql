@@ -1,4 +1,4 @@
-CREATE OR REPLACE FUNCTION asis.f_validad_fecha(p_id_funcionario integer, p_fecha date) RETURNS boolean AS
+CREATE OR REPLACE FUNCTION asis.f_valida_fecha(p_id_funcionario integer, p_fecha date) RETURNS boolean AS
 $body$
 DECLARE
     v_resp           VARCHAR;
@@ -7,7 +7,7 @@ DECLARE
     v_lugar          varchar;
     v_crear          boolean;
 BEGIN
-    v_nombre_funcion = 'asis.f_validad_fecha';
+    v_nombre_funcion = 'asis.f_valida_fecha';
 
     v_crear = true;
 
