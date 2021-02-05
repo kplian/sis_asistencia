@@ -88,50 +88,6 @@ Phx.vista.TeleTrabajo=Ext.extend(Phx.gridInterfaz,{
         },
         {
             config: {
-                name: 'id_responsable',
-                fieldLabel: 'Responsable',
-                allowBlank: false,
-                emptyText: 'Elija una opción...',
-                store: new Ext.data.JsonStore({
-                    url: '../../sis_asistencia/control/Permiso/listaResponsable',
-                    id: 'id_funcionario',
-                    root: 'datos',
-                    sortInfo: {
-                        field: 'numero_nivel',
-                        direction: 'DESC'
-                    },
-                    totalProperty: 'total',
-                    fields: ['id_funcionario','desc_funcionario'],
-                    remoteSort: true,
-                    baseParams: {par_filtro: 'f.desc_funcionario1'}
-                }),
-                valueField: 'id_funcionario',
-                displayField: 'desc_funcionario',
-                gdisplayField: 'responsable',
-                hiddenName: 'id_responsable',
-                forceSelection: true,
-                disableKeyFilter: true,
-                editable: false,
-                typeAhead: false,
-                triggerAction: 'all',
-                lazyRender: true,
-                mode: 'remote',
-                pageSize: 15,
-                queryDelay: 1000,
-                width: 320,
-                gwidth:200,
-                minChars: 2,
-                renderer : function(value, p, record) {
-                    return String.format('{0}', record.data['responsable']);
-                }
-            },
-            type: 'ComboBox',
-            id_grupo: 1,
-            grid: true,
-            form: true
-        },
-        {
-            config: {
                 name: 'id_funcionario',
                 fieldLabel: 'Funcionario',
                 allowBlank: false,
@@ -172,11 +128,56 @@ Phx.vista.TeleTrabajo=Ext.extend(Phx.gridInterfaz,{
             bottom_filter:true
         },
         {
+            config: {
+                name: 'id_responsable',
+                fieldLabel: 'Responsable',
+                allowBlank: false,
+                emptyText: 'Elija una opción...',
+                store: new Ext.data.JsonStore({
+                    url: '../../sis_asistencia/control/Permiso/listaResponsable',
+                    id: 'id_funcionario',
+                    root: 'datos',
+                    sortInfo: {
+                        field: 'numero_nivel',
+                        direction: 'DESC'
+                    },
+                    totalProperty: 'total',
+                    fields: ['id_funcionario','desc_funcionario'],
+                    remoteSort: true,
+                    baseParams: {par_filtro: 'f.desc_funcionario1'}
+                }),
+                valueField: 'id_funcionario',
+                displayField: 'desc_funcionario',
+                gdisplayField: 'responsable',
+                hiddenName: 'id_responsable',
+                forceSelection: true,
+                disableKeyFilter: true,
+                editable: false,
+                typeAhead: false,
+                disabled: true,
+                triggerAction: 'all',
+                lazyRender: true,
+                mode: 'remote',
+                pageSize: 15,
+                queryDelay: 1000,
+                width: 320,
+                gwidth:200,
+                minChars: 2,
+                renderer : function(value, p, record) {
+                    return String.format('{0}', record.data['responsable']);
+                }
+            },
+            type: 'ComboBox',
+            id_grupo: 1,
+            grid: true,
+            form: true
+        },
+        {
             config:{
                 name: 'fecha_inicio',
                 fieldLabel: 'Desde',
                 allowBlank: true,
-                anchor: '80%',
+                width: 320,
                 gwidth: 100,
                             format: 'd/m/Y', 
                             renderer:function (value,p,record){return value?value.dateFormat('d/m/Y'):''}
@@ -192,7 +193,7 @@ Phx.vista.TeleTrabajo=Ext.extend(Phx.gridInterfaz,{
                 name: 'fecha_fin',
                 fieldLabel: 'Hasta',
                 allowBlank: true,
-                anchor: '80%',
+                width: 320,
                 gwidth: 100,
                             format: 'd/m/Y', 
                             renderer:function (value,p,record){return value?value.dateFormat('d/m/Y'):''}
@@ -208,7 +209,7 @@ Phx.vista.TeleTrabajo=Ext.extend(Phx.gridInterfaz,{
                 name: 'justificacion',
                 fieldLabel: 'Justificacion',
                 allowBlank: false,
-                anchor: '80%',
+                width: 320,
                 gwidth: 100
             },
                 type:'TextArea',
@@ -361,6 +362,8 @@ Phx.vista.TeleTrabajo=Ext.extend(Phx.gridInterfaz,{
     },
     bdel:true,
     bsave:false,
+    fwidth: '35%',
+    fheight: '50%',
     onButtonNew:function(){
         Phx.vista.TeleTrabajo.superclass.onButtonNew.call(this);//habilita el boton y se abre
 
