@@ -29,6 +29,7 @@ require_once(dirname(__FILE__).'/../reportes/RReporteVacacionResumenXls.php');
 require_once(dirname(__FILE__).'/../reportes/RReporteHistoricoVacacionXls.php');
 require_once(dirname(__FILE__).'/../reportes/RVencimientoPDF.php');
 require_once(dirname(__FILE__).'/../reportes/RVencimientoXLS.php');
+require_once(dirname(__FILE__).'/../reportes/RAsistencia.php');
 class ACTReporte extends ACTbase{
     function reporteAnexos(){
         $this->objFunc = $this->create('MODReportes');
@@ -411,6 +412,25 @@ class ACTReporte extends ACTbase{
                 }
                 break;
         }
+        $this->mensajeExito = new Mensaje();
+        $this->mensajeExito->setMensaje('EXITO', 'Reporte.php', 'Reporte generado','Se generó con éxito el reporte: ' . $nombreArchivo, 'control');
+        $this->mensajeExito->setArchivoGenerado($nombreArchivo);
+        $this->mensajeExito->imprimirRespuesta($this->mensajeExito->generarJson());
+
+    }
+    function listarAsistencia(){
+        $this->objFunc=$this->create('MODReportes');
+        $this->res=$this->objFunc->listarAsistencia($this->objParam);
+        //obtener titulo del reporte
+        $titulo = 'Marcado de funcionario acceso general';
+        //Genera el nombre del archivo (aleatorio + titulo)
+        $nombreArchivo=uniqid(md5(session_id()).$titulo);
+        $nombreArchivo.='.xls';
+        $this->objParam->addParametro('nombre_archivo', $nombreArchivo);
+        $this->objParam->addParametro('datos', $this->res->datos);
+        $this->objReporteFormato = new RAsistencia($this->objParam);
+        $this->objReporteFormato->generarDatos();
+        $this->objReporteFormato->generarReporte();
         $this->mensajeExito = new Mensaje();
         $this->mensajeExito->setMensaje('EXITO', 'Reporte.php', 'Reporte generado','Se generó con éxito el reporte: ' . $nombreArchivo, 'control');
         $this->mensajeExito->setArchivoGenerado($nombreArchivo);

@@ -379,5 +379,32 @@ class MODReportes extends MODbase{
         //Devuelve la respuesta
         return $this->respuesta;
     }
+
+    function listarAsistencia(){
+        //Definicion de variables para ejecucion del procedimientp
+        $this->procedimiento='asis.f_reportes_sel';
+        $this->transaccion='ASIS_COAS_SEL';
+        $this->tipo_procedimiento='SEL';//tipo de transaccion
+        $this->setCount(false);
+        $this->setParametro('fecha', 'fecha', 'date');
+
+        //Definicion de la lista del resultado del query
+        $this->captura('codigo','varchar');
+        $this->captura('fecha','date');
+        $this->captura('gerencia','varchar');
+        $this->captura('departamento','varchar');
+        $this->captura('codigo_funcionario','varchar');
+        $this->captura('id_funcionario','integer');
+        $this->captura('funcionario','varchar');
+        $this->captura('cargo','varchar');
+        $this->captura('observacion','varchar');
+        $this->captura('evento','varchar');
+        //Ejecuta la instruccion
+        $this->armarConsulta();
+        $this->ejecutarConsulta();
+       //  var_dump($this->respuesta);exit;
+        //Devuelve la respuesta
+        return $this->respuesta;
+    }
 }
 ?>

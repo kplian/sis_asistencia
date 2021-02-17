@@ -24,7 +24,7 @@ $body$
 
 DECLARE
 
-	v_consulta    		varchar;
+v_consulta    		varchar;
 	v_parametros  		record;
 	v_nombre_funcion   	text;
     v_resp				varchar;
@@ -33,14 +33,11 @@ DECLARE
 	v_consulta_			varchar;
     v_filtro			varchar;
     v_fil				varchar;
-    v_marcado			record;
-    v_id_funcionario	integer;
-    v_fecha_ini         date;
-    v_fecha_fin         date;
-    v_acumulado_record	record;
-    v_dia_saldo			numeric;
     v_acumulado			record;
-
+    v_asistencia        record;
+    v_dia				varchar;
+    v_consulta_rango    varchar;
+    v_hora              time;
 BEGIN
 
 	v_nombre_funcion = 'asis.f_reportes_sel';
@@ -54,7 +51,7 @@ BEGIN
 	***********************************/
 
 	if(p_transaccion='ASIS_RETO_SEL')then
-    	begin
+begin
     		--Sentencia de la consulta
 
         CREATE TEMPORARY TABLE tmp_ret (  dia varchar,
@@ -74,13 +71,13 @@ BEGIN
         v_filtro = '';
     	if v_parametros.hora_ini is not null and v_parametros.hora_fin is not null then
         	  v_filtro = 'and to_char(tr.event_time, ''HH24:MI'')::time BETWEEN '''|| to_char(v_parametros.hora_ini,'HH24:MI')::time || '''and'''||to_char(v_parametros.hora_fin,'HH24:MI')::time||''' ';
-        end if;
+end if;
         if v_parametros.hora_ini is not null and v_parametros.hora_fin is null then
         	  v_filtro = 'and to_char(tr.event_time, ''HH24:MI'')::time >= '''|| to_char(v_parametros.hora_ini,'HH24:MI')::time||''' ';
-        end if;
+end if;
         if v_parametros.hora_ini is null and v_parametros.hora_fin is not null then
         	  v_filtro = 'and to_char(tr.event_time, ''HH24:MI'')::time <= '''|| to_char(v_parametros.hora_fin,'HH24:MI')::time||''' ';
-        end if;
+end if;
 
        v_consulta_ := 'select   tr.pin as codigo_funcionario,
                                     tr.event_time::date as fecha_marcado,
@@ -97,62 +94,62 @@ BEGIN
                             '''';
         v_consulta_:= v_consulta_ || v_filtro;
         v_consulta_:= v_consulta_ || 'order by fecha_marcado';
-            for v_record in EXECUTE(v_consulta_) loop
+for v_record in EXECUTE(v_consulta_) loop
 
-               select distinct on (ca.id_funcionario) ca.id_funcionario, ca.desc_funcionario1,ca.codigo,ca.nombre_unidad,ca.id_uo
-               			into v_funcionario
-                        from orga.vfuncionario_cargo ca
-                        inner join orga.tcargo car on car.id_cargo = ca.id_cargo
-						inner join orga.ttipo_contrato tc on car.id_tipo_contrato = tc.id_tipo_contrato
-                        where tc.codigo in ('PLA', 'EVE')
-                        and ca.fecha_asignacion <= v_parametros.fecha_fin and (ca.fecha_finalizacion is null or ca.fecha_finalizacion >= v_parametros.fecha_ini)
-                        and trim(both 'FUNODTPR' from ca.codigo) = v_record.codigo_funcionario::varchar
-                        order by ca.id_funcionario, ca.fecha_asignacion desc;
+select distinct on (ca.id_funcionario) ca.id_funcionario, ca.desc_funcionario1,ca.codigo,ca.nombre_unidad,ca.id_uo
+into v_funcionario
+from orga.vfuncionario_cargo ca
+    inner join orga.tcargo car on car.id_cargo = ca.id_cargo
+    inner join orga.ttipo_contrato tc on car.id_tipo_contrato = tc.id_tipo_contrato
+where tc.codigo in ('PLA', 'EVE')
+  and ca.fecha_asignacion <= v_parametros.fecha_fin and (ca.fecha_finalizacion is null or ca.fecha_finalizacion >= v_parametros.fecha_ini)
+  and trim(both 'FUNODTPR' from ca.codigo) = v_record.codigo_funcionario::varchar
+order by ca.id_funcionario, ca.fecha_asignacion desc;
 
-                 insert into tmp_ret (  dia,
-                                        fecha_marcado,
-                                        hora,
-                                        id_funcionario,
-                                        codigo_funcionario,
-                                        nombre_funcionario,
-                                        departamento,
-                                        tipo_evento,
-                                        modo_verificacion,
-                                        nombre_dispositivo,
-                                        numero_tarjeta,
-                                        nombre_area,
-                                        codigo_evento,
-                                        id_uo
-                                        )values (
-                                        v_record.dia,
-                                        v_record.fecha_marcado,
-                                        v_record.hora,
-                                        v_funcionario.id_funcionario,
-                                        v_record.codigo_funcionario::varchar,
-                                        v_funcionario.desc_funcionario1,
-                                        v_funcionario.nombre_unidad,
-                                        translate(v_record.tipo_evento::text,'áéíóúÁÉÍÓÚäëïöüÄËÏÖÜ','aeiouAEIOUaeiouAEIOU'),
-                                        v_record.modo_verificacion::varchar,
-                                        v_record.nombre_dispositivo,
-                                        v_record.numero_tarjeta,
-                                        v_record.nombre_area,
-                                        v_record.codigo_evento,
-                                        v_funcionario.id_uo
-                                        );
+insert into tmp_ret (  dia,
+                       fecha_marcado,
+                       hora,
+                       id_funcionario,
+                       codigo_funcionario,
+                       nombre_funcionario,
+                       departamento,
+                       tipo_evento,
+                       modo_verificacion,
+                       nombre_dispositivo,
+                       numero_tarjeta,
+                       nombre_area,
+                       codigo_evento,
+                       id_uo
+)values (
+            v_record.dia,
+            v_record.fecha_marcado,
+            v_record.hora,
+            v_funcionario.id_funcionario,
+            v_record.codigo_funcionario::varchar,
+            v_funcionario.desc_funcionario1,
+            v_funcionario.nombre_unidad,
+            translate(v_record.tipo_evento::text,'áéíóúÁÉÍÓÚäëïöüÄËÏÖÜ','aeiouAEIOUaeiouAEIOU'),
+            v_record.modo_verificacion::varchar,
+            v_record.nombre_dispositivo,
+            v_record.numero_tarjeta,
+            v_record.nombre_area,
+            v_record.codigo_evento,
+            v_funcionario.id_uo
+        );
 
-            end loop;
+end loop;
 
             v_fil = '0 = 0';
 
             if v_parametros.id_funcionario is not null then
             	v_fil = 't.id_funcionario = '|| v_parametros.id_funcionario;
-            end if;
+end if;
             if v_parametros.modo_verif != '' then
         		v_fil:= v_fil||' and t.modo_verificacion = '''||v_parametros.modo_verif||''' ';
-       		 end if;
+end if;
             if v_parametros.evento != '' then
                 v_fil:= v_fil||' and t.codigo_evento = '''||v_parametros.evento||''' ';
-            end if;
+end if;
 			v_consulta:='select t.dia,
               					to_char(t.fecha_marcado,''DD/MM/YYYY'') as fecha_marcado,
                                 t.hora,
@@ -171,9 +168,9 @@ BEGIN
                                 where ';
             v_consulta:= v_consulta || v_fil;
             v_consulta:= v_consulta || 'order by gerencia desc, hora, tipo_evento,nombre_funcionario';
-			return v_consulta;
+return v_consulta;
 
-		end;
+end;
 
     /*********************************
  	#TRANSACCION:  'ASIS_RE_SEL' # 16
@@ -182,7 +179,7 @@ BEGIN
  	#FECHA:		29/08/2019
 	***********************************/
 	elsif(p_transaccion='ASIS_RE_SEL')then
-    	begin
+begin
             CREATE TEMPORARY TABLE tmp_retr (   dia varchar,
                                                 fecha_marcado date,
                                                 hora varchar,
@@ -197,7 +194,7 @@ BEGIN
                                                 gerencia varchar,
                                                 departamento varchar ) ON COMMIT DROP;
 
-        for v_record in (with funcionario as (select distinct on (ca.id_funcionario) ca.id_funcionario,
+for v_record in (with funcionario as (select distinct on (ca.id_funcionario) ca.id_funcionario,
                                                     ca.desc_funcionario1,
                                                     trim(both 'FUNODTPR' from ca.codigo) as codigo,
                                                     ca.nombre_cargo,
@@ -274,28 +271,28 @@ BEGIN
                                                     v_record.nombre_cargo
                                                     );
 
-        end loop;
+end loop;
 
         v_filtro = '0 = 0 ';
     	if v_parametros.hora_ini is not null and v_parametros.hora_fin is not null then
         	  v_filtro = 'tmp.hora BETWEEN '''|| to_char(v_parametros.hora_ini,'HH24:MI')::time || '''and'''||to_char(v_parametros.hora_fin,'HH24:MI')::time||''' ';
-        end if;
+end if;
         if v_parametros.hora_ini is not null and v_parametros.hora_fin is null then
         	  v_filtro = 'tmp.hora >= '''|| to_char(v_parametros.hora_ini,'HH24:MI')::time||''' ';
-        end if;
+end if;
         if v_parametros.hora_ini is null and v_parametros.hora_fin is not null then
         	  v_filtro = 'tmp.hora <= '''|| to_char(v_parametros.hora_fin,'HH24:MI')::time||''' ';
-        end if;
+end if;
 
         if v_parametros.id_funcionario is not null then
           v_filtro:= v_filtro || ' and tmp.id_funcionario = '|| v_parametros.id_funcionario;
-        end if;
+end if;
         if v_parametros.modo_verif != '' then
             v_filtro:= v_filtro||' and tmp.modo_verificacion = '''||v_parametros.modo_verif||''' ';
-        end if;
+end if;
         if v_parametros.evento != '' then
             v_filtro:= v_filtro||' and tmp.codigo_evento = '''||v_parametros.evento||''' ';
-        end if;
+end if;
 
         v_consulta:= 'select  tmp.dia,
                               to_char(tmp.fecha_marcado,''DD/MM/YYYY'') as fecha_marcado,
@@ -318,9 +315,9 @@ BEGIN
         		v_consulta:= v_consulta || 'order by gerencia desc, fecha_marcado,hora,nombre_funcionario';
         elsif(v_parametros.agrupar_por = 'departamentos')then
         		v_consulta:= v_consulta || 'order by departamento desc, fecha_marcado,hora,nombre_funcionario';
-        end if;
-        return v_consulta;
-    end;
+end if;
+return v_consulta;
+end;
     /*********************************
  	#TRANSACCION:  'ASIS_RPT_MAR'
  	#DESCRIPCION:	Reporte de marcado de funcionarios
@@ -328,7 +325,7 @@ BEGIN
  	#FECHA:		02/10/2019
 	***********************************/
     elseif (p_transaccion='ASIS_RPT_MAR') then
-		begin
+begin
 
     		--Sentencia de la consulta
    			v_consulta:= 'SELECT
@@ -353,8 +350,8 @@ BEGIN
                             WHERE bio.id_funcionario = '||v_parametros.id_funcionario||' AND bio.fecha_marcado::date BETWEEN '''|| v_parametros.fecha_ini ||''' AND '''||v_parametros.fecha_fin||''' ';
 
 			--Devuelve la respuesta
-			return v_consulta;
-		end;
+return v_consulta;
+end;
     /*********************************
  	#TRANSACCION:  'ASIS_RPT_MAR_GRAL'
  	#DESCRIPCION:	Reporte de marcado de funcionarios por columnas
@@ -362,7 +359,7 @@ BEGIN
  	#FECHA:		02/10/2019
 	***********************************/
     elseif (p_transaccion='ASIS_RPT_MAR_GRAL') then
-		begin
+begin
     		--Sentencia de la consulta
 			v_consulta:= 'SELECT *
             				FROM crosstab($$
@@ -384,8 +381,8 @@ BEGIN
 
     		raise notice '%',v_consulta;
 			--Devuelve la respuesta
-			return v_consulta;
-    end;
+return v_consulta;
+end;
     /*********************************
  	#TRANSACCION:  'ASIS_SAL_SEL'
  	#DESCRIPCION:	Reporte Reporte saldo
@@ -394,7 +391,7 @@ BEGIN
 	***********************************/
 	elsif(p_transaccion='ASIS_SAL_SEL')then
 
-    	begin
+begin
         --Sentencia de la consulta
 
 
@@ -409,7 +406,7 @@ BEGIN
                                                 fecha_acomulado date,
                                                 saldo numeric ) ON COMMIT DROP;
 
-        for  v_record in (select  funs.id_funcionario,
+for  v_record in (select  funs.id_funcionario,
                                   funs.codigo,
                                   funs.desc_funcionario2,
                                   funs.fecha_contrato,
@@ -464,25 +461,25 @@ BEGIN
                                     funs.departamento
                           order by gerencia, departamento, desc_funcionario2) loop
 
-            select mo.fecha_reg::date as fecha_reg,
-            	   mo.dias
-                   into
-                   v_acumulado
-            from asis.tmovimiento_vacacion mo
-            where mo.tipo = 'ACUMULADA' 
-                  and mo.id_funcionario = v_record.id_funcionario
-            	  and mo.estado_reg = 'activo' 
-                  and mo.fecha_reg::date = (select max(m.fecha_reg::date)
+select mo.fecha_reg::date as fecha_reg,
+       mo.dias
+into
+    v_acumulado
+from asis.tmovimiento_vacacion mo
+where mo.tipo = 'ACUMULADA'
+  and mo.id_funcionario = v_record.id_funcionario
+  and mo.estado_reg = 'activo'
+  and mo.fecha_reg::date = (select max(m.fecha_reg::date)
                   							from asis.tmovimiento_vacacion m
-                                            where m.tipo = 'ACUMULADA' 
-                                            and m.dias != 0                                 
+                                            where m.tipo = 'ACUMULADA'
+                                            and m.dias != 0
                                             and m.id_funcionario = v_record.id_funcionario);
 
-				
-            --    raise notice  '------------------saldo %  acumulado % ------------------------',v_record.saldo, v_acumulado.dias;
-                
-                
-                if (v_record.saldo > v_acumulado.dias) then
+
+--    raise notice  '------------------saldo %  acumulado % ------------------------',v_record.saldo, v_acumulado.dias;
+
+
+if (v_record.saldo > v_acumulado.dias) then
 
 
 
@@ -492,7 +489,7 @@ BEGIN
                                                             v_record.saldo);
 
 
-                else
+else
 
                 	  insert into temporal_saldo (id_funcionario,
                                                     codigo,
@@ -517,10 +514,10 @@ BEGIN
                                                     v_record.saldo
                                                     );
 
-                end if;
+end if;
 
 
-        end loop;
+end loop;
 
 
               	v_consulta:='select  trim(both ''FUNODTPR'' from  ts.codigo)::varchar as codigo,
@@ -551,9 +548,9 @@ BEGIN
                                     ts.departamento
                             order by gerencia, departamento, desc_funcionario1 asc ,ordenar, gestion';
 		   --Devuelve la respuesta
-            return v_consulta;
+return v_consulta;
 
-		end;
+end;
 
      /*********************************
  	#TRANSACCION:  'ASIS_VENS_SEL'
@@ -563,13 +560,13 @@ BEGIN
 	***********************************/
 	elsif(p_transaccion='ASIS_VENS_SEL')then
 
-    	begin
+begin
            --Sentencia de la consulta
            v_consulta:='';
 		   --Devuelve la respuesta
-            return v_consulta;
+return v_consulta;
 
-		end;
+end;
 
 
     /*********************************
@@ -580,21 +577,21 @@ BEGIN
 	***********************************/
 	elsif(p_transaccion='ASIS_ANT_SEL')then
 
-    	begin
+begin
         --Sentencia de la consulta
         		v_filtro = '';
 
                 if (v_parametros.id_funcionario is not null )then
                 	v_filtro = 'and uofun.id_funcionario = '||v_parametros.id_funcionario||'';
-                end if;
+end if;
 
                 if (v_parametros.id_tipo_contrato is not null) then
                     v_filtro = 'and  tc.id_tipo_contrato = '||v_parametros.id_tipo_contrato;
-                end if;
+end if;
 
          		if (v_parametros.id_uo is not null )then
                 	v_filtro = 'and (ger.id_uo = '||v_parametros.id_uo ||' or dep.id_uo = '||v_parametros.id_uo ||')';
-                end if;
+end if;
 
          	v_consulta:='select  fun.desc_funcionario2,
             					 fun.codigo ,
@@ -638,9 +635,9 @@ BEGIN
                                   order by gerencia, departamento, desc_funcionario2 asc';
 
 		   --Devuelve la respuesta
-            return v_consulta;
+return v_consulta;
 
-		end;
+end;
 
     /*********************************
  	#TRANSACCION:  'ASIS_AHT_SEL'
@@ -650,7 +647,7 @@ BEGIN
 	***********************************/
 	elsif(p_transaccion='ASIS_AHT_SEL')then
 
-    	begin
+begin
         --Sentencia de la consulta
 
         v_consulta:= 'select  fun.id_funcionario,
@@ -694,9 +691,9 @@ BEGIN
 
 
 		   --Devuelve la respuesta
-            return v_consulta;
+return v_consulta;
 
-		end;
+end;
 
      /*********************************
  	#TRANSACCION:  'ASIS_VPR_SEL'
@@ -706,7 +703,7 @@ BEGIN
 	***********************************/
 	elsif(p_transaccion='ASIS_VPR_SEL')then
 
-    	begin
+begin
         --Sentencia de la consulta
 
 
@@ -717,14 +714,14 @@ BEGIN
 
             	v_filtro = 'and uofun.id_funcionario = '||v_parametros.id_funcionario;
 
-            end if;
+end if;
 
 
             if (v_parametros.id_uo is not null) then
 
             	 v_filtro = ' and (ger.id_uo = ' || v_parametros.id_uo || 'or dep.id_uo ='||v_parametros.id_uo||')';
 
-            end if;
+end if;
 
          v_consulta:='select   funs.gerencia,
                                   funs.departamento,
@@ -760,7 +757,7 @@ BEGIN
                           uofun.estado_reg != ''inactivo'' '||v_filtro||'
                           order by uofun.id_funcionario, uofun.fecha_asignacion desc)funs
                           inner join asis.tmovimiento_vacacion mm on mm.id_funcionario = funs.id_funcionario
-						  where mm.tipo = ''TOMADA'' and mm.estado_reg = ''activo'' and mm.desde::date >= '''||v_parametros.fecha_ini||''' ::date and mm.hasta::date <='''||v_parametros.fecha_fin||'''::date                          union all 
+						  where mm.tipo = ''TOMADA'' and mm.estado_reg = ''activo'' and mm.desde::date >= '''||v_parametros.fecha_ini||''' ::date and mm.hasta::date <='''||v_parametros.fecha_fin||'''::date                          union all
                           select  funs.gerencia,
                                   funs.departamento,
                                   funs.desc_funcionario2  as desc_funcionario,
@@ -803,10 +800,10 @@ BEGIN
                          order by gerencia, departamento,desc_funcionario,ordenar,tipo_contrato';
             --Devuelve la respuesta
 
-        
-            return v_consulta;
 
-		end;
+return v_consulta;
+
+end;
 
       /*********************************
  	#TRANSACCION:  'ASIS_VARU_SEL'
@@ -816,7 +813,7 @@ BEGIN
 	***********************************/
 	elsif(p_transaccion='ASIS_VARU_SEL')then
 
-    	begin
+begin
         --Sentencia de la consulta
 
 
@@ -828,20 +825,20 @@ BEGIN
 
             	v_filtro = 'and uofun.id_funcionario = '||v_parametros.id_funcionario;
 
-            end if;
+end if;
 
 
             if (v_parametros.id_uo is not null) then
 
             	 v_filtro = ' and (ger.id_uo = ' || v_parametros.id_uo || 'or dep.id_uo ='||v_parametros.id_uo||')';
 
-            end if;
+end if;
 
              if (v_parametros.id_tipo_contrato is not null) then
 
             	v_filtro = 'and  tc.id_tipo_contrato = '||v_parametros.id_tipo_contrato;
 
-            end if;
+end if;
 
 
          	v_consulta:='select   ant.desc_funcionario2,
@@ -953,15 +950,357 @@ BEGIN
                               order by uofun.id_funcionario, uofun.fecha_asignacion desc   ) ant
                               order by desc_funcionario2 asc';
 		   --Devuelve la respuesta
-            return v_consulta;
+return v_consulta;
 
-		end;
+end;
+    	  /*********************************
+ 	#TRANSACCION:  'ASIS_COAS_SEL'
+ 	#DESCRIPCION:	Reporte control de asistencia biomentrico baja medica teletrabajo permiso, vacacion
+ 	#AUTOR:		MMV
+ 	#FECHA:		15/09/2019
+	***********************************/
+	elsif(p_transaccion='ASIS_COAS_SEL')then
+begin
+             --Sentencia de la consulta
 
-	else
+                CREATE TEMPORARY TABLE tmp_asitencia (    codigo varchar,
+                                                          fecha date,
+                                                          gerencia varchar,
+                                                          departamento varchar,
+                                                          codigo_funcionario varchar,
+                                                          id_funcionario integer,
+                                                          funcionario varchar,
+                                                          cargo varchar,
+                                                          observacion varchar,
+                                                          evento varchar) ON COMMIT DROP;
+
+
+for v_asistencia in (with biometrico as ( select  b.pin,
+                             b.fecha,
+                             min(b.hora) as hora
+                    from (select p.pin::integer as pin,
+                                 p.fecha,
+                                 to_char(p.hora,'HH24:MI:SS')::time as hora
+                                      from asis.tpersona_transaccion p
+                                      where to_char(p.fecha,'DD/MM/YYYY')::date = v_parametros.fecha::date) b
+                                              group by b.pin,
+                                                       b.fecha),
+                        vacaciones as (select  v.id_funcionario,
+                                               v.nro_tramite,
+                                               v.fecha_inicio,
+                                               v.fecha_fin
+                                        from asis.tvacacion v
+                                        where v.estado = 'aprobado'
+                                                and v_parametros.fecha::date between v.fecha_inicio and v.fecha_fin),
+                        teletrabajo as (select t.id_funcionario,
+                                               t.nro_tramite,
+                                               t.fecha_inicio,
+                                               t.fecha_fin
+                                        from asis.ttele_trabajo t
+                                        where t.estado = 'aprobado'
+                                                and v_parametros.fecha::date between t.fecha_inicio and t.fecha_fin),
+                        baje_medica as (select b.id_funcionario,
+                                               b.nro_tramite,
+                                               b.fecha_inicio,
+                                               b.fecha_fin
+                                        from asis.tbaja_medica b
+                                        where b.estado = 'aprobado'
+                                                and v_parametros.fecha::date between b.fecha_inicio and b.fecha_fin),
+                        viaticos as (select   cdoc.id_funcionario,
+                                              cdoc.nro_tramite,
+                                              cdoc.fecha_salida,
+                                              cdoc.fecha_llegada
+                                      from cd.tcuenta_doc cdoc
+                                      where cdoc.estado_reg = 'activo'
+                                           and cdoc.id_tipo_cuenta_doc = 5
+                                            and v_parametros.fecha::date between cdoc.fecha_salida and cdoc.fecha_llegada)
+                        select  fu.id_funcionario,
+                                fu.funcioanrio,
+                                fu.codigo::varchar as codigo,
+                                fu.cargo,
+                                fu.id_uo,
+                                fu.codigo_ger,
+                                fu.gerencia,
+                                fu.departamento,
+                                bo.fecha,
+                                bo.hora,
+                                va.nro_tramite as vacacion,
+                                tl.nro_tramite as teletrabajo,
+                                ba.nro_tramite as baje_medica,
+                                vi.nro_tramite as viatico
+                        from (select distinct on (uofun.id_funcionario) uofun.id_funcionario,
+                                                        trim(both 'FUNODTPR' from  fun.codigo)::integer as codigo,
+                                                        fun.desc_funcionario2 as funcioanrio,
+                                                        car.nombre as cargo,
+                                                        ger.id_uo,
+                                                        ger.codigo as codigo_ger,
+                                                        ger.nombre_unidad as gerencia,
+                                                        dep.nombre_unidad as departamento
+                                                  from orga.tuo_funcionario uofun
+                                                  inner join orga.tcargo car on car.id_cargo = uofun.id_cargo
+                                                  inner join orga.ttipo_contrato tc on car.id_tipo_contrato = tc.id_tipo_contrato
+                                                  inner join orga.vfuncionario fun on fun.id_funcionario = uofun.id_funcionario
+                                                  inner join orga.tuo ger ON ger.id_uo = orga.f_get_uo_gerencia(uofun.id_uo, NULL::integer, NULL::date)
+                                                  inner join orga.tuo dep ON dep.id_uo = orga.f_get_uo_departamento(uofun.id_uo, NULL::integer, NULL::date)
+                                                  where tc.codigo in ('PLA','EVE') and UOFUN.tipo = 'oficial'
+                                                    and uofun.fecha_asignacion <=v_parametros.fecha::date and (uofun.fecha_finalizacion is null or uofun.fecha_finalizacion >= v_parametros.fecha::date)
+                                                    and uofun.estado_reg != 'inactivo'
+                                                order by uofun.id_funcionario, uofun.fecha_asignacion desc) fu
+                                    left join biometrico bo on bo.pin = fu.codigo
+                                    left join vacaciones va on va.id_funcionario = fu.id_funcionario
+                                    left join teletrabajo tl on tl.id_funcionario = fu.id_funcionario
+                                    left join baje_medica ba on ba.id_funcionario = fu.id_funcionario
+                                    left join viaticos vi on vi.id_funcionario = fu.id_funcionario
+                                    order by gerencia,departamento, fecha, hora) loop
+
+                    if (v_asistencia.vacacion is not null) then
+                        insert into tmp_asitencia ( codigo,
+                                                    fecha,
+                                                    gerencia,
+                                                    departamento,
+                                                    codigo_funcionario,
+                                                    id_funcionario,
+                                                    funcionario,
+                                                    cargo,
+                                                    observacion,
+                                                    evento
+                                                    )values (
+                                                    v_asistencia.codigo_ger,
+                                                    v_parametros.fecha::date,
+                                                    v_asistencia.gerencia,
+                                                    v_asistencia.departamento,
+                                                    v_asistencia.codigo,
+                                                    v_asistencia.id_funcionario,
+                                                    v_asistencia.funcioanrio,
+                                                    v_asistencia.cargo,
+                                                    'LPV',
+                                                    'Licencia por vacaión (LPV)'
+                                                    );
+end if;
+
+                    if (v_asistencia.teletrabajo is not null) then
+                        insert into tmp_asitencia ( codigo,
+                                                    fecha,
+                                                    gerencia,
+                                                    departamento,
+                                                    codigo_funcionario,
+                                                    id_funcionario,
+                                                    funcionario,
+                                                    cargo,
+                                                    observacion,
+                                                    evento
+                                                    )values (
+                                                    v_asistencia.codigo_ger,
+                                                    v_parametros.fecha::date,
+                                                    v_asistencia.gerencia,
+                                                    v_asistencia.departamento,
+                                                    v_asistencia.codigo,
+                                                    v_asistencia.id_funcionario,
+                                                    v_asistencia.funcioanrio,
+                                                    v_asistencia.cargo,
+                                                    'TELETRABAJO',
+                                                    'Personas en teletrabajo'
+                                                    );
+end if;
+
+                    if (v_asistencia.baje_medica is not null) then
+
+                            insert into tmp_asitencia ( codigo,
+                                                        fecha,
+                                                        gerencia,
+                                                        departamento,
+                                                        codigo_funcionario,
+                                                        id_funcionario,
+                                                        funcionario,
+                                                        cargo,
+                                                        observacion,
+                                                        evento
+                                                        )values (
+                                                        v_asistencia.codigo_ger,
+                                                        v_parametros.fecha::date,
+                                                        v_asistencia.gerencia,
+                                                        v_asistencia.departamento,
+                                                        v_asistencia.codigo,
+                                                        v_asistencia.id_funcionario,
+                                                        v_asistencia.funcioanrio,
+                                                        v_asistencia.cargo,
+                                                        'LPE',
+                                                        'Licencia por enfermedad (LPE)'
+                                                        );
+end if;
+
+                    if (v_asistencia.viatico is not null) then
+                        insert into tmp_asitencia ( codigo,
+                                                    fecha,
+                                                    gerencia,
+                                                    departamento,
+                                                    codigo_funcionario,
+                                                    id_funcionario,
+                                                    funcionario,
+                                                    cargo,
+                                                    observacion,
+                                                    evento
+                                                    )values (
+                                                    v_asistencia.codigo_ger,
+                                                    v_parametros.fecha::date,
+                                                    v_asistencia.gerencia,
+                                                    v_asistencia.departamento,
+                                                    v_asistencia.codigo,
+                                                    v_asistencia.id_funcionario,
+                                                    v_asistencia.funcioanrio,
+                                                    v_asistencia.cargo,
+                                                    'CDV',
+                                                    'Comisión de viaje (CDV)'
+                                                    );
+end if;
+
+                    if not exists (select 1
+                               from tmp_asitencia t
+                               where t.id_funcionario = v_asistencia.id_funcionario) then
+
+                              v_dia = case extract(dow from v_parametros.fecha::date)
+                                                    when 1 then 'lunes'
+                                                    when 2 then 'martes'
+                                                    when 3 then 'miercoles'
+                                                    when 4 then 'jueves'
+                                                    when 5 then 'viernes'
+                                                    when 6 then 'sabado'
+                                                    else 'domingo'
+end;
+
+                              v_consulta_rango = 'select rh.hora_entrada
+                                                	from asis.trango_horario rh
+                                                    inner join asis.tasignar_rango ar on ar.id_rango_horario = rh.id_rango_horario
+                                                    where  ar.desde <='''|| v_parametros.fecha||'''::date
+                                                          and (ar.hasta is null or ar.hasta >= '''||v_parametros.fecha||'''::date)
+                                                          and ar.id_uo = '||v_asistencia.id_uo||' and rh.'||v_dia||' = ''si'' ';
+							--RAISE NOTICE '%',v_consulta_rango;
+execute (v_consulta_rango) into v_hora;
+
+
+if (v_asistencia.hora <= v_hora)then
+                                        insert into tmp_asitencia ( codigo,
+                                                fecha,
+                                                gerencia,
+                                                departamento,
+                                                codigo_funcionario,
+                                                id_funcionario,
+                                                funcionario,
+                                                cargo,
+                                                observacion,
+                                                evento
+                                                )values (
+                                                v_asistencia.codigo_ger,
+                                                 v_parametros.fecha::date,
+                                                v_asistencia.gerencia,
+                                                v_asistencia.departamento,
+                                                v_asistencia.codigo,
+                                                v_asistencia.id_funcionario,
+                                                v_asistencia.funcioanrio,
+                                                v_asistencia.cargo,
+                                                'EN OFICINA',
+                                                'Personas en oficina'
+                                                );
+else
+
+                                      if (v_asistencia.hora is not null) then
+                                          insert into tmp_asitencia ( codigo,
+                                                fecha,
+                                                gerencia,
+                                                departamento,
+                                                codigo_funcionario,
+                                                id_funcionario,
+                                                funcionario,
+                                                cargo,
+                                                observacion,
+                                                evento
+                                                )values (
+                                                v_asistencia.codigo_ger,
+                                                 v_parametros.fecha::date,
+                                                v_asistencia.gerencia,
+                                                v_asistencia.departamento,
+                                                v_asistencia.codigo,
+                                                v_asistencia.id_funcionario,
+                                                v_asistencia.funcioanrio,
+                                                v_asistencia.cargo,
+                                                to_char(v_asistencia.hora,'HH12:MI:SS AM')::varchar,
+                                                'Personas en oficina'
+                                                );
+                                          elseif (v_asistencia.cargo  = 'CONDUCTOR') then
+                                            insert into tmp_asitencia ( codigo,
+                                                fecha,
+                                                gerencia,
+                                                departamento,
+                                                codigo_funcionario,
+                                                id_funcionario,
+                                                funcionario,
+                                                cargo,
+                                                observacion,
+                                                evento
+                                                )values (
+                                                v_asistencia.codigo_ger,
+                                                 v_parametros.fecha::date,
+                                                v_asistencia.gerencia,
+                                                v_asistencia.departamento,
+                                                v_asistencia.codigo,
+                                                v_asistencia.id_funcionario,
+                                                v_asistencia.funcioanrio,
+                                                v_asistencia.cargo,
+                                                v_asistencia.cargo,
+                                                'Comisión de viaje (CDV)'
+                                                );
+else
+                                           insert into tmp_asitencia ( codigo,
+                                                fecha,
+                                                gerencia,
+                                                departamento,
+                                                codigo_funcionario,
+                                                id_funcionario,
+                                                funcionario,
+                                                cargo,
+                                                observacion,
+                                                evento
+                                                )values (
+                                                v_asistencia.codigo_ger,
+                                                 v_parametros.fecha::date,
+                                                v_asistencia.gerencia,
+                                                v_asistencia.departamento,
+                                                v_asistencia.codigo,
+                                                v_asistencia.id_funcionario,
+                                                v_asistencia.funcioanrio,
+                                                v_asistencia.cargo,
+                                                'AUSENTE',
+                                                'Personas ausentes'
+                                                );
+end if;
+
+end if;
+
+
+end if;
+               -- raise exception 'entraaaaaaaaaa <--------------';
+end loop;
+
+             v_consulta = ' select  codigo,
+                                    fecha,
+                                    gerencia,
+                                    departamento,
+                                    codigo_funcionario,
+                                    id_funcionario,
+                                    funcionario,
+                                    cargo,
+                                    observacion, evento
+                            from tmp_asitencia
+                                order by gerencia DESC, departamento';
+
+             --Devuelve la respuesta
+return v_consulta;
+end;
+else
 
 		raise exception 'Transaccion inexistente';
 
-	end if;
+end if;
 
 EXCEPTION
 
