@@ -298,3 +298,7 @@ select wf.f_import_ttipo_documento ('insert','BM-EV','SOL-BMA','Evidencia','Evid
 select wf.f_import_testructura_estado ('delete','registro','aprobado','SOL-BMA',NULL,NULL,NULL);
 select wf.f_import_testructura_estado ('insert','registro','enviado','SOL-BMA',1,'','no');
 /***********************************F-DAT-MMV-ASIS-SDA-56-05/02/2021*****************************************/
+
+/***********************************I-DAT-MMV-ASIS-SDA-66-17/02/2021*****************************************/
+select pxp.f_insert_tgui ('Reporte Asistencia', 'Reporte Asistencia', 'RAA', 'si', 9, 'sis_asistencia/vista/reportes/FormReporteAsistencia.php', 3, '', 'FormReporteAsistencia', 'ASIS');
+/***********************************F-DAT-MMV-ASIS-SDA-66-17/02/2021*****************************************/
