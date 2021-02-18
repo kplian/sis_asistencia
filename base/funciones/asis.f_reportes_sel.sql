@@ -991,21 +991,21 @@ for v_asistencia in (with biometrico as ( select  b.pin,
                                                v.fecha_fin
                                         from asis.tvacacion v
                                         where v.estado = 'aprobado'
-                                                and v_parametros.fecha::date between v.fecha_inicio and v.fecha_fin),
+                                                and v.fecha_inicio <= v_parametros.fecha::date and v.fecha_fin >= v_parametros.fecha::date),
                         teletrabajo as (select t.id_funcionario,
                                                t.nro_tramite,
                                                t.fecha_inicio,
                                                t.fecha_fin
                                         from asis.ttele_trabajo t
                                         where t.estado = 'aprobado'
-                                                and v_parametros.fecha::date between t.fecha_inicio and t.fecha_fin),
+                                                and  t.fecha_inicio <= v_parametros.fecha::date and t.fecha_fin >=v_parametros.fecha::date),
                         baje_medica as (select b.id_funcionario,
                                                b.nro_tramite,
                                                b.fecha_inicio,
                                                b.fecha_fin
                                         from asis.tbaja_medica b
-                                        where b.estado = 'aprobado'
-                                                and v_parametros.fecha::date between b.fecha_inicio and b.fecha_fin),
+                                        where  b.estado = 'enviado'
+                                                and b.fecha_inicio <= v_parametros.fecha::date and b.fecha_fin >= v_parametros.fecha::date),
                         viaticos as (select   cdoc.id_funcionario,
                                               cdoc.nro_tramite,
                                               cdoc.fecha_salida,
@@ -1013,7 +1013,7 @@ for v_asistencia in (with biometrico as ( select  b.pin,
                                       from cd.tcuenta_doc cdoc
                                       where cdoc.estado_reg = 'activo'
                                            and cdoc.id_tipo_cuenta_doc = 5
-                                            and v_parametros.fecha::date between cdoc.fecha_salida and cdoc.fecha_llegada)
+                                            and cdoc.fecha_salida <= v_parametros.fecha::date and cdoc.fecha_llegada >= v_parametros.fecha::date)
                         select  fu.id_funcionario,
                                 fu.funcioanrio,
                                 fu.codigo::varchar as codigo,
@@ -1044,7 +1044,7 @@ for v_asistencia in (with biometrico as ( select  b.pin,
                                                   inner join orga.tuo dep ON dep.id_uo = orga.f_get_uo_departamento(uofun.id_uo, NULL::integer, NULL::date)
                                                   where tc.codigo in ('PLA','EVE') and UOFUN.tipo = 'oficial'
                                                     and uofun.fecha_asignacion <=v_parametros.fecha::date and (uofun.fecha_finalizacion is null or uofun.fecha_finalizacion >= v_parametros.fecha::date)
-                                                    and uofun.estado_reg != 'inactivo'
+                                                    and uofun.estado_reg != 'inactivo' and dep.tipo_unidad !='regional'
                                                 order by uofun.id_funcionario, uofun.fecha_asignacion desc) fu
                                     left join biometrico bo on bo.pin = fu.codigo
                                     left join vacaciones va on va.id_funcionario = fu.id_funcionario

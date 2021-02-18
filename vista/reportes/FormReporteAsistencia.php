@@ -29,7 +29,42 @@ header("content-type: text/javascript; charset=UTF-8");
                 id_grupo : 0,
                 grid : true,
                 form : true
-            }
+            },
+            {
+                config:{
+                    name:'id_uo',
+                    hiddenName: 'id_uo',
+                    origen:'UO',
+                    fieldLabel:'UO',
+                    gdisplayField:'desc_uo',//mapea al store del grid
+                    gwidth:200,
+                    emptyText:'Dejar blanco para toda la empresa...',
+                    width : 250,
+                    baseParams: {nivel: '0,1,2'},
+                    allowBlank:true
+                },
+                type:'ComboRec',
+                id_grupo:0,
+                form:true
+            },
+            {
+                config:{
+                    name: 'formato',
+                    fieldLabel: 'Formato',
+                    allowBlank: false,
+                    emptyText:'Tipo...',
+                    typeAhead: true,
+                    triggerAction: 'all',
+                    lazyRender:true,
+                    mode: 'local',
+                    width:200,
+                    store:['XLSX','PDF']
+                },
+                type:'ComboBox',
+                id_grupo:0,
+                valorInicial: 'PDF',
+                form:true
+            },
 
         ],
         title : 'Generar Reporte',

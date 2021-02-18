@@ -30,6 +30,7 @@ require_once(dirname(__FILE__).'/../reportes/RReporteHistoricoVacacionXls.php');
 require_once(dirname(__FILE__).'/../reportes/RVencimientoPDF.php');
 require_once(dirname(__FILE__).'/../reportes/RVencimientoXLS.php');
 require_once(dirname(__FILE__).'/../reportes/RAsistencia.php');
+require_once(dirname(__FILE__).'/../reportes/RAsistenciaPDF.php');
 class ACTReporte extends ACTbase{
     function reporteAnexos(){
         $this->objFunc = $this->create('MODReportes');
@@ -424,13 +425,28 @@ class ACTReporte extends ACTbase{
         //obtener titulo del reporte
         $titulo = 'Marcado de funcionario acceso general';
         //Genera el nombre del archivo (aleatorio + titulo)
-        $nombreArchivo=uniqid(md5(session_id()).$titulo);
-        $nombreArchivo.='.xls';
-        $this->objParam->addParametro('nombre_archivo', $nombreArchivo);
-        $this->objParam->addParametro('datos', $this->res->datos);
-        $this->objReporteFormato = new RAsistencia($this->objParam);
-        $this->objReporteFormato->generarDatos();
-        $this->objReporteFormato->generarReporte();
+
+        if($this->objParam->getParametro('formato') == 'PDF'){
+            $nombreArchivo=uniqid(md5(session_id()).$titulo);
+            $nombreArchivo.='.pdf';
+            $this->objParam->addParametro('orientacion','P');
+            $this->objParam->addParametro('tamano','LETTER');
+            $this->objParam->addParametro('nombre_archivo',$nombreArchivo);
+            //Instancia la clase de pdf
+            $this->objReporteFormato=new RAsistenciaPDF($this->objParam);
+            $this->objReporteFormato->setDatos($this->res->datos);
+            $this->objReporteFormato->generarReporte();
+            $this->objReporteFormato->output($this->objReporteFormato->url_archivo,'F');
+        }else {
+            $nombreArchivo = uniqid(md5(session_id()) . $titulo);
+            $nombreArchivo.='.xls';
+            $this->objParam->addParametro('nombre_archivo', $nombreArchivo);
+            $this->objParam->addParametro('datos', $this->res->datos);
+            $this->objReporteFormato = new RAsistencia($this->objParam);
+            $this->objReporteFormato->generarDatos();
+            $this->objReporteFormato->generarReporte();
+        }
+
         $this->mensajeExito = new Mensaje();
         $this->mensajeExito->setMensaje('EXITO', 'Reporte.php', 'Reporte generado','Se generó con éxito el reporte: ' . $nombreArchivo, 'control');
         $this->mensajeExito->setArchivoGenerado($nombreArchivo);

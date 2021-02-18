@@ -387,6 +387,8 @@ class MODReportes extends MODbase{
         $this->tipo_procedimiento='SEL';//tipo de transaccion
         $this->setCount(false);
         $this->setParametro('fecha', 'fecha', 'date');
+        $this->setParametro('formato', 'formato', 'varchar');
+        $this->setParametro('id_uo', 'id_uo', 'int4');
 
         //Definicion de la lista del resultado del query
         $this->captura('codigo','varchar');

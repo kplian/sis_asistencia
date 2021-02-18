@@ -229,7 +229,7 @@ class RAsistencia{
           foreach ($this->resumen_general as $key => $value ){
               $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(0, $fila, $key);
               $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(1, $fila, $value);
-              $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(2, $fila,round($value/count($this->objParam->getParametro('datos')) *100,0) );
+              $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(2, $fila,round($value/count($this->objParam->getParametro('datos')) *100,2) );
               $this->docexcel->getActiveSheet()->getStyle("A$fila:D$fila")->applyFromArray($border);
               array_push($eventos,$key);
               $fila++;
@@ -269,7 +269,7 @@ class RAsistencia{
                 foreach ($value as $key2 => $value2 ){
                     $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(0 , $fila_detalle, $key2);
                     $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow($columna, $fila_detalle, $value2);
-                    $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow($columna +1, $fila_detalle, round($value2/array_sum($this->resumen_gerecias[$key])*100,0) );
+                    $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow($columna +1, $fila_detalle, round($value2/array_sum($this->resumen_gerecias[$key])*100,2) );
                     $this->docexcel->getActiveSheet()->getColumnDimension($this->equivalencias[$columna_style])->setWidth(22);
                     $this->docexcel->getActiveSheet()->getStyle($this->equivalencias[$columna - 1] . "$fila_detalle:" . $this->equivalencias[$columna+1] . "$fila_detalle")->applyFromArray($border);
                     $fila_detalle ++;
