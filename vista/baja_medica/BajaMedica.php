@@ -26,7 +26,7 @@ Phx.vista.BajaMedica=Ext.extend(Phx.gridInterfaz,{
         this.finCons = true;
         this.iniciarEventos();
         this.addButton('btn_siguiente',{grupo:[0,3],
-            text:'Enviar Solicitud',
+            text:'Enviar Comunicación',
             iconCls: 'bemail',
             disabled:true,
             handler:this.onSiguiente});
@@ -314,7 +314,7 @@ Phx.vista.BajaMedica=Ext.extend(Phx.gridInterfaz,{
         {
             config : {
                 name : 'documento',
-                fieldLabel : 'Documento',
+                fieldLabel : 'Respaldo',
                 allowBlank : false,
                 gwidth : 80,
                 width : 80,
@@ -335,6 +335,23 @@ Phx.vista.BajaMedica=Ext.extend(Phx.gridInterfaz,{
             id_grupo : 0,
             grid : true,
             form : true
+        },
+        {
+            config:{
+                name: 'observaciones',
+                fieldLabel: 'Observaciones',
+                allowBlank: false,
+                width: 300,
+                gwidth: 250,
+                renderer:function (value,p,record){
+                    return String.format('<b><font color="#a52a2a">{0}</font></b>', value)
+                }
+            },
+            type:'TextArea',
+            filters:{pfiltro:'pmo.observaciones',type:'string'},
+            id_grupo:0,
+            grid:true,
+            form:true
         },
         {
             config:{
@@ -473,7 +490,8 @@ Phx.vista.BajaMedica=Ext.extend(Phx.gridInterfaz,{
 		{name:'usr_mod', type: 'string'},
         {name:'desc_nombre', type: 'string'},
 		{name:'desc_funcionario', type: 'string'},
-        {name:'codigo', type: 'string'}
+        {name:'codigo', type: 'string'},
+        {name:'observaciones', type: 'string'}
         
     ],
     sortInfo:{
@@ -483,7 +501,7 @@ Phx.vista.BajaMedica=Ext.extend(Phx.gridInterfaz,{
     bdel:true,
     bsave:false,
     fwidth: '35%',
-    fheight: '45%',
+    fheight: '55%',
     loadCheckDocumentosRecWf:function() {
         var rec=this.sm.getSelected();
         rec.data.nombreVista = this.nombreVista;
@@ -540,7 +558,7 @@ Phx.vista.BajaMedica=Ext.extend(Phx.gridInterfaz,{
     onSiguiente :function () {
         Phx.CP.loadingShow();
         const rec = this.sm.getSelected(); //obtine los datos selecionado en la grilla
-        if(confirm('¿Enviar solicitud ?')) {
+        if(confirm('¿Enviar comunicado ?')) {
             Ext.Ajax.request({
                 url: '../../sis_asistencia/control/BajaMedica/aprobarEstado',
                 params: {
@@ -564,19 +582,6 @@ Phx.vista.BajaMedica=Ext.extend(Phx.gridInterfaz,{
     },
     onButtonNew:function(){
         Phx.vista.BajaMedica.superclass.onButtonNew.call(this);//habilita el boton y se abre
-
-        // var id_funcionario = Phx.CP.config_ini.id_funcionario;
-        this.Cmp.id_funcionario.store.baseParams.query =  Phx.CP.config_ini.id_funcionario;
-        this.Cmp.id_funcionario.store.load({
-            params: {start: 0, limit: this.tam_pag},
-            callback: function (r) {
-                if (r.length > 0) {
-                    this.Cmp.id_funcionario.setValue(r[0].data.id_funcionario);
-                    this.Cmp.id_funcionario.fireEvent('select', this.Cmp.id_funcionario, r[0].data.id_funcionario, 0)
-                }
-
-            }, scope: this
-        });
     },
     onButtonEdit:function(){
         Phx.vista.BajaMedica.superclass.onButtonEdit.call(this);

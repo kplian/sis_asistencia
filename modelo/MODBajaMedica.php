@@ -48,6 +48,7 @@ class MODBajaMedica extends MODbase{
         $this->captura('desc_nombre','varchar');
         $this->captura('desc_funcionario','text');
         $this->captura('codigo','varchar');
+        $this->captura('observaciones','text');
 
         //Ejecuta la instruccion
         $this->armarConsulta();
@@ -75,6 +76,7 @@ class MODBajaMedica extends MODbase{
 		$this->setParametro('estado','estado','varchar');
 		$this->setParametro('nro_tramite','nro_tramite','varchar');
 		$this->setParametro('documento','documento','varchar');
+		$this->setParametro('observaciones','observaciones','text');
 
         //Ejecuta la instruccion
         $this->armarConsulta();
@@ -103,6 +105,7 @@ class MODBajaMedica extends MODbase{
 		$this->setParametro('estado','estado','varchar');
 		$this->setParametro('nro_tramite','nro_tramite','varchar');
 		$this->setParametro('documento','documento','varchar');
+        $this->setParametro('observaciones','observaciones','text');
 
         //Ejecuta la instruccion
         $this->armarConsulta();

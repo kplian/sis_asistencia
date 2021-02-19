@@ -1,11 +1,7 @@
-CREATE OR REPLACE FUNCTION asis.ft_baja_medica_sel (
-  p_administrador integer,
-  p_id_usuario integer,
-  p_tabla varchar,
-  p_transaccion varchar
-)
-RETURNS varchar AS
-$body$
+create function ft_baja_medica_sel(p_administrador integer, p_id_usuario integer, p_tabla character varying, p_transaccion character varying) returns character varying
+    language plpgsql
+as
+$$
 /**************************************************************************
  SISTEMA:        Sistema de Asistencia
  FUNCION:         asis.ft_baja_medica_sel
@@ -44,12 +40,6 @@ BEGIN
 
 BEGIN
             --Sentencia de la consulta
-               v_filtro = '';
-
-               if p_administrador != 1  then
-
-                		v_filtro = '( bma.id_usuario_reg = '||p_id_usuario|| ') and ';
-end if;
             v_consulta:='SELECT
                         bma.id_baja_medica,
                         bma.estado_reg,
@@ -73,13 +63,13 @@ end if;
                         usu2.cuenta as usr_mod,
                         tp.nombre as desc_nombre,
                         fu.desc_funcionario2 as desc_funcionario,
-                        fu.codigo
+                        fu.codigo, bma.observaciones
                         FROM asis.tbaja_medica bma
                         JOIN segu.tusuario usu1 ON usu1.id_usuario = bma.id_usuario_reg
                         JOIN asis.ttipo_bm tp on tp.id_tipo_bm = bma.id_tipo_bm
                         JOIN orga.vfuncionario fu on fu.id_funcionario = bma.id_funcionario
                         LEFT JOIN segu.tusuario usu2 ON usu2.id_usuario = bma.id_usuario_mod
-                        WHERE  '||v_filtro;
+                        WHERE  ';
 
             --Definicion de la respuesta
             v_consulta:=v_consulta||v_parametros.filtro;
@@ -103,17 +93,14 @@ BEGIN
             --Sentencia de la consulta de conteo de registros
             v_filtro = '';
 
-               if p_administrador != 1  then
 
-                		v_filtro = '( bma.id_usuario_reg = '||p_id_usuario|| ') and ';
-end if;
             v_consulta:='SELECT COUNT(id_baja_medica)
                           	FROM asis.tbaja_medica bma
                         	JOIN segu.tusuario usu1 ON usu1.id_usuario = bma.id_usuario_reg
                         	JOIN asis.ttipo_bm tp on tp.id_tipo_bm = bma.id_tipo_bm
                         	JOIN orga.vfuncionario fu on fu.id_funcionario = bma.id_funcionario
                         	LEFT JOIN segu.tusuario usu2 ON usu2.id_usuario = bma.id_usuario_mod
-                         	WHERE '||v_filtro;
+                         	WHERE ';
 
             --Definicion de la respuesta
             v_consulta:=v_consulta||v_parametros.filtro;
@@ -138,10 +125,7 @@ EXCEPTION
             v_resp = pxp.f_agrega_clave(v_resp,'procedimientos',v_nombre_funcion);
             RAISE EXCEPTION '%',v_resp;
 END;
-$body$
-LANGUAGE 'plpgsql'
-VOLATILE
-CALLED ON NULL INPUT
-SECURITY INVOKER
-PARALLEL UNSAFE
-COST 100;
+$$;
+
+alter function ft_baja_medica_sel(integer, integer, varchar, varchar) owner to postgres;
+

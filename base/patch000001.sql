@@ -665,7 +665,6 @@ ALTER COLUMN tiempo SET STATISTICS 0;
 ALTER TABLE asis.tvacacion
     ADD COLUMN programacion VARCHAR(5) DEFAULT 'no' NOT NULL;
 /***********************************F-SCP-MMV-ASIS-0-26/01/2021****************************************/
-
 /***********************************I-SCP-MMV-ASIS-SDA-54-02/02/2021****************************************/
 CREATE TABLE asis.ttele_trabajo (
   id_tele_trabajo SERIAL,
@@ -769,3 +768,8 @@ ALTER TABLE asis.tbaja_medica
 ALTER COLUMN nro_tramite SET STATISTICS 0;
 
 /***********************************F-SCP-MMV-ASIS-SDA-55-05/02/2021****************************************/
+
+/***********************************I-SCP-MMV-ASIS-ETR-2911-19/02/2021****************************************/
+ALTER TABLE asis.tbaja_medica
+    ADD COLUMN observaciones TEXT;
+/***********************************F-SCP-MMV-ASIS-ETR-2911-19/02/2021****************************************/
