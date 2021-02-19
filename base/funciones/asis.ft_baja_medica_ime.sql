@@ -1,4 +1,4 @@
-create function ft_baja_medica_ime(p_administrador integer, p_id_usuario integer, p_tabla character varying, p_transaccion character varying) returns character varying
+create or replace function asis.ft_baja_medica_ime(p_administrador integer, p_id_usuario integer, p_tabla character varying, p_transaccion character varying) returns character varying
     language plpgsql
 as
 $$
@@ -8,11 +8,11 @@ $$
  DESCRIPCION:   Funcion que gestiona las operaciones basicas (inserciones, modificaciones, eliminaciones de la tabla 'asis.tbaja_medica'
  AUTOR:          (admin.miguel)
  FECHA:            05-02-2021 14:41:38
- COMENTARIOS:    
+ COMENTARIOS:
 ***************************************************************************
  HISTORIAL DE MODIFICACIONES:
 #ISSUE                FECHA                AUTOR                DESCRIPCION
- #0                05-02-2021 14:41:38    admin.miguel             Creacion    
+ #0                05-02-2021 14:41:38    admin.miguel             Creacion
  #
  ***************************************************************************/
 
@@ -25,34 +25,34 @@ v_nro_requerimiento        INTEGER;
     v_nombre_funcion           TEXT;
     v_mensaje_error            TEXT;
     v_id_baja_medica    	   INTEGER;
-    
+
     v_id_gestion			   integer;
     v_codigo_proceso		   varchar;
     v_id_macro_proceso		   integer;
-    
+
     v_nro_tramite			   varchar;
     v_id_proceso_wf			   integer;
     v_id_estado_wf			   integer;
     v_codigo_estado			   varchar;
-    
+
     v_registro_estado		   record;
     v_recorrer				   record;
-    
+
     va_id_tipo_estado 	  		integer [];
     va_codigo_estado 		  	varchar [];
     va_disparador 	      		varchar [];
     va_regla 				  	varchar [];
     va_prioridad 		      	integer [];
-    
+
     v_acceso_directo 			varchar;
     v_clase 					varchar;
     v_parametros_ad 			varchar;
     v_tipo_noti 				varchar;
     v_titulo  					varchar;
-    
+
     v_estado_maestro			varchar;
     v_id_estado_maestro 		integer;
-    
+
     v_estado_record				record;
     v_id_estado_actual		    integer;
 
@@ -61,10 +61,10 @@ BEGIN
     v_nombre_funcion = 'asis.ft_baja_medica_ime';
     v_parametros = pxp.f_get_record(p_tabla);
 
-    /*********************************    
+    /*********************************
      #TRANSACCION:  'ASIS_BMA_INS'
      #DESCRIPCION:    Insercion de registros
-     #AUTOR:        admin.miguel    
+     #AUTOR:        admin.miguel
      #FECHA:        05-02-2021 14:41:38
     ***********************************/
 
@@ -162,10 +162,10 @@ RETURN v_resp;
 
 END;
 
-    /*********************************    
+    /*********************************
      #TRANSACCION:  'ASIS_BMA_MOD'
      #DESCRIPCION:    Modificacion de registros
-     #AUTOR:        admin.miguel    
+     #AUTOR:        admin.miguel
      #FECHA:        05-02-2021 14:41:38
     ***********************************/
 
@@ -194,16 +194,16 @@ WHERE id_baja_medica=v_parametros.id_baja_medica;
 --Definicion de la respuesta
 v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Baja medica modificado(a)');
             v_resp = pxp.f_agrega_clave(v_resp,'id_baja_medica',v_parametros.id_baja_medica::varchar);
-               
+
             --Devuelve la respuesta
 RETURN v_resp;
 
 END;
 
-    /*********************************    
+    /*********************************
      #TRANSACCION:  'ASIS_BMA_ELI'
      #DESCRIPCION:    Eliminacion de registros
-     #AUTOR:        admin.miguel    
+     #AUTOR:        admin.miguel
      #FECHA:        05-02-2021 14:41:38
     ***********************************/
 
@@ -217,15 +217,15 @@ WHERE id_baja_medica=v_parametros.id_baja_medica;
 --Definicion de la respuesta
 v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Baja medica eliminado(a)');
             v_resp = pxp.f_agrega_clave(v_resp,'id_baja_medica',v_parametros.id_baja_medica::varchar);
-              
+
             --Devuelve la respuesta
 RETURN v_resp;
 
 END;
-    /*********************************    
+    /*********************************
      #TRANSACCION:  'ASIS_BMA_SIG'
      #DESCRIPCION:    Cambiar de estado
-     #AUTOR:        admin.miguel    
+     #AUTOR:        admin.miguel
      #FECHA:        01-02-2021 14:53:44
     ***********************************/
       ELSIF (p_transaccion='ASIS_BMA_SIG') THEN
@@ -278,9 +278,9 @@ v_acceso_directo = '';
                  v_parametros_ad = '';
                  v_tipo_noti = '';
                  v_titulo  = '';
-                 
-                 
-                   		
+
+
+
                   if( array_length(va_codigo_estado, 1) >= 2) then
 
 select  tt.id_tipo_estado,
@@ -295,12 +295,12 @@ v_id_estado_maestro = v_estado_record.id_tipo_estado;
                       v_estado_maestro = v_estado_record.codigo;
 
 else
-                        
+
                       v_id_estado_maestro = va_id_tipo_estado[1]::integer;
                       v_estado_maestro = va_codigo_estado[1]::varchar;
 
 end if ;
-                
+
                 v_id_estado_actual = wf.f_registra_estado_wf(   v_id_estado_maestro,
                                                                 v_recorrer.id_funcionario,--v_parametros.id_funcionario_wf,
                                                                 v_registro_estado.id_estado_wf,
@@ -327,20 +327,20 @@ where id_proceso_wf  = v_parametros.id_proceso_wf;
 --Definicion de la respuesta
 v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Tele Trabajo eliminado(a)');
           v_resp = pxp.f_agrega_clave(v_resp,'id_proceso_wf',v_parametros.id_proceso_wf::varchar);
-              
+
           --Devuelve la respuesta
 RETURN v_resp;
 
 END;
 
 ELSE
-     
+
         RAISE EXCEPTION 'Transaccion inexistente: %',p_transaccion;
 
 END IF;
 
 EXCEPTION
-                
+
     WHEN OTHERS THEN
         v_resp='';
         v_resp = pxp.f_agrega_clave(v_resp,'mensaje',SQLERRM);
@@ -350,6 +350,3 @@ EXCEPTION
 
 END;
 $$;
-
-alter function ft_baja_medica_ime(integer, integer, varchar, varchar) owner to postgres;
-
