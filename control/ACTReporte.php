@@ -429,7 +429,11 @@ class ACTReporte extends ACTbase{
         if($this->objParam->getParametro('formato') == 'PDF'){
             $nombreArchivo=uniqid(md5(session_id()).$titulo);
             $nombreArchivo.='.pdf';
-            $this->objParam->addParametro('orientacion','P');
+            if ($this->objParam->getParametro('tipo') == 'General') {
+                $this->objParam->addParametro('orientacion', 'P');
+            }else{
+                $this->objParam->addParametro('orientacion', 'L');
+            }
             $this->objParam->addParametro('tamano','LETTER');
             $this->objParam->addParametro('nombre_archivo',$nombreArchivo);
             //Instancia la clase de pdf

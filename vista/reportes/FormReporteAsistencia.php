@@ -15,7 +15,24 @@ header("content-type: text/javascript; charset=UTF-8");
 <script>
     Phx.vista.FormReporteAsistencia= Ext.extend(Phx.frmInterfaz, {
         Atributos : [
-            //fecha inicial
+            {
+                config:{
+                    name: 'tipo',
+                    fieldLabel: 'Tipo',
+                    allowBlank: false,
+                    emptyText:'Tipo...',
+                    typeAhead: true,
+                    triggerAction: 'all',
+                    lazyRender:true,
+                    mode: 'local',
+                    width:250,
+                    store:['General','Resumen']
+                },
+                type:'ComboBox',
+                id_grupo:0,
+                valorInicial: 'General',
+                form:true
+            },
             {
                 config : {
                     name : 'fecha',

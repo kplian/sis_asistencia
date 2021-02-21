@@ -11,12 +11,17 @@
 class RAsistenciaPDF extends  ReportePDF{
     private $resumen_general = array();
     private $resumen_gerecias = array();
-    private $pag = array();
+    public $titulo_reporte;
     function Header(){
         $this->Ln(5);
         $url_imagen = dirname(__FILE__) . '/../../pxp/lib' . $_SESSION['_DIR_LOGO'];
         $f_actual = $this->objParam->getParametro('fecha');// date("d/m/Y");//date_format(date_create($this->datos[0]["fecha_solicitud"]), 'd/m/Y');
-        $paginador = $this->getAliasNumPage().'/'.$this->getAliasNbPages();
+
+        if ($this->objParam->getParametro('tipo') == 'General'){
+            $this->titulo_reporte = 'REPORTE ASISTENCIA';
+        }else{
+            $this->titulo_reporte = 'RESUMEN ASISTENCIA';
+        }
 
         $html = <<<EOF
 		<style>
@@ -30,7 +35,7 @@ class RAsistenciaPDF extends  ReportePDF{
 		<table cellpadding="2" cellspacing = "0">
         	<tr>
             	<th style="width: 20%;vertical-align:middle;" align="center" rowspan="2"><img src="$url_imagen" ></th>
-            	<th style="width: 60%;vertical-align:middle;" align="center" rowspan="2"><br/><br/><h2>REPORTE ASISTENCIA  </h2></th>
+            	<th style="width: 60%;vertical-align:middle;" align="center" rowspan="2"><br/><br/><h2>$this->titulo_reporte</h2></th>
             	<th style="width: 20%;" align="center" colspan="2"><div style="padding:10px 10px 10px 10px;">&nbsp;&nbsp;&nbsp;&nbsp;</div></th>
         	</tr>
         	<tr>
@@ -41,16 +46,16 @@ class RAsistenciaPDF extends  ReportePDF{
 EOF;
         $this->writeHTML ($html);
 
-        /*$hader = '<table cellspacing="0" cellpadding="1">
+        $hader = '<table cellspacing="0" cellpadding="1">
                       <tr>
-                            <th style="border-top: 1px solid black; border-bottom: 1px solid black; width: 15%;" align="center"><b>Codigo</b></th>
-                            <th style="border-top: 1px solid black; border-bottom: 1px solid black; width: 15%;" align="center"><b>Gerencia</b></th>
-                            <th style="border-top: 1px solid black; border-bottom: 1px solid black; width: 50%;" align="center"><b>Nombre</b></th>
-                            <th style="border-top: 1px solid black; border-bottom: 1px solid black; width: 20%;" align="center"><b>Observación</b></th>
+                            <th style="border: 1px solid black; width: 15%;" align="center"><b>Codigo</b></th>
+                            <th style="border: 1px solid black; width: 15%;" align="center"><b>Gerencia</b></th>
+                            <th style="border: 1px solid black; width: 50%;" align="center"><b>Nombre</b></th>
+                            <th style="border: 1px solid black; width: 20%;" align="center"><b>Observación</b></th>
                       </tr>
                 </table>';
 
-            $this->writeHTML($hader);*/
+            $this->writeHTML($hader);
 
 
     }
@@ -87,15 +92,15 @@ EOF;
             if($departamento != $value['departamento']){
                 $departamento = $value['departamento'];
                 $table .=' <tr>
-                        <th colspan="5" align="left"><b>'. $value['departamento'].'</b></th>
+                        <td  style="border: 1px solid black;" colspan="4" align="left"><b>'. $value['departamento'].'</b></td>
                   </tr>';
             }
 
             $table .= '<tr>';
-            $table .= ' <td  style="width: 15%;"  align="center" >' . $codigo_funcionario . '</td>
-                            <td  style="width: 15%;"  align="center" >' . $codigo . '</td>
-                            <td  style="width: 50%;"  align="left" >&nbsp; &nbsp;&nbsp; &nbsp;' . $funcionario .  '</td>
-                            <td  style="width: 20%;"  align="center" >' . $observacion .   '</td>';
+        $table .= '         <td  style="border: 1px solid black; width: 15%;"  align="center" >' . $codigo_funcionario . '</td>
+                            <td  style="border: 1px solid black; width: 15%;"  align="center" >' . $codigo . '</td>
+                            <td  style="border: 1px solid black; width: 50%;"  align="left" >&nbsp; &nbsp;&nbsp; &nbsp;' . $funcionario .  '</td>
+                            <td  style="border: 1px solid black; width: 20%;"  align="center" >' . $observacion .   '</td>';
             $table .= '</tr>';
 
         }
@@ -201,24 +206,11 @@ EOF;
         /**/
     }
     function generarReporte() {
-        $this->SetMargins(15,35,15);
+        $this->SetMargins(15,39.2,15);
         $this->setFontSubsetting(false);
-
         $this->AddPage();
-        $hader = '<table cellspacing="0" cellpadding="1">
-                      <tr>
-                            <th style="border-top: 1px solid black; border-bottom: 1px solid black; width: 15%;" align="center"><b>Codigo</b></th>
-                            <th style="border-top: 1px solid black; border-bottom: 1px solid black; width: 15%;" align="center"><b>Gerencia</b></th>
-                            <th style="border-top: 1px solid black; border-bottom: 1px solid black; width: 50%;" align="center"><b>Nombre</b></th>
-                            <th style="border-top: 1px solid black; border-bottom: 1px solid black; width: 20%;" align="center"><b>Observación</b></th>
-                      </tr>
-                </table>';
-
-        $this->writeHTML($hader);
-        $this->SetMargins(15,35,15);
-
+        $this->SetMargins(15,39.2,15);
         $this->reporteRequerimiento();
-        $this->resumen();
     }
 }
 ?>
