@@ -1,4 +1,4 @@
-create function ft_baja_medica_sel(p_administrador integer, p_id_usuario integer, p_tabla character varying, p_transaccion character varying) returns character varying
+create function asis.ft_baja_medica_sel(p_administrador integer, p_id_usuario integer, p_tabla character varying, p_transaccion character varying) returns character varying
     language plpgsql
 as
 $$
