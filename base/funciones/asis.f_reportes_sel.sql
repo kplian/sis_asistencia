@@ -653,7 +653,7 @@ BEGIN
     	begin
         --Sentencia de la consulta
 
-        v_consulta:= 'select  fun.id_funcionario,
+          v_consulta:= 'select  fun.id_funcionario,
                               fun.desc_funcionario1,
                               fun.descripcion_cargo,
                               fun.codigo,
@@ -688,10 +688,12 @@ BEGIN
                           uofun.estado_reg != ''inactivo'' and uofun.id_funcionario = '||v_parametros.id_funcionario||'
                           order by uofun.id_funcionario, uofun.fecha_asignacion desc ) fun
                           left join asis.tmovimiento_vacacion mv on mv.id_funcionario = fun.id_funcionario and  mv.estado_reg = ''activo''
-                          order by mv.activo DESC, mv.fecha_reg::TIMESTAMP';
-
-
-
+                          order by (case
+                          			when mv.tipo in (''ACUMULADA'',''CADUCADA'') then
+                                   	  mv.fecha_reg::date
+                                      else
+                                      mv.desde
+                                      end )::date asc ';
 
 		   --Devuelve la respuesta
             return v_consulta;
@@ -760,7 +762,16 @@ BEGIN
                           uofun.estado_reg != ''inactivo'' '||v_filtro||'
                           order by uofun.id_funcionario, uofun.fecha_asignacion desc)funs
                           inner join asis.tmovimiento_vacacion mm on mm.id_funcionario = funs.id_funcionario
+<<<<<<< HEAD
 						  where mm.tipo = ''TOMADA'' and mm.estado_reg = ''activo'' and mm.desde::date >= '''||v_parametros.fecha_ini||''' ::date and mm.hasta::date <='''||v_parametros.fecha_fin||'''::date                          union all 
+=======
+						  where mm.tipo = ''TOMADA'' and mm.estado_reg = ''activo''
+
+                          and mm.desde::date <='''||v_parametros.fecha_fin||'''::date
+                          and  mm.hasta::date >= '''||v_parametros.fecha_ini||'''::date
+
+                          union all
+>>>>>>> 4a2d973... #ETR-3019 : Historial de vacaciones - Vacación aprobada
                           select  funs.gerencia,
                                   funs.departamento,
                                   funs.desc_funcionario2  as desc_funcionario,
@@ -796,17 +807,26 @@ BEGIN
                           uofun.estado_reg != ''inactivo'' '||v_filtro||'
                           order by uofun.id_funcionario, uofun.fecha_asignacion desc)funs
                           inner join asis.tmovimiento_vacacion mm on mm.id_funcionario = funs.id_funcionario
-                          where mm.tipo = ''TOMADA'' and mm.estado_reg = ''activo'' and mm.desde::date >= '''||v_parametros.fecha_ini||''' ::date and mm.hasta::date <='''||v_parametros.fecha_fin||'''::date                          group by funs.gerencia,
+                          where mm.tipo = ''TOMADA'' and mm.estado_reg = ''activo''
+                          and mm.desde::date <='''||v_parametros.fecha_fin||'''::date
+                          and  mm.hasta::date >= '''||v_parametros.fecha_ini||'''::date
+                           group by funs.gerencia,
                                   funs.departamento,
                                   funs.desc_funcionario2,
                                   funs.codigo
                          order by gerencia, departamento,desc_funcionario,ordenar,tipo_contrato';
             --Devuelve la respuesta
 
+<<<<<<< HEAD
         
             return v_consulta;
 
 		end;
+=======
+return v_consulta;
+
+end;
+>>>>>>> 4a2d973... #ETR-3019 : Historial de vacaciones - Vacación aprobada
 
       /*********************************
  	#TRANSACCION:  'ASIS_VARU_SEL'
