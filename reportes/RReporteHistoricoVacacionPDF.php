@@ -129,7 +129,7 @@ EOD;
             $dia = $value['dia'];
             $saldo = $value['saldo'];
 
-            if ($dia != 0 and  $saldo != 0) {
+            if ($dia > 0 ) {
                 $table .= '<tr>';
                 $table .= ' <td  align="center" >' . $tipo . '</td>
                             <td  align="center" >' . $fecha . '</td>
