@@ -146,5 +146,33 @@ class MODBajaMedica extends MODbase{
         //Devuelve la respuesta
         return $this->respuesta;
     }
+    function listarBajaMedicaReporte(){
+        //Definicion de variables para ejecucion del procedimientp
+        $this->procedimiento='asis.ft_baja_medica_sel';
+        $this->transaccion='ASIS_BMA_REPO';
+        $this->tipo_procedimiento='SEL';//tipo de transaccion
+
+        $this->setCount(false);
+        $this->setParametro('fecha_inicio', 'fecha_inicio', 'date');
+        $this->setParametro('fecha_fin', 'fecha_fin', 'date');
+        $this->setParametro('estado', 'estado', 'varchar');
+        //Definicion de la lista del resultado del query
+        $this->captura('id_funcionario','int4');
+        $this->captura('nombre','text');
+        $this->captura('centro','varchar');
+        $this->captura('gerencia','varchar');
+        $this->captura('fecha_inicio','text');
+        $this->captura('fecha_fin','text');
+        $this->captura('dias_efectivo','numeric');
+        $this->captura('tipo_baja','varchar');
+        $this->captura('observaciones','text');
+
+        //Ejecuta la instruccion
+        $this->armarConsulta();
+        $this->ejecutarConsulta();
+         // var_dump($this->respuesta);exit;
+        //Devuelve la respuesta
+        return $this->respuesta;
+    }
 }
 ?>

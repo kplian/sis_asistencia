@@ -39,7 +39,14 @@ Phx.vista.BajaMedica=Ext.extend(Phx.gridInterfaz,{
             tooltip: '<b>Documentos </b><br/>Subir los documetos requeridos.'
         });
         this.addBotonesGantt();
-
+        this.addButton('btnReporte',{
+            text :'Reporte',
+            grupo:[0,1,2,3,4,5],
+            iconCls : 'bpdf32',
+            disabled: false,
+            handler : this.onButtonGenerarReporte,
+            tooltip : '<b>Reporte </b><br/><b>Historico de vacaciones</b>'
+        });
         this.load({params:{start:0, limit:this.tam_pag}})
     },
     iniciarEventos: function(){
@@ -594,6 +601,29 @@ Phx.vista.BajaMedica=Ext.extend(Phx.gridInterfaz,{
         for(var i=0; i<=parseInt(this.Cmp.dias_efectivo.getValue()); i++){
             this.arrayStore.Selección[i]=["ID"+(i),(i)];
         }
+    },
+    onButtonGenerarReporte:function (){
+        this.winProgramacionForm = Phx.CP.loadWindows('../../../sis_asistencia/vista/baja_medica/FormReporte.php',
+            'Reporte Baja Medica',
+            {
+                modal: true,
+                width: '30%',
+                height: '30%',
+                closeAction: "close"
+            },
+            {
+                parent: this,
+                reporte: true
+            },
+            this.idContenedor,
+            'FormReporte',
+            {
+                config: [{
+                    event: 'refresh',
+                    delegate: this.refresh
+                }],
+                scope: this
+            });
     }
     }
 )
