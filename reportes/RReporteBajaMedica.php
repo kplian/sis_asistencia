@@ -76,8 +76,8 @@ EOF;
             $tipo_baja = $value['tipo_baja'];
             $observaciones = $value['observaciones'];
 
-                $table .= '<tr>';
-                $table .= ' <td style="width: 5%"  align="center">'.$numero.'</td>
+            $table .= '<tr>';
+            $table .= ' <td style="width: 5%"  align="center">'.$numero.'</td>
                             <td style="width: 15%" align="center">'.$nombre.'</td>
                             <td style="width: 10%"  align="center">'.$centro.'</td>
                             <td style="width: 10%"  align="center">'.$gerencia.'</td>
@@ -86,7 +86,7 @@ EOF;
                             <td style="width: 10%" align="center">'.$dias_efectivo.'</td>
                             <td style="width: 10%" align="center">'.$tipo_baja.'</td>
                             <td style="width: 20%" align="center">'.$observaciones.'</td>';
-                $table .= '</tr>';
+            $table .= '</tr>';
             $numero++;
         }
         $table .= '</table>';
@@ -101,10 +101,10 @@ EOF;
     }
 
     function generarReporte() {
-        $this->SetMargins(15,43.5,15);
+        $this->SetMargins(15,53,15);
         $this->setFontSubsetting(false);
         $this->AddPage();
-        $this->SetMargins(15,43.5,15);
+        $this->SetMargins(15,53,15);
         $this->reporteRequerimiento();
 
     }
