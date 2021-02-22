@@ -1,4 +1,4 @@
-create or replace function asis.ft_baja_medica_ime(p_administrador integer, p_id_usuario integer, p_tabla character varying, p_transaccion character varying) returns character varying
+create function asis.ft_baja_medica_ime(p_administrador integer, p_id_usuario integer, p_tabla character varying, p_transaccion character varying) returns character varying
     language plpgsql
 as
 $$
@@ -18,12 +18,9 @@ $$
 
 DECLARE
 
-v_nro_requerimiento        INTEGER;
-    v_parametros               RECORD;
-    v_id_requerimiento         INTEGER;
+v_parametros               RECORD;
     v_resp                     VARCHAR;
     v_nombre_funcion           TEXT;
-    v_mensaje_error            TEXT;
     v_id_baja_medica    	   INTEGER;
 
     v_id_gestion			   integer;
@@ -55,7 +52,14 @@ v_nro_requerimiento        INTEGER;
 
     v_estado_record				record;
     v_id_estado_actual		    integer;
-
+    v_fecha_aux					date;
+    v_lugar						varchar;
+    v_valor_incremento			varchar;
+    v_id_gestion_actual         integer;
+    v_cant_dias					numeric=0;
+    v_incremento_fecha      	date;
+    v_domingo 					integer = 0;
+    v_sabado 					integer = 6;
 BEGIN
 
     v_nombre_funcion = 'asis.ft_baja_medica_ime';
@@ -112,7 +116,56 @@ FROM wf.f_inicia_tramite(
         'Baja Medica',
         v_codigo_proceso);
 
---Sentencia de la insercion
+v_fecha_aux = v_parametros.fecha_inicio;
+
+
+            v_valor_incremento := '1' || ' DAY';
+
+SELECT g.id_gestion
+INTO
+    v_id_gestion_actual
+FROM param.tgestion g
+WHERE now() BETWEEN g.fecha_ini and g.fecha_fin;
+
+
+select l.codigo into v_lugar
+from segu.tusuario us
+         join segu.tpersona p on p.id_persona=us.id_persona
+         join orga.tfuncionario f on f.id_persona = p.id_persona
+         join orga.tuo_funcionario uf on uf.id_funcionario=f.id_funcionario
+         join orga.tcargo c on c.id_cargo=uf.id_cargo
+         join param.tlugar l on l.id_lugar=c.id_lugar
+where uf.estado_reg = 'activo' and uf.tipo = 'oficial'
+  and uf.fecha_asignacion<=now() and
+        coalesce(uf.fecha_finalizacion, now())>=now() and us.id_usuario=p_id_usuario;
+
+
+
+
+WHILE (SELECT v_fecha_aux::date <= v_parametros.fecha_fin::date ) loop
+            	IF(select extract(dow from v_fecha_aux::date)not in (v_sabado, v_domingo)) THEN
+                	IF NOT EXISTS(select * from param.tferiado f
+                                          JOIN param.tlugar l on l.id_lugar = f.id_lugar
+                                          WHERE l.codigo in ('BO',v_lugar)
+                                           AND (EXTRACT(MONTH from f.fecha))::integer = (EXTRACT(MONTH from v_fecha_aux::date))::integer
+                                          AND (EXTRACT(DAY from f.fecha))::integer = (EXTRACT(DAY from v_fecha_aux)) AND f.id_gestion=v_id_gestion_actual )THEN
+                                          v_cant_dias=v_cant_dias+1;
+
+END IF;
+
+
+END IF;
+
+                v_incremento_fecha=(SELECT v_fecha_aux::date + CAST(v_valor_incremento AS INTERVAL));
+                v_fecha_aux = v_incremento_fecha;
+end loop;
+
+			IF v_cant_dias = 0 OR v_parametros.dias_efectivo = 0 THEN-- contador de dias
+	           RAISE EXCEPTION 'ERROR: CANTIDAD DE DIAS MAXIMO PERMITIDO MAYOR 0.';
+END IF;
+
+
+            --Sentencia de la insercion
 INSERT INTO asis.tbaja_medica(
     estado_reg,
     id_funcionario,
@@ -138,7 +191,7 @@ INSERT INTO asis.tbaja_medica(
              v_parametros.id_tipo_bm,
              v_parametros.fecha_inicio,
              v_parametros.fecha_fin,
-             v_parametros.dias_efectivo,
+             v_cant_dias,--v_parametros.dias_efectivo,
              v_id_proceso_wf,
              v_id_estado_wf,
              v_codigo_estado,
