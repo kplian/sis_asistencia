@@ -101,10 +101,10 @@ EOF;
     }
 
     function generarReporte() {
-        $this->SetMargins(15,53,15);
+        $this->SetMargins(10,53,10);
         $this->setFontSubsetting(false);
         $this->AddPage();
-        $this->SetMargins(15,53,15);
+        $this->SetMargins(10,53,10);
         $this->reporteRequerimiento();
 
     }
