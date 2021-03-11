@@ -1,5 +1,5 @@
 create or replace function asis.ft_tele_trabajo_ime(p_administrador integer, p_id_usuario integer, p_tabla character varying,
-                                    p_transaccion character varying) returns character varying
+                                                    p_transaccion character varying) returns character varying
     language plpgsql
 as
 $$
@@ -9,11 +9,11 @@ $$
  DESCRIPCION:   Funcion que gestiona las operaciones basicas (inserciones, modificaciones, eliminaciones de la tabla 'asis.ttele_trabajo'
  AUTOR:          (admin.miguel)
  FECHA:            01-02-2021 14:53:44
- COMENTARIOS:    
+ COMENTARIOS:
 ***************************************************************************
  HISTORIAL DE MODIFICACIONES:
 #ISSUE                FECHA                AUTOR                DESCRIPCION
- #0                01-02-2021 14:53:44    admin.miguel             Creacion    
+ #0                01-02-2021 14:53:44    admin.miguel             Creacion
  #
  ***************************************************************************/
 
@@ -57,10 +57,10 @@ BEGIN
     v_nombre_funcion = 'asis.ft_tele_trabajo_ime';
     v_parametros = pxp.f_get_record(p_tabla);
 
-    /*********************************    
+    /*********************************
      #TRANSACCION:  'ASIS_TLT_INS'
      #DESCRIPCION:    Insercion de registros
-     #AUTOR:        admin.miguel    
+     #AUTOR:        admin.miguel
      #FECHA:        01-02-2021 14:53:44
     ***********************************/
 
@@ -191,8 +191,8 @@ BEGIN
                                   from param.tferiado f
                                            join param.tlugar l on l.id_lugar = f.id_lugar
                                   where l.codigo in ('BO', v_lugar)
-                                    and (extract(month from f.fecha))::integer = (extract(from from v_fecha_aux::date))::integer
-                                    and (extract(day from f.fecha))::integer = (extract(day from v_fecha_aux))
+                                    and (extract(MONTH from f.fecha))::integer = (extract(MONTH from v_fecha_aux::date))::integer
+                                    and (extract(DAY from f.fecha))::integer = (extract(DAY from v_fecha_aux))
                                     and f.id_gestion = v_id_gestion_actual) then
 
                         if (extract(dow from v_record_det.dia::date) not in (6, 0)) then
@@ -317,9 +317,9 @@ BEGIN
                                       from param.tferiado f
                                                join param.tlugar l on l.id_lugar = f.id_lugar
                                       where l.codigo in ('BO', v_lugar)
-                                        and (extract(month from f.fecha))::integer =
-                                            (extract(from from v_fecha_aux::date))::integer
-                                        and (extract(day from f.fecha))::integer = (extract(day from v_fecha_aux))
+                                        and (extract(MONTH from f.fecha))::integer =
+                                            (extract(MONTH from v_fecha_aux::date))::integer
+                                        and (extract(DAY from f.fecha))::integer = (extract(DAY from v_fecha_aux))
                                         and f.id_gestion = v_id_gestion_actual) then
 
                             if (extract(dow from v_record_det.dia::date) not in (6, 0)) then
@@ -526,4 +526,3 @@ EXCEPTION
 
 END;
 $$;
-
