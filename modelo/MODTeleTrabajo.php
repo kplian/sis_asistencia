@@ -49,6 +49,18 @@ class MODTeleTrabajo extends MODbase{
         $this->captura('responsable','text');
         $this->captura('id_uo','int4');
         $this->captura('departamento','varchar');
+
+        $this->captura('tipo_teletrabajo','varchar');
+        $this->captura('motivo','varchar');
+        $this->captura('tipo_temporal','varchar');
+
+        $this->captura('lunes','boolean');
+        $this->captura('martes','boolean');
+        $this->captura('miercoles','boolean');
+        $this->captura('jueves','boolean');
+        $this->captura('viernes','boolean');
+
+
         //Ejecuta la instruccion
         $this->armarConsulta();
         $this->ejecutarConsulta();
@@ -70,6 +82,16 @@ class MODTeleTrabajo extends MODbase{
 		$this->setParametro('fecha_inicio','fecha_inicio','date');
 		$this->setParametro('fecha_fin','fecha_fin','date');
 		$this->setParametro('justificacion','justificacion','text');
+
+		$this->setParametro('tipo_teletrabajo','tipo_teletrabajo','varchar');
+		$this->setParametro('motivo','motivo','varchar');
+		$this->setParametro('tipo_temporal','tipo_temporal','varchar');
+
+		$this->setParametro('lunes','lunes','boolean');
+		$this->setParametro('martes','martes','boolean');
+		$this->setParametro('miercoles','miercoles','boolean');
+        $this->setParametro('jueves','jueves','boolean');
+		$this->setParametro('viernes','viernes','boolean');
 
         //Ejecuta la instruccion
         $this->armarConsulta();
@@ -93,6 +115,16 @@ class MODTeleTrabajo extends MODbase{
 		$this->setParametro('fecha_inicio','fecha_inicio','date');
 		$this->setParametro('fecha_fin','fecha_fin','date');
 		$this->setParametro('justificacion','justificacion','text');
+
+        $this->setParametro('tipo_teletrabajo','tipo_teletrabajo','varchar');
+        $this->setParametro('motivo','motivo','varchar');
+        $this->setParametro('tipo_temporal','tipo_temporal','varchar');
+
+        $this->setParametro('lunes','lunes','boolean');
+        $this->setParametro('martes','martes','boolean');
+        $this->setParametro('miercoles','miercoles','boolean');
+        $this->setParametro('jueves','jueves','boolean');
+        $this->setParametro('viernes','viernes','boolean');
 
         //Ejecuta la instruccion
         $this->armarConsulta();
@@ -131,6 +163,45 @@ class MODTeleTrabajo extends MODbase{
         $this->armarConsulta();
         $this->ejecutarConsulta();
         //Devuelve la respuesta
+        return $this->respuesta;
+    }
+    function listarTeleTrabajoReporte(){
+        //Definicion de variables para ejecucion del procedimientp
+        $this->procedimiento='asis.ft_tele_trabajo_sel';
+        $this->transaccion='ASIS_TLTREP_SEL';
+        $this->tipo_procedimiento='SEL';//tipo de transaccion
+
+        $this->setParametro('id_proceso_wf','id_proceso_wf','int4');
+        //Definicion de la lista del resultado del query
+
+        $this->captura('id_tele_trabajo','int4');
+        $this->captura('funcionario_solicitante','text');
+        $this->captura('departamento','varchar');
+        $this->captura('responsable','text');
+        $this->captura('fecha_inicio','text');
+        $this->captura('fecha_fin','text');
+        $this->captura('justificacion','text');
+        $this->captura('fecha_solictud','date');
+        $this->captura('estado','varchar');
+        $this->captura('nro_tramite','varchar');
+        $this->captura('tipo_teletrabajo','varchar');
+        $this->captura('motivo','varchar');
+        $this->captura('tipo_temporal','varchar');
+        $this->captura('lunes','boolean');
+        $this->captura('martes','boolean');
+        $this->captura('miercoles','boolean');
+        $this->captura('jueves','boolean');
+        $this->captura('viernes','boolean');
+        $this->captura('id_proceso_wf','int4');
+        $this->captura('fecha_rango','text');
+        $this->captura('dia_literal','varchar');
+        $this->captura('evento','varchar');
+
+        //Ejecuta la instruccion
+        $this->armarConsulta();
+        $this->ejecutarConsulta();
+        //Devuelve la respuesta
+        // var_dump($this->respuesta);exit;
         return $this->respuesta;
     }
 }

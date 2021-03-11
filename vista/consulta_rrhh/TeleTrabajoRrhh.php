@@ -90,6 +90,7 @@ header("content-type: text/javascript; charset=UTF-8");
             this.getBoton('diagrama_gantt').enable();
             this.getBoton('btn_siguiente').enable();
             this.getBoton('btn_cancelar').enable();
+            this.getBoton('btnChequeoDocumentosWf').enable();
         },
         liberaMenu:function() {
             const tb = Phx.vista.TeleTrabajoRrhh.superclass.liberaMenu.call(this);
@@ -98,6 +99,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 this.getBoton('diagrama_gantt').disable();
                 this.getBoton('btn_siguiente').disable();
                 this.getBoton('btn_cancelar').disable();
+                this.getBoton('btnChequeoDocumentosWf').disable();
             }
         },
         onSiguiente :function () {

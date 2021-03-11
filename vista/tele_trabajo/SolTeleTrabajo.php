@@ -57,14 +57,24 @@ header("content-type: text/javascript; charset=UTF-8");
             Phx.vista.TeleTrabajo.superclass.preparaMenu.call(this, n);
             this.getBoton('diagrama_gantt').enable();
             this.getBoton('btn_siguiente').enable();
+            this.getBoton('btnChequeoDocumentosWf').enable();
         },
         liberaMenu:function() {
             var tb = Phx.vista.TeleTrabajo.superclass.liberaMenu.call(this);
             if (tb) {
                 this.getBoton('diagrama_gantt').disable();
                 this.getBoton('btn_siguiente').disable();
+                this.getBoton('btnChequeoDocumentosWf').disable();
             }
         },
+        south:  {
+            url:'../../../sis_asistencia/vista/tele_trabajo_det/TeleTrabajoDet.php',
+            title:'Dias Teletrabajo',
+            height:'50%',
+            cls:'TeleTrabajoDet',
+            collapsed: true,
+        }
+
     };
 </script>
 
