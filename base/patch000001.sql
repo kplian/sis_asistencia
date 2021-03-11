@@ -793,3 +793,30 @@ ALTER COLUMN id_tele_trabajo SET STATISTICS 0;
 ALTER TABLE asis.ttele_trabajo_det
 ALTER COLUMN fecha SET STATISTICS 0;
 /***********************************F-SCP-MMV-ASIS-SDA-70-11/03/2021****************************************/
+
+/***********************************I-SCP-MMV-ASIS-SDA-70-1-11/03/2021****************************************/
+ALTER TABLE asis.ttele_trabajo
+    ADD COLUMN tipo_teletrabajo VARCHAR(50);
+
+ALTER TABLE asis.ttele_trabajo
+    ADD COLUMN motivo VARCHAR;
+
+ALTER TABLE asis.ttele_trabajo
+    ADD COLUMN tipo_temporal VARCHAR;
+
+ALTER TABLE asis.ttele_trabajo
+    ADD COLUMN lunes BOOLEAN DEFAULT false;
+
+ALTER TABLE asis.ttele_trabajo
+    ADD COLUMN martes BOOLEAN DEFAULT false;
+
+ALTER TABLE asis.ttele_trabajo
+    ADD COLUMN miercoles BOOLEAN DEFAULT false;
+
+ALTER TABLE asis.ttele_trabajo
+    ADD COLUMN jueves BOOLEAN DEFAULT false;
+
+ALTER TABLE asis.ttele_trabajo
+    ADD COLUMN viernes BOOLEAN DEFAULT false;
+
+/***********************************F-SCP-MMV-ASIS-SDA-70-1-11/03/2021****************************************/
