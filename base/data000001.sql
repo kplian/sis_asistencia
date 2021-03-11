@@ -302,3 +302,6 @@ select wf.f_import_testructura_estado ('insert','registro','enviado','SOL-BMA',1
 /***********************************I-DAT-MMV-ASIS-SDA-66-17/02/2021*****************************************/
 select pxp.f_insert_tgui ('Reporte Asistencia', 'Reporte Asistencia', 'RAA', 'si', 9, 'sis_asistencia/vista/reportes/FormReporteAsistencia.php', 3, '', 'FormReporteAsistencia', 'ASIS');
 /***********************************F-DAT-MMV-ASIS-SDA-66-17/02/2021*****************************************/
+/***********************************I-DAT-MMV-ASIS-SDA-70-11/03/2021*****************************************/
+select wf.f_import_ttipo_documento ('insert','SOL-TE','SOL-TTO','Solicitud de Teletrabajo','Solicitud de Teletrabajo','sis_asistencia/control/TeleTrabajo/listarTeleTrabajoReporte/','generado',1.00,'{}','si','',NULL,'');
+/***********************************F-DAT-MMV-ASIS-SDA-70-11/03/2021*****************************************/

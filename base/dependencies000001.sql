@@ -306,3 +306,7 @@ select wf.f_import_ttipo_documento_estado ('insert','BM-EV','SOL-BMA','registro'
 /***********************************I-DEP-MMV-ASIS-SDA-66-17/02/2021*****************************************/
 select pxp.f_insert_testructura_gui ('RAA', 'AREP');
 /***********************************F-DEP-MMV-ASIS-SDA-66-17/02/2021*****************************************/
+
+/***********************************I-DEP-MMV-ASIS-SDA-70-11/03/2021*****************************************/
+select wf.f_import_ttipo_documento_estado ('insert','SOL-TE','SOL-TTO','registro','SOL-TTO','crear','superior','');
+/***********************************F-DEP-MMV-ASIS-SDA-70-11/03/2021*****************************************/
