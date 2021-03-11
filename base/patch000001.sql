@@ -773,3 +773,23 @@ ALTER COLUMN nro_tramite SET STATISTICS 0;
 ALTER TABLE asis.tbaja_medica
     ADD COLUMN observaciones TEXT;
 /***********************************F-SCP-MMV-ASIS-ETR-2911-19/02/2021****************************************/
+
+
+/***********************************I-SCP-MMV-ASIS-SDA-70-11/03/2021****************************************/
+CREATE TABLE asis.ttele_trabajo_det (
+                                        id_tele_trabajo_det SERIAL,
+                                        id_tele_trabajo INTEGER NOT NULL,
+                                        fecha DATE NOT NULL,
+                                        CONSTRAINT ttele_trabajo_det_pkey PRIMARY KEY(id_tele_trabajo_det)
+) INHERITS (pxp.tbase)
+WITH (oids = false);
+
+ALTER TABLE asis.ttele_trabajo_det
+ALTER COLUMN id_tele_trabajo_det SET STATISTICS 0;
+
+ALTER TABLE asis.ttele_trabajo_det
+ALTER COLUMN id_tele_trabajo SET STATISTICS 0;
+
+ALTER TABLE asis.ttele_trabajo_det
+ALTER COLUMN fecha SET STATISTICS 0;
+/***********************************F-SCP-MMV-ASIS-SDA-70-11/03/2021****************************************/
