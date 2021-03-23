@@ -820,3 +820,28 @@ ALTER TABLE asis.ttele_trabajo
     ADD COLUMN viernes BOOLEAN DEFAULT false;
 
 /***********************************F-SCP-MMV-ASIS-SDA-70-1-11/03/2021****************************************/
+
+/***********************************I-SCP-MMV-ASIS-SDA-71-1-23/03/2021****************************************/
+CREATE TABLE asis.tdetalle_tipo_permiso (
+                                            id_detalle_tipo_permiso SERIAL,
+                                            nombre VARCHAR(100) NOT NULL,
+                                            descripcion VARCHAR(500),
+                                            dias NUMERIC,
+                                            id_tipo_permiso INTEGER NOT NULL,
+                                            CONSTRAINT tdetalle_tipo_permiso_pkey PRIMARY KEY(id_detalle_tipo_permiso)
+) INHERITS (pxp.tbase)
+  WITH (oids = false);
+
+ALTER TABLE asis.tdetalle_tipo_permiso
+    ALTER COLUMN id_detalle_tipo_permiso SET STATISTICS 0;
+
+ALTER TABLE asis.tdetalle_tipo_permiso
+    ALTER COLUMN nombre SET STATISTICS 0;
+
+ALTER TABLE asis.tdetalle_tipo_permiso
+    ALTER COLUMN descripcion SET STATISTICS 0;
+
+ALTER TABLE asis.tdetalle_tipo_permiso
+    ALTER COLUMN dias SET STATISTICS 0;
+
+/***********************************F-SCP-MMV-ASIS-SDA-71-1-23/03/2021****************************************/
