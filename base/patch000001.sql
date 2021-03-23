@@ -844,4 +844,8 @@ ALTER TABLE asis.tdetalle_tipo_permiso
 ALTER TABLE asis.tdetalle_tipo_permiso
     ALTER COLUMN dias SET STATISTICS 0;
 
+
+ALTER TABLE asis.ttipo_permiso
+    ADD COLUMN detalle VARCHAR(10) DEFAULT 'no' NOT NULL;
+
 /***********************************F-SCP-MMV-ASIS-SDA-71-1-23/03/2021****************************************/
