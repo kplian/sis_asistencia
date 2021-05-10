@@ -115,3 +115,4 @@ $body$
     COST 100;
 
 ALTER FUNCTION asis.f_recalcular_vacacion (p_id_funcionario integer)
+ OWNER TO postgres;
