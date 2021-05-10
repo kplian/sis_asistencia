@@ -333,9 +333,10 @@ header("content-type: text/javascript; charset=UTF-8");
                         fieldLabel: 'Obs, ',
                         allowBlank: false,
                         width: 300,
-                        gwidth: 250,
-                        renderer: function (value, p, record) {
-                            return String.format('<b><font color="#a52a2a">{0}</font></b>', value)
+                        gwidth: 300,
+                        renderer: function(value, metaData, record, rowIndex, colIndex, store) {
+                            metaData.css = 'multilineColumn';
+                            return String.format('<div class="gridmultiline"><font color="#a52a2a">{0}</font></div>', value);//#4
                         }
                     },
                     type: 'TextArea',
@@ -410,6 +411,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         displayField: 'nombre',
                         gdisplayField: 'desc_tipo_licencia',
                         hiddenName: 'id_detalle_tipo_permiso',
+                        tpl:'<tpl for="."><div class="x-combo-list-item"><p>{nombre}: <b>Permiso de {dias} días</b></p></div></tpl>',
                         forceSelection: true,
                         typeAhead: false,
                         triggerAction: 'all',
@@ -706,7 +708,6 @@ header("content-type: text/javascript; charset=UTF-8");
                     grid: false,
                     form: false
                 },
-
                 {
                     config: {
                         name: 'usuario_ai',
@@ -833,7 +834,7 @@ header("content-type: text/javascript; charset=UTF-8");
             bdel: true,
             bsave: false,
             fwidth: '32%',
-            fheight: '65%',
+            fheight: '70%',
             onFormulario: function () {
                 this.ocultarComponente(this.Cmp.fecha_reposicion);
                 this.ocultarComponente(this.Cmp.hro_desde_reposicion);
@@ -856,7 +857,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     disabled: true,
                     grupo: [0, 1, 2, 4, 5],
                     iconCls: 'bgantt',
-                    handler: this.diagramGanttDinamico,
+                    handler: this.diagramGantt,
                     scope: this,
                     menu: {
                         items: [{
@@ -889,6 +890,10 @@ header("content-type: text/javascript; charset=UTF-8");
                     scope: this
                 });
             },
+            diagramGanttDinamico: function () {
+                const data = this.sm.getSelected().data.id_proceso_wf;
+                window.open('../../../sis_workflow/reportes/gantt/gantt_dinamico.html?id_proceso_wf=' + data)
+            },
             preparaMenu: function (n) {
                 Phx.vista.Permiso.superclass.preparaMenu.call(this, n);
                 const rec = this.getSelectedData();
@@ -916,7 +921,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     this.mostrarComponente(this.Cmp.hro_total_permiso);
                     this.mostrarComponente(this.Cmp.motivo);
                     if (record.data.reposcion === 'si') {
-                        this.window.setSize(490, 480);
+                        this.window.setSize(490, 500);
                         this.mostrarComponente(this.Cmp.fecha_reposicion);
                         this.mostrarComponente(this.Cmp.hro_desde_reposicion);
                         this.mostrarComponente(this.Cmp.hro_hasta_reposicion);
@@ -928,7 +933,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         this.ocultarComponente(this.Cmp.dias);
 
                     } else if (record.data.detalle === 'si') {
-                        this.window.setSize(490, 480);
+                        this.window.setSize(490, 500);
                         this.ocultarComponente(this.Cmp.hro_desde);
                         this.ocultarComponente(this.Cmp.hro_hasta);
                         this.ocultarComponente(this.Cmp.hro_total_permiso);
@@ -943,7 +948,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         this.mostrarComponente(this.Cmp.fecha_fin);
                         this.mostrarComponente(this.Cmp.dias);
                     } else {
-                        this.window.setSize(490, 360);
+                        this.window.setSize(490, 400);
                         this.ocultarComponente(this.Cmp.fecha_reposicion);
                         this.ocultarComponente(this.Cmp.hro_desde_reposicion);
                         this.ocultarComponente(this.Cmp.hro_hasta_reposicion);
@@ -974,7 +979,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     this.Cmp.id_responsable.modificado = true;
                 }, this);
 
-                // this.onPermisoRol();
+                this.onPermisoRol();
 
             },
             onCargarResponsable: function (id) {
@@ -1000,7 +1005,7 @@ header("content-type: text/javascript; charset=UTF-8");
                             this.mostrarComponente(this.Cmp.hro_total_permiso);
                             this.mostrarComponente(this.Cmp.motivo);
                             if (value.json.reposcion === 'si') {
-                                this.window.setSize(490, 480);
+                                this.window.setSize(490, 500);
                                 this.mostrarComponente(this.Cmp.fecha_reposicion);
                                 this.mostrarComponente(this.Cmp.hro_desde_reposicion);
                                 this.mostrarComponente(this.Cmp.hro_hasta_reposicion);
@@ -1010,9 +1015,8 @@ header("content-type: text/javascript; charset=UTF-8");
                                 this.ocultarComponente(this.Cmp.fecha_inicio);
                                 this.ocultarComponente(this.Cmp.fecha_fin);
                                 this.ocultarComponente(this.Cmp.dias);
-                            }
-                            else if (value.json.detalle === 'si'){
-                                this.window.setSize(490, 480);
+                            } else if (value.json.detalle === 'si') {
+                                this.window.setSize(490, 500);
                                 this.ocultarComponente(this.Cmp.hro_desde);
                                 this.ocultarComponente(this.Cmp.hro_hasta);
                                 this.ocultarComponente(this.Cmp.hro_total_permiso);
@@ -1026,8 +1030,8 @@ header("content-type: text/javascript; charset=UTF-8");
                                 this.mostrarComponente(this.Cmp.fecha_inicio);
                                 this.mostrarComponente(this.Cmp.fecha_fin);
                                 this.mostrarComponente(this.Cmp.dias);
-                            }else {
-                                this.window.setSize(490, 360);
+                            } else {
+                                this.window.setSize(490, 400);
                                 this.ocultarComponente(this.Cmp.fecha_reposicion);
                                 this.ocultarComponente(this.Cmp.hro_desde_reposicion);
                                 this.ocultarComponente(this.Cmp.hro_hasta_reposicion);
@@ -1047,7 +1051,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     this.mostrarComponente(this.Cmp.hro_total_permiso);
                     this.mostrarComponente(this.Cmp.motivo);
                     if (record.data.reposcion === 'si') {
-                        this.window.setSize(490, 480);
+                        this.window.setSize(490, 500);
                         this.mostrarComponente(this.Cmp.fecha_reposicion);
                         this.mostrarComponente(this.Cmp.hro_desde_reposicion);
                         this.mostrarComponente(this.Cmp.hro_hasta_reposicion);
@@ -1057,8 +1061,8 @@ header("content-type: text/javascript; charset=UTF-8");
                         this.ocultarComponente(this.Cmp.fecha_inicio);
                         this.ocultarComponente(this.Cmp.fecha_fin);
                         this.ocultarComponente(this.Cmp.dias);
-                    }else if (record.data.detalle === 'si') {
-                        this.window.setSize(490, 480);
+                    } else if (record.data.detalle === 'si') {
+                        this.window.setSize(490, 500);
                         this.ocultarComponente(this.Cmp.hro_desde);
                         this.ocultarComponente(this.Cmp.hro_hasta);
                         this.ocultarComponente(this.Cmp.hro_total_permiso);
@@ -1072,9 +1076,8 @@ header("content-type: text/javascript; charset=UTF-8");
                         this.mostrarComponente(this.Cmp.fecha_inicio);
                         this.mostrarComponente(this.Cmp.fecha_fin);
                         this.mostrarComponente(this.Cmp.dias);
-                    }
-                    else {
-                        this.window.setSize(490, 360);
+                    } else {
+                        this.window.setSize(490, 400);
                         this.ocultarComponente(this.Cmp.fecha_reposicion);
                         this.ocultarComponente(this.Cmp.hro_desde_reposicion);
                         this.ocultarComponente(this.Cmp.hro_hasta_reposicion);
@@ -1092,7 +1095,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     this.Cmp.id_responsable.store.baseParams = Ext.apply(this.Cmp.id_responsable.store.baseParams, {id_funcionario: record.data.id_funcionario});
                     this.Cmp.id_responsable.modificado = true;
                 }, this);
-                // this.onPermisoRol();
+                this.onPermisoRol();
             },
             onPermisoRol: function () {
                 Ext.Ajax.request({
