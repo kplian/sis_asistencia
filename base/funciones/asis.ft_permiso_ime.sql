@@ -1,5 +1,4 @@
-create or replace function ft_permiso_ime(p_administrador integer, p_id_usuario integer, p_tabla character varying,
-                               p_transaccion character varying) returns character varying
+create or replace function asis.ft_permiso_ime(p_administrador integer, p_id_usuario integer, p_tabla character varying, p_transaccion character varying) returns character varying
     language plpgsql
 as
 $$
@@ -1006,4 +1005,5 @@ EXCEPTION
 
 END;
 $$;
+
 
