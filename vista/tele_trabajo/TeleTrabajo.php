@@ -270,6 +270,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     config: {
                         name: 'lunes',
                         fieldLabel: 'Lu',
+                        qtip:'Seleccione los dias de teletrabajo',
                         renderer: function (value, p, record) {
                             return record.data['lunes'] ? 'si' : 'no';
                         },
@@ -285,6 +286,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     config: {
                         name: 'martes',
                         fieldLabel: 'Ma',
+                        qtip:'Seleccione los dias de teletrabajo',
                         renderer: function (value, p, record) {
                             return record.data['martes'] ? 'si' : 'no';
                         },
@@ -300,6 +302,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     config: {
                         name: 'miercoles',
                         fieldLabel: 'Mi',
+                        qtip:'Seleccione los dias de teletrabajo',
                         renderer: function (value, p, record) {
                             return record.data['miercoles'] ? 'si' : 'no';
                         },
@@ -315,6 +318,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     config: {
                         name: 'jueves',
                         fieldLabel: 'Ju',
+                        qtip:'Seleccione los dias de teletrabajo',
                         renderer: function (value, p, record) {
                             return record.data['jueves'] ? 'si' : 'no';
                         },
@@ -330,6 +334,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     config: {
                         name: 'viernes',
                         fieldLabel: 'Vi',
+                        qtip:'Seleccione los dias de teletrabajo',
                         renderer: function (value, p, record) {
                             return record.data['viernes'] ? 'si' : 'no';
                         },
@@ -675,18 +680,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 Phx.CP.loadingHide();
                 const reg = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));
                 console.log(reg.ROOT.datos.id_proceso_wf)
-                Ext.Ajax.request({
-                    url: '../../sis_asistencia/control/TeleTrabajo/listarTeleTrabajoReporte',
-                    params: {id_proceso_wf: reg.ROOT.datos.id_proceso_wf},
-                    success: this.successExport,
-                    failure: function () {
-                        console.log("fail");
-                    },
-                    timeout: function () {
-                        console.log("timeout");
-                    },
-                    scope: this
-                });
+                this.load({params: {start: 0, limit: this.tam_pag}});
                 this.reload();
             },
             iniciarEvento: function () {
@@ -722,6 +716,12 @@ header("content-type: text/javascript; charset=UTF-8");
                         this.mostrarComponente(this.Cmp.miercoles);
                         this.mostrarComponente(this.Cmp.jueves);
                         this.mostrarComponente(this.Cmp.viernes);
+
+                        this.Cmp.lunes.setValue(false);
+                        this.Cmp.martes.setValue(false);
+                        this.Cmp.miercoles.setValue(false);
+                        this.Cmp.jueves.setValue(false);
+                        this.Cmp.viernes.setValue(false);
                     }
                     if (record.data.field1 === 'Alterno') {
                         this.mostrarComponente(this.Cmp.fecha_inicio);
@@ -731,6 +731,12 @@ header("content-type: text/javascript; charset=UTF-8");
                         this.mostrarComponente(this.Cmp.miercoles);
                         this.mostrarComponente(this.Cmp.jueves);
                         this.mostrarComponente(this.Cmp.viernes);
+
+                        this.Cmp.lunes.setValue(true);
+                        this.Cmp.martes.setValue(true);
+                        this.Cmp.miercoles.setValue(true);
+                        this.Cmp.jueves.setValue(true);
+                        this.Cmp.viernes.setValue(true);
                     }
                 }, this);
             },

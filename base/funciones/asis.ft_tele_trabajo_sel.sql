@@ -1,7 +1,11 @@
-create or replace function asis.ft_tele_trabajo_sel(p_administrador integer, p_id_usuario integer, p_tabla character varying, p_transaccion character varying) returns character varying
-    language plpgsql
-as
-$$
+CREATE OR REPLACE FUNCTION asis.ft_tele_trabajo_sel (
+  p_administrador integer,
+  p_id_usuario integer,
+  p_tabla varchar,
+  p_transaccion varchar
+)
+RETURNS varchar AS
+$body$
 /**************************************************************************
  SISTEMA:        Sistema de Asistencia
  FUNCION:         asis.ft_tele_trabajo_sel
@@ -192,7 +196,7 @@ where t.id_proceso_wf = v_parametros.id_proceso_wf;
 
 v_consulta := 'with rango as (select dia::date as fecha_rango,
                                           '||v_parametros.id_proceso_wf||'as id_proceso_wf
-                                   from generate_series('''||v_record.fecha_inicio||'''::date, '''||v_record.fecha_fin||'''::date,
+                                   from generate_series('''||v_record.fecha_inicio||'''::date, '''||coalesce(v_record.fecha_fin,'2021-12-31'::date)||'''::date,
                                                         ''1 day''::interval) dia)
                     select tlt.id_tele_trabajo,
                            initcap(fu.desc_funcionario2)  as funcionario_solicitante,
@@ -263,6 +267,10 @@ EXCEPTION
         v_resp = pxp.f_agrega_clave(v_resp, 'procedimientos', v_nombre_funcion);
         RAISE EXCEPTION '%',v_resp;
 END;
-$$;
-
-
+$body$
+LANGUAGE 'plpgsql'
+VOLATILE
+CALLED ON NULL INPUT
+SECURITY INVOKER
+PARALLEL UNSAFE
+COST 100;
