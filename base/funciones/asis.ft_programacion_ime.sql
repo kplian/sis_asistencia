@@ -80,7 +80,7 @@ BEGIN
                         end if;
                     end if;
 
-                    if(select EXTRACT(ISODOW FROM  v_date) IN (6, 7)) then
+                    if not asis.f_valida_fecha(v_parametros.id_funcionario, v_date) then
                         v_crear = false;
                     end if;
 
@@ -140,6 +140,11 @@ BEGIN
 
         BEGIN
             --Sentencia de la modificacion
+
+            if (not asis.f_valida_fecha(v_parametros.id_funcionario, v_parametros.fecha_programada::date)) then
+                raise exception 'No es posible programar vacaciones en dias no hábiles y dias feriados';
+            end if;
+
             if (not exists(select 1
                            from asis.tprogramacion pro
                            where pro.id_programacion = v_parametros.id_programacion
@@ -154,7 +159,8 @@ BEGIN
                      where pro.estado = 'pendiente'
                        AND (pro.tiempo = 'T' OR pro.tiempo = 'M')
                        and pro.fecha_programada = v_parametros.fecha_programada
-                       AND pro.id_funcionario = v_parametros.id_funcionario) > 0) then
+                       AND pro.id_funcionario = v_parametros.id_funcionario
+                       AND pro.id_programacion <> v_parametros.id_programacion) > 0) then
                     raise exception 'Ya existe una vacacion programada para la fecha %',v_parametros.fecha_programada;
 
                 end if;
@@ -164,7 +170,8 @@ BEGIN
                      where pro.estado = 'pendiente'
                        AND (pro.tiempo = 'C' OR pro.tiempo = v_parametros.tiempo)
                        and pro.fecha_programada = v_parametros.fecha_programada
-                       AND pro.id_funcionario = v_parametros.id_funcionario) > 0) then
+                       AND pro.id_funcionario = v_parametros.id_funcionario
+                       AND pro.id_programacion <> v_parametros.id_programacion) > 0) then
                     raise exception 'Ya existe una vacacion programada para la fecha %',v_parametros.fecha_programada;
                 end if;
             end if;
@@ -208,6 +215,10 @@ BEGIN
             into v_tiempo, v_id_funcionario
             from asis.tprogramacion pro
             where pro.id_programacion = v_parametros.id_programacion;
+
+            if (not asis.f_valida_fecha(v_id_funcionario, v_parametros.fecha_programada::date)) then
+                raise exception 'No es posible programar vacaciones en dias no hábiles y dias feriados';
+            end if;
 
             if (not exists(select 1
                            from asis.tprogramacion pro

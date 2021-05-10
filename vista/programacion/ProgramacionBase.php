@@ -138,7 +138,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     region: 'center',
                     margins: '3 3 3 0',
                     items: [{
-                        id: 'app-center',
+                        id: this.id_calendario + '-app-center',
                         title: '...', // will be updated to view date range
                         region: 'center',
                         layout: 'border',
@@ -206,7 +206,15 @@ header("content-type: text/javascript; charset=UTF-8");
                                             this.cambiarAsignacion(programacion);
                                         },
                                         scope: this
-                                    }
+                                    },
+                                    'viewchange': {
+                                        fn: function (p, vw, dateInfo) {
+                                            if (dateInfo !== null) {
+                                                this.updateTitle(dateInfo.viewStart, dateInfo.viewEnd);
+                                            }
+                                        },
+                                        scope: this
+                                    },
                                 }
                             }
                         ]
@@ -233,6 +241,22 @@ header("content-type: text/javascript; charset=UTF-8");
             bsave: true,
             bnew: false,
             bedit: false,
+            updateTitle: function (startDt, endDt) {
+                console.log(startDt, endDt);
+                var p = Ext.getCmp(this.id_calendario + '-app-center');
+
+                if (startDt.clearTime().getTime() === endDt.clearTime().getTime()) {
+                    p.setTitle(startDt.format('F j, Y'));
+                } else if (startDt.getFullYear() === endDt.getFullYear()) {
+                    if (startDt.getMonth() === endDt.getMonth()) {
+                        p.setTitle('<h3 style="font-size: 15px">' + startDt.format('F j') + ' - ' + endDt.format('j, Y') + '</h3>');
+                    } else {
+                        p.setTitle('<h3 style="font-size: 15px">' + startDt.format('F j') + ' - ' + endDt.format('F j, Y') + '</h3>');
+                    }
+                } else {
+                    p.setTitle('<h3 style="font-size: 15px">' + startDt.format('F j, Y') + ' - ' + endDt.format('F j, Y') + '</h3>');
+                }
+            },
         }
     )
 </script>

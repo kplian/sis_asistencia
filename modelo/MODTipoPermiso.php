@@ -40,6 +40,7 @@ class MODTipoPermiso extends MODbase{
         $this->captura('documento','varchar');
         $this->captura('reposcion','varchar');
         $this->captura('rango','varchar');
+        $this->captura('detalle','varchar');
 
         //Ejecuta la instruccion
         $this->armarConsulta();
@@ -63,6 +64,7 @@ class MODTipoPermiso extends MODbase{
         $this->setParametro('documento','documento','varchar');
         $this->setParametro('reposcion','reposcion','varchar');
         $this->setParametro('rango','rango','varchar');
+        $this->setParametro('detalle','detalle','varchar');
         //Ejecuta la instruccion
         $this->armarConsulta();
         $this->ejecutarConsulta();
@@ -86,6 +88,7 @@ class MODTipoPermiso extends MODbase{
         $this->setParametro('documento','documento','varchar');
         $this->setParametro('reposcion','reposcion','varchar');
         $this->setParametro('rango','rango','varchar');
+        $this->setParametro('detalle','detalle','varchar');
         //Ejecuta la instruccion
         $this->armarConsulta();
         $this->ejecutarConsulta();

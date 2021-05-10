@@ -289,4 +289,24 @@ WITH movimiento AS(
 select pxp.f_insert_testructura_gui ('SASL', 'ASIS');
 /***********************************F-DEP-MMV-ASIS-SDA-51-02/02/2021*****************************************/
 
+/***********************************I-DEP-MMV-ASIS-SDA-54-02/02/2021*****************************************/
+select pxp.f_insert_testructura_gui ('STO', 'ASIS');
+select pxp.f_insert_testructura_gui ('VTO', 'SBO');
+/***********************************F-DEP-MMV-ASIS-SDA-54-02/02/2021*****************************************/
 
+/***********************************I-DEP-MMV-ASIS-SDA-54-03/02/2021*****************************************/
+select pxp.f_insert_testructura_gui ('STT', 'ASIS');
+/***********************************F-DEP-MMV-ASIS-SDA-54-03/02/2021*****************************************/
+
+/***********************************I-DEP-MMV-ASIS-SDA-56-05/02/2021*****************************************/
+select pxp.f_insert_testructura_gui ('RBM', 'ASIS');
+select wf.f_import_ttipo_documento_estado ('insert','BM-EV','SOL-BMA','registro','SOL-BMA','crear','superior','');
+/***********************************F-DEP-MMV-ASIS-SDA-56-05/02/2021*****************************************/
+
+/***********************************I-DEP-MMV-ASIS-SDA-66-17/02/2021*****************************************/
+select pxp.f_insert_testructura_gui ('RAA', 'AREP');
+/***********************************F-DEP-MMV-ASIS-SDA-66-17/02/2021*****************************************/
+
+/***********************************I-DEP-MMV-ASIS-SDA-70-11/03/2021*****************************************/
+select wf.f_import_ttipo_documento_estado ('insert','SOL-TE','SOL-TTO','registro','SOL-TTO','crear','superior','');
+/***********************************F-DEP-MMV-ASIS-SDA-70-11/03/2021*****************************************/

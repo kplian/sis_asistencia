@@ -1,29 +1,40 @@
 <?php
-/**
+/****************************************************************************************
  * @package pXP
- * @file gen-TipoPermiso.php
- * @author  (miguel.mamani)
- * @date 16-10-2019 13:14:01
+ * @file DetalleTipoPermiso.php
+ * @author  (admin.miguel)
+ * @date 22-03-2021 01:35:43
  * @description Archivo con la interfaz de usuario que permite la ejecucion de todas las funcionalidades del sistema
+ *
  * HISTORIAL DE MODIFICACIONES:
  * #ISSUE                FECHA                AUTOR                DESCRIPCION
- * #0                16-10-2019                 (miguel.mamani)                CREACION
- */
+ * #0                22-03-2021 01:35:43    admin.miguel            Creacion
+ * #
+ *******************************************************************************************/
 
 header("content-type: text/javascript; charset=UTF-8");
 ?>
 <script>
-    Phx.vista.TipoPermiso = Ext.extend(Phx.gridInterfaz, {
+    Phx.vista.DetalleTipoPermiso = Ext.extend(Phx.gridInterfaz, {
 
             constructor: function (config) {
                 this.maestro = config.maestro;
                 //llama al constructor de la clase padre
-                Phx.vista.TipoPermiso.superclass.constructor.call(this, config);
+                Phx.vista.DetalleTipoPermiso.superclass.constructor.call(this, config);
                 this.init();
-                this.load({params: {start: 0, limit: this.tam_pag}})
             },
 
             Atributos: [
+                {
+                    //configuracion del componente
+                    config: {
+                        labelSeparator: '',
+                        inputType: 'hidden',
+                        name: 'id_detalle_tipo_permiso'
+                    },
+                    type: 'Field',
+                    form: true
+                },
                 {
                     //configuracion del componente
                     config: {
@@ -36,127 +47,43 @@ header("content-type: text/javascript; charset=UTF-8");
                 },
                 {
                     config: {
-                        name: 'codigo',
-                        fieldLabel: 'Codigo',
-                        allowBlank: false,
-                        width: 250,
-                        gwidth: 100
-                    },
-                    type: 'TextField',
-                    filters: {pfiltro: 'tpo.codigo', type: 'string'},
-                    id_grupo: 1,
-                    grid: true,
-                    form: true
-                },
-                {
-                    config: {
                         name: 'nombre',
                         fieldLabel: 'Nombre',
                         allowBlank: false,
-                        width: 250,
-                        gwidth: 250
+                        anchor: '80%',
+                        gwidth: 150
                     },
                     type: 'TextField',
-                    filters: {pfiltro: 'tpo.nombre', type: 'string'},
+                    filters: {pfiltro: 'dtp.nombre', type: 'string'},
                     id_grupo: 1,
                     grid: true,
                     form: true
                 },
                 {
                     config: {
-                        name: 'tiempo',
-                        fieldLabel: 'Tiempo',
-                        increment: 1,
-                        width: 150,
-                        format: 'H:i:s',
-                        renderer: function (value, p, record) {
-                            return value ? value.dateFormat('H:i:s') : ''
-                        }
+                        name: 'dias',
+                        fieldLabel: 'Dias',
+                        allowBlank: true,
+                        anchor: '80%',
+                        gwidth: 100
                     },
-                    type: 'TimeField',
-                    filters: {pfiltro: 'tpo.tiempo', type: 'string'},
-                    valorInicial: '00:00:00',
-                    id_grupo: 0,
+                    type: 'NumberField',
+                    filters: {pfiltro: 'dtp.dias', type: 'numeric'},
+                    id_grupo: 1,
                     grid: true,
                     form: true
                 },
                 {
                     config: {
-                        name: 'documento',
-                        fieldLabel: 'Exigir Documento',
-                        allowBlank: false,
-                        width: 80,
-                        gwidth: 100,
-                        typeAhead: true,
-                        triggerAction: 'all',
-                        lazyRender: true,
-                        mode: 'local',
-                        store: ['si', 'no']
+                        name: 'descripcion',
+                        fieldLabel: 'Descripcion',
+                        allowBlank: true,
+                        anchor: '80%',
+                        gwidth: 200
                     },
-                    type: 'ComboBox',
+                    type: 'TextArea',
+                    filters: {pfiltro: 'dtp.descripcion', type: 'string'},
                     id_grupo: 1,
-                    filters: {pfiltro: 'tpo.documento', type: 'string'},
-                    valorInicial: 'no',
-                    grid: true,
-                    form: true
-                },
-                {
-                    config: {
-                        name: 'reposcion',
-                        fieldLabel: 'Exigir Reposcion',
-                        allowBlank: false,
-                        width: 80,
-                        gwidth: 100,
-                        typeAhead: true,
-                        triggerAction: 'all',
-                        lazyRender: true,
-                        mode: 'local',
-                        store: ['si', 'no']
-                    },
-                    type: 'ComboBox',
-                    id_grupo: 1,
-                    filters: {pfiltro: 'tpo.reposcion', type: 'string'},
-                    valorInicial: 'no',
-                    grid: true,
-                    form: true
-                },
-                {
-                    config: {
-                        name: 'rango',
-                        fieldLabel: 'Controlar rango asignado funcionario',
-                        allowBlank: false,
-                        width: 80,
-                        gwidth: 150,
-                        typeAhead: true,
-                        triggerAction: 'all',
-                        lazyRender: true,
-                        mode: 'local',
-                        store: ['si', 'no']
-                    },
-                    type: 'ComboBox',
-                    id_grupo: 1,
-                    filters: {pfiltro: 'tpo.rango', type: 'string'},
-                    valorInicial: 'no',
-                    grid: false,
-                    form: false
-                },
-                {
-                    config: {
-                        name: 'detalle',
-                        fieldLabel: 'Detalle',
-                        allowBlank: false,
-                        width: 80,
-                        gwidth: 150,
-                        typeAhead: true,
-                        triggerAction: 'all',
-                        lazyRender: true,
-                        mode: 'local',
-                        store: ['si', 'no']
-                    },
-                    type: 'ComboBox',
-                    id_grupo: 1,
-                    filters: {pfiltro: 'tpo.rango', type: 'string'},
-                    valorInicial: 'no',
                     grid: true,
                     form: true
                 },
@@ -170,7 +97,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         maxLength: 10
                     },
                     type: 'TextField',
-                    filters: {pfiltro: 'tpo.estado_reg', type: 'string'},
+                    filters: {pfiltro: 'dtp.estado_reg', type: 'string'},
                     id_grupo: 1,
                     grid: true,
                     form: false
@@ -203,7 +130,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         }
                     },
                     type: 'DateField',
-                    filters: {pfiltro: 'tpo.fecha_reg', type: 'date'},
+                    filters: {pfiltro: 'dtp.fecha_reg', type: 'date'},
                     id_grupo: 1,
                     grid: true,
                     form: false
@@ -218,7 +145,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         maxLength: 4
                     },
                     type: 'Field',
-                    filters: {pfiltro: 'tpo.id_usuario_ai', type: 'numeric'},
+                    filters: {pfiltro: 'dtp.id_usuario_ai', type: 'numeric'},
                     id_grupo: 1,
                     grid: false,
                     form: false
@@ -233,7 +160,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         maxLength: 300
                     },
                     type: 'TextField',
-                    filters: {pfiltro: 'tpo.usuario_ai', type: 'string'},
+                    filters: {pfiltro: 'dtp.usuario_ai', type: 'string'},
                     id_grupo: 1,
                     grid: true,
                     form: false
@@ -266,24 +193,24 @@ header("content-type: text/javascript; charset=UTF-8");
                         }
                     },
                     type: 'DateField',
-                    filters: {pfiltro: 'tpo.fecha_mod', type: 'date'},
+                    filters: {pfiltro: 'dtp.fecha_mod', type: 'date'},
                     id_grupo: 1,
                     grid: true,
                     form: false
                 }
             ],
             tam_pag: 50,
-            title: 'Tipo Permiso',
-            ActSave: '../../sis_asistencia/control/TipoPermiso/insertarTipoPermiso',
-            ActDel: '../../sis_asistencia/control/TipoPermiso/eliminarTipoPermiso',
-            ActList: '../../sis_asistencia/control/TipoPermiso/listarTipoPermiso',
-            id_store: 'id_tipo_permiso',
+            title: 'detalle tipo permiso',
+            ActSave: '../../sis_asistencia/control/DetalleTipoPermiso/insertarDetalleTipoPermiso',
+            ActDel: '../../sis_asistencia/control/DetalleTipoPermiso/eliminarDetalleTipoPermiso',
+            ActList: '../../sis_asistencia/control/DetalleTipoPermiso/listarDetalleTipoPermiso',
+            id_store: 'id_detalle_tipo_permiso',
             fields: [
-                {name: 'id_tipo_permiso', type: 'numeric'},
+                {name: 'id_detalle_tipo_permiso', type: 'numeric'},
                 {name: 'estado_reg', type: 'string'},
-                {name: 'codigo', type: 'string'},
                 {name: 'nombre', type: 'string'},
-                {name: 'tiempo', type: 'date', dateFormat: 'H:i:s'},
+                {name: 'descripcion', type: 'string'},
+                {name: 'dias', type: 'numeric'},
                 {name: 'id_usuario_reg', type: 'numeric'},
                 {name: 'fecha_reg', type: 'date', dateFormat: 'Y-m-d H:i:s.u'},
                 {name: 'id_usuario_ai', type: 'numeric'},
@@ -292,26 +219,25 @@ header("content-type: text/javascript; charset=UTF-8");
                 {name: 'fecha_mod', type: 'date', dateFormat: 'Y-m-d H:i:s.u'},
                 {name: 'usr_reg', type: 'string'},
                 {name: 'usr_mod', type: 'string'},
-                {name: 'documento', type: 'string'},
-                {name: 'reposcion', type: 'string'},
-                {name: 'rango', type: 'string'},
-                {name: 'detalle', type: 'string'}
-
+                {name: 'id_tipo_permiso', type: 'numeric'},
             ],
             sortInfo: {
-                field: 'id_tipo_permiso',
+                field: 'id_detalle_tipo_permiso',
                 direction: 'ASC'
             },
             bdel: true,
             bsave: false,
-            fwidth: '40%',
-            fheight: '45%',
-            south: {
-                url: '../../../sis_asistencia/vista/detalle_tipo_permiso/DetalleTipoPermiso.php',
-                title: 'Detalle',
-                height: '50%',
-                cls: 'DetalleTipoPermiso'
+            onReloadPage: function (m) {
+                this.maestro = m;
+                this.store.baseParams = {id_tipo_permiso: this.maestro.id_tipo_permiso};
+                this.load({params: {start: 0, limit: 50}})
+            },
+            loadValoresIniciales: function () {
+                this.Cmp.id_tipo_permiso.setValue(this.maestro.id_tipo_permiso);
+                Phx.vista.DetalleTipoPermiso.superclass.loadValoresIniciales.call(this);
             },
         }
     )
 </script>
+        
+        

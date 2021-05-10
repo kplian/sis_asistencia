@@ -665,3 +665,187 @@ ALTER COLUMN tiempo SET STATISTICS 0;
 ALTER TABLE asis.tvacacion
     ADD COLUMN programacion VARCHAR(5) DEFAULT 'no' NOT NULL;
 /***********************************F-SCP-MMV-ASIS-0-26/01/2021****************************************/
+/***********************************I-SCP-MMV-ASIS-SDA-54-02/02/2021****************************************/
+CREATE TABLE asis.ttele_trabajo (
+  id_tele_trabajo SERIAL,
+  id_funcionario INTEGER,
+  id_responsable INTEGER,
+  fecha_inicio DATE,
+  fecha_fin DATE,
+  justificacion TEXT,
+  estado VARCHAR(50),
+  nro_tramite VARCHAR(100),
+  id_proceso_wf INTEGER,
+  id_estado_wf INTEGER,
+  CONSTRAINT ttele_trabajo_pkey PRIMARY KEY(id_tele_trabajo)
+) INHERITS (pxp.tbase)
+WITH (oids = false);
+
+ALTER TABLE asis.ttele_trabajo
+  ALTER COLUMN id_tele_trabajo SET STATISTICS 0;
+
+ALTER TABLE asis.ttele_trabajo
+  ALTER COLUMN id_funcionario SET STATISTICS 0;
+
+ALTER TABLE asis.ttele_trabajo
+  ALTER COLUMN id_responsable SET STATISTICS 0;
+
+ALTER TABLE asis.ttele_trabajo
+  ALTER COLUMN fecha_inicio SET STATISTICS 0;
+
+ALTER TABLE asis.ttele_trabajo
+  ALTER COLUMN fecha_fin SET STATISTICS 0;
+
+ALTER TABLE asis.ttele_trabajo
+  ALTER COLUMN justificacion SET STATISTICS 0;
+/***********************************F-SCP-MMV-ASIS-SDA-54-02/02/2021****************************************/
+
+/***********************************I-SCP-MMV-ASIS-SDA-55-05/02/2021****************************************/
+
+CREATE TABLE asis.ttipo_bm (
+                               id_tipo_bm SERIAL,
+                               nombre VARCHAR(100) NOT NULL,
+                               descripcion VARCHAR(20),
+                               CONSTRAINT ttipo_bm_pkey PRIMARY KEY(id_tipo_bm)
+) INHERITS (pxp.tbase)
+WITH (oids = false);
+
+ALTER TABLE asis.ttipo_bm
+ALTER COLUMN id_tipo_bm SET STATISTICS 0;
+
+ALTER TABLE asis.ttipo_bm
+ALTER COLUMN nombre SET STATISTICS 0;
+
+ALTER TABLE asis.ttipo_bm
+ALTER COLUMN descripcion SET STATISTICS 0;
+
+
+
+CREATE TABLE asis.tbaja_medica (
+                                   id_baja_medica SERIAL,
+                                   id_funcionario INTEGER NOT NULL,
+                                   id_tipo_bm INTEGER NOT NULL,
+                                   fecha_inicio DATE,
+                                   fecha_fin DATE,
+                                   dias_efectivo NUMERIC,
+                                   id_proceso_wf INTEGER,
+                                   id_estado_wf INTEGER,
+                                   estado VARCHAR(100),
+                                   nro_tramite VARCHAR(200),
+                                   documento VARCHAR(10) DEFAULT 'no'::character varying NOT NULL,
+                                   CONSTRAINT tbaja_medica_pkey PRIMARY KEY(id_baja_medica)
+) INHERITS (pxp.tbase)
+WITH (oids = false);
+
+ALTER TABLE asis.tbaja_medica
+ALTER COLUMN id_baja_medica SET STATISTICS 0;
+
+ALTER TABLE asis.tbaja_medica
+ALTER COLUMN id_funcionario SET STATISTICS 0;
+
+ALTER TABLE asis.tbaja_medica
+ALTER COLUMN id_tipo_bm SET STATISTICS 0;
+
+ALTER TABLE asis.tbaja_medica
+ALTER COLUMN fecha_inicio SET STATISTICS 0;
+
+ALTER TABLE asis.tbaja_medica
+ALTER COLUMN fecha_fin SET STATISTICS 0;
+
+ALTER TABLE asis.tbaja_medica
+ALTER COLUMN dias_efectivo SET STATISTICS 0;
+
+ALTER TABLE asis.tbaja_medica
+ALTER COLUMN id_proceso_wf SET STATISTICS 0;
+
+ALTER TABLE asis.tbaja_medica
+ALTER COLUMN id_estado_wf SET STATISTICS 0;
+
+ALTER TABLE asis.tbaja_medica
+ALTER COLUMN estado SET STATISTICS 0;
+
+ALTER TABLE asis.tbaja_medica
+ALTER COLUMN nro_tramite SET STATISTICS 0;
+
+/***********************************F-SCP-MMV-ASIS-SDA-55-05/02/2021****************************************/
+
+/***********************************I-SCP-MMV-ASIS-ETR-2911-19/02/2021****************************************/
+ALTER TABLE asis.tbaja_medica
+    ADD COLUMN observaciones TEXT;
+/***********************************F-SCP-MMV-ASIS-ETR-2911-19/02/2021****************************************/
+
+
+/***********************************I-SCP-MMV-ASIS-SDA-70-11/03/2021****************************************/
+CREATE TABLE asis.ttele_trabajo_det (
+                                        id_tele_trabajo_det SERIAL,
+                                        id_tele_trabajo INTEGER NOT NULL,
+                                        fecha DATE NOT NULL,
+                                        CONSTRAINT ttele_trabajo_det_pkey PRIMARY KEY(id_tele_trabajo_det)
+) INHERITS (pxp.tbase)
+WITH (oids = false);
+
+ALTER TABLE asis.ttele_trabajo_det
+ALTER COLUMN id_tele_trabajo_det SET STATISTICS 0;
+
+ALTER TABLE asis.ttele_trabajo_det
+ALTER COLUMN id_tele_trabajo SET STATISTICS 0;
+
+ALTER TABLE asis.ttele_trabajo_det
+ALTER COLUMN fecha SET STATISTICS 0;
+/***********************************F-SCP-MMV-ASIS-SDA-70-11/03/2021****************************************/
+
+/***********************************I-SCP-MMV-ASIS-SDA-70-1-11/03/2021****************************************/
+ALTER TABLE asis.ttele_trabajo
+    ADD COLUMN tipo_teletrabajo VARCHAR(50);
+
+ALTER TABLE asis.ttele_trabajo
+    ADD COLUMN motivo VARCHAR;
+
+ALTER TABLE asis.ttele_trabajo
+    ADD COLUMN tipo_temporal VARCHAR;
+
+ALTER TABLE asis.ttele_trabajo
+    ADD COLUMN lunes BOOLEAN DEFAULT false;
+
+ALTER TABLE asis.ttele_trabajo
+    ADD COLUMN martes BOOLEAN DEFAULT false;
+
+ALTER TABLE asis.ttele_trabajo
+    ADD COLUMN miercoles BOOLEAN DEFAULT false;
+
+ALTER TABLE asis.ttele_trabajo
+    ADD COLUMN jueves BOOLEAN DEFAULT false;
+
+ALTER TABLE asis.ttele_trabajo
+    ADD COLUMN viernes BOOLEAN DEFAULT false;
+
+/***********************************F-SCP-MMV-ASIS-SDA-70-1-11/03/2021****************************************/
+
+/***********************************I-SCP-MMV-ASIS-SDA-71-1-23/03/2021****************************************/
+CREATE TABLE asis.tdetalle_tipo_permiso (
+                                            id_detalle_tipo_permiso SERIAL,
+                                            nombre VARCHAR(100) NOT NULL,
+                                            descripcion VARCHAR(500),
+                                            dias NUMERIC,
+                                            id_tipo_permiso INTEGER NOT NULL,
+                                            CONSTRAINT tdetalle_tipo_permiso_pkey PRIMARY KEY(id_detalle_tipo_permiso)
+) INHERITS (pxp.tbase)
+  WITH (oids = false);
+
+ALTER TABLE asis.tdetalle_tipo_permiso
+    ALTER COLUMN id_detalle_tipo_permiso SET STATISTICS 0;
+
+ALTER TABLE asis.tdetalle_tipo_permiso
+    ALTER COLUMN nombre SET STATISTICS 0;
+
+ALTER TABLE asis.tdetalle_tipo_permiso
+    ALTER COLUMN descripcion SET STATISTICS 0;
+
+ALTER TABLE asis.tdetalle_tipo_permiso
+    ALTER COLUMN dias SET STATISTICS 0;
+
+
+ALTER TABLE asis.ttipo_permiso
+    ADD COLUMN detalle VARCHAR(10) DEFAULT 'no' NOT NULL;
+
+/***********************************F-SCP-MMV-ASIS-SDA-71-1-23/03/2021****************************************/
