@@ -218,7 +218,7 @@ class MODReportes extends MODbase{
         //Ejecuta la instruccion
         $this->armarConsulta();
         $this->ejecutarConsulta();
-         // var_dump($this->respuesta);exit;
+        // var_dump($this->respuesta);exit;
         //Devuelve la respuesta
         return $this->respuesta;
     }
@@ -284,7 +284,7 @@ class MODReportes extends MODbase{
         //Ejecuta la instruccion
         $this->armarConsulta();
         $this->ejecutarConsulta();
-         // var_dump($this->respuesta);exit;
+        // var_dump($this->respuesta);exit;
         //Devuelve la respuesta
         return $this->respuesta;
     }
@@ -317,7 +317,7 @@ class MODReportes extends MODbase{
         //Ejecuta la instruccion
         $this->armarConsulta();
         $this->ejecutarConsulta();
-         // var_dump($this->respuesta);exit;
+        // var_dump($this->respuesta);exit;
         //Devuelve la respuesta
         return $this->respuesta;
     }
@@ -375,7 +375,7 @@ class MODReportes extends MODbase{
         //Ejecuta la instruccion
         $this->armarConsulta();
         $this->ejecutarConsulta();
-         // var_dump($this->respuesta);exit;
+        // var_dump($this->respuesta);exit;
         //Devuelve la respuesta
         return $this->respuesta;
     }
@@ -402,10 +402,116 @@ class MODReportes extends MODbase{
         $this->captura('cargo','varchar');
         $this->captura('observacion','varchar');
         $this->captura('evento','varchar');
+
+        $this->captura('retraso','varchar');
+        $this->captura('permiso','varchar');
+        $this->captura('vacacion','varchar');
+        $this->captura('viatico','varchar');
+        $this->captura('teletrabajo','varchar');
+        $this->captura('baje_medica','varchar');
+        $this->captura('ausente','varchar');
         //Ejecuta la instruccion
         $this->armarConsulta();
         $this->ejecutarConsulta();
-       //  var_dump($this->respuesta);exit;
+        // var_dump($this->respuesta);exit;
+        //Devuelve la respuesta
+        return $this->respuesta;
+    }
+    function listarDiarioRetrasos(){
+        //Definicion de variables para ejecucion del procedimientp
+        $this->procedimiento='asis.f_reportes_sel';
+        $this->transaccion='ASIS_RATR_SEL';
+        $this->tipo_procedimiento='SEL';//tipo de transaccion
+        $this->setCount(false);
+        $this->setParametro('tipo', 'tipo', 'varchar');
+        $this->setParametro('fecha', 'fecha', 'date');
+        $this->setParametro('formato', 'formato', 'varchar');
+        $this->setParametro('id_uo', 'id_uo', 'int4');
+        $this->setParametro('tipo_filtro', 'tipo_filtro', 'varchar');
+
+        //Definicion de la lista del resultado del query
+        $this->captura('codigo','varchar');
+        $this->captura('fecha','date');
+        $this->captura('gerencia','varchar');
+        $this->captura('departamento','varchar');
+        $this->captura('codigo_funcionario','varchar');
+        $this->captura('id_funcionario','integer');
+        $this->captura('funcionario','text');
+        $this->captura('cargo','text');
+        $this->captura('hora','time');
+        $this->captura('hora_cal','time');
+        $this->captura('retraso','varchar');
+        //Ejecuta la instruccion
+        $this->armarConsulta();
+        $this->ejecutarConsulta();
+        // var_dump($this->respuesta);exit;
+        //Devuelve la respuesta
+        return $this->respuesta;
+    }
+
+    function listarMensualRetrasos(){
+        //Definicion de variables para ejecucion del procedimientp
+        $this->procedimiento='asis.f_reportes_sel';
+        $this->transaccion='ASIS_RMSU_SEL';
+        $this->tipo_procedimiento='SEL';//tipo de transaccion
+
+        $this->setCount(false);
+        $this->setParametro('tipo', 'tipo', 'varchar');
+        $this->setParametro('fecha_ini', 'fecha_ini', 'date');
+        $this->setParametro('fecha_fin', 'fecha_fin', 'date');
+        $this->setParametro('formato', 'formato', 'varchar');
+        $this->setParametro('id_uo', 'id_uo', 'int4');
+
+        //Definicion de la lista del resultado del query
+        $this->captura('codigo','varchar');
+        $this->captura('fecha','text');
+        $this->captura('gerencia','varchar');
+        $this->captura('departamento','text');
+        $this->captura('codigo_funcionario','varchar');
+        $this->captura('id_funcionario','integer');
+        $this->captura('funcionario','text');
+        $this->captura('cargo','text');
+        $this->captura('hora','time');
+        $this->captura('hora_cal','time');
+        $this->captura('retraso','varchar');
+        $this->captura('ruta','text');
+        $this->captura('nivel_ordernar','integer');
+        $this->captura('nivel','varchar');
+
+        //Ejecuta la instruccion
+        $this->armarConsulta();
+        $this->ejecutarConsulta();
+        //var_dump($this->respuesta);exit;
+        //Devuelve la respuesta
+        return $this->respuesta;
+    }
+
+    function listarRetrasos(){
+        //Definicion de variables para ejecucion del procedimientp
+        $this->procedimiento='asis.f_reportes_sel';
+        $this->transaccion='ASIS_RARR_SEL';
+        $this->tipo_procedimiento='SEL';//tipo de transaccion
+
+        $this->setCount(false);
+        $this->setParametro('tipo', 'tipo', 'varchar');
+        $this->setParametro('fecha_ini', 'fecha_ini', 'date');
+        $this->setParametro('fecha_fin', 'fecha_fin', 'date');
+        $this->setParametro('formato', 'formato', 'varchar');
+        $this->setParametro('id_uo', 'id_uo', 'int4');
+
+        //Definicion de la lista del resultado del query
+        $this->captura('codigo','varchar');
+        $this->captura('gerencia','varchar');
+        $this->captura('departamento','text');
+        $this->captura('codigo_funcionario','varchar');
+        $this->captura('funcionario','text');
+        $this->captura('cargo','text');
+        $this->captura('hora_cal','time');
+        $this->captura('retraso','varchar');
+        //Ejecuta la instruccion
+        $this->armarConsulta();
+        $this->ejecutarConsulta();
+        // var_dump($this->respuesta);exit;
         //Devuelve la respuesta
         return $this->respuesta;
     }

@@ -26,9 +26,21 @@ header("content-type: text/javascript; charset=UTF-8");
                     lazyRender:true,
                     mode: 'local',
                     width:250,
-                    store:['General','Resumen']
+                    store: new Ext.data.ArrayStore({
+                        fields: ['variable', 'valor'],
+                        data: [
+                            ['General', 'Reporte General'],
+                            ['Resumen', 'Reporte Resumen'],
+                            ['Diario', 'Reporte Diario de Retrasos'],
+                            ['Mensual', 'Detalle Mensual de Retrasos'],
+                            ['Retrasos', 'Reporte de Retrasos']
+                        ]
+                    }),
+                    valueField: 'variable',
+                    displayField: 'valor',
                 },
                 type:'ComboBox',
+                valorInicial: 'Completo',
                 id_grupo:0,
                 valorInicial: 'General',
                 form:true
@@ -48,21 +60,30 @@ header("content-type: text/javascript; charset=UTF-8");
                 form : true
             },
             {
-                config:{
-                    name:'id_uo',
-                    hiddenName: 'id_uo',
-                    origen:'UO',
-                    fieldLabel:'UO',
-                    gdisplayField:'desc_uo',//mapea al store del grid
-                    gwidth:200,
-                    emptyText:'Dejar blanco para toda la empresa...',
-                    width : 250,
-                    baseParams: {nivel: '0,1,2'},
-                    allowBlank:true
+                config : {
+                    name : 'fecha_ini',
+                    fieldLabel : 'Fecha Desde',
+                    allowBlank : false,
+                    format : 'd/m/Y',
+                    vtype: 'daterange',
+                    width : 250
                 },
-                type:'ComboRec',
-                id_grupo:0,
-                form:true
+                type : 'DateField',
+                id_grupo : 0,
+                form : true
+            },
+            {
+                config : {
+                    name : 'fecha_fin',
+                    fieldLabel : 'Fecha Hasta',
+                    allowBlank : false,
+                    format : 'd/m/Y',
+                    vtype: 'daterange',
+                    width : 250
+                },
+                type : 'DateField',
+                id_grupo : 0,
+                form : true
             },
             {
                 config:{
@@ -74,7 +95,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     triggerAction: 'all',
                     lazyRender:true,
                     mode: 'local',
-                    width:200,
+                    width:250,
                     store:['XLSX','PDF']
                 },
                 type:'ComboBox',
@@ -82,7 +103,38 @@ header("content-type: text/javascript; charset=UTF-8");
                 valorInicial: 'PDF',
                 form:true
             },
-
+            {
+                config:{
+                    name:'id_uo',
+                    hiddenName: 'id_uo',
+                    origen:'UO',
+                    fieldLabel:'UO',
+                    gdisplayField:'desc_uo',//mapea al store del grid
+                    gwidth:200,
+                    emptyText:'Dejar blanco para toda la empresa...',
+                    width : 315,
+                    baseParams: {gerencia: 'si'},
+                    allowBlank:true,
+                    tpl:'<tpl for="."><div class="x-combo-list-item"><p><b>{codigo}</b> - {nombre_unidad}</p> </div></tpl>',
+                    listWidth:'315',
+                },
+                type:'ComboRec',
+                id_grupo:0,
+                form:true
+            },
+            {
+                config: {
+                    name: 'tipo_filtro',
+                    fieldLabel: 'Filtro Marcas',
+                    items: [
+                        {boxLabel: 'Filtrar todo', name: 'tipo_filtro', inputValue: 'todo', checked: true},
+                        {boxLabel: 'Filtrar solo retraso', name: 'tipo_filtro', inputValue: 'retraso'}
+                    ],
+                },
+                type: 'RadioGroupField',
+                id_grupo: 0,
+                form: true
+            },
         ],
         title : 'Generar Reporte',
         ActSave : '../../sis_asistencia/control/Reporte/listarAsistencia',
@@ -93,13 +145,49 @@ header("content-type: text/javascript; charset=UTF-8");
         constructor : function(config) {
             Phx.vista.FormReporteAsistencia.superclass.constructor.call(this, config);
             this.init();
+            this.ocultarComponente(this.Cmp.fecha_ini);
+            this.ocultarComponente(this.Cmp.fecha_fin);
+            const sef = this;
+            this.Cmp.tipo.on('select',function(c,r,i) {
+
+                if(r.data.variable === 'General'){
+                    sef.ocultarComponente(sef.Cmp.fecha_ini);
+                    sef.ocultarComponente(sef.Cmp.fecha_fin);
+                    sef.mostrarComponente(sef.Cmp.tipo_filtro);
+                    sef.mostrarComponente(sef.Cmp.fecha);
+                }
+
+                if(r.data.variable === 'Resumen'){
+                    sef.ocultarComponente(sef.Cmp.fecha_ini);
+                    sef.ocultarComponente(sef.Cmp.fecha_fin);
+                    sef.ocultarComponente(sef.Cmp.tipo_filtro);
+                    sef.mostrarComponente(sef.Cmp.fecha);
+                }
+
+                if(r.data.variable === 'Diario'){
+                    sef.ocultarComponente(sef.Cmp.fecha_ini);
+                    sef.ocultarComponente(sef.Cmp.fecha_fin);
+                    sef.mostrarComponente(sef.Cmp.tipo_filtro);
+                    sef.mostrarComponente(sef.Cmp.fecha);
+
+                }
+
+                if(r.data.variable === 'Mensual'){
+                    sef.mostrarComponente(sef.Cmp.fecha_ini);
+                    sef.mostrarComponente(sef.Cmp.fecha_fin);
+                    sef.ocultarComponente(sef.Cmp.fecha);
+                    sef.ocultarComponente(sef.Cmp.tipo_filtro);
+                }
+
+                if(r.data.variable === 'Retrasos'){
+                    sef.mostrarComponente(sef.Cmp.fecha_ini);
+                    sef.mostrarComponente(sef.Cmp.fecha_fin);
+                    sef.ocultarComponente(sef.Cmp.fecha);
+                    sef.ocultarComponente(sef.Cmp.tipo_filtro);
+                }
+            });
         },
-
         tipo : 'reporte',
-        clsSubmit : 'bprint',
-
-        /*agregarArgsExtraSubmit: function() {
-          //   this.argumentExtraSubmit.eventodesc = this.Cmp.evento.getRawValue();
-        },*/
+        clsSubmit : 'bprint'
     })
 </script>

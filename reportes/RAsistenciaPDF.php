@@ -48,63 +48,83 @@ EOF;
 
         $hader = '<table cellspacing="0" cellpadding="1">
                       <tr>
-                            <th style="border: 1px solid black; width: 15%;" align="center"><b>Codigo</b></th>
-                            <th style="border: 1px solid black; width: 15%;" align="center"><b>Gerencia</b></th>
-                            <th style="border: 1px solid black; width: 50%;" align="center"><b>Nombre</b></th>
-                            <th style="border: 1px solid black; width: 20%;" align="center"><b>Observación</b></th>
+                            <th style="border-top: 1px solid black; border-bottom: 1px solid black; width: 10%;" align="center"><b>Codigo</b></th>
+                            <th style="border-top: 1px solid black; border-bottom: 1px solid black; width: 35%;" align="center"><b>Nombre</b></th>
+                            <th style="border-top: 1px solid black; border-bottom: 1px solid black; width: 35%;" align="center"><b>Cargo</b></th>
+                            <th style="border-top: 1px solid black; border-bottom: 1px solid black; width: 20%;" align="center"><b>Observación</b></th>
                       </tr>
                 </table>';
 
-            $this->writeHTML($hader);
 
+        if ($this->objParam->getParametro('tipo') == 'General'){
+            $this->writeHTML($hader);
+        }
 
     }
     function reporteRequerimiento(){
-        // $this->SetMargins(15,45,15);
 
+        // var_dump($this->objParam->getParametro('tipo_filtro'));exit;
+        //  retraso
         $this->ln();
-        $departamento = '';
-        $table = ' <table cellspacing="0" cellpadding="1">';
-        foreach ($this->datos as $value){
+        if($this->objParam->getParametro('tipo_filtro') == 'todo'){
+            $departamento = '';
+            $table = ' <table cellspacing="0" cellpadding="1">';
+            foreach ($this->datos as $value){
+                $codigo_funcionario = $value['codigo_funcionario'];
+                $cargo = $value['cargo'];
+                $funcionario = $value['funcionario'];
+                $observacion = $value['observacion'];
+                if($departamento != $value['departamento']){
+                    $departamento = $value['departamento'];
+                    $table .=' <tr>
+                            <td colspan="4" align="left"><b>'. $value['departamento'].'</b></td>
+                    </tr>';
+                }
+                $color = '';
+                $retraso = $value['retraso'];
+                if($retraso == 'si' ){
+                    $color = 'color: #d55906';
+                }
+                $ausente = $value['ausente'];
+                if($ausente == 'si' ){
+                    $color = 'color: red';
+                }
+                $table .= '<tr>';
+                $table .= '     <td  style="width: 10%; '.$color.'"  align="center" >' . $codigo_funcionario . '</td>
+                                <td  style="width: 35%; '.$color.'"  align="left" >' . $funcionario . '</td>
+                                <td  style="width: 35%; '.$color.'"  align="left" >' . $cargo .  '</td>
+                                <td  style="width: 20%; '.$color.'"  align="center" >' . $observacion .   '</td>';
+                $table .= '</tr>';
 
-            if (!array_key_exists($value['evento'], $this->resumen_general)) {
-                $this->resumen_general[$value['evento']] = 1;
-            } else {
-
-                $this->resumen_general[$value['evento']]++;
             }
-            $this->resumen_general++;
+            $table .= '</table>';
+        }else{
+            $departamento = '';
+            $table = ' <table cellspacing="0" cellpadding="1">';
+            foreach ($this->datos as $value){
+                if ($value['observacion'] != 'En oficina'){
+                    $codigo_funcionario = $value['codigo_funcionario'];
+                    $cargo = $value['cargo'];
+                    $funcionario = $value['funcionario'];
+                    $observacion = $value['observacion'];
+                    if($departamento != $value['departamento']){
+                        $departamento = $value['departamento'];
+                        $table .=' <tr>
+                                <td colspan="4" align="left"><b>'. $value['departamento'].'</b></td>
+                        </tr>';
+                    }
 
-            if (!array_key_exists($value['gerencia'], $this->resumen_gerecias) ||
-                !array_key_exists($value['evento'], $this->resumen_gerecias[$value['gerencia']])) {
+                    $table .= '<tr>';
+                    $table .= '     <td  style="width: 10%;"  align="center" >' . $codigo_funcionario . '</td>
+                                    <td  style="width: 35%;"  align="left" >' . $funcionario . '</td>
+                                    <td  style="width: 35%;"  align="left" >' . $cargo .  '</td>
+                                    <td  style="width: 20%;"  align="center" >' . $observacion .   '</td>';
+                    $table .= '</tr>';
+                }
 
-                $this->resumen_gerecias[$value['gerencia']][$value['evento']] = 1;
-            } else {
-
-                $this->resumen_gerecias[$value['gerencia']][$value['evento']]++;
             }
-            $this->resumen_gerecias++;
-
-            $codigo_funcionario = $value['codigo_funcionario'];
-            $codigo = $value['codigo'];
-            $funcionario = $value['funcionario'];
-            $observacion = $value['observacion'];
-            if($departamento != $value['departamento']){
-                $departamento = $value['departamento'];
-                $table .=' <tr>
-                        <td  style="border: 1px solid black;" colspan="4" align="left"><b>'. $value['departamento'].'</b></td>
-                  </tr>';
-            }
-
-            $table .= '<tr>';
-        $table .= '         <td  style="border: 1px solid black; width: 15%;"  align="center" >' . $codigo_funcionario . '</td>
-                            <td  style="border: 1px solid black; width: 15%;"  align="center" >' . $codigo . '</td>
-                            <td  style="border: 1px solid black; width: 50%;"  align="left" >&nbsp; &nbsp;&nbsp; &nbsp;' . $funcionario .  '</td>
-                            <td  style="border: 1px solid black; width: 20%;"  align="center" >' . $observacion .   '</td>';
-            $table .= '</tr>';
-
+            $table .= '</table>';
         }
-        $table .= '</table>';
 
         $this->SetFont('times', '', 10);
         $this->writeHTML($table);
@@ -115,16 +135,26 @@ EOF;
         $this->datos = $datos;
     }
     function resumen(){
-
-        // $this->SetPrintHeader(false);
-        $this->AddPage();
-        //  $this->AddPage('L', 'LETTER');
-
+        foreach ($this->datos as $value){
+            if (!array_key_exists($value['evento'], $this->resumen_general)) {
+                $this->resumen_general[$value['evento']] = 1;
+            } else {
+                $this->resumen_general[$value['evento']]++;
+            }
+            $this->resumen_general++;
+            if (!array_key_exists($value['gerencia'], $this->resumen_gerecias) ||
+                !array_key_exists($value['evento'], $this->resumen_gerecias[$value['gerencia']])) {
+                $this->resumen_gerecias[$value['gerencia']][$value['evento']] = 1;
+            } else {
+                $this->resumen_gerecias[$value['gerencia']][$value['evento']]++;
+            }
+            $this->resumen_gerecias++;
+        }
         $general = '
-        <table style="border-collapse: collapse; width: 80%; margin: 0 auto;" border="1">
+        <table style="border-collapse: collapse; width: 100%; margin: 0 auto;" border="1">
             <tbody>
             <tr>
-                <td style="width: 40%"align="center"><h4><b>Oficina Central</b></h4></td>
+                <td style="width: 40%"align="center"><h4><b>OFICINA CENTRAL</b></h4></td>
                 <td style="width: 15%"align="center"><h4><b>Totales</b></h4></td>
                 <td style="width: 15%"align="center"><h4><b>Porcentaje</b></h4></td>
                 <td style="width: 30%"align="center"><h4><b>Observaciones</b></h4></td>
@@ -162,11 +192,12 @@ EOF;
         //-----gerencias------///
 
         foreach ($this->resumen_gerecias as $key => $value ) {
-            $gerencias .= ' <table style="border-collapse: collapse; width: 70%;" border="1">
+            $gerencias .= ' <table style="border-collapse: collapse; width: 100%;" border="1">
                             <tr>
-                              <td style="width: 50%" align="center"><h4><b>'.  ucwords(strtolower($key)).'</b></h4></td>
-                              <td style="width: 25%" align="center"><h4><b>Total</b></h4></td>
-                              <td style="width: 25%" align="center"><h4><b>Porcentaje</b></h4></td>
+                              <td style="width: 40%" align="center"><h4><b>'.$key.'</b></h4></td>
+                              <td style="width: 15%" align="center"><h4><b>Total</b></h4></td>
+                              <td style="width: 15%" align="center"><h4><b>Porcentaje</b></h4></td>
+                              <td style="width: 30%"align="center"><h4><b>Observaciones</b></h4></td>
                              </tr>
                             ';
             $total = 0;
@@ -183,9 +214,10 @@ EOF;
                 $calcular = round($value2/array_sum($this->resumen_gerecias[$key])*100,2);
                 $gerencias .= '
                       <tr>
-                            <td style="width: 50%">'.$key2.'</td>
-                            <td style="width: 25%" align="center">'.$value2.'</td>
-                            <td style="width: 25%" align="center">'.$calcular.'</td>
+                            <td style="width: 40%">'.$key2.'</td>
+                            <td style="width: 15%" align="center">'.$value2.'</td>
+                            <td style="width: 15%" align="center">'.$calcular.'</td>
+                            <td style="width: 30%" align="center"> </td>
                      </tr>';
 
                 $total = $total + $value2;
@@ -194,9 +226,10 @@ EOF;
             }
 
             $gerencias.=' <tr>
-                            <td style="width: 50%"> <b>Totales</b></td>
-                            <td style="width: 25%" align="center"><b>'.$total.'</b></td>
-                            <td style="width: 25%" align="center"><b>'.round($porce).'</b></td>
+                            <td style="width: 40%"> <b>Totales</b></td>
+                            <td style="width: 15%" align="center"><b>'.$total.'</b></td>
+                            <td style="width: 15%" align="center"><b>'.round($porce).'</b></td>
+                            <td style="width: 30%" align="center"> </td>
                      </tr>
                         </table> ';
             $gerencias.='<br/><br/>';
@@ -206,11 +239,20 @@ EOF;
         /**/
     }
     function generarReporte() {
-        $this->SetMargins(15,39.2,15);
-        $this->setFontSubsetting(false);
-        $this->AddPage();
-        $this->SetMargins(15,39.2,15);
-        $this->reporteRequerimiento();
+
+        if ($this->objParam->getParametro('tipo') == 'General'){
+            $this->SetMargins(15,39,15);
+            $this->setFontSubsetting(false);
+            $this->AddPage();
+            $this->SetMargins(15,39,15);
+            $this->reporteRequerimiento();
+        }else{
+            $this->SetMargins(35,39,35);
+            $this->setFontSubsetting(false);
+            $this->AddPage();
+            $this->SetMargins(35,39,35);
+            $this->resumen();
+        }
     }
 }
 ?>

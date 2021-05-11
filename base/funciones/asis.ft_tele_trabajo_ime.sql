@@ -334,10 +334,9 @@ BEGIN
                                             when 4 then 'jueves'
                                             when 5 then 'viernes'
                                     end;
-
                                 EXECUTE ('select 1
                                 from asis.ttele_trabajo tl
-                                where tl.id_tele_trabajo = ' || v_id_tele_trabajo || '
+                                where tl.id_tele_trabajo = ' || v_parametros.id_tele_trabajo || '
                                 and tl.' || v_dia || ' = true') into v_condicion;
 
                                 if v_condicion then
@@ -358,7 +357,7 @@ BEGIN
                                             'activo',
                                             v_parametros._id_usuario_ai,
                                             v_parametros._nombre_usuario_ai,
-                                            v_id_tele_trabajo,
+                                            v_parametros.id_tele_trabajo,
                                             v_record_det.dia::date);
 
                                 end if;
@@ -535,3 +534,6 @@ $body$
 SECURITY INVOKER
 PARALLEL UNSAFE
 COST 100;
+
+ALTER FUNCTION asis.ft_tele_trabajo_ime (p_administrador integer, p_id_usuario integer, p_tabla varchar, p_transaccion varchar)
+  OWNER TO postgres;
