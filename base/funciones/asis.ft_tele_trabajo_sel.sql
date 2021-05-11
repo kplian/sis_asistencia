@@ -1,11 +1,7 @@
-CREATE OR REPLACE FUNCTION asis.ft_tele_trabajo_sel (
-  p_administrador integer,
-  p_id_usuario integer,
-  p_tabla varchar,
-  p_transaccion varchar
-)
-RETURNS varchar AS
-$body$
+create or replace function asis.ft_tele_trabajo_sel(p_administrador integer, p_id_usuario integer, p_tabla character varying, p_transaccion character varying) returns character varying
+    language plpgsql
+as
+$$
 /**************************************************************************
  SISTEMA:        Sistema de Asistencia
  FUNCION:         asis.ft_tele_trabajo_sel
@@ -22,7 +18,7 @@ $body$
 
 DECLARE
 
-v_consulta       VARCHAR;
+    v_consulta       VARCHAR;
     v_parametros     RECORD;
     v_nombre_funcion TEXT;
     v_resp           VARCHAR;
@@ -43,32 +39,32 @@ BEGIN
 
     IF (p_transaccion = 'ASIS_TLT_SEL') THEN
 
-BEGIN
+        BEGIN
 
             v_filtro = '';
 
             if (v_parametros.tipo_interfaz = 'SolTeleTrabajo') then
-
-                v_filtro = '( tlt.id_usuario_reg = ' || p_id_usuario || ') and ';
-
-end if;
+                if p_administrador != 1 then
+                    v_filtro = '( tlt.id_usuario_reg = ' || p_id_usuario || ') and ';
+                end if;
+            end if;
 
             if (v_parametros.tipo_interfaz = 'TeleTrabajoVoBo') then
 
                 if p_administrador != 1 then
 
-select f.id_funcionario
-into v_id_funcionario
-from segu.vusuario u
-         inner join orga.vfuncionario_persona f on f.id_persona = u.id_persona
-where u.id_usuario = p_id_usuario;
+                    select f.id_funcionario
+                    into v_id_funcionario
+                    from segu.vusuario u
+                             inner join orga.vfuncionario_persona f on f.id_persona = u.id_persona
+                    where u.id_usuario = p_id_usuario;
 
-if v_id_funcionario is not null then
+                    if v_id_funcionario is not null then
                         v_filtro = 'tlt.id_responsable =  ' || v_id_funcionario || ' and ';
-end if;
-end if;
+                    end if;
+                end if;
 
-end if;
+            end if;
 
             --Sentencia de la consulta
             v_consulta := 'select tlt.id_tele_trabajo,
@@ -118,9 +114,9 @@ end if;
                           ' limit ' || v_parametros.cantidad || ' offset ' || v_parametros.puntero;
 
             --Devuelve la respuesta
-RETURN v_consulta;
+            RETURN v_consulta;
 
-END;
+        END;
 
         /*********************************
          #TRANSACCION:  'ASIS_TLT_CONT'
@@ -131,32 +127,32 @@ END;
 
     ELSIF (p_transaccion = 'ASIS_TLT_CONT') THEN
 
-BEGIN
+        BEGIN
 
             v_filtro = '';
 
             if (v_parametros.tipo_interfaz = 'SolTeleTrabajo') then
-
-                v_filtro = '( tlt.id_usuario_reg = ' || p_id_usuario || ') and ';
-
-end if;
+                if p_administrador != 1 then
+                    v_filtro = '( tlt.id_usuario_reg = ' || p_id_usuario || ') and ';
+                end if;
+            end if;
 
             if (v_parametros.tipo_interfaz = 'TeleTrabajoVoBo') then
 
                 if p_administrador != 1 then
 
-select f.id_funcionario
-into v_id_funcionario
-from segu.vusuario u
-         inner join orga.vfuncionario_persona f on f.id_persona = u.id_persona
-where u.id_usuario = p_id_usuario;
+                    select f.id_funcionario
+                    into v_id_funcionario
+                    from segu.vusuario u
+                             inner join orga.vfuncionario_persona f on f.id_persona = u.id_persona
+                    where u.id_usuario = p_id_usuario;
 
-if v_id_funcionario is not null then
+                    if v_id_funcionario is not null then
                         v_filtro = 'tlt.id_responsable =  ' || v_id_funcionario || ' and ';
-end if;
-end if;
+                    end if;
+                end if;
 
-end if;
+            end if;
             --Sentencia de la consulta de conteo de registros
             v_consulta := 'select COUNT(id_tele_trabajo)
                         from asis.ttele_trabajo tlt
@@ -172,9 +168,9 @@ end if;
             v_consulta := v_consulta || v_parametros.filtro;
 
             --Devuelve la respuesta
-RETURN v_consulta;
+            RETURN v_consulta;
 
-END;
+        END;
 
         /*********************************
         #TRANSACCION:  'ASIS_TLTREP_SEL'
@@ -185,18 +181,19 @@ END;
 
     ELSIF (p_transaccion = 'ASIS_TLTREP_SEL') THEN
 
-BEGIN
+        BEGIN
 
-select t.id_proceso_wf,
-       t.fecha_inicio,
-       t.fecha_fin
-into v_record
-from asis.ttele_trabajo t
-where t.id_proceso_wf = v_parametros.id_proceso_wf;
+            select t.id_proceso_wf,
+                   t.fecha_inicio,
+                   t.fecha_fin
+            into v_record
+            from asis.ttele_trabajo t
+            where t.id_proceso_wf = v_parametros.id_proceso_wf;
 
-v_consulta := 'with rango as (select dia::date as fecha_rango,
-                                          '||v_parametros.id_proceso_wf||'as id_proceso_wf
-                                   from generate_series('''||v_record.fecha_inicio||'''::date, '''||coalesce(v_record.fecha_fin,'2021-12-31'::date)||'''::date,
+            v_consulta := 'with rango as (select dia::date as fecha_rango,
+                                          ' || v_parametros.id_proceso_wf || 'as id_proceso_wf
+                                   from generate_series(''' || v_record.fecha_inicio || '''::date, ''' ||
+                          v_record.fecha_fin || '''::date,
                                                         ''1 day''::interval) dia)
                     select tlt.id_tele_trabajo,
                            initcap(fu.desc_funcionario2)  as funcionario_solicitante,
@@ -244,19 +241,19 @@ v_consulta := 'with rango as (select dia::date as fecha_rango,
                              inner join orga.vfuncionario res on res.id_funcionario = tlt.id_responsable
                              inner join orga.tuo dep ON dep.id_uo = orga.f_get_uo_departamento(fu.id_uo, NULL::integer, NULL::date)
                              inner join rango ra on ra.id_proceso_wf = tlt.id_proceso_wf
-                    where tlt.id_proceso_wf = '||v_parametros.id_proceso_wf||'
+                    where tlt.id_proceso_wf = ' || v_parametros.id_proceso_wf || '
                       and (fu.fecha_finalizacion is null or fu.fecha_finalizacion >= now()::date)
                     order by fecha_rango';
 
             --Devuelve la respuesta
-RETURN v_consulta;
+            RETURN v_consulta;
 
-END;
-ELSE
+        END;
+    ELSE
 
         RAISE EXCEPTION 'Transaccion inexistente';
 
-END IF;
+    END IF;
 
 EXCEPTION
 
@@ -267,10 +264,5 @@ EXCEPTION
         v_resp = pxp.f_agrega_clave(v_resp, 'procedimientos', v_nombre_funcion);
         RAISE EXCEPTION '%',v_resp;
 END;
-$body$
-LANGUAGE 'plpgsql'
-VOLATILE
-CALLED ON NULL INPUT
-SECURITY INVOKER
-PARALLEL UNSAFE
-COST 100;
+$$;
+

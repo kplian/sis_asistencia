@@ -232,9 +232,9 @@ BEGIN
                     v_fecha_aux = v_incremento_fecha;
                 end loop;
 
-            IF v_cant_dias = 0 OR v_parametros.dias = 0 THEN-- contador de dias
+            /*IF v_cant_dias = 0 OR v_parametros.dias = 0 THEN-- contador de dias
                 RAISE EXCEPTION 'ERROR: CANTIDAD DE DIAS MAXIMO PERMITIDO MAYOR 0.';
-            END IF;
+            END IF;*/
 
             select dt.dias
             into v_dias_permetidos
@@ -406,9 +406,9 @@ BEGIN
                     v_fecha_aux = v_incremento_fecha;
                 end loop;
 
-            IF v_cant_dias = 0 OR v_parametros.dias = 0 THEN-- contador de dias
+            /*IF v_cant_dias = 0 OR v_parametros.dias = 0 THEN-- contador de dias
                 RAISE EXCEPTION 'ERROR: CANTIDAD DE DIAS MAXIMO PERMITIDO MAYOR 0.';
-            END IF;
+            END IF;*/
 
             select dt.dias
             into v_dias_permetidos

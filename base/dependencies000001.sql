@@ -310,3 +310,30 @@ select pxp.f_insert_testructura_gui ('RAA', 'AREP');
 /***********************************I-DEP-MMV-ASIS-SDA-70-11/03/2021*****************************************/
 select wf.f_import_ttipo_documento_estado ('insert','SOL-TE','SOL-TTO','registro','SOL-TTO','crear','superior','');
 /***********************************F-DEP-MMV-ASIS-SDA-70-11/03/2021*****************************************/
+
+/***********************************I-DEP-MMV-ASIS-SDA-0-11/05/2021*****************************************/
+create or replace view  asis.vteletrabajo as (
+                                             select t.id_tele_trabajo,
+                                                    t.id_proceso_wf,
+                                                    t.id_estado_wf,
+                                                    t.id_funcionario,
+                                                    f.desc_funcionario2 as funcionario,
+                                                    (case
+                                                         when t.tipo_teletrabajo != 'Permanente' then
+                                                                     t.tipo_teletrabajo ||' - '|| t.tipo_temporal
+                                                         else
+                                                             t.tipo_teletrabajo
+                                                        end) as tipo_teletrabajo,
+                                                    (case
+                                                         when t.tipo_teletrabajo = 'Permanente' then
+                                                                 '<b>Fecha: </b>' ||to_char(t.fecha_inicio::timestamp with time zone, 'DD/MM/YYYY'::text)
+                                                         else
+                                                                         '<b>Desde: </b>' ||to_char(t.fecha_inicio::timestamp with time zone, 'DD/MM/YYYY'::text) ||' <b>Hasta: </b> '|| to_char(t.fecha_fin::timestamp with time zone, 'DD/MM/YYYY'::text)
+                                                        end) as fecha,
+                                                    t.fecha_inicio,
+                                                    t.fecha_fin,
+                                                    t.motivo,
+                                                    t.justificacion
+                                             from asis.ttele_trabajo t
+                                                      inner join orga.vfuncionario f on f.id_funcionario = t.id_funcionario);
+/***********************************F-DEP-MMV-ASIS-SDA-0-11/05/2021*****************************************/
