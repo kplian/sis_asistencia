@@ -95,8 +95,8 @@ EOD;
         $hader = '<table cellspacing="0" cellpadding="1" >
                       <tr>
                             <th  width="10%" style="border-top: 1px solid black; border-bottom: 1px solid black;" align="center"><b>Nro.</b></th>
-                            <th  width="30%" style="border-top: 1px solid black; border-bottom: 1px solid black;" align="center"><b>Dia Literal</b></th>
-                            <th  width="30%" style="border-top: 1px solid black; border-bottom: 1px solid black;" align="center"><b>Dia </b></th>
+                            <th  width="30%" style="border-top: 1px solid black; border-bottom: 1px solid black;" align="center"><b>Dia</b></th>
+                            <th  width="30%" style="border-top: 1px solid black; border-bottom: 1px solid black;" align="center"><b>Fecha</b></th>
                             <th  width="30%" style="border-top: 1px solid black; border-bottom: 1px solid black;" align="center"><b>Observacion</b></th>
                       </tr>
                 </table>';
