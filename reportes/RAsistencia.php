@@ -189,7 +189,7 @@ class RAsistencia{
                 $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(1, $fila, $value['codigo']);
                 $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(2, $fila, $value['funcionario']);
                 $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(3, $fila, $value['observacion']);
-                $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(4, $fila, $value['cargo']);
+               // $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(4, $fila, $value['cargo']);
 
                 $this->docexcel->getActiveSheet()->getStyle("A$fila:B$fila")->applyFromArray($style_center);
                 $this->docexcel->getActiveSheet()->getStyle("A$fila:D$fila")->applyFromArray($border);
