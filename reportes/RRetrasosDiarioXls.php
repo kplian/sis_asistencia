@@ -91,24 +91,28 @@ class RRetrasosDiarioXls{
         );
         //modificacionw
         $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(0,2,'REPORTE DIARIO DE RETRASOS');
-        $this->docexcel->getActiveSheet()->getStyle('A2:E2')->applyFromArray($styleTitulos1);
-        $this->docexcel->getActiveSheet()->mergeCells('A2:E2');
+        $this->docexcel->getActiveSheet()->getStyle('A2:F2')->applyFromArray($styleTitulos1);
+        $this->docexcel->getActiveSheet()->mergeCells('A2:F2');
         $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(0,3,'Fecha: '.$this->objParam->getParametro('fecha'));
-        $this->docexcel->getActiveSheet()->getStyle('A3:E3')->applyFromArray($styleTitulos3);
-        $this->docexcel->getActiveSheet()->mergeCells('A3:E3');
+        $this->docexcel->getActiveSheet()->getStyle('A3:F3')->applyFromArray($styleTitulos3);
+        $this->docexcel->getActiveSheet()->mergeCells('A3:F3');
         $this->docexcel->getActiveSheet()->getColumnDimension('A')->setWidth(15);
         $this->docexcel->getActiveSheet()->getColumnDimension('B')->setWidth(40);
         $this->docexcel->getActiveSheet()->getColumnDimension('C')->setWidth(40);
         $this->docexcel->getActiveSheet()->getColumnDimension('D')->setWidth(20);
         $this->docexcel->getActiveSheet()->getColumnDimension('E')->setWidth(25);
-        $this->docexcel->getActiveSheet()->getStyle('A5:E5')->getAlignment()->setWrapText(true);
-        $this->docexcel->getActiveSheet()->getStyle('A5:E5')->applyFromArray($styleTitulos2);
+        $this->docexcel->getActiveSheet()->getColumnDimension('F')->setWidth(20);
+
+        $this->docexcel->getActiveSheet()->getStyle('A5:F5')->getAlignment()->setWrapText(true);
+        $this->docexcel->getActiveSheet()->getStyle('A5:F5')->applyFromArray($styleTitulos2);
 
         $this->docexcel->getActiveSheet()->setCellValue('A5','COD. EMP');
         $this->docexcel->getActiveSheet()->setCellValue('B5','NOMBRE');
         $this->docexcel->getActiveSheet()->setCellValue('C5','CARGO');
         $this->docexcel->getActiveSheet()->setCellValue('D5','HORA DE INGRESO');
         $this->docexcel->getActiveSheet()->setCellValue('E5','MINUTOS DE RETRASO');
+        $this->docexcel->getActiveSheet()->setCellValue('F5','OBS,');
+
     }
     function generarDatos(){
         $this->imprimeCabecera();
@@ -138,6 +142,11 @@ class RRetrasosDiarioXls{
                     'rgb' => 'FA0808'
                 )
             ));
+        $arrayBuel = array(
+            'font'  => array(
+                'bold'  => true
+            ),
+        );
 
         $fila = 6;
         $dep = '';
@@ -153,13 +162,20 @@ class RRetrasosDiarioXls{
             $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(2, $fila, $value['cargo']);
             $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(3, $fila, $value['hora']);
             $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(4, $fila, $value['hora_cal']);
+            $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(5, $fila, $value['evento']);
+
+            if($value['evento'] == 'Asuente'){
+                $this->docexcel->getActiveSheet()->getStyle("D$fila:D$fila")->applyFromArray($red);
+            }
 
             if($value['retraso'] == 'si' &&  $this->objParam->getParametro('tipo_filtro') != 'retraso'){
-                $this->docexcel->getActiveSheet()->getStyle("A$fila:E$fila")->applyFromArray($red);
+                $this->docexcel->getActiveSheet()->getStyle("E$fila:E$fila")->applyFromArray($red);
             }
 
             $this->docexcel->getActiveSheet()->getStyle("A$fila:A$fila")->applyFromArray($styleTitulos3);
-            $this->docexcel->getActiveSheet()->getStyle("D$fila:E$fila")->applyFromArray($styleTitulos3);
+            $this->docexcel->getActiveSheet()->getStyle("D$fila:F$fila")->applyFromArray($styleTitulos3);
+            $this->docexcel->getActiveSheet()->getStyle("D$fila:E$fila")->applyFromArray($arrayBuel);
+
             $fila++;
         }
     }

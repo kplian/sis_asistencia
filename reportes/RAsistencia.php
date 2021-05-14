@@ -58,16 +58,19 @@ class RAsistencia{
             'fill' => array(
                 'type' => PHPExcel_Style_Fill::FILL_SOLID,
                 'color' => array(
-                    'rgb' => '#69BFE1'
+                    'rgb' => '000000'
                 )
             ),
             'borders' => array(
                 'allborders' => array(
-                    'style' => PHPExcel_Style_Border::BORDER_THIN
+                    'style' => PHPExcel_Style_Border::BORDER_THIN,
+                    'color' => array('rgb' => 'AAAAAA')
                 )
-            ));
-
+            )
+        );
         //modificacionw
+
+
 
         $this->imprimirTitulo();
         if ($this->objParam->getParametro('tipo') == 'General') {
@@ -99,6 +102,57 @@ class RAsistencia{
                 'borders' => array(
                     'allborders' => array(
                         'style' => PHPExcel_Style_Border::BORDER_THIN
+                    )
+                )
+            );
+
+
+            $ausente = array(
+                'font'  => array(
+                    'color' => array(
+                        'rgb' => 'FA0808'
+                    )
+                )
+            );
+
+            $retraso= array(
+                'font'  => array(
+                    'color' => array(
+                        'rgb' => 'A69128'
+                    )
+                )
+            );
+            $vacacion= array(
+                'font'  => array(
+                    'color' => array(
+                        'rgb' => '0D89CE'
+                    )
+                )
+            );
+            $teletrabajo= array(
+                'font'  => array(
+                    'color' => array(
+                        'rgb' => '0453B3'
+                    )
+                )
+            );
+
+            $arrayBuel = array(
+                'font'  => array(
+                    'bold'  => true
+                ),
+            );
+            $bajaMedica= array(
+                'font'  => array(
+                    'color' => array(
+                        'rgb' => '26CAC9'
+                    )
+                )
+            );
+            $viaticos= array(
+                'font'  => array(
+                    'color' => array(
+                        'rgb' => '5D26CA'
                     )
                 )
             );
@@ -135,11 +189,33 @@ class RAsistencia{
                 $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(1, $fila, $value['codigo']);
                 $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(2, $fila, $value['funcionario']);
                 $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(3, $fila, $value['observacion']);
-                // $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(4, $fila, $value['cargo']);
+                $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(4, $fila, $value['cargo']);
 
                 $this->docexcel->getActiveSheet()->getStyle("A$fila:B$fila")->applyFromArray($style_center);
-                $this->docexcel->getActiveSheet()->getStyle("D$fila:D$fila")->applyFromArray($style_center);
                 $this->docexcel->getActiveSheet()->getStyle("A$fila:D$fila")->applyFromArray($border);
+
+                if($value['ausente'] == 'si'){
+                    $this->docexcel->getActiveSheet()->getStyle("D$fila:D$fila")->applyFromArray($ausente);
+                }
+                if($value['retraso'] == 'si'){
+                    $this->docexcel->getActiveSheet()->getStyle("D$fila:D$fila")->applyFromArray($retraso);
+                }
+                if($value['vacacion'] == 'si'){
+                    $this->docexcel->getActiveSheet()->getStyle("D$fila:D$fila")->applyFromArray($vacacion);
+                }
+                if($value['teletrabajo'] == 'si'){
+                    $this->docexcel->getActiveSheet()->getStyle("D$fila:D$fila")->applyFromArray($teletrabajo);
+                }
+                if($value['baje_medica'] == 'si'){
+                    $this->docexcel->getActiveSheet()->getStyle("D$fila:D$fila")->applyFromArray($bajaMedica);
+                }
+                if($value['viatico'] == 'si'){
+                    $this->docexcel->getActiveSheet()->getStyle("D$fila:D$fila")->applyFromArray($viaticos);
+                }
+
+
+                $this->docexcel->getActiveSheet()->getStyle("D$fila:D$fila")->applyFromArray($arrayBuel);
+                $this->docexcel->getActiveSheet()->getStyle("D$fila:D$fila")->applyFromArray($style_center);
 
                 $fila++;
             }

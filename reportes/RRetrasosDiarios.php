@@ -43,10 +43,11 @@ EOF;
         $hader = '<table cellspacing="0" cellpadding="1">
                       <tr>
                             <th style="border-top: 1px solid black; border-bottom: 1px solid black; width: 10%;" align="center"><b>Cod. Emp.</b></th>
-                            <th style="border-top: 1px solid black; border-bottom: 1px solid black; width: 35%;" align="center"><b>Nombre</b></th>
-                            <th style="border-top: 1px solid black; border-bottom: 1px solid black; width: 35%;" align="center"><b>Cargo</b></th>
+                            <th style="border-top: 1px solid black; border-bottom: 1px solid black; width: 30%;" align="center"><b>Nombre</b></th>
+                            <th style="border-top: 1px solid black; border-bottom: 1px solid black; width: 30%;" align="center"><b>Cargo</b></th>
                             <th style="border-top: 1px solid black; border-bottom: 1px solid black; width: 10%;" align="center"><b>Hora de ingreso</b></th>
                             <th style="border-top: 1px solid black; border-bottom: 1px solid black; width: 10%;" align="center"><b>Minutos de retraso</b></th>
+                            <th style="border-top: 1px solid black; border-bottom: 1px solid black; width: 10%;" align="center"><b>Obs.</b></th>
                       </tr>
                 </table>';
         $this->SetFont('times', '', 9);
@@ -71,7 +72,7 @@ EOF;
 
             $color = '';
 
-            if($retraso == 'si' &&  $this->objParam->getParametro('tipo_filtro') != 'retraso'){
+            if($value['evento'] == 'Asuente'){
                 $color = 'color: red';
             }
 
@@ -83,11 +84,14 @@ EOF;
             }
 
             $table .= '<tr>';
-            $table .= ' <td style="width: 10%; '.$color.' " align="center" >' . $codigo_funcionario . '</td>
-                            <td style="width: 35%; '.$color.' ">' . $funcionario . '</td>
-                            <td style="width: 35%; '.$color.' ">' . $cargo . '</td>
+            $table .= ' <td style="width: 10%; align="center" >' . $codigo_funcionario . '</td>
+                            <td style="width: 30%;">' . $funcionario . '</td>
+                            <td style="width: 30%;">' . $cargo . '</td>
                             <td style="width: 10%; '.$color.' " align="center" >' . $hora .   '</td>
-                            <td style="width: 10%; '.$color.' " align="center" >' . $hora_cal . '</td>';
+                            <td style="width: 10%;" align="center">' . $hora_cal . '</td>
+                            <td style="width: 10%;">' . $value['evento'] . '</td>
+                            ';
+
             $table .= '</tr>';
 
         }

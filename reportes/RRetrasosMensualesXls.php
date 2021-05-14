@@ -158,6 +158,7 @@ class RRetrasosMensualesXls{
         $dep = '';
         $codigo_funcionario = '';
         $funcionario = '';
+        $area = '';
 
         $datos = $this->objParam->getParametro('datos');
         foreach ($datos as $value) {
@@ -174,9 +175,10 @@ class RRetrasosMensualesXls{
                 $funcionario = $value['funcionario'];
                 $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(1, $fila, $value['funcionario']);
             }
-            $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(2, $fila, $value['departamento']);
-            $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(3, $fila, $value['fecha']);
-
+            if ($value['hora'] != '' || $value['hora']!= null){
+                $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(2, $fila, $value['departamento']);
+                $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(3, $fila, $value['fecha']);
+            }
             if ($value['hora'] != '' || $value['hora']!= null){
                 $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(4, $fila, $value['hora']);
                 $this->docexcel->getActiveSheet()->getStyle("E$fila:E$fila")->applyFromArray($styleTitulos3);

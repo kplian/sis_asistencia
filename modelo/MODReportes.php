@@ -441,6 +441,7 @@ class MODReportes extends MODbase{
         $this->captura('hora','time');
         $this->captura('hora_cal','time');
         $this->captura('retraso','varchar');
+        $this->captura('evento','varchar');
         //Ejecuta la instruccion
         $this->armarConsulta();
         $this->ejecutarConsulta();
