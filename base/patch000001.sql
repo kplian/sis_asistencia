@@ -848,4 +848,77 @@ ALTER TABLE asis.tdetalle_tipo_permiso
 ALTER TABLE asis.ttipo_permiso
     ADD COLUMN detalle VARCHAR(10) DEFAULT 'no' NOT NULL;
 
+ALTER TABLE asis.tpermiso
+    ADD COLUMN id_tipo_licencia INTEGER;
+
+ALTER TABLE asis.tpermiso
+    ADD COLUMN fecha_inicio DATE;
+
+ALTER TABLE asis.tpermiso
+    ADD COLUMN fecha_fin DATE;
+
+ALTER TABLE asis.tpermiso
+    ADD COLUMN dias NUMERIC;
 /***********************************F-SCP-MMV-ASIS-SDA-71-1-23/03/2021****************************************/
+/***********************************I-SCP-MMV-ASIS-SDA-71-1-30/04/2021****************************************/
+CREATE TABLE asis.tgrupo_asig (
+                                  id_grupo_asig SERIAL,
+                                  codigo VARCHAR(20),
+                                  descripcion VARCHAR(100),
+                                  id_rango_horario INTEGER NOT NULL,
+                                  CONSTRAINT tgrupo_asig_tgrupo_pkey PRIMARY KEY(id_grupo_asig)
+) INHERITS (pxp.tbase)
+  WITH (oids = false);
+
+ALTER TABLE asis.tgrupo_asig
+    ALTER COLUMN id_grupo_asig SET STATISTICS 0;
+
+ALTER TABLE asis.tgrupo_asig
+    ALTER COLUMN codigo SET STATISTICS 0;
+
+ALTER TABLE asis.tgrupo_asig
+    ALTER COLUMN descripcion SET STATISTICS 0;
+
+CREATE TABLE asis.tgrupo_asig_det (
+                                      id_id_grupo_asig_det SERIAL,
+                                      id_funcionario INTEGER,
+                                      id_grupo_asig INTEGER NOT NULL,
+                                      CONSTRAINT tgrupo_asig_det_tid_grupo_det_pkey PRIMARY KEY(id_id_grupo_asig_det)
+) INHERITS (pxp.tbase)
+  WITH (oids = false);
+
+ALTER TABLE asis.tgrupo_asig_det
+    ALTER COLUMN id_id_grupo_asig_det SET STATISTICS 0;
+
+ALTER TABLE asis.tgrupo_asig_det
+    ALTER COLUMN id_funcionario SET STATISTICS 0;
+/***********************************F-SCP-MMV-ASIS-SDA-71-1-30/04/2021****************************************/
+/***********************************I-SCP-MMV-ASIS-SDA-71-1-03/05/2021****************************************/
+alter table asis.trango_horario
+    add desde date;
+
+alter table asis.trango_horario
+    add hasta date;
+/***********************************F-SCP-MMV-ASIS-SDA-71-1-03/05/2021****************************************/
+
+
+/***********************************I-SCP-MMV-ASIS-SDA-78-1-17/05/2021****************************************/
+alter table asis.ttipo_permiso
+    add rango_fecha varchar(5) default 'no';
+
+alter table asis.ttipo_permiso
+    add compensacion_fecha varchar(5) default 'no';
+
+alter table asis.ttipo_permiso alter column compensacion_fecha set not null;
+
+
+alter table asis.tpermiso
+    add inicio_comp date;
+
+alter table asis.tpermiso
+    add fin_comp date;
+
+
+/***********************************F-SCP-MMV-ASIS-SDA-78-1-17/05/2021****************************************/
+
+

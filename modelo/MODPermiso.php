@@ -73,6 +73,8 @@ class MODPermiso extends MODbase{
         $this->captura('dias','numeric');
         $this->captura('desc_tipo_licencia','varchar');
 
+        $this->captura('inicio_comp','date');
+        $this->captura('fin_comp','date');
 
         //Ejecuta la instruccion
         $this->armarConsulta();
@@ -117,7 +119,8 @@ class MODPermiso extends MODbase{
         $this->setParametro('fecha_inicio','fecha_inicio','date');
         $this->setParametro('fecha_fin','fecha_fin','date');
         $this->setParametro('dias','dias','numeric');
-
+        $this->setParametro('inicio_comp','inicio_comp','date');
+        $this->setParametro('fin_comp','fin_comp','date');
         //Ejecuta la instruccion
         $this->armarConsulta();
         $this->ejecutarConsulta();
@@ -157,6 +160,8 @@ class MODPermiso extends MODbase{
         $this->setParametro('fecha_inicio','fecha_inicio','date');
         $this->setParametro('fecha_fin','fecha_fin','date');
         $this->setParametro('dias','dias','numeric');
+        $this->setParametro('inicio_comp','inicio_comp','date');
+        $this->setParametro('fin_comp','fin_comp','date');
         //Ejecuta la instruccion
         $this->armarConsulta();
         $this->ejecutarConsulta();

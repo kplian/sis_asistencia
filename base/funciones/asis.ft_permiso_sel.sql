@@ -1,5 +1,4 @@
-create or replace function asis.ft_permiso_sel(p_administrador integer, p_id_usuario integer, p_tabla character varying,
-                               p_transaccion character varying) returns character varying
+create or replace function asis.ft_permiso_sel(p_administrador integer, p_id_usuario integer, p_tabla character varying, p_transaccion character varying) returns character varying
     language plpgsql
 as
 $$
@@ -154,7 +153,9 @@ BEGIN
                                 pmo.fecha_inicio,
                                 pmo.fecha_fin,
                                 pmo.dias,
-			                    dt.nombre                                     as desc_tipo_licencia
+			                    dt.nombre                                     as desc_tipo_licencia,
+                                pmo.inicio_comp,
+                                pmo.fin_comp
                                 from asis.tpermiso pmo
                                 inner join segu.tusuario usu1 on usu1.id_usuario = pmo.id_usuario_reg
                                 inner join asis.ttipo_permiso tip on tip.id_tipo_permiso = pmo.id_tipo_permiso
@@ -434,4 +435,3 @@ EXCEPTION
         raise exception '%',v_resp;
 END;
 $$;
-

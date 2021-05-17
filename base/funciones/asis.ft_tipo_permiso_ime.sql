@@ -18,13 +18,10 @@ $$
 
 DECLARE
 
-    v_nro_requerimiento integer;
-    v_parametros        record;
-    v_id_requerimiento  integer;
-    v_resp              varchar;
-    v_nombre_funcion    text;
-    v_mensaje_error     text;
-    v_id_tipo_permiso   integer;
+    v_parametros      record;
+    v_resp            varchar;
+    v_nombre_funcion  text;
+    v_id_tipo_permiso integer;
 
 BEGIN
 
@@ -55,7 +52,9 @@ BEGIN
                                            fecha_mod,
                                            documento,
                                            reposcion,
-                                           detalle
+                                           detalle,
+                                           rango_fecha,
+                                           compensacion_fecha
                 -- rango
             )
             values ('activo',
@@ -70,9 +69,9 @@ BEGIN
                     null,
                     v_parametros.documento,
                     v_parametros.reposcion,
-                    v_parametros.detalle
-                       --v_parametros.rango
-                   )
+                    v_parametros.detalle,
+                    v_parametros.rango_fecha,
+                    v_parametros.compensacion_fecha)
             RETURNING id_tipo_permiso into v_id_tipo_permiso;
 
             --Definicion de la respuesta
@@ -98,16 +97,18 @@ BEGIN
         begin
             --Sentencia de la modificacion
             update asis.ttipo_permiso
-            set codigo         = v_parametros.codigo,
-                nombre         = v_parametros.nombre,
-                tiempo         = v_parametros.tiempo,
-                id_usuario_mod = p_id_usuario,
-                fecha_mod      = now(),
-                id_usuario_ai  = v_parametros._id_usuario_ai,
-                usuario_ai     = v_parametros._nombre_usuario_ai,
-                documento      = v_parametros.documento,
-                reposcion      = v_parametros.reposcion,
-                detalle        = v_parametros.detalle
+            set codigo             = v_parametros.codigo,
+                nombre             = v_parametros.nombre,
+                tiempo             = v_parametros.tiempo,
+                id_usuario_mod     = p_id_usuario,
+                fecha_mod          = now(),
+                id_usuario_ai      = v_parametros._id_usuario_ai,
+                usuario_ai         = v_parametros._nombre_usuario_ai,
+                documento          = v_parametros.documento,
+                reposcion          = v_parametros.reposcion,
+                detalle            = v_parametros.detalle,
+                rango_fecha        = v_parametros.rango_fecha,
+                compensacion_fecha = v_parametros.compensacion_fecha
                 --rango = v_parametros.rango
             where id_tipo_permiso = v_parametros.id_tipo_permiso;
 

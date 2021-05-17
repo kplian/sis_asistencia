@@ -155,7 +155,47 @@ header("content-type: text/javascript; charset=UTF-8");
                     },
                     type: 'ComboBox',
                     id_grupo: 1,
-                    filters: {pfiltro: 'tpo.rango', type: 'string'},
+                    filters: {pfiltro: 'tpo.detalle', type: 'string'},
+                    valorInicial: 'no',
+                    grid: true,
+                    form: true
+                },
+                {
+                    config: {
+                        name: 'rango_fecha',
+                        fieldLabel: 'Rango Fecha',
+                        allowBlank: false,
+                        width: 80,
+                        gwidth: 150,
+                        typeAhead: true,
+                        triggerAction: 'all',
+                        lazyRender: true,
+                        mode: 'local',
+                        store: ['si', 'no']
+                    },
+                    type: 'ComboBox',
+                    id_grupo: 1,
+                    filters: {pfiltro: 'tpo.rango_fecha', type: 'string'},
+                    valorInicial: 'no',
+                    grid: true,
+                    form: true
+                },
+                {
+                    config: {
+                        name: 'compensacion_fecha',
+                        fieldLabel: 'Compensacion Fecha',
+                        allowBlank: false,
+                        width: 80,
+                        gwidth: 150,
+                        typeAhead: true,
+                        triggerAction: 'all',
+                        lazyRender: true,
+                        mode: 'local',
+                        store: ['si', 'no']
+                    },
+                    type: 'ComboBox',
+                    id_grupo: 1,
+                    filters: {pfiltro: 'tpo.compensacion_fecha', type: 'string'},
                     valorInicial: 'no',
                     grid: true,
                     form: true
@@ -295,7 +335,9 @@ header("content-type: text/javascript; charset=UTF-8");
                 {name: 'documento', type: 'string'},
                 {name: 'reposcion', type: 'string'},
                 {name: 'rango', type: 'string'},
-                {name: 'detalle', type: 'string'}
+                {name: 'detalle', type: 'string'},
+                {name: 'rango_fecha', type: 'string'},
+                {name: 'compensacion_fecha', type: 'string'}
 
             ],
             sortInfo: {

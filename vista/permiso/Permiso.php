@@ -334,7 +334,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         allowBlank: false,
                         width: 300,
                         gwidth: 300,
-                        renderer: function(value, metaData, record, rowIndex, colIndex, store) {
+                        renderer: function (value, metaData, record, rowIndex, colIndex, store) {
                             metaData.css = 'multilineColumn';
                             return String.format('<div class="gridmultiline"><font color="#a52a2a">{0}</font></div>', value);//#4
                         }
@@ -360,7 +360,9 @@ header("content-type: text/javascript; charset=UTF-8");
                                 direction: 'ASC'
                             },
                             totalProperty: 'total',
-                            fields: ['id_tipo_permiso', 'nombre', 'codigo', 'documento', 'reposcion', 'tiempo', 'rango', 'detalle'],
+                            fields: ['id_tipo_permiso', 'nombre', 'codigo',
+                                'documento', 'reposcion', 'tiempo', 'rango',
+                                'detalle', 'rango_fecha','compensacion_fecha'],
                             remoteSort: true,
                             baseParams: {par_filtro: 'tpo.nombre#tpo.codigo'}
                         }),
@@ -411,7 +413,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         displayField: 'nombre',
                         gdisplayField: 'desc_tipo_licencia',
                         hiddenName: 'id_detalle_tipo_permiso',
-                        tpl:'<tpl for="."><div class="x-combo-list-item"><p>{nombre}: <b>Permiso de {dias} días</b></p></div></tpl>',
+                        tpl: '<tpl for="."><div class="x-combo-list-item"><p>{nombre}: <b>Permiso de {dias} días</b></p></div></tpl>',
                         forceSelection: true,
                         typeAhead: false,
                         triggerAction: 'all',
@@ -476,7 +478,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         name: 'dias',
                         fieldLabel: 'Dias Efectivos',
                         allowBlank: true,
-                        anchor: '35%',
+                        anchor: '50%',
                         gwidth: 100,
                         style: 'background-image: none;',
                         disabled: true,
@@ -495,7 +497,8 @@ header("content-type: text/javascript; charset=UTF-8");
                         width: 130,
                         gwidth: 100,
                         format: 'd/m/Y',
-                        disabledDays: [0, 6],
+                       // disabledDays: [1,2,3,4,5],
+                       // disabledDates: ['^02'],
                         renderer: function (value, p, record) {
                             return value ? value.dateFormat('d/m/Y') : ''
                         }
@@ -510,12 +513,13 @@ header("content-type: text/javascript; charset=UTF-8");
                     config: {
                         name: 'hro_desde',
                         fieldLabel: 'Desde',
-                        allowBlank: false,
+                        allowBlank: true,
                         increment: 10,
                         minValue: '00:00:00',
                         maxValue: '23:55:00',
                         width: 100,
                         format: 'H:i:s',
+                        anchor: '50%',
                         renderer: function (value, p, record) {
                             return value ? value.dateFormat('H:i:s') : ''
                         }
@@ -529,12 +533,13 @@ header("content-type: text/javascript; charset=UTF-8");
                     config: {
                         name: 'hro_hasta',
                         fieldLabel: 'Hasta',
-                        allowBlank: false,
+                        allowBlank: true,
                         increment: 10,
                         minValue: '00:00:00',
                         maxValue: '23:55:00',
                         width: 100,
                         format: 'H:i:s',
+                        anchor: '50%',
                         renderer: function (value, p, record) {
                             return value ? value.dateFormat('H:i:s') : ''
                         }
@@ -566,6 +571,44 @@ header("content-type: text/javascript; charset=UTF-8");
                 },
                 {
                     config: {
+                        name: 'inicio_comp',
+                        fieldLabel: 'Inicio compensación',
+                        allowBlank: false,
+                        anchor: '70%',
+                        gwidth: 100,
+                        format: 'd/m/Y',
+                        disabledDays: [1,2,3,4,5],
+                        renderer: function (value, p, record) {
+                            return value ? value.dateFormat('d/m/Y') : ''
+                        }
+                    },
+                    type: 'DateField',
+                    filters: {pfiltro: 'vac.fecha_inicio', type: 'date'},
+                    id_grupo: 1,
+                    grid: true,
+                    form: true
+                },
+                {
+                    config: {
+                        name: 'fin_comp',
+                        fieldLabel: 'Fin Compensación',
+                        allowBlank: false,
+                        anchor: '70%',
+                        gwidth: 100,
+                        format: 'd/m/Y',
+                        disabledDays: [1,2,3,4,5],
+                        renderer: function (value, p, record) {
+                            return value ? value.dateFormat('d/m/Y') : ''
+                        }
+                    },
+                    type: 'DateField',
+                    filters: {pfiltro: 'vac.fecha_fin', type: 'date'},
+                    id_grupo: 1,
+                    grid: true,
+                    form: true
+                },
+                {
+                    config: {
                         name: 'motivo',
                         fieldLabel: 'Justificativo ',
                         allowBlank: false,
@@ -577,21 +620,6 @@ header("content-type: text/javascript; charset=UTF-8");
                     id_grupo: 0,
                     grid: true,
                     form: true
-                },
-                {
-                    config: {
-                        name: 'usr_reg',
-                        fieldLabel: 'Creado por',
-                        allowBlank: true,
-                        anchor: '80%',
-                        gwidth: 200,
-                        maxLength: 4
-                    },
-                    type: 'Field',
-                    filters: {pfiltro: 'usu1.cuenta', type: 'string'},
-                    id_grupo: 1,
-                    grid: true,
-                    form: false
                 },
                 {
                     config: {
@@ -616,9 +644,11 @@ header("content-type: text/javascript; charset=UTF-8");
                     config: {
                         name: 'hro_desde_reposicion',
                         fieldLabel: 'Desde',
+                        allowBlank: false,
                         increment: 10,
                         width: 100,
                         format: 'H:i:s',
+                        anchor: '50%',
                         renderer: function (value, p, record) {
                             return value ? value.dateFormat('H:i:s') : ''
                         }
@@ -633,9 +663,11 @@ header("content-type: text/javascript; charset=UTF-8");
                     config: {
                         name: 'hro_hasta_reposicion',
                         fieldLabel: 'Hasta',
+                        allowBlank: false,
                         increment: 10,
                         width: 100,
                         format: 'H:i:s',
+                        anchor: '50%',
                         renderer: function (value, p, record) {
                             return value ? value.dateFormat('H:i:s') : ''
                         }
@@ -646,15 +678,16 @@ header("content-type: text/javascript; charset=UTF-8");
                     grid: true,
                     form: true
                 },
+
                 {
                     config: {
                         name: 'hro_total_reposicion',
                         fieldLabel: 'Total Horas Reponer',
-                        anchor: '40%',
                         gwidth: 100,
                         readOnly: true,
                         format: 'H:i:s',
                         style: 'background-image: none;',
+                        anchor: '50%',
                         renderer: function (value, p, record) {
                             return value ? value.dateFormat('H:i:s') : ''
                         }
@@ -663,6 +696,21 @@ header("content-type: text/javascript; charset=UTF-8");
                     id_grupo: 1,
                     grid: false,
                     form: true
+                },
+                {
+                    config: {
+                        name: 'usr_reg',
+                        fieldLabel: 'Creado por',
+                        allowBlank: true,
+                        anchor: '80%',
+                        gwidth: 200,
+                        maxLength: 4
+                    },
+                    type: 'Field',
+                    filters: {pfiltro: 'usu1.cuenta', type: 'string'},
+                    id_grupo: 1,
+                    grid: true,
+                    form: false
                 },
                 {
                     config: {
@@ -826,6 +874,8 @@ header("content-type: text/javascript; charset=UTF-8");
                 {name: 'fecha_fin', type: 'date', dateFormat: 'Y-m-d'},
                 {name: 'dias', type: 'numeric'},
                 {name: 'desc_tipo_licencia', type: 'string'},
+                {name: 'inicio_comp', type: 'date', dateFormat: 'Y-m-d'},
+                {name: 'fin_comp', type: 'date', dateFormat: 'Y-m-d'},
             ],
             sortInfo: {
                 field: 'id_permiso',
@@ -849,6 +899,8 @@ header("content-type: text/javascript; charset=UTF-8");
                 this.ocultarComponente(this.Cmp.fecha_inicio);
                 this.ocultarComponente(this.Cmp.fecha_fin);
                 this.ocultarComponente(this.Cmp.dias);
+                this.ocultarComponente(this.Cmp.inicio_comp);
+                this.ocultarComponente(this.Cmp.fin_comp);
             },
             addBotonesGantt: function () {
                 this.menuAdqGantt = new Ext.Toolbar.SplitButton({
@@ -920,8 +972,10 @@ header("content-type: text/javascript; charset=UTF-8");
                     this.mostrarComponente(this.Cmp.hro_hasta);
                     this.mostrarComponente(this.Cmp.hro_total_permiso);
                     this.mostrarComponente(this.Cmp.motivo);
+
+
                     if (record.data.reposcion === 'si') {
-                        this.window.setSize(490, 500);
+                        this.window.setSize(490, 600);
                         this.mostrarComponente(this.Cmp.fecha_reposicion);
                         this.mostrarComponente(this.Cmp.hro_desde_reposicion);
                         this.mostrarComponente(this.Cmp.hro_hasta_reposicion);
@@ -931,6 +985,8 @@ header("content-type: text/javascript; charset=UTF-8");
                         this.ocultarComponente(this.Cmp.fecha_inicio);
                         this.ocultarComponente(this.Cmp.fecha_fin);
                         this.ocultarComponente(this.Cmp.dias);
+                        this.Cmp.hro_desde.allowBlank = false;
+                        this.Cmp.hro_hasta.allowBlank = false;
 
                     } else if (record.data.detalle === 'si') {
                         this.window.setSize(490, 500);
@@ -947,7 +1003,47 @@ header("content-type: text/javascript; charset=UTF-8");
                         this.mostrarComponente(this.Cmp.fecha_inicio);
                         this.mostrarComponente(this.Cmp.fecha_fin);
                         this.mostrarComponente(this.Cmp.dias);
-                    } else {
+                        this.Cmp.hro_desde.allowBlank = false;
+                        this.Cmp.hro_hasta.allowBlank = false;
+
+                    } else if (record.data.rango_fecha === 'si') {
+                        this.window.setSize(490, 600);
+                        this.mostrarComponente(this.Cmp.fecha_inicio);
+                        this.mostrarComponente(this.Cmp.fecha_fin);
+                        this.mostrarComponente(this.Cmp.dias);
+
+                        this.ocultarComponente(this.Cmp.fecha_solicitud);
+                        this.ocultarComponente(this.Cmp.fecha_reposicion);
+                        this.ocultarComponente(this.Cmp.hro_desde_reposicion);
+                        this.ocultarComponente(this.Cmp.hro_hasta_reposicion);
+                        this.ocultarComponente(this.Cmp.hro_total_reposicion);
+                        this.ocultarComponente(this.Cmp.id_tipo_licencia);
+
+                        this.Cmp.hro_desde.allowBlank = true;
+                        this.Cmp.hro_hasta.allowBlank = true;
+
+                    }else if (record.data.compensacion_fecha === 'si') {
+                        console.log(record.data.compensacion_fecha, '--------------------->' )
+                        this.window.setSize(490, 600);
+                        this.mostrarComponente(this.Cmp.fecha_inicio);
+                        this.mostrarComponente(this.Cmp.fecha_fin);
+                        this.mostrarComponente(this.Cmp.dias);
+                        this.mostrarComponente(this.Cmp.inicio_comp);
+                        this.mostrarComponente(this.Cmp.fin_comp);
+
+
+                        this.ocultarComponente(this.Cmp.fecha_solicitud);
+                        this.ocultarComponente(this.Cmp.fecha_reposicion);
+                        this.ocultarComponente(this.Cmp.hro_desde_reposicion);
+                        this.ocultarComponente(this.Cmp.hro_hasta_reposicion);
+                        this.ocultarComponente(this.Cmp.hro_total_reposicion);
+                        this.ocultarComponente(this.Cmp.id_tipo_licencia);
+                        this.ocultarComponente(this.Cmp.hro_desde);
+                        this.ocultarComponente(this.Cmp.hro_hasta);
+                        this.ocultarComponente(this.Cmp.hro_total_permiso);
+
+                    }
+                    else {
                         this.window.setSize(490, 400);
                         this.ocultarComponente(this.Cmp.fecha_reposicion);
                         this.ocultarComponente(this.Cmp.hro_desde_reposicion);
@@ -958,6 +1054,8 @@ header("content-type: text/javascript; charset=UTF-8");
                         this.ocultarComponente(this.Cmp.fecha_inicio);
                         this.ocultarComponente(this.Cmp.fecha_fin);
                         this.ocultarComponente(this.Cmp.dias);
+                        this.Cmp.hro_desde.allowBlank = false;
+                        this.Cmp.hro_hasta.allowBlank = false;
                     }
                 }, this);
                 this.onCalcularRango();
@@ -1004,8 +1102,8 @@ header("content-type: text/javascript; charset=UTF-8");
                             this.mostrarComponente(this.Cmp.hro_hasta);
                             this.mostrarComponente(this.Cmp.hro_total_permiso);
                             this.mostrarComponente(this.Cmp.motivo);
-                            if (value.json.reposcion === 'si') {
-                                this.window.setSize(490, 500);
+                            if (record.data.reposcion === 'si') {
+                                this.window.setSize(490, 600);
                                 this.mostrarComponente(this.Cmp.fecha_reposicion);
                                 this.mostrarComponente(this.Cmp.hro_desde_reposicion);
                                 this.mostrarComponente(this.Cmp.hro_hasta_reposicion);
@@ -1015,7 +1113,10 @@ header("content-type: text/javascript; charset=UTF-8");
                                 this.ocultarComponente(this.Cmp.fecha_inicio);
                                 this.ocultarComponente(this.Cmp.fecha_fin);
                                 this.ocultarComponente(this.Cmp.dias);
-                            } else if (value.json.detalle === 'si') {
+                                this.Cmp.hro_desde.allowBlank = false;
+                                this.Cmp.hro_hasta.allowBlank = false;
+
+                            } else if (record.data.detalle === 'si') {
                                 this.window.setSize(490, 500);
                                 this.ocultarComponente(this.Cmp.hro_desde);
                                 this.ocultarComponente(this.Cmp.hro_hasta);
@@ -1030,7 +1131,47 @@ header("content-type: text/javascript; charset=UTF-8");
                                 this.mostrarComponente(this.Cmp.fecha_inicio);
                                 this.mostrarComponente(this.Cmp.fecha_fin);
                                 this.mostrarComponente(this.Cmp.dias);
-                            } else {
+                                this.Cmp.hro_desde.allowBlank = false;
+                                this.Cmp.hro_hasta.allowBlank = false;
+
+                            } else if (record.data.rango_fecha === 'si') {
+                                this.window.setSize(490, 600);
+                                this.mostrarComponente(this.Cmp.fecha_inicio);
+                                this.mostrarComponente(this.Cmp.fecha_fin);
+                                this.mostrarComponente(this.Cmp.dias);
+
+                                this.ocultarComponente(this.Cmp.fecha_solicitud);
+                                this.ocultarComponente(this.Cmp.fecha_reposicion);
+                                this.ocultarComponente(this.Cmp.hro_desde_reposicion);
+                                this.ocultarComponente(this.Cmp.hro_hasta_reposicion);
+                                this.ocultarComponente(this.Cmp.hro_total_reposicion);
+                                this.ocultarComponente(this.Cmp.id_tipo_licencia);
+
+                                this.Cmp.hro_desde.allowBlank = true;
+                                this.Cmp.hro_hasta.allowBlank = true;
+
+                            }else if (record.data.compensacion_fecha === 'si') {
+                                console.log(record.data.compensacion_fecha, '--------------------->' )
+                                this.window.setSize(490, 600);
+                                this.mostrarComponente(this.Cmp.fecha_inicio);
+                                this.mostrarComponente(this.Cmp.fecha_fin);
+                                this.mostrarComponente(this.Cmp.dias);
+                                this.mostrarComponente(this.Cmp.inicio_comp);
+                                this.mostrarComponente(this.Cmp.fin_comp);
+
+
+                                this.ocultarComponente(this.Cmp.fecha_solicitud);
+                                this.ocultarComponente(this.Cmp.fecha_reposicion);
+                                this.ocultarComponente(this.Cmp.hro_desde_reposicion);
+                                this.ocultarComponente(this.Cmp.hro_hasta_reposicion);
+                                this.ocultarComponente(this.Cmp.hro_total_reposicion);
+                                this.ocultarComponente(this.Cmp.id_tipo_licencia);
+                                this.ocultarComponente(this.Cmp.hro_desde);
+                                this.ocultarComponente(this.Cmp.hro_hasta);
+                                this.ocultarComponente(this.Cmp.hro_total_permiso);
+
+                            }
+                            else {
                                 this.window.setSize(490, 400);
                                 this.ocultarComponente(this.Cmp.fecha_reposicion);
                                 this.ocultarComponente(this.Cmp.hro_desde_reposicion);
@@ -1041,6 +1182,8 @@ header("content-type: text/javascript; charset=UTF-8");
                                 this.ocultarComponente(this.Cmp.fecha_inicio);
                                 this.ocultarComponente(this.Cmp.fecha_fin);
                                 this.ocultarComponente(this.Cmp.dias);
+                                this.Cmp.hro_desde.allowBlank = false;
+                                this.Cmp.hro_hasta.allowBlank = false;
                             }
                         }
                     }, scope: this
@@ -1051,7 +1194,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     this.mostrarComponente(this.Cmp.hro_total_permiso);
                     this.mostrarComponente(this.Cmp.motivo);
                     if (record.data.reposcion === 'si') {
-                        this.window.setSize(490, 500);
+                        this.window.setSize(490, 600);
                         this.mostrarComponente(this.Cmp.fecha_reposicion);
                         this.mostrarComponente(this.Cmp.hro_desde_reposicion);
                         this.mostrarComponente(this.Cmp.hro_hasta_reposicion);
@@ -1061,6 +1204,9 @@ header("content-type: text/javascript; charset=UTF-8");
                         this.ocultarComponente(this.Cmp.fecha_inicio);
                         this.ocultarComponente(this.Cmp.fecha_fin);
                         this.ocultarComponente(this.Cmp.dias);
+                        this.Cmp.hro_desde.allowBlank = false;
+                        this.Cmp.hro_hasta.allowBlank = false;
+
                     } else if (record.data.detalle === 'si') {
                         this.window.setSize(490, 500);
                         this.ocultarComponente(this.Cmp.hro_desde);
@@ -1076,7 +1222,47 @@ header("content-type: text/javascript; charset=UTF-8");
                         this.mostrarComponente(this.Cmp.fecha_inicio);
                         this.mostrarComponente(this.Cmp.fecha_fin);
                         this.mostrarComponente(this.Cmp.dias);
-                    } else {
+                        this.Cmp.hro_desde.allowBlank = false;
+                        this.Cmp.hro_hasta.allowBlank = false;
+
+                    } else if (record.data.rango_fecha === 'si') {
+                        this.window.setSize(490, 600);
+                        this.mostrarComponente(this.Cmp.fecha_inicio);
+                        this.mostrarComponente(this.Cmp.fecha_fin);
+                        this.mostrarComponente(this.Cmp.dias);
+
+                        this.ocultarComponente(this.Cmp.fecha_solicitud);
+                        this.ocultarComponente(this.Cmp.fecha_reposicion);
+                        this.ocultarComponente(this.Cmp.hro_desde_reposicion);
+                        this.ocultarComponente(this.Cmp.hro_hasta_reposicion);
+                        this.ocultarComponente(this.Cmp.hro_total_reposicion);
+                        this.ocultarComponente(this.Cmp.id_tipo_licencia);
+
+                        this.Cmp.hro_desde.allowBlank = true;
+                        this.Cmp.hro_hasta.allowBlank = true;
+
+                    }else if (record.data.compensacion_fecha === 'si') {
+                        console.log(record.data.compensacion_fecha, '--------------------->' )
+                        this.window.setSize(490, 600);
+                        this.mostrarComponente(this.Cmp.fecha_inicio);
+                        this.mostrarComponente(this.Cmp.fecha_fin);
+                        this.mostrarComponente(this.Cmp.dias);
+                        this.mostrarComponente(this.Cmp.inicio_comp);
+                        this.mostrarComponente(this.Cmp.fin_comp);
+
+
+                        this.ocultarComponente(this.Cmp.fecha_solicitud);
+                        this.ocultarComponente(this.Cmp.fecha_reposicion);
+                        this.ocultarComponente(this.Cmp.hro_desde_reposicion);
+                        this.ocultarComponente(this.Cmp.hro_hasta_reposicion);
+                        this.ocultarComponente(this.Cmp.hro_total_reposicion);
+                        this.ocultarComponente(this.Cmp.id_tipo_licencia);
+                        this.ocultarComponente(this.Cmp.hro_desde);
+                        this.ocultarComponente(this.Cmp.hro_hasta);
+                        this.ocultarComponente(this.Cmp.hro_total_permiso);
+
+                    }
+                    else {
                         this.window.setSize(490, 400);
                         this.ocultarComponente(this.Cmp.fecha_reposicion);
                         this.ocultarComponente(this.Cmp.hro_desde_reposicion);
@@ -1087,6 +1273,8 @@ header("content-type: text/javascript; charset=UTF-8");
                         this.ocultarComponente(this.Cmp.fecha_inicio);
                         this.ocultarComponente(this.Cmp.fecha_fin);
                         this.ocultarComponente(this.Cmp.dias);
+                        this.Cmp.hro_desde.allowBlank = false;
+                        this.Cmp.hro_hasta.allowBlank = false;
                     }
                 }, this);
                 this.onCalcularRango();

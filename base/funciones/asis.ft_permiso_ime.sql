@@ -18,67 +18,67 @@ $$
 
 DECLARE
 
-    v_parametros              record;
-    v_resp                    varchar;
-    v_nombre_funcion          text;
-    v_id_permiso              integer;
-    v_id_gestion              integer;
-    v_codigo_proceso          varchar;
-    v_id_macro_proceso        integer;
-    v_nro_tramite             varchar;
-    v_id_proceso_wf           integer;
-    v_id_estado_wf            integer;
-    v_codigo_estado           varchar;
-    v_record                  record;
-    v_id_tipo_estado          integer;
-    v_id_depto                integer;
-    v_acceso_directo          varchar;
-    v_clase                   varchar;
-    v_parametros_ad           varchar;
-    v_tipo_noti               varchar;
-    v_titulo                  varchar;
-    v_id_estado_actual        integer;
-    v_operacion               varchar;
-    v_id_funcionario          integer;
-    v_id_usuario_reg          integer;
-    v_id_estado_wf_ant        integer;
-    v_diferencia              time;
-    v_registro_funcionario    record;
-    v_consulta                varchar;
-    v_inicio                  varchar;
-    v_fin                     varchar;
-    v_record_tipo             record;
-    v_desde_hrs               timestamp;
-    v_hasta_hrs               timestamp;
-    v_desde_alm               timestamp;
-    v_hasta_alm               timestamp;
-    v_resultado               numeric;
-    v_almuerzo                boolean;
-    v_permiso                 record;
-    va_id_tipo_estado         integer[];
-    va_codigo_estado          varchar[];
-    va_disparador             varchar[];
-    va_regla                  varchar[];
-    va_prioridad              integer[];
-    v_registro_estado         record;
-    v_record_solicitud        record;
-    v_id_sol_funcionario      integer;
-    v_descripcion_correo      varchar;
-    v_id_alarma               integer;
-    v_vista_permiso           record;
-    v_estado_maestro          varchar;
-    v_id_estado_maestro       integer;
-    v_estado_record           record;
-    v_rol                     integer;
-    v_fecha_aux               date;
-    v_domingo                 INTEGER = 0;
-    v_sabado                  INTEGER = 6;
-    v_valor_incremento        varchar;
-    v_cant_dias               numeric=0;
-    v_lugar                   varchar;
-    v_id_gestion_actual       integer;
-    v_incremento_fecha        date;
-    v_dias_permetidos         numeric;
+    v_parametros           record;
+    v_resp                 varchar;
+    v_nombre_funcion       text;
+    v_id_permiso           integer;
+    v_id_gestion           integer;
+    v_codigo_proceso       varchar;
+    v_id_macro_proceso     integer;
+    v_nro_tramite          varchar;
+    v_id_proceso_wf        integer;
+    v_id_estado_wf         integer;
+    v_codigo_estado        varchar;
+    v_record               record;
+    v_id_tipo_estado       integer;
+    v_id_depto             integer;
+    v_acceso_directo       varchar;
+    v_clase                varchar;
+    v_parametros_ad        varchar;
+    v_tipo_noti            varchar;
+    v_titulo               varchar;
+    v_id_estado_actual     integer;
+    v_operacion            varchar;
+    v_id_funcionario       integer;
+    v_id_usuario_reg       integer;
+    v_id_estado_wf_ant     integer;
+    v_diferencia           time;
+    v_registro_funcionario record;
+    v_consulta             varchar;
+    v_inicio               varchar;
+    v_fin                  varchar;
+    v_record_tipo          record;
+    v_desde_hrs            timestamp;
+    v_hasta_hrs            timestamp;
+    v_desde_alm            timestamp;
+    v_hasta_alm            timestamp;
+    v_resultado            numeric;
+    v_almuerzo             boolean;
+    v_permiso              record;
+    va_id_tipo_estado      integer[];
+    va_codigo_estado       varchar[];
+    va_disparador          varchar[];
+    va_regla               varchar[];
+    va_prioridad           integer[];
+    v_registro_estado      record;
+    v_record_solicitud     record;
+    v_id_sol_funcionario   integer;
+    v_descripcion_correo   varchar;
+    v_id_alarma            integer;
+    v_vista_permiso        record;
+    v_estado_maestro       varchar;
+    v_id_estado_maestro    integer;
+    v_estado_record        record;
+    v_rol                  integer;
+    v_fecha_aux            date;
+    v_domingo              INTEGER = 0;
+    v_sabado               INTEGER = 6;
+    v_valor_incremento     varchar;
+    v_cant_dias            numeric=0;
+    v_lugar                varchar;
+    v_id_gestion_actual    integer;
+    v_incremento_fecha     date;
+    v_dias_permetidos      numeric;
 BEGIN
 
     v_nombre_funcion = 'asis.ft_permiso_ime';
@@ -232,9 +232,9 @@ BEGIN
                     v_fecha_aux = v_incremento_fecha;
                 end loop;
 
-            /*IF v_cant_dias = 0 OR v_parametros.dias = 0 THEN-- contador de dias
-                RAISE EXCEPTION 'ERROR: CANTIDAD DE DIAS MAXIMO PERMITIDO MAYOR 0.';
-            END IF;*/
+--             IF v_cant_dias = 0 OR v_parametros.dias = 0 THEN-- contador de dias
+--                 RAISE EXCEPTION 'ERROR: CANTIDAD DE DIAS MAXIMO PERMITIDO MAYOR 0.';
+--             END IF;
 
             select dt.dias
             into v_dias_permetidos
@@ -274,7 +274,9 @@ BEGIN
                                       id_tipo_licencia,
                                       fecha_inicio,
                                       fecha_fin,
-                                      dias
+                                      dias,
+                                      inicio_comp,
+                                      fin_comp
                 -- jornada
             )
             values (v_nro_tramite,--v_parametros.nro_tramite,
@@ -305,7 +307,9 @@ BEGIN
                     v_parametros.id_tipo_licencia,
                     v_parametros.fecha_inicio,
                     v_parametros.fecha_fin,
-                    v_cant_dias)
+                    v_cant_dias,
+                    v_parametros.inicio_comp,
+                    v_parametros.fin_comp)
             RETURNING id_permiso into v_id_permiso;
 
             if (v_record_tipo.documento = 'si') then
@@ -406,9 +410,9 @@ BEGIN
                     v_fecha_aux = v_incremento_fecha;
                 end loop;
 
-            /*IF v_cant_dias = 0 OR v_parametros.dias = 0 THEN-- contador de dias
-                RAISE EXCEPTION 'ERROR: CANTIDAD DE DIAS MAXIMO PERMITIDO MAYOR 0.';
-            END IF;*/
+--             IF v_cant_dias = 0 OR v_parametros.dias = 0 THEN-- contador de dias
+--                 RAISE EXCEPTION 'ERROR: CANTIDAD DE DIAS MAXIMO PERMITIDO MAYOR 0.';
+--             END IF;
 
             select dt.dias
             into v_dias_permetidos
@@ -434,7 +438,9 @@ BEGIN
                 id_tipo_licencia = v_parametros.id_tipo_licencia,
                 fecha_inicio     = v_parametros.fecha_inicio,
                 fecha_fin        = v_parametros.fecha_fin,
-                dias             = v_cant_dias
+                dias             = v_cant_dias,
+                inicio_comp      = v_parametros.inicio_comp,
+                fin_comp         = v_parametros.fin_comp
             where id_permiso = v_parametros.id_permiso;
 
             --Definicion de la respuesta
@@ -1005,5 +1011,3 @@ EXCEPTION
 
 END;
 $$;
-
-
