@@ -1,7 +1,11 @@
-create or replace function asis.f_reportes_sel(p_administrador integer, p_id_usuario integer, p_tabla character varying, p_transaccion character varying) returns character varying
-    language plpgsql
-as
-$fun$
+CREATE OR REPLACE FUNCTION asis.f_reportes_sel (
+    p_administrador integer,
+    p_id_usuario integer,
+    p_tabla varchar,
+    p_transaccion varchar
+)
+    RETURNS varchar AS
+$body$
 /**************************************************************************
  SISTEMA:        Sistema de Asistencia
  FUNCION:         asis.f_reportes_sel
@@ -1027,7 +1031,7 @@ BEGIN
                    to_char(p.hora, 'HH24:MI:SS')::time as hora
             from asis.tpersona_transaccion p
             where p.dev_alias in
-                  ('ACCESO_SOT1', 'barrera1', 'barrera2', 'barrera3', 'barrera4')
+                  ('ACCESO_SOT1', 'barrera1', 'barrera2', 'barrera3', 'barrera4','ALM_ACC260')
               and to_char(p.fecha, 'DD/MM/YYYY')::date = v_parametros.fecha::date;
 
             insert into tmp_biometrico
@@ -1153,7 +1157,7 @@ BEGIN
                        bo.hora,
                        va.nro_tramite      as vacacion,
                        va.estado           as vacacion_estado,
-                       pe.estado           as permiso,
+                       pe.nro_tramite      as permiso,
                        pe.estado           as permiso_estado,
                        pe.hro_desde,
                        pe.hro_hasta,
@@ -1182,9 +1186,12 @@ BEGIN
                   and (case
                            when v_parametros.id_uo is null then 0 = 0
                            else fc.id_gerencia = v_parametros.id_uo
-                    end))
+                    end)
+                -- and fc.codigo = 100430
+            )
                 loop
-                    v_dia = case extract (dow from v_parametros.fecha::date)
+
+                    v_dia = case extract(dow from v_parametros.fecha::date)
                                 when 1 then 'lunes'
                                 when 2 then 'martes'
                                 when 3 then 'miercoles'
@@ -1206,7 +1213,8 @@ BEGIN
                         into v_hora;
                     if (v_asistencia.hora is not null) then
 
-                        if (v_asistencia.hora <= v_hora) then
+                        --- if (v_asistencia.hora < v_hora) then
+                        if (  to_char(v_asistencia.hora, 'HH24:MI')::time <= to_char(v_hora, 'HH24:MI')::time )then
                             insert into tmp_asitencia(codigo,
                                                       fecha,
                                                       gerencia,
@@ -1233,42 +1241,113 @@ BEGIN
                                     v_asistencia.nivel);
                         else
 
-                            v_hora_resultado = v_asistencia.hora::time;
-                            v_retraso = 'no';
-                            if (v_asistencia.hora::time > v_hora::time) then
-                                v_hora_resultado = v_asistencia.hora::time - v_hora::time;
-                                v_retraso = 'si';
+                            if (v_asistencia.permiso is not null) then
+
+                                if (v_asistencia.hora between v_asistencia.hro_desde and v_asistencia.hro_hasta + '1 hr'::INTERVAL) then
+                                    insert into tmp_asitencia(codigo,
+                                                              fecha,
+                                                              gerencia,
+                                                              departamento,
+                                                              codigo_funcionario,
+                                                              id_funcionario,
+                                                              funcionario,
+                                                              cargo,
+                                                              observacion,
+                                                              evento,
+                                                              vacacion,
+                                                              ruta,
+                                                              nivel)
+                                    values (v_asistencia.codigo_ger,
+                                            v_parametros.fecha::date,
+                                            v_asistencia.gerencia,
+                                            v_asistencia.departamento,
+                                            v_asistencia.codigo,
+                                            v_asistencia.id_funcionario,
+                                            v_asistencia.funcioanrio,
+                                            v_asistencia.cargo,
+                                            'Permiso', --|| v_asistencia.hro_desde || ' - ' || v_asistencia.hro_hasta,
+                                            'Personas en oficina',
+                                            'si',
+                                            v_asistencia.ruta,
+                                            v_asistencia.nivel);
+                                end if;
+
+                            else
+
+
+
+                                if(v_asistencia.cargo like '%Gerente%' or  v_asistencia.cargo like '%Asesor Legal%') then
+                                    insert into tmp_asitencia(codigo,
+                                                              fecha,
+                                                              gerencia,
+                                                              departamento,
+                                                              codigo_funcionario,
+                                                              id_funcionario,
+                                                              funcionario,
+                                                              cargo,
+                                                              observacion,
+                                                              evento,
+                                                              ruta,
+                                                              nivel)
+                                    values (v_asistencia.codigo_ger,
+                                            v_parametros.fecha::date,
+                                            v_asistencia.gerencia,
+                                            v_asistencia.departamento,
+                                            v_asistencia.codigo,
+                                            v_asistencia.id_funcionario,
+                                            v_asistencia.funcioanrio,
+                                            v_asistencia.cargo,
+                                            'Oficina',
+                                            'Personas en oficina',
+                                            v_asistencia.ruta,
+                                            v_asistencia.nivel);
+                                else
+
+
+
+                                    v_hora_resultado = v_asistencia.hora::time;
+                                    v_retraso = 'no';
+                                    if (v_asistencia.hora::time > v_hora::time) then
+                                        v_hora_resultado = v_asistencia.hora::time - v_hora::time;
+                                        v_retraso = 'si';
+                                    end if;
+                                    v_evento = 'Retraso - ' || v_hora_resultado; --|| ' Ingreso '|| to_char(v_asistencia.hora, 'HH24:MI')::time;
+                                    if (v_asistencia.cargo in ('Operador', 'Conductor')) then
+                                        v_evento = v_asistencia.cargo;
+                                    end if;
+
+
+
+                                    insert into tmp_asitencia(codigo,
+                                                              fecha,
+                                                              gerencia,
+                                                              departamento,
+                                                              codigo_funcionario,
+                                                              id_funcionario,
+                                                              funcionario,
+                                                              cargo,
+                                                              observacion,
+                                                              evento,
+                                                              retraso,
+                                                              ruta,
+                                                              nivel)
+                                    values (v_asistencia.codigo_ger,
+                                            v_parametros.fecha::date,
+                                            v_asistencia.gerencia,
+                                            v_asistencia.departamento,
+                                            v_asistencia.codigo,
+                                            v_asistencia.id_funcionario,
+                                            v_asistencia.funcioanrio,
+                                            v_asistencia.cargo,
+                                            v_evento,--'Retraso -' || v_hora_resultado,
+                                            'Personas en oficina',
+                                            'si',
+                                            v_asistencia.ruta,
+                                            v_asistencia.nivel);
+                                end if;
                             end if;
-                            v_evento = 'Retraso -' || v_hora_resultado;
-                            if (v_asistencia.cargo in ('Operador','Conductor'))then
-                                v_evento = v_asistencia.cargo;
-                            end if;
-                            insert into tmp_asitencia(codigo,
-                                                      fecha,
-                                                      gerencia,
-                                                      departamento,
-                                                      codigo_funcionario,
-                                                      id_funcionario,
-                                                      funcionario,
-                                                      cargo,
-                                                      observacion,
-                                                      evento,
-                                                      retraso,
-                                                      ruta,
-                                                      nivel)
-                            values (v_asistencia.codigo_ger,
-                                    v_parametros.fecha::date,
-                                    v_asistencia.gerencia,
-                                    v_asistencia.departamento,
-                                    v_asistencia.codigo,
-                                    v_asistencia.id_funcionario,
-                                    v_asistencia.funcioanrio,
-                                    v_asistencia.cargo,
-                                    v_evento,--'Retraso -' || v_hora_resultado,
-                                    'Personas en oficina',
-                                    'si',
-                                    v_asistencia.ruta,
-                                    v_asistencia.nivel);
+
+
                         end if;
                     end if;
 
@@ -1296,7 +1375,7 @@ BEGIN
                                     v_asistencia.funcioanrio,
                                     v_asistencia.cargo,
                                     'LPV',--''Vacación',
-                                    'Licencia por vacaión (LPV)',
+                                    'Licencia por vacación (LPV)',
                                     'si',
                                     v_asistencia.ruta,
                                     v_asistencia.nivel);
@@ -1388,8 +1467,38 @@ BEGIN
                                     v_asistencia.nivel);
                         end if;
 
-                        if (v_asistencia.permiso is not null) then
-                            if (v_asistencia.hora between v_asistencia.hro_desde and v_asistencia.hro_hasta) then
+                        if (v_asistencia.armonia is not null) then
+                            insert into tmp_asitencia(codigo,
+                                                      fecha,
+                                                      gerencia,
+                                                      departamento,
+                                                      codigo_funcionario,
+                                                      id_funcionario,
+                                                      funcionario,
+                                                      cargo,
+                                                      observacion,
+                                                      evento,
+                                                      vacacion,
+                                                      ruta,
+                                                      nivel)
+                            values (v_asistencia.codigo_ger,
+                                    v_parametros.fecha::date,
+                                    v_asistencia.gerencia,
+                                    v_asistencia.departamento,
+                                    v_asistencia.codigo,
+                                    v_asistencia.id_funcionario,
+                                    v_asistencia.funcioanrio,
+                                    v_asistencia.cargo,
+                                    'Programa Armonía',
+                                    'Licencia por vacaión (LPV)',
+                                    'si',
+                                    v_asistencia.ruta,
+                                    v_asistencia.nivel);
+                        end if;
+
+
+                        /*if (v_asistencia.permiso is not null) then
+
                                 insert into tmp_asitencia(codigo,
                                                           fecha,
                                                           gerencia,
@@ -1416,9 +1525,15 @@ BEGIN
                                         'si',
                                         v_asistencia.ruta,
                                         v_asistencia.nivel);
-                            end if;
+                     end if;
+                                   */
+                        if not exists(
+                                select 1
+                                from tmp_asitencia t
+                                where t.id_funcionario =
+                                      v_asistencia.id_funcionario) then
 
-                            if (v_asistencia.armonia is not null) then
+                            if(v_asistencia.cargo like '%Gerente%' or  v_asistencia.cargo like '%Asesor Legal%') then
                                 insert into tmp_asitencia(codigo,
                                                           fecha,
                                                           gerencia,
@@ -1429,7 +1544,6 @@ BEGIN
                                                           cargo,
                                                           observacion,
                                                           evento,
-                                                          vacacion,
                                                           ruta,
                                                           nivel)
                                 values (v_asistencia.codigo_ger,
@@ -1440,33 +1554,11 @@ BEGIN
                                         v_asistencia.id_funcionario,
                                         v_asistencia.funcioanrio,
                                         v_asistencia.cargo,
-                                        'armonia ',
-                                        'armonia',
-                                        'si',
+                                        'Oficina',
+                                        'Personas en oficina',
                                         v_asistencia.ruta,
                                         v_asistencia.nivel);
-                            end if;
-
-                        end if;
-
-
-                        if not exists(
-                                select 1
-                                from tmp_asitencia t
-                                where t.id_funcionario =
-                                      v_asistencia.id_funcionario) then
-
-
-                            if exists(select 1
-                                      from (
-                                               select h.tiempo_evento::date as fecha,
-                                                      h.pin
-                                               from asis.thuella_sotano h
-                                               where h.dispositivo = 'FV18_SOT_ASIST'
-                                                 and h.pin is not null
-                                           ) sotano
-                                      where sotano.pin = v_asistencia.codigo::integer
-                                        and sotano.fecha = v_parametros.fecha) then
+                            else
 
                                 insert into tmp_asitencia(codigo,
                                                           fecha,
@@ -1494,8 +1586,10 @@ BEGIN
                                         'si',
                                         v_asistencia.ruta,
                                         v_asistencia.nivel);
+                            end if ;
 
-                            end if;
+
+
                         end if;
                     end if;
                     -- operador e conductor
@@ -1530,7 +1624,7 @@ BEGIN
         #AUTOR:        MMV
         #FECHA:        07/04/2021
         ***********************************/
-    elsif(p_transaccion = 'ASIS_RATR_SEL') then
+    elsif (p_transaccion = 'ASIS_RATR_SEL') then
         begin
             --Sentencia de la consulta
 
@@ -1550,7 +1644,7 @@ BEGIN
                    to_char(p.hora, 'HH24:MI:SS')::time as hora
             from asis.tpersona_transaccion p
             where p.dev_alias in
-                  ('ACCESO_SOT1', 'barrera1', 'barrera2', 'barrera3', 'barrera4')
+                  ('ACCESO_SOT1', 'barrera1', 'barrera2', 'barrera3', 'barrera4','ALM_ACC260')
               and to_char(p.fecha, 'DD/MM/YYYY')::date = v_parametros.fecha::date;
 
             insert into tmp_biometrico
@@ -1831,7 +1925,7 @@ BEGIN
        #AUTOR:        MMV
        #FECHA:        07/04/2021
        ***********************************/
-    elsif(p_transaccion = 'ASIS_RMSU_SEL') then
+    elsif (p_transaccion = 'ASIS_RMSU_SEL') then
 
         begin
             --Sentencia de la consulta
@@ -1852,7 +1946,7 @@ BEGIN
                    to_char(p.hora, 'HH24:MI:SS')::time as hora
             from asis.tpersona_transaccion p
             where p.dev_alias in
-                  ('ACCESO_SOT1', 'barrera1', 'barrera2', 'barrera3', 'barrera4')
+                  ('ACCESO_SOT1', 'barrera1', 'barrera2', 'barrera3', 'barrera4','ALM_ACC260')
               and to_char(p.fecha, 'DD/MM/YYYY')::date between v_parametros.fecha_ini::date and v_parametros.fecha_fin::date;
 
             insert into tmp_biometrico
@@ -2023,7 +2117,7 @@ BEGIN
       #AUTOR:        MMV
       #FECHA:        07/04/2021
       ***********************************/
-    elsif(p_transaccion = 'ASIS_RARR_SEL') then
+    elsif (p_transaccion = 'ASIS_RARR_SEL') then
 
         begin
             --Sentencia de la consulta
@@ -2044,7 +2138,7 @@ BEGIN
                    to_char(p.hora, 'HH24:MI:SS')::time as hora
             from asis.tpersona_transaccion p
             where p.dev_alias in
-                  ('ACCESO_SOT1', 'barrera1', 'barrera2', 'barrera3', 'barrera4')
+                  ('ACCESO_SOT1', 'barrera1', 'barrera2', 'barrera3', 'barrera4','ALM_ACC260')
               and to_char(p.fecha, 'DD/MM/YYYY')::date between v_parametros.fecha_ini::date and v_parametros.fecha_fin::date;
 
             insert into tmp_biometrico
@@ -2193,7 +2287,8 @@ BEGIN
 
         raise exception 'Transaccion inexistente';
 
-    end if; EXCEPTION
+    end if;
+EXCEPTION
 
     WHEN OTHERS THEN
         v_resp = '';
@@ -2203,4 +2298,13 @@ BEGIN
             );
         raise exception '%',v_resp;
 END;
-$fun$;
+$body$
+    LANGUAGE 'plpgsql'
+    VOLATILE
+    CALLED ON NULL INPUT
+    SECURITY INVOKER
+    PARALLEL UNSAFE
+    COST 100;
+
+ALTER FUNCTION asis.f_reportes_sel (p_administrador integer, p_id_usuario integer, p_tabla varchar, p_transaccion varchar)
+    OWNER TO postgres;
