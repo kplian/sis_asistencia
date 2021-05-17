@@ -972,8 +972,6 @@ header("content-type: text/javascript; charset=UTF-8");
                     this.mostrarComponente(this.Cmp.hro_hasta);
                     this.mostrarComponente(this.Cmp.hro_total_permiso);
                     this.mostrarComponente(this.Cmp.motivo);
-
-
                     if (record.data.reposcion === 'si') {
                         this.window.setSize(490, 600);
                         this.mostrarComponente(this.Cmp.fecha_reposicion);
@@ -987,7 +985,8 @@ header("content-type: text/javascript; charset=UTF-8");
                         this.ocultarComponente(this.Cmp.dias);
                         this.Cmp.hro_desde.allowBlank = false;
                         this.Cmp.hro_hasta.allowBlank = false;
-
+                        this.ocultarComponente(this.Cmp.inicio_comp);
+                        this.ocultarComponente(this.Cmp.fin_comp);
                     } else if (record.data.detalle === 'si') {
                         this.window.setSize(490, 500);
                         this.ocultarComponente(this.Cmp.hro_desde);
@@ -1005,6 +1004,8 @@ header("content-type: text/javascript; charset=UTF-8");
                         this.mostrarComponente(this.Cmp.dias);
                         this.Cmp.hro_desde.allowBlank = false;
                         this.Cmp.hro_hasta.allowBlank = false;
+                        this.ocultarComponente(this.Cmp.inicio_comp);
+                        this.ocultarComponente(this.Cmp.fin_comp);
 
                     } else if (record.data.rango_fecha === 'si') {
                         this.window.setSize(490, 600);
@@ -1021,9 +1022,9 @@ header("content-type: text/javascript; charset=UTF-8");
 
                         this.Cmp.hro_desde.allowBlank = true;
                         this.Cmp.hro_hasta.allowBlank = true;
-
+                        this.ocultarComponente(this.Cmp.inicio_comp);
+                        this.ocultarComponente(this.Cmp.fin_comp);
                     }else if (record.data.compensacion_fecha === 'si') {
-                        console.log(record.data.compensacion_fecha, '--------------------->' )
                         this.window.setSize(490, 600);
                         this.mostrarComponente(this.Cmp.fecha_inicio);
                         this.mostrarComponente(this.Cmp.fecha_fin);
@@ -1041,7 +1042,6 @@ header("content-type: text/javascript; charset=UTF-8");
                         this.ocultarComponente(this.Cmp.hro_desde);
                         this.ocultarComponente(this.Cmp.hro_hasta);
                         this.ocultarComponente(this.Cmp.hro_total_permiso);
-
                     }
                     else {
                         this.window.setSize(490, 400);
@@ -1056,6 +1056,9 @@ header("content-type: text/javascript; charset=UTF-8");
                         this.ocultarComponente(this.Cmp.dias);
                         this.Cmp.hro_desde.allowBlank = false;
                         this.Cmp.hro_hasta.allowBlank = false;
+
+                        this.ocultarComponente(this.Cmp.inicio_comp);
+                        this.ocultarComponente(this.Cmp.fin_comp);
                     }
                 }, this);
                 this.onCalcularRango();
@@ -1094,96 +1097,102 @@ header("content-type: text/javascript; charset=UTF-8");
             },
             onButtonEdit: function () {
                 Phx.vista.Permiso.superclass.onButtonEdit.call(this);
+                var me = this;
                 this.Cmp.id_tipo_permiso.store.load({
                     params: {start: 0, limit: 50, id_tipo_permiso: this.Cmp.id_tipo_permiso.getValue()},
                     callback: function (r) {
                         for (const value of r) {
-                            this.mostrarComponente(this.Cmp.hro_desde);
-                            this.mostrarComponente(this.Cmp.hro_hasta);
-                            this.mostrarComponente(this.Cmp.hro_total_permiso);
-                            this.mostrarComponente(this.Cmp.motivo);
+                            this.mostrarComponente(me.Cmp.hro_desde);
+                            this.mostrarComponente(me.Cmp.hro_hasta);
+                            this.mostrarComponente(me.Cmp.hro_total_permiso);
+                            this.mostrarComponente(me.Cmp.motivo);
                             if (record.data.reposcion === 'si') {
                                 this.window.setSize(490, 600);
-                                this.mostrarComponente(this.Cmp.fecha_reposicion);
-                                this.mostrarComponente(this.Cmp.hro_desde_reposicion);
-                                this.mostrarComponente(this.Cmp.hro_hasta_reposicion);
-                                this.mostrarComponente(this.Cmp.hro_total_reposicion);
+                                this.mostrarComponente(me.Cmp.fecha_reposicion);
+                                this.mostrarComponente(me.Cmp.hro_desde_reposicion);
+                                this.mostrarComponente(me.Cmp.hro_hasta_reposicion);
+                                this.mostrarComponente(me.Cmp.hro_total_reposicion);
 
-                                this.ocultarComponente(this.Cmp.id_tipo_licencia);
-                                this.ocultarComponente(this.Cmp.fecha_inicio);
-                                this.ocultarComponente(this.Cmp.fecha_fin);
-                                this.ocultarComponente(this.Cmp.dias);
-                                this.Cmp.hro_desde.allowBlank = false;
-                                this.Cmp.hro_hasta.allowBlank = false;
-
+                                this.ocultarComponente(me.Cmp.id_tipo_licencia);
+                                this.ocultarComponente(me.Cmp.fecha_inicio);
+                                this.ocultarComponente(me.Cmp.fecha_fin);
+                                this.ocultarComponente(me.Cmp.dias);
+                                me.Cmp.hro_desde.allowBlank = false;
+                                me.Cmp.hro_hasta.allowBlank = false;
+                                this.ocultarComponente(mes.Cmp.inicio_comp);
+                                this.ocultarComponente(mes.Cmp.fin_comp);
                             } else if (record.data.detalle === 'si') {
                                 this.window.setSize(490, 500);
-                                this.ocultarComponente(this.Cmp.hro_desde);
-                                this.ocultarComponente(this.Cmp.hro_hasta);
-                                this.ocultarComponente(this.Cmp.hro_total_permiso);
-                                this.ocultarComponente(this.Cmp.fecha_solicitud);
-                                this.ocultarComponente(this.Cmp.fecha_reposicion);
-                                this.ocultarComponente(this.Cmp.hro_desde_reposicion);
-                                this.ocultarComponente(this.Cmp.hro_hasta_reposicion);
-                                this.ocultarComponente(this.Cmp.hro_total_reposicion);
+                                this.ocultarComponente(me.Cmp.hro_desde);
+                                this.ocultarComponente(me.Cmp.hro_hasta);
+                                this.ocultarComponente(me.Cmp.hro_total_permiso);
+                                this.ocultarComponente(me.Cmp.fecha_solicitud);
+                                this.ocultarComponente(me.Cmp.fecha_reposicion);
+                                this.ocultarComponente(me.Cmp.hro_desde_reposicion);
+                                this.ocultarComponente(me.Cmp.hro_hasta_reposicion);
+                                this.ocultarComponente(me.Cmp.hro_total_reposicion);
                                 // licencias
-                                this.mostrarComponente(this.Cmp.id_tipo_licencia);
-                                this.mostrarComponente(this.Cmp.fecha_inicio);
-                                this.mostrarComponente(this.Cmp.fecha_fin);
-                                this.mostrarComponente(this.Cmp.dias);
-                                this.Cmp.hro_desde.allowBlank = false;
-                                this.Cmp.hro_hasta.allowBlank = false;
+                                this.mostrarComponente(me.Cmp.id_tipo_licencia);
+                                this.mostrarComponente(me.Cmp.fecha_inicio);
+                                this.mostrarComponente(me.Cmp.fecha_fin);
+                                this.mostrarComponente(me.Cmp.dias);
+                                me.Cmp.hro_desde.allowBlank = false;
+                                me.Cmp.hro_hasta.allowBlank = false;
+                                this.ocultarComponente(me.Cmp.inicio_comp);
+                                this.ocultarComponente(me.Cmp.fin_comp);
 
                             } else if (record.data.rango_fecha === 'si') {
                                 this.window.setSize(490, 600);
-                                this.mostrarComponente(this.Cmp.fecha_inicio);
-                                this.mostrarComponente(this.Cmp.fecha_fin);
-                                this.mostrarComponente(this.Cmp.dias);
+                                this.mostrarComponente(me.Cmp.fecha_inicio);
+                                this.mostrarComponente(me.Cmp.fecha_fin);
+                                this.mostrarComponente(me.Cmp.dias);
 
-                                this.ocultarComponente(this.Cmp.fecha_solicitud);
-                                this.ocultarComponente(this.Cmp.fecha_reposicion);
-                                this.ocultarComponente(this.Cmp.hro_desde_reposicion);
-                                this.ocultarComponente(this.Cmp.hro_hasta_reposicion);
-                                this.ocultarComponente(this.Cmp.hro_total_reposicion);
-                                this.ocultarComponente(this.Cmp.id_tipo_licencia);
+                                this.ocultarComponente(me.Cmp.fecha_solicitud);
+                                this.ocultarComponente(me.Cmp.fecha_reposicion);
+                                this.ocultarComponente(me.Cmp.hro_desde_reposicion);
+                                this.ocultarComponente(me.Cmp.hro_hasta_reposicion);
+                                this.ocultarComponente(me.Cmp.hro_total_reposicion);
+                                this.ocultarComponente(me.Cmp.id_tipo_licencia);
 
-                                this.Cmp.hro_desde.allowBlank = true;
-                                this.Cmp.hro_hasta.allowBlank = true;
-
+                                me.Cmp.hro_desde.allowBlank = true;
+                                me.Cmp.hro_hasta.allowBlank = true;
+                                this.ocultarComponente(me.Cmp.inicio_comp);
+                                this.ocultarComponente(me.Cmp.fin_comp);
                             }else if (record.data.compensacion_fecha === 'si') {
-                                console.log(record.data.compensacion_fecha, '--------------------->' )
                                 this.window.setSize(490, 600);
-                                this.mostrarComponente(this.Cmp.fecha_inicio);
-                                this.mostrarComponente(this.Cmp.fecha_fin);
-                                this.mostrarComponente(this.Cmp.dias);
-                                this.mostrarComponente(this.Cmp.inicio_comp);
-                                this.mostrarComponente(this.Cmp.fin_comp);
+                                this.mostrarComponente(me.Cmp.fecha_inicio);
+                                this.mostrarComponente(me.Cmp.fecha_fin);
+                                this.mostrarComponente(me.Cmp.dias);
+                                this.mostrarComponente(me.Cmp.inicio_comp);
+                                this.mostrarComponente(me.Cmp.fin_comp);
 
 
-                                this.ocultarComponente(this.Cmp.fecha_solicitud);
-                                this.ocultarComponente(this.Cmp.fecha_reposicion);
-                                this.ocultarComponente(this.Cmp.hro_desde_reposicion);
-                                this.ocultarComponente(this.Cmp.hro_hasta_reposicion);
-                                this.ocultarComponente(this.Cmp.hro_total_reposicion);
-                                this.ocultarComponente(this.Cmp.id_tipo_licencia);
-                                this.ocultarComponente(this.Cmp.hro_desde);
-                                this.ocultarComponente(this.Cmp.hro_hasta);
-                                this.ocultarComponente(this.Cmp.hro_total_permiso);
-
+                                this.ocultarComponente(me.Cmp.fecha_solicitud);
+                                this.ocultarComponente(me.Cmp.fecha_reposicion);
+                                this.ocultarComponente(me.Cmp.hro_desde_reposicion);
+                                this.ocultarComponente(me.Cmp.hro_hasta_reposicion);
+                                this.ocultarComponente(me.Cmp.hro_total_reposicion);
+                                this.ocultarComponente(me.Cmp.id_tipo_licencia);
+                                this.ocultarComponente(me.Cmp.hro_desde);
+                                this.ocultarComponente(me.Cmp.hro_hasta);
+                                this.ocultarComponente(me.Cmp.hro_total_permiso);
                             }
                             else {
                                 this.window.setSize(490, 400);
-                                this.ocultarComponente(this.Cmp.fecha_reposicion);
-                                this.ocultarComponente(this.Cmp.hro_desde_reposicion);
-                                this.ocultarComponente(this.Cmp.hro_hasta_reposicion);
-                                this.ocultarComponente(this.Cmp.hro_total_reposicion);
+                                this.ocultarComponente(me.Cmp.fecha_reposicion);
+                                this.ocultarComponente(me.Cmp.hro_desde_reposicion);
+                                this.ocultarComponente(me.Cmp.hro_hasta_reposicion);
+                                this.ocultarComponente(me.Cmp.hro_total_reposicion);
 
-                                this.ocultarComponente(this.Cmp.id_tipo_licencia);
-                                this.ocultarComponente(this.Cmp.fecha_inicio);
-                                this.ocultarComponente(this.Cmp.fecha_fin);
-                                this.ocultarComponente(this.Cmp.dias);
-                                this.Cmp.hro_desde.allowBlank = false;
-                                this.Cmp.hro_hasta.allowBlank = false;
+                                this.ocultarComponente(me.Cmp.id_tipo_licencia);
+                                this.ocultarComponente(me.Cmp.fecha_inicio);
+                                this.ocultarComponente(me.Cmp.fecha_fin);
+                                this.ocultarComponente(me.Cmp.dias);
+                                me.Cmp.hro_desde.allowBlank = false;
+                                me.Cmp.hro_hasta.allowBlank = false;
+
+                                this.ocultarComponente(me.Cmp.inicio_comp);
+                                this.ocultarComponente(me.Cmp.fin_comp);
                             }
                         }
                     }, scope: this
@@ -1206,7 +1215,8 @@ header("content-type: text/javascript; charset=UTF-8");
                         this.ocultarComponente(this.Cmp.dias);
                         this.Cmp.hro_desde.allowBlank = false;
                         this.Cmp.hro_hasta.allowBlank = false;
-
+                        this.ocultarComponente(this.Cmp.inicio_comp);
+                        this.ocultarComponente(this.Cmp.fin_comp);
                     } else if (record.data.detalle === 'si') {
                         this.window.setSize(490, 500);
                         this.ocultarComponente(this.Cmp.hro_desde);
@@ -1224,6 +1234,8 @@ header("content-type: text/javascript; charset=UTF-8");
                         this.mostrarComponente(this.Cmp.dias);
                         this.Cmp.hro_desde.allowBlank = false;
                         this.Cmp.hro_hasta.allowBlank = false;
+                        this.ocultarComponente(this.Cmp.inicio_comp);
+                        this.ocultarComponente(this.Cmp.fin_comp);
 
                     } else if (record.data.rango_fecha === 'si') {
                         this.window.setSize(490, 600);
@@ -1240,9 +1252,9 @@ header("content-type: text/javascript; charset=UTF-8");
 
                         this.Cmp.hro_desde.allowBlank = true;
                         this.Cmp.hro_hasta.allowBlank = true;
-
+                        this.ocultarComponente(this.Cmp.inicio_comp);
+                        this.ocultarComponente(this.Cmp.fin_comp);
                     }else if (record.data.compensacion_fecha === 'si') {
-                        console.log(record.data.compensacion_fecha, '--------------------->' )
                         this.window.setSize(490, 600);
                         this.mostrarComponente(this.Cmp.fecha_inicio);
                         this.mostrarComponente(this.Cmp.fecha_fin);
@@ -1260,7 +1272,6 @@ header("content-type: text/javascript; charset=UTF-8");
                         this.ocultarComponente(this.Cmp.hro_desde);
                         this.ocultarComponente(this.Cmp.hro_hasta);
                         this.ocultarComponente(this.Cmp.hro_total_permiso);
-
                     }
                     else {
                         this.window.setSize(490, 400);
@@ -1275,6 +1286,9 @@ header("content-type: text/javascript; charset=UTF-8");
                         this.ocultarComponente(this.Cmp.dias);
                         this.Cmp.hro_desde.allowBlank = false;
                         this.Cmp.hro_hasta.allowBlank = false;
+
+                        this.ocultarComponente(this.Cmp.inicio_comp);
+                        this.ocultarComponente(this.Cmp.fin_comp);
                     }
                 }, this);
                 this.onCalcularRango();
