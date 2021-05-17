@@ -41,6 +41,8 @@ class MODTipoPermiso extends MODbase{
         $this->captura('reposcion','varchar');
         $this->captura('rango','varchar');
         $this->captura('detalle','varchar');
+        $this->captura('rango_fecha','varchar');
+        $this->captura('compensacion_fecha','varchar');
 
         //Ejecuta la instruccion
         $this->armarConsulta();
@@ -65,6 +67,8 @@ class MODTipoPermiso extends MODbase{
         $this->setParametro('reposcion','reposcion','varchar');
         $this->setParametro('rango','rango','varchar');
         $this->setParametro('detalle','detalle','varchar');
+        $this->setParametro('rango_fecha','rango_fecha','varchar');
+        $this->setParametro('compensacion_fecha','compensacion_fecha','varchar');
         //Ejecuta la instruccion
         $this->armarConsulta();
         $this->ejecutarConsulta();
@@ -89,6 +93,8 @@ class MODTipoPermiso extends MODbase{
         $this->setParametro('reposcion','reposcion','varchar');
         $this->setParametro('rango','rango','varchar');
         $this->setParametro('detalle','detalle','varchar');
+        $this->setParametro('rango_fecha','rango_fecha','varchar');
+        $this->setParametro('compensacion_fecha','compensacion_fecha','varchar');
         //Ejecuta la instruccion
         $this->armarConsulta();
         $this->ejecutarConsulta();
