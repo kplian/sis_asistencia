@@ -51,6 +51,7 @@ header("content-type: text/javascript; charset=UTF-8");
             this.iniciarEventos();
             this.iniciarEventosCom();
             this.addBotonesGantt();
+            this.store.baseParams = {tipo_interfaz: this.nombreVista};
             this.store.baseParams.pes_estado = 'registro';
             this.load({params: {start: 0, limit: this.tam_pag}});
         },

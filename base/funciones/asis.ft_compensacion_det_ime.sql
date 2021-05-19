@@ -85,7 +85,8 @@ BEGIN
                      where vd.id_compensacion = v_id_compensacion) d;
 
             update asis.tcompensacion
-            set dias = v_dias_efectivo
+            set dias = v_dias_efectivo,
+                dias_comp = v_dias_efectivo
             where id_compensacion = v_id_compensacion;
 
             --Definicion de la respuesta

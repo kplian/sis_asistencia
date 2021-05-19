@@ -19,20 +19,25 @@ class ACTCompensacion extends ACTbase
     {
         $this->objParam->defecto('ordenacion', 'id_compensacion');
         $this->objParam->defecto('dir_ordenacion', 'asc');
-        //var_dump($this->objParam->getParametro('pes_estado'));exit;
-        switch ($this->objParam->getParametro('pes_estado')) {
-            case 'registro':
-                $this->objParam->addFiltro("cpm.estado in (''registro'',''rechazado'')"); // un where de conuslta de sel es una concatenando
-                break;
-            case 'vobo':
-                $this->objParam->addFiltro("cpm.estado = ''vobo''");
-                break;
-            case 'aprobado':
-                $this->objParam->addFiltro("cpm.estado = ''aprobado''");
-                break;
-            case 'cancelado':
-                $this->objParam->addFiltro("cpm.estado = ''cancelado''");
-                break;
+
+        if ($this->objParam->getParametro('tipo_interfaz') == 'SolicitudVacaciones') {
+            switch ($this->objParam->getParametro('pes_estado')) {
+                case 'registro':
+                    $this->objParam->addFiltro("cpm.estado in (''registro'',''rechazado'')"); // un where de conuslta de sel es una concatenando
+                    break;
+                case 'vobo':
+                    $this->objParam->addFiltro("cpm.estado = ''vobo''");
+                    break;
+                case 'aprobado':
+                    $this->objParam->addFiltro("cpm.estado = ''aprobado''");
+                    break;
+                case 'cancelado':
+                    $this->objParam->addFiltro("cpm.estado = ''cancelado''");
+                    break;
+            }
+        }
+        if ($this->objParam->getParametro('tipo_interfaz') == 'ComponsacionVoBo'){
+            $this->objParam->addFiltro("cpm.estado = ''vobo''");
         }
         if ($this->objParam->getParametro('tipoReporte') == 'excel_grid' || $this->objParam->getParametro('tipoReporte') == 'pdf_grid') {
             $this->objReporte = new Reporte($this->objParam, $this);
@@ -69,9 +74,11 @@ class ACTCompensacion extends ACTbase
         $this->res = $this->objFunc->getDias($this->objParam);
         $this->res->imprimirRespuesta($this->res->generarJson());
     }
-    function cambiarEstado(){
-        $this->objFunc=$this->create('MODCompensacion');
-        $this->res=$this->objFunc->cambiarEstado($this->objParam);
+
+    function cambiarEstado()
+    {
+        $this->objFunc = $this->create('MODCompensacion');
+        $this->res = $this->objFunc->cambiarEstado($this->objParam);
         $this->res->imprimirRespuesta($this->res->generarJson());
     }
 }

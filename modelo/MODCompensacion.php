@@ -26,6 +26,7 @@ class MODCompensacion extends MODbase
         $this->procedimiento = 'asis.ft_compensacion_sel';
         $this->transaccion = 'ASIS_CPM_SEL';
         $this->tipo_procedimiento = 'SEL';//tipo de transaccion
+        $this->setParametro('tipo_interfaz','tipo_interfaz','varchar');
 
         //Definicion de la lista del resultado del query
         $this->captura('id_compensacion', 'int4');
