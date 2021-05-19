@@ -917,8 +917,43 @@ alter table asis.tpermiso
 
 alter table asis.tpermiso
     add fin_comp date;
-
-
 /***********************************F-SCP-MMV-ASIS-SDA-78-1-17/05/2021****************************************/
 
 
+/***********************************I-SCP-MMV-ASIS-ETR-4007-1-18/05/2021****************************************/
+CREATE TABLE asis.tcompensacion (
+                                    id_compensacion SERIAL,
+                                    id_funcionario INTEGER NOT NULL,
+                                    id_responsable INTEGER NOT NULL,
+                                    desde DATE NOT NULL,
+                                    hasta DATE NOT NULL,
+                                    dias NUMERIC DEFAULT 0 NOT NULL,
+                                    desde_comp DATE NOT NULL,
+                                    hasta_comp DATE NOT NULL,
+                                    dias_comp NUMERIC DEFAULT 0 NOT NULL,
+                                    justificacion VARCHAR(500) NOT NULL,
+                                    id_procesos_wf INTEGER NOT NULL,
+                                    id_estado_wf INTEGER NOT NULL,
+                                    estado VARCHAR(100) NOT NULL,
+                                    nro_tramite VARCHAR(100) NOT NULL,
+                                    CONSTRAINT tcompensacion_pk PRIMARY KEY(id_compensacion)
+) INHERITS (pxp.tbase)
+  WITH (oids = false);
+
+CREATE UNIQUE INDEX tcompensacion_id_compensacion_uindex ON asis.tcompensacion
+    USING btree (id_compensacion);
+
+
+CREATE TABLE asis.tcompensacion_det (
+                                        id_compensacion_det SERIAL,
+                                        fecha DATE NOT NULL,
+                                        id_compensacion INTEGER NOT NULL,
+                                        tiempo VARCHAR(100) DEFAULT 'no'::character varying,
+                                        CONSTRAINT tcompensacion_det_pk PRIMARY KEY(id_compensacion_det)
+) INHERITS (pxp.tbase)
+  WITH (oids = false);
+
+CREATE UNIQUE INDEX tcompensacion_det_id_compensacion_det_uindex ON asis.tcompensacion_det
+    USING btree (id_compensacion_det);
+
+/***********************************F-SCP-MMV-ASIS-ETR-4007-1-18/05/2021****************************************/
