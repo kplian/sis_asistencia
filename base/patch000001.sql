@@ -957,3 +957,10 @@ CREATE UNIQUE INDEX tcompensacion_det_id_compensacion_det_uindex ON asis.tcompen
     USING btree (id_compensacion_det);
 
 /***********************************F-SCP-MMV-ASIS-ETR-4007-1-18/05/2021****************************************/
+/***********************************I-SCP-MMV-ASIS-ETR-4007-1-19/05/2021****************************************/
+ALTER TABLE asis.tcompensacion_det
+    ADD COLUMN fecha_comp DATE;
+
+ALTER TABLE asis.tcompensacion_det
+    ADD COLUMN tiempo_num NUMERIC;
+/***********************************F-SCP-MMV-ASIS-ETR-4007-1-19/05/2021****************************************/

@@ -16,7 +16,7 @@ header("content-type: text/javascript; charset=UTF-8");
 ?>
 <script>
     Phx.vista.CompensacionDet = Ext.extend(Phx.gridInterfaz, {
-
+            dblclickEdit: true,
             constructor: function (config) {
                 this.maestro = config.maestro;
                 //llama al constructor de la clase padre
@@ -43,6 +43,16 @@ header("content-type: text/javascript; charset=UTF-8");
                         labelSeparator: '',
                         inputType: 'hidden',
                         name: 'id_compensacion'
+                    },
+                    type: 'Field',
+                    form: true
+                },
+                {
+                    //configuracion del componente
+                    config: {
+                        labelSeparator: '',
+                        inputType: 'hidden',
+                        name: 'tiempo_num'
                     },
                     type: 'Field',
                     form: true
@@ -75,33 +85,27 @@ header("content-type: text/javascript; charset=UTF-8");
                 },
                 {
                     config: {
-                        name: 'tiempo',
-                        fieldLabel: 'Jornada',
+                        name: 'fecha',
+                        fieldLabel: 'Fecha Trabajo',
                         allowBlank: false,
                         anchor: '80%',
-                        gwidth: 110,
+                        gwidth: 100,
+                        format: 'd/m/Y',
+                        disabled: true,
                         renderer: function (value, p, record) {
-                            if (value == 'completo') {
-                                return String.format('<p class="text-align:center"><b>Tiempo Completo</b></p>', value)
-                            }
-                            if (value == 'mañana') {
-                                return String.format('<p class="text-align:center"><b>Mañana</b></p>', value)
-                            }
-                            if (value == 'tarde') {
-                                return String.format('<p class="text-align:center"><b>Tarde</b></p>', value)
-                            }
+                            return value ? value.dateFormat('d/m/Y') : ''
                         }
                     },
-                    type: 'NumberField',
-                    filters: {pfiltro: 'vde.tiempo', type: 'numeric'},
+                    type: 'DateField',
+                    filters: {pfiltro: 'cmd.fecha', type: 'date'},
                     id_grupo: 1,
                     grid: true,
                     form: true
                 },
                 {
                     config: {
-                        name: 'fecha',
-                        fieldLabel: 'Fecha',
+                        name: 'fecha_comp',
+                        fieldLabel: 'Fecha Compensación',
                         allowBlank: false,
                         anchor: '80%',
                         gwidth: 100,
@@ -113,6 +117,35 @@ header("content-type: text/javascript; charset=UTF-8");
                     type: 'DateField',
                     filters: {pfiltro: 'cmd.fecha', type: 'date'},
                     id_grupo: 1,
+                    grid: true,
+                    form: true
+                },
+                {
+                    config: {
+                        name: 'tiempo',
+                        fieldLabel: 'Tiempo',
+                        allowBlank: false,
+                        width: '100%',
+                        anchor: '80%',
+                        typeAhead: true,
+                        triggerAction: 'all',
+                        lazyRender: true,
+                        mode: 'local',
+                        store: new Ext.data.ArrayStore({
+                            fields: ['variable', 'valor'],
+                            data: [
+                                ['completo', 'Completo'],
+                                ['mañana', 'Mañana'],
+                                ['tarde', 'Tarde']
+                            ]
+                        }),
+                        valueField: 'variable',
+                        displayField: 'valor',
+                    },
+                    type: 'ComboBox',
+                    filters: {pfiltro: 'tas.tiempo', type: 'string'},
+                    id_grupo: 1,
+                    // valorInicial: 'Completo',
                     grid: true,
                     form: true
                 },
@@ -248,7 +281,8 @@ header("content-type: text/javascript; charset=UTF-8");
                 {name: 'fecha_mod', type: 'date', dateFormat: 'Y-m-d H:i:s.u'},
                 {name: 'usr_reg', type: 'string'},
                 {name: 'usr_mod', type: 'string'},
-
+                {name: 'fecha_comp', type: 'date', dateFormat: 'Y-m-d'},
+                {name: 'tiempo_num', type: 'numeric'},
             ],
             sortInfo: {
                 field: 'id_compensacion_det',
@@ -257,7 +291,9 @@ header("content-type: text/javascript; charset=UTF-8");
             bdel: true,
             bsave: false,
             bnew: false,
-            bedit: false,
+            bedit: true,
+            fwidth: '30%',
+            fheight: '40%',
             onReloadPage: function (m) {
                 this.maestro = m;
                 this.store.baseParams = {id_compensacion: this.maestro.id_compensacion};

@@ -49,7 +49,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 handler: this.onSiguiente
             });
             this.iniciarEventos();
-            this.iniciarEventosCom();
+           // this.iniciarEventosCom();
             this.addBotonesGantt();
             this.store.baseParams = {tipo_interfaz: this.nombreVista};
             this.store.baseParams.pes_estado = 'registro';

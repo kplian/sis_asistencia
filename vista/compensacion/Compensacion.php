@@ -112,7 +112,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         mode: 'remote',
                         pageSize: 15,
                         queryDelay: 1000,
-                        anchor: '70%',
+                        anchor: '85%',
                         gwidth: 300,
                         minChars: 2,
                         renderer: function (value, p, record) {
@@ -160,7 +160,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         mode: 'remote',
                         pageSize: 15,
                         queryDelay: 1000,
-                        anchor: '70%',
+                        anchor: '85%',
                         gwidth: 300,
                         minChars: 2,
                         renderer: function (value, p, record) {
@@ -177,7 +177,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         name: 'desde',
                         fieldLabel: 'Fecha inicio trabajo',
                         allowBlank: false,
-                        anchor: '50%',
+                        anchor: '60%',
                         gwidth: 100,
                         format: 'd/m/Y',
                         disabledDays: [1, 2, 3, 4, 5],
@@ -196,7 +196,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         name: 'hasta',
                         fieldLabel: 'Fecha fin trabajo',
                         allowBlank: false,
-                        anchor: '50%',
+                        anchor: '60%',
                         gwidth: 100,
                         format: 'd/m/Y',
                         disabledDays: [1, 2, 3, 4, 5],
@@ -230,8 +230,8 @@ header("content-type: text/javascript; charset=UTF-8");
                     config: {
                         name: 'desde_comp',
                         fieldLabel: 'Fecha inicio compensacaion',
-                        allowBlank: false,
-                        anchor: '50%',
+                        allowBlank: true,
+                        anchor: '60%',
                         gwidth: 100,
                         format: 'd/m/Y',
                         renderer: function (value, p, record) {
@@ -241,15 +241,15 @@ header("content-type: text/javascript; charset=UTF-8");
                     type: 'DateField',
                     filters: {pfiltro: 'cpm.desde_comp', type: 'date'},
                     id_grupo: 1,
-                    grid: true,
-                    form: true
+                    grid: false,
+                    form: false
                 },
                 {
                     config: {
                         name: 'hasta_comp',
                         fieldLabel: 'Fecha fin compensacaion',
-                        allowBlank: false,
-                        anchor: '50%',
+                        allowBlank: true,
+                        anchor: '60%',
                         gwidth: 100,
                         format: 'd/m/Y',
                         renderer: function (value, p, record) {
@@ -259,8 +259,8 @@ header("content-type: text/javascript; charset=UTF-8");
                     type: 'DateField',
                     filters: {pfiltro: 'cpm.hasta_comp', type: 'date'},
                     id_grupo: 1,
-                    grid: true,
-                    form: true
+                    grid: false,
+                    form: false
                 },
                 {
                     config: {
@@ -275,8 +275,8 @@ header("content-type: text/javascript; charset=UTF-8");
                     type: 'NumberField',
                     filters: {pfiltro: 'cpm.dias_comp', type: 'numeric'},
                     id_grupo: 1,
-                    grid: true,
-                    form: true
+                    grid: false,
+                    form: false
                 },
                 {
                     config: {

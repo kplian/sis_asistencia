@@ -51,19 +51,22 @@ BEGIN
 
             if v_tiempo = 'completo' then
                 update asis.tcompensacion_det
-                set tiempo = 'mañana'
+                set tiempo = 'mañana',
+                    tiempo_num = 8
                 where id_compensacion_det = v_parametros.id_compensacion_det;
             end if;
 
             if v_tiempo = 'mañana' then
                 update asis.tcompensacion_det
-                set tiempo = 'tarde'
+                set tiempo = 'tarde',
+                    tiempo_num = 4
                 where id_compensacion_det = v_parametros.id_compensacion_det;
             end if;
 
             if v_tiempo = 'tarde' then
                 update asis.tcompensacion_det
-                set tiempo = 'completo'
+                set tiempo = 'completo',
+                    tiempo_num = 4
                 where id_compensacion_det = v_parametros.id_compensacion_det;
             end if;
 
@@ -118,7 +121,18 @@ BEGIN
                 id_usuario_mod  = p_id_usuario,
                 fecha_mod       = now(),
                 id_usuario_ai   = v_parametros._id_usuario_ai,
-                usuario_ai      = v_parametros._nombre_usuario_ai
+                usuario_ai      = v_parametros._nombre_usuario_ai,
+                fecha_comp      = v_parametros.fecha_comp,
+                tiempo_num      = (case
+                                       when v_parametros.tiempo = 'completo' then
+                                           1
+                                       when v_parametros.tiempo = 'mañana' then
+                                           0.5
+                                       when v_parametros.tiempo = 'tarde' then
+                                           0.5
+                                       else
+                                           0
+                    end ::numeric)
             WHERE id_compensacion_det = v_parametros.id_compensacion_det;
 
             --Definicion de la respuesta
