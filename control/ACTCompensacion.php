@@ -20,7 +20,7 @@ class ACTCompensacion extends ACTbase
         $this->objParam->defecto('ordenacion', 'id_compensacion');
         $this->objParam->defecto('dir_ordenacion', 'asc');
 
-        if ($this->objParam->getParametro('tipo_interfaz') == 'SolicitudVacaciones') {
+        if ($this->objParam->getParametro('tipo_interfaz') == 'ComponsacionSol') {
             switch ($this->objParam->getParametro('pes_estado')) {
                 case 'registro':
                     $this->objParam->addFiltro("cpm.estado in (''registro'',''rechazado'')"); // un where de conuslta de sel es una concatenando
