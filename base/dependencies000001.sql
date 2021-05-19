@@ -337,3 +337,6 @@ create or replace view  asis.vteletrabajo as (
                                              from asis.ttele_trabajo t
                                                       inner join orga.vfuncionario f on f.id_funcionario = t.id_funcionario);
 /***********************************F-DEP-MMV-ASIS-SDA-0-11/05/2021*****************************************/
+/***********************************I-DEP-MMV-ASIS-ETR-4007-18/05/2021*****************************************/
+select pxp.f_insert_testructura_gui ('SCN', 'ASIS');
+/***********************************F-DEP-MMV-ASIS-ETR-4007-18/05/2021*****************************************/
