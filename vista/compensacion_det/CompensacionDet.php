@@ -108,7 +108,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         fieldLabel: 'Fecha Compensación',
                         allowBlank: false,
                         anchor: '80%',
-                        gwidth: 100,
+                        gwidth: 130,
                         format: 'd/m/Y',
                         renderer: function (value, p, record) {
                             return value ? value.dateFormat('d/m/Y') : ''
