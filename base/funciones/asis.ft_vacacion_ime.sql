@@ -976,7 +976,8 @@ BEGIN
 
             select v.id_vacacion,
                    v.id_responsable,
-                   v.descripcion
+                   v.descripcion,
+                   v.nro_tramite
             into
                 v_vacacion_record
             from  asis.tvacacion v
@@ -1060,7 +1061,16 @@ BEGIN
                 RAISE NOTICE 'PASANDO DE ESTADO';
 
             END IF;
-
+            IF v_estado_maestro = 'vobo' then
+                v_resp = param.f_insertar_notificacion(p_administrador, p_id_usuario, v_vacacion_record.id_vacacion,
+                                                       v_registro_estado.id_proceso_wf,
+                                                       v_id_estado_maestro, v_id_funcionario,
+                                                       v_vacacion_record.id_responsable, 'asistencia', 'asis',
+                                                       'El tramite ' || v_vacacion_record.nro_tramite ||
+                                                       ' esta pendiente de liberación',
+                                                       'Asistencia - ' || v_vacacion_record.nro_tramite,
+                                                       'VacacionVoBo');
+            end if;
             --Definicion de la respuesta
             v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Exito');
             v_resp = pxp.f_agrega_clave(v_resp,'id_proceso_wf',v_parametros.id_proceso_wf::varchar);

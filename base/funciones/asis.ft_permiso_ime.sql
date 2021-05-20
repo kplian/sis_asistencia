@@ -934,7 +934,16 @@ BEGIN
                         v_permiso.id_estado_wf--#9
                     );
             end if;
-
+            IF v_estado_maestro = 'vobo' then
+                v_resp = param.f_insertar_notificacion(p_administrador, p_id_usuario, v_permiso.id_permiso,
+                                                       v_registro_estado.id_proceso_wf,
+                                                       v_id_estado_maestro, v_id_funcionario,
+                                                       v_permiso.id_responsable, 'asistencia', 'asis',
+                                                       'El tramite ' || v_permiso.nro_tramite ||
+                                                       ' esta pendiente de liberación',
+                                                       'Asistencia - ' || v_permiso.nro_tramite,
+                                                       'PermisoVoBo');
+            end if;
             update asis.tpermiso
             set id_estado_wf   = v_id_estado_actual,
                 estado         = v_estado_maestro,
