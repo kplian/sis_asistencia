@@ -277,7 +277,6 @@ Phx.vista.BajaMedica=Ext.extend(Phx.gridInterfaz,{
                 allowBlank: false,
                 width: 320,
                 gwidth: 100,
-                disabledDays:  [0, 6],
                 format: 'd/m/Y',
                 renderer:function (value,p,record){return value?value.dateFormat('d/m/Y'):''}
             },
@@ -294,7 +293,6 @@ Phx.vista.BajaMedica=Ext.extend(Phx.gridInterfaz,{
                 allowBlank: false,
                 width: 320,
                 gwidth: 100,
-                disabledDays:  [0, 6],
                 format: 'd/m/Y',
                 renderer:function (value,p,record){return value?value.dateFormat('d/m/Y'):''}
             },

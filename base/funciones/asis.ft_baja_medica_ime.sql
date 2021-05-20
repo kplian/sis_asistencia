@@ -142,21 +142,21 @@ BEGIN
 
             WHILE (SELECT v_fecha_aux::date <= v_parametros.fecha_fin::date)
                 loop
-                    IF (select extract(dow from v_fecha_aux::date) not in (v_sabado, v_domingo)) THEN
-                        IF NOT EXISTS(select *
-                                      from param.tferiado f
-                                               JOIN param.tlugar l on l.id_lugar = f.id_lugar
-                                      WHERE l.codigo in ('BO', v_lugar)
-                                        AND (EXTRACT(MONTH from f.fecha))::integer =
-                                            (EXTRACT(MONTH from v_fecha_aux::date))::integer
-                                        AND (EXTRACT(DAY from f.fecha))::integer = (EXTRACT(DAY from v_fecha_aux))
-                                        AND f.id_gestion = v_id_gestion_actual) THEN
-                            v_cant_dias = v_cant_dias + 1;
-
-                        END IF;
-
+                    --IF (select extract(dow from v_fecha_aux::date) not in (v_sabado, v_domingo)) THEN
+                    IF NOT EXISTS(select *
+                                  from param.tferiado f
+                                           JOIN param.tlugar l on l.id_lugar = f.id_lugar
+                                  WHERE l.codigo in ('BO', v_lugar)
+                                    AND (EXTRACT(MONTH from f.fecha))::integer =
+                                        (EXTRACT(MONTH from v_fecha_aux::date))::integer
+                                    AND (EXTRACT(DAY from f.fecha))::integer = (EXTRACT(DAY from v_fecha_aux))
+                                    AND f.id_gestion = v_id_gestion_actual) THEN
+                        v_cant_dias = v_cant_dias + 1;
 
                     END IF;
+
+
+                    ---END IF;
 
                     v_incremento_fecha = (SELECT v_fecha_aux::date + CAST(v_valor_incremento AS INTERVAL));
                     v_fecha_aux = v_incremento_fecha;
