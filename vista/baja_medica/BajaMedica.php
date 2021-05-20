@@ -57,7 +57,7 @@ Phx.vista.BajaMedica=Ext.extend(Phx.gridInterfaz,{
                     'fecha_fin': this.Cmp.fecha_fin.getValue(),
                     'fecha_inicio': Fecha.getValue(),
                     'id_funcionario': this.Cmp.id_funcionario.getValue(),
-                    'fin_semana': 'si'
+                    'fin_semana': 'no'
                 },
                 success: this.respuestaValidacion,
                 failure: this.conexionFailure,
@@ -73,7 +73,7 @@ Phx.vista.BajaMedica=Ext.extend(Phx.gridInterfaz,{
                     'fecha_fin': Fecha.getValue(),
                     'fecha_inicio': this.Cmp.fecha_inicio.getValue(),
                     'id_funcionario': this.Cmp.id_funcionario.getValue(),
-                    'fin_semana': 'si'
+                    'fin_semana': 'no'
                 },
                 success: this.respuestaValidacion,
                 failure: this.conexionFailure,
@@ -88,8 +88,8 @@ Phx.vista.BajaMedica=Ext.extend(Phx.gridInterfaz,{
                 params: {
                     'fecha_fin': this.Cmp.fecha_fin.getValue(),
                     'fecha_inicio': Fecha.getValue(),
-                    ''id_funcionario': this.Cmp.id_funcionario.getValue(),
-                    'fin_semana': 'si'
+                    'id_funcionario': this.Cmp.id_funcionario.getValue(),
+                    'fin_semana': 'no'
                 },
                 success: this.respuestaValidacion,
                 failure: this.conexionFailure,
@@ -105,7 +105,7 @@ Phx.vista.BajaMedica=Ext.extend(Phx.gridInterfaz,{
                     'fecha_fin': Fecha.getValue(),
                     'fecha_inicio': this.Cmp.fecha_inicio.getValue(),
                     'id_funcionario': this.Cmp.id_funcionario.getValue(),
-                    'fin_semana': 'si'
+                    'fin_semana': 'no'
                 },
                 success: this.respuestaValidacion,
                 failure: this.conexionFailure,
