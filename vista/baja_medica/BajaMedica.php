@@ -52,11 +52,12 @@ Phx.vista.BajaMedica=Ext.extend(Phx.gridInterfaz,{
     iniciarEventos: function(){
         this.Cmp.fecha_inicio.on('select', function (Fecha, dato) {
             Ext.Ajax.request({
-                url: '../../sis_asistencia/control/Vacacion/getDias', //llamando a la funcion getDias.
+                url: '../../sis_asistencia/control/Compensacion/getDias', //llamando a la funcion getDias.
                 params: {
                     'fecha_fin': this.Cmp.fecha_fin.getValue(),
                     'fecha_inicio': Fecha.getValue(),
-                    'medios_dias':''
+                    'id_funcionario': this.Cmp.id_funcionario.getValue(),
+                    'fin_semana': 'si'
                 },
                 success: this.respuestaValidacion,
                 failure: this.conexionFailure,
@@ -67,11 +68,12 @@ Phx.vista.BajaMedica=Ext.extend(Phx.gridInterfaz,{
 
         this.Cmp.fecha_fin.on('select', function (Fecha, dato) {
             Ext.Ajax.request({
-                url: '../../sis_asistencia/control/Vacacion/getDias', //llamando a la funcion getDias.
+                url: '../../sis_asistencia/control/Compensacion/getDias', //llamando a la funcion getDias.
                 params: {
                     'fecha_fin': Fecha.getValue(),
                     'fecha_inicio': this.Cmp.fecha_inicio.getValue(),
-                    'medios_dias':''
+                    'id_funcionario': this.Cmp.id_funcionario.getValue(),
+                    'fin_semana': 'si'
                 },
                 success: this.respuestaValidacion,
                 failure: this.conexionFailure,
@@ -82,11 +84,12 @@ Phx.vista.BajaMedica=Ext.extend(Phx.gridInterfaz,{
 
         this.Cmp.fecha_inicio.on('change', function (Fecha, dato) {
             Ext.Ajax.request({
-                url: '../../sis_asistencia/control/Vacacion/getDias', //llamando a la funcion getDias.
+                url: '../../sis_asistencia/control/Compensacion/getDias', //llamando a la funcion getDias.
                 params: {
                     'fecha_fin': this.Cmp.fecha_fin.getValue(),
                     'fecha_inicio': Fecha.getValue(),
-                    'medios_dias':''
+                    ''id_funcionario': this.Cmp.id_funcionario.getValue(),
+                    'fin_semana': 'si'
                 },
                 success: this.respuestaValidacion,
                 failure: this.conexionFailure,
@@ -97,11 +100,12 @@ Phx.vista.BajaMedica=Ext.extend(Phx.gridInterfaz,{
 
         this.Cmp.fecha_fin.on('change', function (Fecha, dato) {
             Ext.Ajax.request({
-                url: '../../sis_asistencia/control/Vacacion/getDias', //llamando a la funcion getDias.
+                url: '../../sis_asistencia/control/Compensacion/getDias', //llamando a la funcion getDias.
                 params: {
                     'fecha_fin': Fecha.getValue(),
                     'fecha_inicio': this.Cmp.fecha_inicio.getValue(),
-                    'medios_dias':''
+                    'id_funcionario': this.Cmp.id_funcionario.getValue(),
+                    'fin_semana': 'si'
                 },
                 success: this.respuestaValidacion,
                 failure: this.conexionFailure,
