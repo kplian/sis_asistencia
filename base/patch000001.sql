@@ -967,7 +967,7 @@ ALTER TABLE asis.tcompensacion_det
 
 /***********************************I-SCP-MMV-ASIS-ETR-4007-1-21/05/2021****************************************/
 CREATE TABLE asis.tcompensacion_det_com (
-                                            id_compensacion_det_com INTEGER DEFAULT nextval('asis.tcompensacion_det_com_id_compensacion_det_com_seq'::regclass) NOT NULL,
+                                            id_compensacion_det_com SERIAL,
                                             fecha_comp DATE,
                                             tiempo_comp VARCHAR(100),
                                             id_compensacion_det INTEGER,
@@ -986,4 +986,5 @@ ALTER TABLE asis.tcompensacion_det_com
 
 ALTER TABLE asis.tcompensacion_det_com
     ALTER COLUMN id_compensacion_det SET STATISTICS 0;
+
 /***********************************F-SCP-MMV-ASIS-ETR-4007-1-21/05/2021****************************************/
