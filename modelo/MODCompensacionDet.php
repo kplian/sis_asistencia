@@ -42,6 +42,8 @@ class MODCompensacionDet extends MODbase
         $this->captura('usr_reg', 'varchar');
         $this->captura('usr_mod', 'varchar');
         $this->captura('obs_dba', 'varchar');
+        $this->captura('fecha_comp', 'date');
+        $this->captura('tiempo_comp', 'varchar');
 
         //Ejecuta la instruccion
         $this->armarConsulta();

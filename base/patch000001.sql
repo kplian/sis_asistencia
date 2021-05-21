@@ -988,3 +988,13 @@ ALTER TABLE asis.tcompensacion_det_com
     ALTER COLUMN id_compensacion_det SET STATISTICS 0;
 
 /***********************************F-SCP-MMV-ASIS-ETR-4007-1-21/05/2021****************************************/
+
+/***********************************I-SCP-MMV-ASIS-ETR-4007-2-21/05/2021****************************************/
+
+ALTER TABLE asis.tcompensacion_det
+    ADD COLUMN fecha_comp DATE;
+
+ALTER TABLE asis.tcompensacion_det
+    ADD COLUMN tiempo_comp VARCHAR(20);
+
+/***********************************F-SCP-MMV-ASIS-ETR-4007-2-21/05/2021****************************************/

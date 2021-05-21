@@ -115,23 +115,21 @@ header("content-type: text/javascript; charset=UTF-8");
                         }
                     },
                     type: 'DateField',
-                    filters: {pfiltro: 'cmd.fecha', type: 'date'},
+                    filters: {pfiltro: 'cmd.fecha_comp', type: 'date'},
                     id_grupo: 1,
-                    grid: false,
+                    grid: true,
                     form: false
                 },
                 {
                     config: {
-                        name: 'estado_reg',
-                        fieldLabel: 'Estado Reg.',
+                        name: 'tiempo_comp',
+                        fieldLabel: 'Tiempo Compensación',
                         allowBlank: true,
                         anchor: '80%',
-                        gwidth: 100,
-                        maxLength: 10
+                        gwidth: 60
                     },
                     type: 'TextField',
-                    filters: {pfiltro: 'cmd.estado_reg', type: 'string'},
-                    id_grupo: 1,
+                    id_grupo: 0,
                     grid: true,
                     form: false
                 },
@@ -174,6 +172,21 @@ header("content-type: text/javascript; charset=UTF-8");
                     // valorInicial: 'Completo',
                     grid: true,
                     form: true
+                },
+                {
+                    config: {
+                        name: 'estado_reg',
+                        fieldLabel: 'Estado Reg.',
+                        allowBlank: true,
+                        anchor: '80%',
+                        gwidth: 100,
+                        maxLength: 10
+                    },
+                    type: 'TextField',
+                    filters: {pfiltro: 'cmd.estado_reg', type: 'string'},
+                    id_grupo: 1,
+                    grid: true,
+                    form: false
                 },
                 {
                     config: {
@@ -293,8 +306,10 @@ header("content-type: text/javascript; charset=UTF-8");
                 {name: 'usr_reg', type: 'string'},
                 {name: 'usr_mod', type: 'string'},
                 {name: 'fecha_comp', type: 'date', dateFormat: 'Y-m-d'},
-                {name: 'tiempo_num', type: 'numeric'},
                 {name: 'obs_dba', type: 'string'},
+                {name: 'fecha_comp', type: 'date', dateFormat: 'Y-m-d'},
+                {name: 'tiempo_comp', type: 'string'},
+
             ],
             sortInfo: {
                 field: 'fecha',

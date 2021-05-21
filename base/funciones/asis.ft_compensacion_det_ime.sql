@@ -59,15 +59,6 @@ BEGIN
                 set tiempo = 'mañana'
                 where id_compensacion_det = v_parametros.id_compensacion_det;
 
-                if EXISTS ( select 1
-                            from asis.tcompensacion_det_com c
-                            where c.id_compensacion_det = v_parametros.id_compensacion_det)then
-
-                    update asis.tcompensacion_det_com  set
-                        tiempo_comp =  'mañana'
-                    where id_compensacion_det = v_parametros.id_compensacion_det;
-                end if;
-
             end if;
 
             if v_tiempo = 'mañana' then
@@ -76,31 +67,12 @@ BEGIN
                 set tiempo = 'tarde'
                 where id_compensacion_det = v_parametros.id_compensacion_det;
 
-                if EXISTS ( select 1
-                            from asis.tcompensacion_det_com c
-                            where c.id_compensacion_det = v_parametros.id_compensacion_det)then
-
-                    update asis.tcompensacion_det_com  set
-                        tiempo_comp =  'tarde'
-                    where id_compensacion_det = v_parametros.id_compensacion_det;
-                end if;
-
-
             end if;
 
             if v_tiempo = 'tarde' then
                 update asis.tcompensacion_det
                 set tiempo = 'completo'
                 where id_compensacion_det = v_parametros.id_compensacion_det;
-
-                if EXISTS( select 1
-                           from asis.tcompensacion_det_com c
-                           where c.id_compensacion_det = v_parametros.id_compensacion_det)then
-
-                    update asis.tcompensacion_det_com  set
-                        tiempo_comp =  'completo'
-                    where id_compensacion_det = v_parametros.id_compensacion_det;
-                end if;
 
             end if;
 

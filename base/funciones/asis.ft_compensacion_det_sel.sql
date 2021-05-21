@@ -57,7 +57,9 @@ BEGIN
                         cmd.fecha_mod,
                         usu1.cuenta as usr_reg,
                         usu2.cuenta as usr_mod,
-                        cmd.obs_dba
+                        cmd.obs_dba,
+                        cmd.fecha_comp,
+                        cmd.tiempo_comp
                         FROM asis.tcompensacion_det cmd
                         JOIN segu.tusuario usu1 ON usu1.id_usuario = cmd.id_usuario_reg
                         LEFT JOIN segu.tusuario usu2 ON usu2.id_usuario = cmd.id_usuario_mod
