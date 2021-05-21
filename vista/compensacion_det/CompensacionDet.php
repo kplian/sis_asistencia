@@ -297,7 +297,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 {name: 'obs_dba', type: 'string'},
             ],
             sortInfo: {
-                field: 'id_compensacion_det',
+                field: 'fecha',
                 direction: 'ASC'
             },
             bdel: true,
