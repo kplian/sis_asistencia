@@ -235,6 +235,48 @@ BEGIN
                 usuario_ai     = v_parametros._nombre_usuario_ai
             WHERE id_compensacion = v_parametros.id_compensacion;
 
+
+
+
+            FOR v_record_det IN (select dia::date as dia
+                                 from generate_series(v_parametros.desde, v_parametros.hasta,
+                                                      '1 day'::interval) dia)
+                LOOP
+                    IF (select extract(dow from v_record_det.dia::date) in (v_sabado, v_domingo)) THEN
+
+
+                        INSERT INTO asis.tcompensacion_det(estado_reg,
+                                                           fecha,
+                                                           id_compensacion,
+                                                           tiempo,
+                                                           id_usuario_reg,
+                                                           fecha_reg,
+                                                           id_usuario_ai,
+                                                           usuario_ai,
+                                                           id_usuario_mod,
+                                                           fecha_mod,
+                                                           obs_dba)
+                        VALUES ('activo',
+                                v_record_det.dia,
+                                v_parametros.id_compensacion,
+                                (case
+                                     when extract(dow from v_record_det.dia::date) = v_sabado then
+                                         'tarde'
+                                     else
+                                         'completo'
+                                    end ),
+                                p_id_usuario,
+                                now(),
+                                v_parametros._id_usuario_ai,
+                                v_parametros._nombre_usuario_ai,
+                                null,
+                                null,
+                                extract(dow from v_record_det.dia::date));
+
+
+                    END IF;
+                END LOOP;
+
             --Definicion de la respuesta
             v_resp = pxp.f_agrega_clave(v_resp, 'mensaje', 'Compensacion modificado(a)');
             v_resp = pxp.f_agrega_clave(v_resp, 'id_compensacion', v_parametros.id_compensacion::varchar);

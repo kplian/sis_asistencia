@@ -54,21 +54,54 @@ BEGIN
 
 
             if v_tiempo = 'completo' then
+
                 update asis.tcompensacion_det
                 set tiempo = 'mañana'
                 where id_compensacion_det = v_parametros.id_compensacion_det;
+
+                if EXISTS ( select 1
+                            from asis.tcompensacion_det_com c
+                            where c.id_compensacion_det = v_parametros.id_compensacion_det)then
+
+                    update asis.tcompensacion_det_com  set
+                        tiempo_comp =  'mañana'
+                    where id_compensacion_det = v_parametros.id_compensacion_det;
+                end if;
+
             end if;
 
             if v_tiempo = 'mañana' then
+
                 update asis.tcompensacion_det
                 set tiempo = 'tarde'
                 where id_compensacion_det = v_parametros.id_compensacion_det;
+
+                if EXISTS ( select 1
+                            from asis.tcompensacion_det_com c
+                            where c.id_compensacion_det = v_parametros.id_compensacion_det)then
+
+                    update asis.tcompensacion_det_com  set
+                        tiempo_comp =  'tarde'
+                    where id_compensacion_det = v_parametros.id_compensacion_det;
+                end if;
+
+
             end if;
 
             if v_tiempo = 'tarde' then
                 update asis.tcompensacion_det
                 set tiempo = 'completo'
                 where id_compensacion_det = v_parametros.id_compensacion_det;
+
+                if EXISTS( select 1
+                           from asis.tcompensacion_det_com c
+                           where c.id_compensacion_det = v_parametros.id_compensacion_det)then
+
+                    update asis.tcompensacion_det_com  set
+                        tiempo_comp =  'completo'
+                    where id_compensacion_det = v_parametros.id_compensacion_det;
+                end if;
+
             end if;
 
             select sum(d.dias_efectico)
@@ -92,6 +125,9 @@ BEGIN
             set dias = v_dias_efectivo,
                 dias_comp = v_dias_efectivo
             where id_compensacion = v_id_compensacion;
+
+
+
 
             --Definicion de la respuesta
             v_resp = pxp.f_agrega_clave(v_resp, 'mensaje',
