@@ -128,7 +128,7 @@ Phx.vista.CompensacionDetCom=Ext.extend(Phx.gridInterfaz,{
             id_grupo: 1,
             // valorInicial: 'Completo',
             grid: true,
-            form: false
+            form: true
         },
         {
             config:{

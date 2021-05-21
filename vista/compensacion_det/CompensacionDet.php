@@ -122,6 +122,21 @@ header("content-type: text/javascript; charset=UTF-8");
                 },
                 {
                     config: {
+                        name: 'estado_reg',
+                        fieldLabel: 'Estado Reg.',
+                        allowBlank: true,
+                        anchor: '80%',
+                        gwidth: 100,
+                        maxLength: 10
+                    },
+                    type: 'TextField',
+                    filters: {pfiltro: 'cmd.estado_reg', type: 'string'},
+                    id_grupo: 1,
+                    grid: true,
+                    form: false
+                },
+                {
+                    config: {
                         name: 'tiempo',
                         fieldLabel: 'Tiempo',
                         allowBlank: false,
@@ -159,21 +174,6 @@ header("content-type: text/javascript; charset=UTF-8");
                     // valorInicial: 'Completo',
                     grid: true,
                     form: true
-                },
-                {
-                    config: {
-                        name: 'estado_reg',
-                        fieldLabel: 'Estado Reg.',
-                        allowBlank: true,
-                        anchor: '80%',
-                        gwidth: 100,
-                        maxLength: 10
-                    },
-                    type: 'TextField',
-                    filters: {pfiltro: 'cmd.estado_reg', type: 'string'},
-                    id_grupo: 1,
-                    grid: true,
-                    form: false
                 },
                 {
                     config: {
