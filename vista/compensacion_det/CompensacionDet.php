@@ -22,7 +22,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 //llama al constructor de la clase padre
                 Phx.vista.CompensacionDet.superclass.constructor.call(this, config);
                 this.init();
-                 // this.grid.addListener('cellclick', this.oncellclick, this); /// revisar
+                 this.grid.addListener('cellclick', this.oncellclick, this); /// revisar
 
             },
 

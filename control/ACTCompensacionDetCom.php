@@ -16,8 +16,10 @@ class ACTCompensacionDetCom extends ACTbase{
             
     function listarCompensacionDetCom(){
 		$this->objParam->defecto('ordenacion','id_compensacion_det_com');
-
         $this->objParam->defecto('dir_ordenacion','asc');
+        if ($this->objParam->getParametro('id_compensacion_det') != '') {
+            $this->objParam->addFiltro("fcn.id_compensacion_det = " . $this->objParam->getParametro('id_compensacion_det'));
+        }
 		if($this->objParam->getParametro('tipoReporte')=='excel_grid' || $this->objParam->getParametro('tipoReporte')=='pdf_grid'){
             $this->objReporte = new Reporte($this->objParam,$this);
             $this->res = $this->objReporte->generarReporteListado('MODCompensacionDetCom','listarCompensacionDetCom');
