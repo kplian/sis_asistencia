@@ -1,7 +1,11 @@
-create or replace function asis.ft_compensacion_ime(p_administrador integer, p_id_usuario integer, p_tabla character varying, p_transaccion character varying) returns character varying
-    language plpgsql
-as
-$$
+CREATE OR REPLACE FUNCTION asis.ft_compensacion_ime (
+    p_administrador integer,
+    p_id_usuario integer,
+    p_tabla varchar,
+    p_transaccion varchar
+)
+    RETURNS varchar AS
+$body$
 /**************************************************************************
  SISTEMA:        Sistema de Asistencia
  FUNCION:         asis.ft_compensacion_ime
@@ -139,8 +143,8 @@ BEGIN
                     v_parametros.hasta,
                     v_parametros.dias,
                     null, --v_parametros.desde_comp,
-                    null,--v_parametros.hasta_comp,
-                    0,--v_parametros.dias_comp,
+                    null, --v_parametros.hasta_comp,
+                    0, --v_parametros.dias_comp,
                     v_parametros.justificacion,
                     p_id_usuario,
                     now(),
@@ -159,27 +163,39 @@ BEGIN
                                  from generate_series(v_parametros.desde, v_parametros.hasta,
                                                       '1 day'::interval) dia)
                 LOOP
+                    IF (select extract(dow from v_record_det.dia::date) in (v_sabado, v_domingo)) THEN
 
-                    INSERT INTO asis.tcompensacion_det(estado_reg,
-                                                       fecha,
-                                                       id_compensacion,
-                                                       tiempo,
-                                                       id_usuario_reg,
-                                                       fecha_reg,
-                                                       id_usuario_ai,
-                                                       usuario_ai,
-                                                       id_usuario_mod,
-                                                       fecha_mod)
-                    VALUES ('activo',
-                            v_record_det.dia,
-                            v_id_compensacion,
-                            'completo',
-                            p_id_usuario,
-                            now(),
-                            v_parametros._id_usuario_ai,
-                            v_parametros._nombre_usuario_ai,
-                            null,
-                            null);
+
+                        INSERT INTO asis.tcompensacion_det(estado_reg,
+                                                           fecha,
+                                                           id_compensacion,
+                                                           tiempo,
+                                                           id_usuario_reg,
+                                                           fecha_reg,
+                                                           id_usuario_ai,
+                                                           usuario_ai,
+                                                           id_usuario_mod,
+                                                           fecha_mod,
+                                                           obs_dba)
+                        VALUES ('activo',
+                                v_record_det.dia,
+                                v_id_compensacion,
+                                (case
+                                     when extract(dow from v_record_det.dia::date) = v_sabado then
+                                         'tarde'
+                                     else
+                                         'completo'
+                                    end ),
+                                p_id_usuario,
+                                now(),
+                                v_parametros._id_usuario_ai,
+                                v_parametros._nombre_usuario_ai,
+                                null,
+                                null,
+                                extract(dow from v_record_det.dia::date));
+
+
+                    END IF;
                 END LOOP;
             --Definicion de la respuesta
             v_resp = pxp.f_agrega_clave(v_resp, 'mensaje',
@@ -239,6 +255,13 @@ BEGIN
 
         BEGIN
             --Sentencia de la eliminacion
+
+
+            DELETE
+            FROM asis.tcompensacion_det
+            where id_compensacion = v_parametros.id_compensacion;
+
+
             DELETE
             FROM asis.tcompensacion
             WHERE id_compensacion = v_parametros.id_compensacion;
@@ -303,6 +326,20 @@ BEGIN
                                             AND f.id_gestion = v_id_gestion_actual) THEN
                                 v_cant_dias = v_cant_dias + 1;
                             END IF;
+                        END IF;
+                        v_incremento_fecha = v_fecha_aux::date + v_valor_incremento::INTERVAL;
+                        v_fecha_aux := v_incremento_fecha;
+                    END LOOP;
+            ELSIF(v_parametros.fin_semana = 'fin_semana') THEN
+                WHILE (SELECT (v_fecha_aux::date) <= v_parametros.fecha_fin::date)
+                    LOOP
+                        IF (select extract(dow from v_fecha_aux::date) in (v_sabado, v_domingo)) THEN
+                            if (extract(dow from v_fecha_aux::date) = v_sabado)then
+                                v_cant_dias = v_cant_dias + 0.5;
+                            else
+                                v_cant_dias = v_cant_dias + 1;
+                            end if;
+
                         END IF;
                         v_incremento_fecha = v_fecha_aux::date + v_valor_incremento::INTERVAL;
                         v_fecha_aux := v_incremento_fecha;
@@ -488,4 +525,13 @@ EXCEPTION
         raise exception '%',v_resp;
 
 END;
-$$;
+$body$
+    LANGUAGE 'plpgsql'
+    VOLATILE
+    CALLED ON NULL INPUT
+    SECURITY INVOKER
+    PARALLEL UNSAFE
+    COST 100;
+
+ALTER FUNCTION asis.ft_compensacion_ime (p_administrador integer, p_id_usuario integer, p_tabla varchar, p_transaccion varchar)
+    OWNER TO postgres;

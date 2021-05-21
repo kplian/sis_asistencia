@@ -41,8 +41,7 @@ class MODCompensacionDet extends MODbase
         $this->captura('fecha_mod', 'timestamp');
         $this->captura('usr_reg', 'varchar');
         $this->captura('usr_mod', 'varchar');
-        $this->captura('fecha_comp', 'date');
-        $this->captura('tiempo_num', 'numeric');
+        $this->captura('obs_dba', 'varchar');
 
         //Ejecuta la instruccion
         $this->armarConsulta();
@@ -84,7 +83,6 @@ class MODCompensacionDet extends MODbase
         $this->setParametro('fecha', 'fecha', 'date');
         $this->setParametro('id_compensacion', 'id_compensacion', 'int4');
         $this->setParametro('tiempo', 'tiempo', 'varchar');
-        $this->setParametro('fecha_comp', 'fecha_comp', 'date');
 
         //Ejecuta la instruccion
         $this->armarConsulta();

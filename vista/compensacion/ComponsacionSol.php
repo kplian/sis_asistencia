@@ -100,10 +100,10 @@ header("content-type: text/javascript; charset=UTF-8");
             window.open('../../../sis_workflow/reportes/gantt/gantt_dinamico.html?id_proceso_wf=' + data)
         },
         east: {
-            url: '../../../sis_asistencia/vista/compensacion_det/CompensacionDet.php',
-            title: 'Detalle',
+            url: '../../../sis_asistencia/vista/compensacion_det/CompensacionDetTrabajo.php',
+            title: 'Fecha Trabajo',
             width: '40%',
-            cls: 'CompensacionDet'
+            cls: 'CompensacionDetTrabajo'
         },
         onButtonNew: function () {
             Phx.vista.ComponsacionSol.superclass.onButtonNew.call(this);//habilita el boton y se abre
@@ -183,7 +183,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         'fecha_fin': this.Cmp.hasta.getValue(),
                         'fecha_inicio': Fecha.getValue(),
                         'id_funcionario': this.Cmp.id_funcionario.getValue(),
-                        'fin_semana': 'no'
+                        'fin_semana': 'fin_semana'
 
                     },
                     success: this.respuestaValidacion,
@@ -199,7 +199,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         'fecha_fin': Fecha.getValue(),
                         'fecha_inicio': this.Cmp.desde.getValue(),
                         'id_funcionario': this.Cmp.id_funcionario.getValue(),
-                        'fin_semana': 'no'
+                        'fin_semana': 'fin_semana'
                     },
                     success: this.respuestaValidacion,
                     failure: this.conexionFailure,
@@ -215,7 +215,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         'fecha_fin': this.Cmp.hasta.getValue(),
                         'fecha_inicio': Fecha.getValue(),
                         'id_funcionario': this.Cmp.id_funcionario.getValue(),
-                        'fin_semana': 'no'
+                        'fin_semana': 'fin_semana'
                     },
                     success: this.respuestaValidacion,
                     failure: this.conexionFailure,
@@ -231,7 +231,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         'fecha_fin': Fecha.getValue(),
                         'fecha_inicio': this.Cmp.desde.getValue(),
                         'id_funcionario': this.Cmp.id_funcionario.getValue(),
-                        'fin_semana': 'no'
+                        'fin_semana': 'fin_semana'
                     },
                     success: this.respuestaValidacion,
                     failure: this.conexionFailure,
@@ -255,7 +255,6 @@ header("content-type: text/javascript; charset=UTF-8");
                         'fecha_inicio': Fecha.getValue(),
                         'id_funcionario': this.Cmp.id_funcionario.getValue(),
                         'fin_semana': 'si'
-
                     },
                     success: this.respuestaValidacionCom,
                     failure: this.conexionFailure,

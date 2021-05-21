@@ -78,10 +78,10 @@ class MODCompensacion extends MODbase
         $this->setParametro('id_responsable', 'id_responsable', 'int4');
         $this->setParametro('desde', 'desde', 'date');
         $this->setParametro('hasta', 'hasta', 'date');
-        $this->setParametro('dias', 'dias', 'int4');
+        $this->setParametro('dias', 'dias', 'numeric');
         $this->setParametro('desde_comp', 'desde_comp', 'date');
         $this->setParametro('hasta_comp', 'hasta_comp', 'date');
-        $this->setParametro('dias_comp', 'dias_comp', 'int4');
+        $this->setParametro('dias_comp', 'dias_comp', 'numeric');
         $this->setParametro('justificacion', 'justificacion', 'varchar');
 
         //Ejecuta la instruccion
@@ -106,10 +106,10 @@ class MODCompensacion extends MODbase
         $this->setParametro('id_responsable', 'id_responsable', 'int4');
         $this->setParametro('desde', 'desde', 'date');
         $this->setParametro('hasta', 'hasta', 'date');
-        $this->setParametro('dias', 'dias', 'int4');
+        $this->setParametro('dias', 'dias', 'numeric');
         $this->setParametro('desde_comp', 'desde_comp', 'date');
         $this->setParametro('hasta_comp', 'hasta_comp', 'date');
-        $this->setParametro('dias_comp', 'dias_comp', 'int4');
+        $this->setParametro('dias_comp', 'dias_comp', 'numeric');
         $this->setParametro('justificacion', 'justificacion', 'varchar');
 
         //Ejecuta la instruccion

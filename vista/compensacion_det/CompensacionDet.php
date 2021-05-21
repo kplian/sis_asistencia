@@ -22,7 +22,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 //llama al constructor de la clase padre
                 Phx.vista.CompensacionDet.superclass.constructor.call(this, config);
                 this.init();
-                this.grid.addListener('cellclick', this.oncellclick, this); /// revisar
+                 // this.grid.addListener('cellclick', this.oncellclick, this); /// revisar
 
             },
 
@@ -52,7 +52,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     config: {
                         labelSeparator: '',
                         inputType: 'hidden',
-                        name: 'tiempo_num'
+                        name: 'obs_dba'
                     },
                     type: 'Field',
                     form: true
@@ -117,8 +117,8 @@ header("content-type: text/javascript; charset=UTF-8");
                     type: 'DateField',
                     filters: {pfiltro: 'cmd.fecha', type: 'date'},
                     id_grupo: 1,
-                    grid: true,
-                    form: true
+                    grid: false,
+                    form: false
                 },
                 {
                     config: {
@@ -141,6 +141,17 @@ header("content-type: text/javascript; charset=UTF-8");
                         }),
                         valueField: 'variable',
                         displayField: 'valor',
+                        renderer: function (value, p, record) {
+                            if (value === 'completo') {
+                                return String.format('<p class="text-align:center"><b>Tiempo Completo</b></p>', value)
+                            }
+                            if (value === 'mañana') {
+                                return String.format('<p class="text-align:center"><b>Mañana</b></p>', value)
+                            }
+                            if (value === 'tarde') {
+                                return String.format('<p class="text-align:center"><b>Tarde</b></p>', value)
+                            }
+                        }
                     },
                     type: 'ComboBox',
                     filters: {pfiltro: 'tas.tiempo', type: 'string'},
@@ -283,6 +294,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 {name: 'usr_mod', type: 'string'},
                 {name: 'fecha_comp', type: 'date', dateFormat: 'Y-m-d'},
                 {name: 'tiempo_num', type: 'numeric'},
+                {name: 'obs_dba', type: 'string'},
             ],
             sortInfo: {
                 field: 'id_compensacion_det',
@@ -291,7 +303,7 @@ header("content-type: text/javascript; charset=UTF-8");
             bdel: true,
             bsave: false,
             bnew: false,
-            bedit: true,
+            bedit: false,
             fwidth: '30%',
             fheight: '40%',
             onReloadPage: function (m) {
@@ -306,7 +318,9 @@ header("content-type: text/javascript; charset=UTF-8");
             oncellclick: function (grid, rowIndex, columnIndex, e) {/// revisar
                 const record = this.store.getAt(rowIndex),
                     fieldName = grid.getColumnModel().getDataIndex(columnIndex); // Get field name
-                if (fieldName === 'tiempo') {
+                console.log(record)
+                // obs_dba
+                if (fieldName === 'tiempo' && record.data.obs_dba !== '6') {
                     this.cambiarAsignacion(record, fieldName);
 
                 }
@@ -331,8 +345,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 Phx.CP.loadingHide();
                 var reg = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));
                 Phx.CP.getPagina(this.idContenedorPadre).reload();
-            }
-
+            },
         }
     )
 </script>

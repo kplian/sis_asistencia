@@ -1,4 +1,4 @@
-CREATE OR REPLACE FUNCTION asis.ft_compensacion_det_sel (
+CREATE OR REPLACE FUNCTION asis.ft_compensacion_det_com_sel (
     p_administrador integer,
     p_id_usuario integer,
     p_tabla varchar,
@@ -8,15 +8,15 @@ CREATE OR REPLACE FUNCTION asis.ft_compensacion_det_sel (
 $body$
 /**************************************************************************
  SISTEMA:        Sistema de Asistencia
- FUNCION:         asis.ft_compensacion_det_sel
- DESCRIPCION:   Funcion que devuelve conjuntos de registros de las consultas relacionadas con la tabla 'asis.tcompensacion_det'
+ FUNCION:         asis.ft_compensacion_det_com_sel
+ DESCRIPCION:   Funcion que devuelve conjuntos de registros de las consultas relacionadas con la tabla 'asis.tcompensacion_det_com'
  AUTOR:          (amamani)
- FECHA:            18-05-2021 14:14:47
+ FECHA:            21-05-2021 17:01:17
  COMENTARIOS:
 ***************************************************************************
  HISTORIAL DE MODIFICACIONES:
 #ISSUE                FECHA                AUTOR                DESCRIPCION
- #0                18-05-2021 14:14:47    amamani             Creacion
+ #0                21-05-2021 17:01:17    amamani             Creacion
  #
  ***************************************************************************/
 
@@ -29,38 +29,37 @@ DECLARE
 
 BEGIN
 
-    v_nombre_funcion = 'asis.ft_compensacion_det_sel';
+    v_nombre_funcion = 'asis.ft_compensacion_det_com_sel';
     v_parametros = pxp.f_get_record(p_tabla);
 
     /*********************************
-     #TRANSACCION:  'ASIS_CMD_SEL'
+     #TRANSACCION:  'ASIS_FCN_SEL'
      #DESCRIPCION:    Consulta de datos
      #AUTOR:        amamani
-     #FECHA:        18-05-2021 14:14:47
+     #FECHA:        21-05-2021 17:01:17
     ***********************************/
 
-    IF (p_transaccion='ASIS_CMD_SEL') THEN
+    IF (p_transaccion='ASIS_FCN_SEL') THEN
 
         BEGIN
             --Sentencia de la consulta
             v_consulta:='SELECT
-                        cmd.id_compensacion_det,
-                        cmd.estado_reg,
-                        cmd.fecha,
-                        cmd.id_compensacion,
-                        cmd.tiempo,
-                        cmd.id_usuario_reg,
-                        cmd.fecha_reg,
-                        cmd.id_usuario_ai,
-                        cmd.usuario_ai,
-                        cmd.id_usuario_mod,
-                        cmd.fecha_mod,
+                        fcn.id_compensacion_det_com,
+                        fcn.estado_reg,
+                        fcn.fecha_comp,
+                        fcn.tiempo_comp,
+                        fcn.id_compensacion_det,
+                        fcn.id_usuario_reg,
+                        fcn.fecha_reg,
+                        fcn.id_usuario_ai,
+                        fcn.usuario_ai,
+                        fcn.id_usuario_mod,
+                        fcn.fecha_mod,
                         usu1.cuenta as usr_reg,
-                        usu2.cuenta as usr_mod,
-                        cmd.obs_dba
-                        FROM asis.tcompensacion_det cmd
-                        JOIN segu.tusuario usu1 ON usu1.id_usuario = cmd.id_usuario_reg
-                        LEFT JOIN segu.tusuario usu2 ON usu2.id_usuario = cmd.id_usuario_mod
+                        usu2.cuenta as usr_mod
+                        FROM asis.tcompensacion_det_com fcn
+                        JOIN segu.tusuario usu1 ON usu1.id_usuario = fcn.id_usuario_reg
+                        LEFT JOIN segu.tusuario usu2 ON usu2.id_usuario = fcn.id_usuario_mod
                         WHERE  ';
 
             --Definicion de la respuesta
@@ -73,20 +72,20 @@ BEGIN
         END;
 
         /*********************************
-         #TRANSACCION:  'ASIS_CMD_CONT'
+         #TRANSACCION:  'ASIS_FCN_CONT'
          #DESCRIPCION:    Conteo de registros
          #AUTOR:        amamani
-         #FECHA:        18-05-2021 14:14:47
+         #FECHA:        21-05-2021 17:01:17
         ***********************************/
 
-    ELSIF (p_transaccion='ASIS_CMD_CONT') THEN
+    ELSIF (p_transaccion='ASIS_FCN_CONT') THEN
 
         BEGIN
             --Sentencia de la consulta de conteo de registros
-            v_consulta:='SELECT COUNT(id_compensacion_det)
-                         FROM asis.tcompensacion_det cmd
-                         JOIN segu.tusuario usu1 ON usu1.id_usuario = cmd.id_usuario_reg
-                         LEFT JOIN segu.tusuario usu2 ON usu2.id_usuario = cmd.id_usuario_mod
+            v_consulta:='SELECT COUNT(id_compensacion_det_com)
+                         FROM asis.tcompensacion_det_com fcn
+                         JOIN segu.tusuario usu1 ON usu1.id_usuario = fcn.id_usuario_reg
+                         LEFT JOIN segu.tusuario usu2 ON usu2.id_usuario = fcn.id_usuario_mod
                          WHERE ';
 
             --Definicion de la respuesta
@@ -120,5 +119,5 @@ $body$
     PARALLEL UNSAFE
     COST 100;
 
-ALTER FUNCTION asis.ft_compensacion_det_sel (p_administrador integer, p_id_usuario integer, p_tabla varchar, p_transaccion varchar)
+ALTER FUNCTION asis.ft_compensacion_det_com_sel (p_administrador integer, p_id_usuario integer, p_tabla varchar, p_transaccion varchar)
     OWNER TO postgres;

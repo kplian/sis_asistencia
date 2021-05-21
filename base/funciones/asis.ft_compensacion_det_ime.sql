@@ -1,7 +1,11 @@
-create or replace function asis.ft_compensacion_det_ime(p_administrador integer, p_id_usuario integer, p_tabla character varying, p_transaccion character varying) returns character varying
-    language plpgsql
-as
-$$
+CREATE OR REPLACE FUNCTION asis.ft_compensacion_det_ime (
+    p_administrador integer,
+    p_id_usuario integer,
+    p_tabla varchar,
+    p_transaccion varchar
+)
+    RETURNS varchar AS
+$body$
 /**************************************************************************
  SISTEMA:        Sistema de Asistencia
  FUNCION:         asis.ft_compensacion_det_ime
@@ -51,22 +55,19 @@ BEGIN
 
             if v_tiempo = 'completo' then
                 update asis.tcompensacion_det
-                set tiempo = 'mañana',
-                    tiempo_num = 8
+                set tiempo = 'mañana'
                 where id_compensacion_det = v_parametros.id_compensacion_det;
             end if;
 
             if v_tiempo = 'mañana' then
                 update asis.tcompensacion_det
-                set tiempo = 'tarde',
-                    tiempo_num = 4
+                set tiempo = 'tarde'
                 where id_compensacion_det = v_parametros.id_compensacion_det;
             end if;
 
             if v_tiempo = 'tarde' then
                 update asis.tcompensacion_det
-                set tiempo = 'completo',
-                    tiempo_num = 4
+                set tiempo = 'completo'
                 where id_compensacion_det = v_parametros.id_compensacion_det;
             end if;
 
@@ -121,18 +122,7 @@ BEGIN
                 id_usuario_mod  = p_id_usuario,
                 fecha_mod       = now(),
                 id_usuario_ai   = v_parametros._id_usuario_ai,
-                usuario_ai      = v_parametros._nombre_usuario_ai,
-                fecha_comp      = v_parametros.fecha_comp,
-                tiempo_num      = (case
-                                       when v_parametros.tiempo = 'completo' then
-                                           1
-                                       when v_parametros.tiempo = 'mañana' then
-                                           0.5
-                                       when v_parametros.tiempo = 'tarde' then
-                                           0.5
-                                       else
-                                           0
-                    end ::numeric)
+                usuario_ai      = v_parametros._nombre_usuario_ai
             WHERE id_compensacion_det = v_parametros.id_compensacion_det;
 
             --Definicion de la respuesta
@@ -184,4 +174,13 @@ EXCEPTION
         raise exception '%',v_resp;
 
 END;
-$$;
+$body$
+    LANGUAGE 'plpgsql'
+    VOLATILE
+    CALLED ON NULL INPUT
+    SECURITY INVOKER
+    PARALLEL UNSAFE
+    COST 100;
+
+ALTER FUNCTION asis.ft_compensacion_det_ime (p_administrador integer, p_id_usuario integer, p_tabla varchar, p_transaccion varchar)
+    OWNER TO postgres;

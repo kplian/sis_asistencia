@@ -964,3 +964,26 @@ ALTER TABLE asis.tcompensacion_det
 ALTER TABLE asis.tcompensacion_det
     ADD COLUMN tiempo_num NUMERIC;
 /***********************************F-SCP-MMV-ASIS-ETR-4007-1-19/05/2021****************************************/
+
+/***********************************I-SCP-MMV-ASIS-ETR-4007-1-21/05/2021****************************************/
+CREATE TABLE asis.tcompensacion_det_com (
+                                            id_compensacion_det_com INTEGER DEFAULT nextval('asis.tcompensacion_det_com_id_compensacion_det_com_seq'::regclass) NOT NULL,
+                                            fecha_comp DATE,
+                                            tiempo_comp VARCHAR(100),
+                                            id_compensacion_det INTEGER,
+                                            CONSTRAINT tcompensacion_det_com_pkey PRIMARY KEY(id_compensacion_det_com)
+) INHERITS (pxp.tbase)
+  WITH (oids = false);
+
+ALTER TABLE asis.tcompensacion_det_com
+    ALTER COLUMN id_compensacion_det_com SET STATISTICS 0;
+
+ALTER TABLE asis.tcompensacion_det_com
+    ALTER COLUMN fecha_comp SET STATISTICS 0;
+
+ALTER TABLE asis.tcompensacion_det_com
+    ALTER COLUMN tiempo_comp SET STATISTICS 0;
+
+ALTER TABLE asis.tcompensacion_det_com
+    ALTER COLUMN id_compensacion_det SET STATISTICS 0;
+/***********************************F-SCP-MMV-ASIS-ETR-4007-1-21/05/2021****************************************/
