@@ -91,20 +91,21 @@ class RRetrasosMensualesXls{
         );
         //modificacionw
         $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(0,2,'DETALLE MENSUAL DE RETRASOS');
-        $this->docexcel->getActiveSheet()->getStyle('A2:F2')->applyFromArray($styleTitulos1);
-        $this->docexcel->getActiveSheet()->mergeCells('A2:F2');
+        $this->docexcel->getActiveSheet()->getStyle('A2:G2')->applyFromArray($styleTitulos1);
+        $this->docexcel->getActiveSheet()->mergeCells('A2:G2');
         $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(0,3,'Del: '.$this->objParam->getParametro('fecha_ini').' al '.$this->objParam->getParametro('fecha_fin'));
-        $this->docexcel->getActiveSheet()->getStyle('A3:F3')->applyFromArray($styleTitulos3);
-        $this->docexcel->getActiveSheet()->mergeCells('A3:F3');
+        $this->docexcel->getActiveSheet()->getStyle('A3:G3')->applyFromArray($styleTitulos3);
+        $this->docexcel->getActiveSheet()->mergeCells('A3:G3');
         $this->docexcel->getActiveSheet()->getColumnDimension('A')->setWidth(15);
         $this->docexcel->getActiveSheet()->getColumnDimension('B')->setWidth(40);
         $this->docexcel->getActiveSheet()->getColumnDimension('C')->setWidth(40);
         $this->docexcel->getActiveSheet()->getColumnDimension('D')->setWidth(20);
         $this->docexcel->getActiveSheet()->getColumnDimension('E')->setWidth(25);
         $this->docexcel->getActiveSheet()->getColumnDimension('F')->setWidth(25);
+        $this->docexcel->getActiveSheet()->getColumnDimension('G')->setWidth(20);
 
-        $this->docexcel->getActiveSheet()->getStyle('A5:F5')->getAlignment()->setWrapText(true);
-        $this->docexcel->getActiveSheet()->getStyle('A5:F5')->applyFromArray($styleTitulos2);
+        $this->docexcel->getActiveSheet()->getStyle('A5:G5')->getAlignment()->setWrapText(true);
+        $this->docexcel->getActiveSheet()->getStyle('A5:G5')->applyFromArray($styleTitulos2);
 
         $this->docexcel->getActiveSheet()->setCellValue('A5','COD. EMP');
         $this->docexcel->getActiveSheet()->setCellValue('B5','NOMBRE');
@@ -112,6 +113,8 @@ class RRetrasosMensualesXls{
         $this->docexcel->getActiveSheet()->setCellValue('D5','FECHA');
         $this->docexcel->getActiveSheet()->setCellValue('E5','HORA DE INGRESO');
         $this->docexcel->getActiveSheet()->setCellValue('F5','MINUTOS DE RETRASO');
+        $this->docexcel->getActiveSheet()->setCellValue('G5','MOTIVO');
+
 
     }
     function generarDatos(){
@@ -168,18 +171,16 @@ class RRetrasosMensualesXls{
                 $fila++;
             }
             if ($value['codigo_funcionario'] != $codigo_funcionario ){
-                $codigo_funcionario = $value['codigo_funcionario'];
                 $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(0, $fila, $value['codigo_funcionario']);
-            }
-            if ($value['funcionario'] != $funcionario ){
-                $funcionario = $value['funcionario'];
                 $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(1, $fila, $value['funcionario']);
+                $codigo_funcionario = $value['codigo_funcionario'];
             }
-            if ($value['hora'] != '' || $value['hora']!= null){
-                $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(2, $fila, $value['departamento']);
-                $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(3, $fila, $value['fecha']);
-            }
-            if ($value['hora'] != '' || $value['hora']!= null){
+            $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(2, $fila, $value['departamento']);
+            $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(3, $fila, $value['fecha']);
+            $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(4, $fila, $value['hora']);
+            $this->docexcel->getActiveSheet()->getStyle("E$fila:E$fila")->applyFromArray($styleTitulos3);
+
+            if ($value['nivel'] != 'b'){
                 $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(4, $fila, $value['hora']);
                 $this->docexcel->getActiveSheet()->getStyle("E$fila:E$fila")->applyFromArray($styleTitulos3);
             }else{
@@ -189,9 +190,11 @@ class RRetrasosMensualesXls{
             }
 
             $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(5, $fila, $value['hora_cal']);
+            $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(6, $fila, $value['motivo']);
+
             $this->docexcel->getActiveSheet()->getStyle("A$fila:A$fila")->applyFromArray($styleTitulos3);
             $this->docexcel->getActiveSheet()->getStyle("A$fila:A$fila")->applyFromArray($styleTitulos3);
-            $this->docexcel->getActiveSheet()->getStyle("F$fila:F$fila")->applyFromArray($styleTitulos3);
+            $this->docexcel->getActiveSheet()->getStyle("F$fila:G$fila")->applyFromArray($styleTitulos3);
             $fila++;
         }
     }

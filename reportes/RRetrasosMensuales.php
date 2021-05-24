@@ -44,11 +44,13 @@ EOF;
         $hader = '<table cellspacing="0" cellpadding="1">
                       <tr>
                             <th style="border-top: 1px solid black; border-bottom: 1px solid black; width: 10%;" align="center"><b>Cod. Emp.</b></th>
-                            <th style="border-top: 1px solid black; border-bottom: 1px solid black; width: 30%;" align="center"><b>Nombre</b></th>
-                            <th style="border-top: 1px solid black; border-bottom: 1px solid black; width: 30%;" align="center"><b>Área</b></th>
+                            <th style="border-top: 1px solid black; border-bottom: 1px solid black; width: 25%;" align="center"><b>Nombre</b></th>
+                            <th style="border-top: 1px solid black; border-bottom: 1px solid black; width: 25%;" align="center"><b>Área</b></th>
                             <th style="border-top: 1px solid black; border-bottom: 1px solid black; width: 10%;" align="center"><b>Fecha</b></th>
                             <th style="border-top: 1px solid black; border-bottom: 1px solid black; width: 10%;" align="center"><b>Hora de ingreso</b></th>
                             <th style="border-top: 1px solid black; border-bottom: 1px solid black; width: 10%;" align="center"><b>Minutos de retraso</b></th>
+                            <th style="border-top: 1px solid black; border-bottom: 1px solid black; width: 10%;" align="center"><b>Motivo</b></th>
+
                       </tr>
                 </table>';
         $this->SetFont('times', '', 9);
@@ -98,18 +100,18 @@ EOF;
             $imprimir = true;
             if($funcionario != $value['funcionario']  ){
                 $funcionario = $value['funcionario'];
-                $table .= ' <td style="width: 30%; '.$color.' ">'.$value['funcionario'] .'</td>';
+                $table .= ' <td style="width: 25%; '.$color.' ">'.$value['funcionario'] .'</td>';
                 $imprimir = false;
             }
 
             if($imprimir){
-                $table .= ' <td style="width: 30%; '.$color.' "></td>';
+                $table .= ' <td style="width: 25%; '.$color.' "></td>';
             }
 
             if($value['nivel'] == 'b') {
                 $table .='<td style="width: 10%; '.$color.' "> </td>';
             }else{
-                $table .='<td style="width: 30%; '.$color.' ">'.$value['departamento'].'</td>';
+                $table .='<td style="width: 25%; '.$color.' ">'.$value['departamento'].'</td>';
             }
 
             if ($fecha != '' || $fecha != null){
@@ -120,13 +122,18 @@ EOF;
             if ($hora != '' || $hora != null){
                 $table .= '<td style="width: 10%; '.$color.' " align="center" >' . $hora .   '</td>';
             }else{
-                $table .= '<td style="width: 30%; '.$color.' " align="right" > <b>Total minutos de retraso:</b></td>';
+                $table .= '<td style="width: 25%; '.$color.' " align="right" > <b>Total minutos de retraso:</b></td>';
             }
 
             if($value['nivel'] == 'b') {
                 $table .= ' <td style="width: 10%; '.$color.' " align="right" > <b>' . $hora_cal . '</b></td>';
             }else{
                 $table .= ' <td style="width: 10%; '.$color.' " align="right" >' . $hora_cal . '</td>';
+            }
+            if($value['nivel'] == 'b') {
+                $table .='<td style="width: 10%; '.$color.' "> </td>';
+            }else{
+                $table .='<td style="width: 10%; '.$color.' ">'.$value['departamento'].'</td>';
             }
             $table .= '</tr>';
 

@@ -477,12 +477,13 @@ class MODReportes extends MODbase{
         $this->captura('retraso','varchar');
         $this->captura('ruta','text');
         $this->captura('nivel_ordernar','integer');
+        $this->captura('motivo','varchar');
         $this->captura('nivel','varchar');
 
         //Ejecuta la instruccion
         $this->armarConsulta();
         $this->ejecutarConsulta();
-        //var_dump($this->respuesta);exit;
+        // var_dump($this->respuesta);exit;
         //Devuelve la respuesta
         return $this->respuesta;
     }
