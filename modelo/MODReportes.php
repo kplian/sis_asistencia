@@ -413,7 +413,7 @@ class MODReportes extends MODbase{
         //Ejecuta la instruccion
         $this->armarConsulta();
         $this->ejecutarConsulta();
-        // var_dump($this->respuesta);exit;
+        var_dump($this->respuesta);exit;
         //Devuelve la respuesta
         return $this->respuesta;
     }
@@ -462,6 +462,7 @@ class MODReportes extends MODbase{
         $this->setParametro('fecha_fin', 'fecha_fin', 'date');
         $this->setParametro('formato', 'formato', 'varchar');
         $this->setParametro('id_uo', 'id_uo', 'int4');
+        $this->setParametro('tipo_filtro', 'tipo_filtro', 'varchar');
 
         //Definicion de la lista del resultado del query
         $this->captura('codigo','varchar');

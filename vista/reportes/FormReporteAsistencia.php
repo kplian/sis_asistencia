@@ -128,7 +128,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     fieldLabel: 'Filtro Marcas',
                     items: [
                         {boxLabel: 'Filtrar todo', name: 'tipo_filtro', inputValue: 'todo', checked: true},
-                        {boxLabel: 'Filtrar solo retraso', name: 'tipo_filtro', inputValue: 'retraso'}
+                        {boxLabel: 'Filtrar solo retraso, permiso, vacaciones, viaticos, teletrabajo, baja medica', name: 'tipo_filtro', inputValue: 'retraso'}
                     ],
                 },
                 type: 'RadioGroupField',
@@ -176,7 +176,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     sef.mostrarComponente(sef.Cmp.fecha_ini);
                     sef.mostrarComponente(sef.Cmp.fecha_fin);
                     sef.ocultarComponente(sef.Cmp.fecha);
-                    sef.ocultarComponente(sef.Cmp.tipo_filtro);
+                    sef.mostrarComponente(sef.Cmp.tipo_filtro);  //no da
                 }
 
                 if(r.data.variable === 'Retrasos'){

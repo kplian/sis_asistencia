@@ -71,6 +71,32 @@ EOF;
 
         foreach ($this->datos as $value){
 
+            // $hora = $value['hora'];
+            // $hora_cal = $value['hora_cal'];
+            // $retraso = $value['retraso'];
+            // $fecha = $value['fecha'];
+            // $color = '';
+            // if($subtitulo != $value['departamento']){
+            //     $subtitulo = $value['departamento'];
+            //     $table .='<tr>
+            //                     <th colspan="6" align="left"><b>'. $value['departamento'].'</b></th>
+            //              </tr>';
+            // }
+            // $table .= '<tr>';
+            // $table .= '<td style="width: 10%; '.$color.' " align="center" >' . $value['codigo_funcionario'] . '</td>';
+            // $table .= '<td style="width: 25%; '.$color.' ">'.$value['funcionario'] .'</td>';
+            // $table .= '<td style="width: 25%; '.$color.' ">'.$value['departamento'].'</td>';
+            // $table .= '<td style="width: 10%; '.$color.' ">' . $fecha . '</td>';
+
+            // if($value['nivel'] != 'b') {
+            //     $table .= '<td style="width: 10%; '.$color.' " align="center" >' . $hora .'</td>';
+            // }else{
+            //     $table .= '<td style="width: 30%; '.$color.' " align="center"><b>Total minutos de retraso:</b></td>';
+            // }
+            // $table .= '<td style="width: 10%; '.$color.' " align="right" > <b>' . $hora_cal .'</b></td>';
+            // $table .= '<td style="width: 10%; '.$color.' " align="right" > <b>' . $value['motivo'] .'</b></td>';
+            // $table .= '</tr>';
+
             $hora = $value['hora'];
             $hora_cal = $value['hora_cal'];
             $retraso = $value['retraso'];
@@ -130,12 +156,11 @@ EOF;
             }else{
                 $table .= ' <td style="width: 10%; '.$color.' " align="right" >' . $hora_cal . '</td>';
             }
-            if($value['nivel'] == 'b') {
-                $table .='<td style="width: 10%; '.$color.' "> </td>';
-            }else{
-                $table .='<td style="width: 10%; '.$color.' ">'.$value['departamento'].'</td>';
-            }
+
+            $table .= '<td style="width: 10%; '.$color.' " align="right" > <b>' . $value['motivo'] .'</b></td>';
+
             $table .= '</tr>';
+
 
         }
         $table .= '</table>';
