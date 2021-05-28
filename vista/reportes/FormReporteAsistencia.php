@@ -128,7 +128,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     fieldLabel: 'Filtro Marcas',
                     items: [
                         {boxLabel: 'Filtrar todo', name: 'tipo_filtro', inputValue: 'todo', checked: true},
-                        {boxLabel: 'Filtrar solo retraso, permiso, vacaciones, viaticos, teletrabajo, baja medica', name: 'tipo_filtro', inputValue: 'retraso'}
+                        {boxLabel: 'Filtrar solo retraso, permiso, ausentes', name: 'tipo_filtro', inputValue: 'retraso'}
                     ],
                 },
                 type: 'RadioGroupField',

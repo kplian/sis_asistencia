@@ -2203,7 +2203,7 @@ BEGIN
                                                         v_asistencia.id_funcionario,
                                                         v_asistencia.funcioanrio,
                                                         v_asistencia.cargo,
-                                                        v_asistencia.hro_desde_permiso::time,
+                                                        v_asistencia.hora,-- v_asistencia.hro_desde_permiso::time,
                                                         '00:00:00'::time,
                                                         'si',
                                                         v_asistencia.ruta,
@@ -2265,7 +2265,6 @@ BEGIN
                                                                       cargo,
                                                                       hora,
                                                                       hora_cal,
-                                                                      retraso,
                                                                       ruta,
                                                                       nivel_ordernar,
                                                                       motivo)
@@ -2277,9 +2276,8 @@ BEGIN
                                                 v_asistencia.id_funcionario,
                                                 v_asistencia.funcioanrio,
                                                 v_asistencia.cargo,
-                                                v_hora,
                                                 '00:00:00'::time,
-                                                'si',
+                                                '00:00:00'::time,
                                                 v_asistencia.ruta,
                                                 v_asistencia.nivel,
                                                 'Vacacion');
@@ -2296,7 +2294,6 @@ BEGIN
                                                                       hora,
                                                                       hora_cal,
                                                                       retraso,
-                                                                      ruta,
                                                                       nivel_ordernar,
                                                                       motivo)
                                         values (v_asistencia.codigo_ger,
@@ -2307,9 +2304,8 @@ BEGIN
                                                 v_asistencia.id_funcionario,
                                                 v_asistencia.funcioanrio,
                                                 v_asistencia.cargo,
-                                                v_hora,
                                                 '00:00:00'::time,
-                                                'si',
+                                                '00:00:00'::time,
                                                 v_asistencia.ruta,
                                                 v_asistencia.nivel,
                                                 'Programa Armonía');
@@ -2326,7 +2322,6 @@ BEGIN
                                                                       cargo,
                                                                       hora,
                                                                       hora_cal,
-                                                                      retraso,
                                                                       ruta,
                                                                       nivel_ordernar,
                                                                       motivo)
@@ -2338,9 +2333,8 @@ BEGIN
                                                 v_asistencia.id_funcionario,
                                                 v_asistencia.funcioanrio,
                                                 v_asistencia.cargo,
-                                                v_hora,
                                                 '00:00:00'::time,
-                                                'si',
+                                                '00:00:00'::time,
                                                 v_asistencia.ruta,
                                                 v_asistencia.nivel,
                                                 'Viaticos');
@@ -2357,7 +2351,6 @@ BEGIN
                                                                       cargo,
                                                                       hora,
                                                                       hora_cal,
-                                                                      retraso,
                                                                       ruta,
                                                                       nivel_ordernar,
                                                                       motivo)
@@ -2369,9 +2362,8 @@ BEGIN
                                                 v_asistencia.id_funcionario,
                                                 v_asistencia.funcioanrio,
                                                 v_asistencia.cargo,
-                                                v_hora,
                                                 '00:00:00'::time,
-                                                'si',
+                                                '00:00:00'::time,
                                                 v_asistencia.ruta,
                                                 v_asistencia.nivel,
                                                 'Teletrabajo');
@@ -2388,7 +2380,6 @@ BEGIN
                                                                       hora,
                                                                       hora_cal,
                                                                       retraso,
-                                                                      ruta,
                                                                       nivel_ordernar,
                                                                       motivo)
                                         values (v_asistencia.codigo_ger,
@@ -2399,9 +2390,8 @@ BEGIN
                                                 v_asistencia.id_funcionario,
                                                 v_asistencia.funcioanrio,
                                                 v_asistencia.cargo,
-                                                v_hora,
                                                 '00:00:00'::time,
-                                                'si',
+                                                '00:00:00'::time,
                                                 v_asistencia.ruta,
                                                 v_asistencia.nivel,
                                                 'Teletrabajo');
@@ -2418,7 +2408,6 @@ BEGIN
                                                                       cargo,
                                                                       hora,
                                                                       hora_cal,
-                                                                      retraso,
                                                                       ruta,
                                                                       nivel_ordernar,
                                                                       motivo)
@@ -2430,16 +2419,22 @@ BEGIN
                                                 v_asistencia.id_funcionario,
                                                 v_asistencia.funcioanrio,
                                                 v_asistencia.cargo,
-                                                v_hora,
                                                 '00:00:00'::time,
-                                                'si',
+                                                '00:00:00'::time,
                                                 v_asistencia.ruta,
                                                 v_asistencia.nivel,
                                                 'Baja Medica');
                                     end if;
-                                    if (v_asistencia.cargo like '%Gerente%' or
-                                        v_asistencia.cargo like '%Asesor Legal%') then
 
+
+                                    if (v_asistencia.cargo like '%Gerente%' or
+                                        v_asistencia.cargo like '%Asesor Legal%' or
+                                        v_asistencia.cargo like '%Operador%' or
+                                        v_asistencia.cargo like '%Conductor%') then
+
+                                        /*if (v_asistencia.cargo in ('Operador', 'Conductor')) then
+                                            v_evento = v_asistencia.cargo;
+                                        end if;*/
 
                                         insert into tmp_control_total(codigo,
                                                                       fecha,
@@ -2462,7 +2457,13 @@ BEGIN
                                                 v_asistencia.id_funcionario,
                                                 v_asistencia.funcioanrio,
                                                 v_asistencia.cargo,
-                                                v_hora,
+                                                (case
+                                                     when extract(dow from v_record_fecha.dia::date) = 5 then
+                                                         '08:30:00'
+                                                     else
+                                                         '08:00:00'
+                                                    end
+                                                    )::time,
                                                 '00:00:00'::time,
                                                 v_asistencia.ruta,
                                                 v_asistencia.nivel,
@@ -2750,4 +2751,5 @@ EXCEPTION
         raise exception '%',v_resp;
 END;
 $fun$;
+
 
