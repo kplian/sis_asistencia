@@ -42,6 +42,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 this.ocultarComponente(this.Cmp.miercoles);
                 this.ocultarComponente(this.Cmp.jueves);
                 this.ocultarComponente(this.Cmp.viernes);
+                this.ocultarComponente(this.Cmp.auxiliar);
                 this.iniciarEvento();
             },
 
@@ -264,6 +265,19 @@ header("content-type: text/javascript; charset=UTF-8");
                     filters: {pfiltro: 'tlt.fecha_fin', type: 'date'},
                     id_grupo: 1,
                     grid: true,
+                    form: true
+                },
+                {
+                    config: {
+                        name: 'auxiliar',
+                        allowBlank: true,
+                        readOnly: true,
+                        anchor: '100%',
+                        editable: false,
+                        style: 'background-image: none; border: 0; color: #0C07F1; font-weight: bold;',
+                    },
+                    type: 'TextField',
+                    grid: false,
                     form: true
                 },
                 {
@@ -538,7 +552,7 @@ header("content-type: text/javascript; charset=UTF-8");
             fheight: '68%',
             onButtonNew: function () {
                 Phx.vista.TeleTrabajo.superclass.onButtonNew.call(this);//habilita el boton y se abre
-
+                this.Cmp.auxiliar.setValue('Seleccione los días que tomara teletrabajo');
                 this.Cmp.id_funcionario.store.load({
                     params: {start: 0, limit: this.tam_pag, es_combo_solicitud: 'si'},
                     callback: function (r) {
@@ -563,6 +577,8 @@ header("content-type: text/javascript; charset=UTF-8");
             onButtonEdit: function () {
                 Phx.vista.TeleTrabajo.superclass.onButtonEdit.call(this);
                 this.onCargarResponsable(this.Cmp.id_funcionario.getValue(), false);
+                this.Cmp.auxiliar.setValue('Seleccione los días que tomara teletrabajo');
+
                 this.Cmp.id_funcionario.on('select', function (combo, record, index) {
                     this.Cmp.id_responsable.reset();
                     this.Cmp.id_responsable.store.baseParams = Ext.apply(this.Cmp.id_responsable.store.baseParams, {id_funcionario: record.data.id_funcionario});
@@ -573,6 +589,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     this.mostrarComponente(this.Cmp.fecha_inicio);
                     this.ocultarComponente(this.Cmp.fecha_fin);
                     this.ocultarComponente(this.Cmp.tipo_temporal);
+                    this.ocultarComponente(this.Cmp.auxiliar);
                 }
                 if (this.Cmp.tipo_teletrabajo.getValue() === 'Temporal') {
                     this.ocultarComponente(this.Cmp.fecha_inicio);
@@ -587,6 +604,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     this.mostrarComponente(this.Cmp.miercoles);
                     this.mostrarComponente(this.Cmp.jueves);
                     this.mostrarComponente(this.Cmp.viernes);
+                    this.mostrarComponente(this.Cmp.auxiliar);
                 }
                 if (this.Cmp.tipo_temporal.getValue() === 'Alterno') {
                     this.mostrarComponente(this.Cmp.fecha_inicio);
@@ -596,6 +614,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     this.mostrarComponente(this.Cmp.miercoles);
                     this.mostrarComponente(this.Cmp.jueves);
                     this.mostrarComponente(this.Cmp.viernes);
+                    this.mostrarComponente(this.Cmp.auxiliar);
                 }
 
 
@@ -694,6 +713,8 @@ header("content-type: text/javascript; charset=UTF-8");
                         this.ocultarComponente(this.Cmp.miercoles);
                         this.ocultarComponente(this.Cmp.jueves);
                         this.ocultarComponente(this.Cmp.viernes);
+                        this.ocultarComponente(this.Cmp.auxiliar);
+
                     }
                     if (record.data.field1 === 'Temporal') {
                         this.ocultarComponente(this.Cmp.fecha_inicio);
@@ -716,6 +737,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         this.mostrarComponente(this.Cmp.miercoles);
                         this.mostrarComponente(this.Cmp.jueves);
                         this.mostrarComponente(this.Cmp.viernes);
+                        this.mostrarComponente(this.Cmp.auxiliar);
 
                         this.Cmp.lunes.setValue(false);
                         this.Cmp.martes.setValue(false);
@@ -731,12 +753,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         this.mostrarComponente(this.Cmp.miercoles);
                         this.mostrarComponente(this.Cmp.jueves);
                         this.mostrarComponente(this.Cmp.viernes);
-
-                        this.Cmp.lunes.setValue(true);
-                        this.Cmp.martes.setValue(true);
-                        this.Cmp.miercoles.setValue(true);
-                        this.Cmp.jueves.setValue(true);
-                        this.Cmp.viernes.setValue(true);
+                        this.mostrarComponente(this.Cmp.auxiliar);
                     }
                 }, this);
             },
@@ -757,5 +774,4 @@ header("content-type: text/javascript; charset=UTF-8");
         }
     )
 </script>
-        
-        
+
