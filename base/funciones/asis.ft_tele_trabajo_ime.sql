@@ -321,8 +321,8 @@ BEGIN
                                                join param.tlugar l on l.id_lugar = f.id_lugar
                                       where l.codigo in ('BO', v_lugar)
                                         and (extract(MONTH from f.fecha))::integer =
-                                            (extract(MONTH from v_fecha_aux::date))::integer
-                                        and (extract(DAY from f.fecha))::integer = (extract(DAY from v_fecha_aux))
+                                            (extract(MONTH from v_record_det.dia::date))::integer
+                                        and (extract(DAY from f.fecha))::integer = (extract(DAY from v_record_det.dia::date))
                                         and f.id_gestion = v_id_gestion_actual) then
 
                             if (extract(dow from v_record_det.dia::date) not in (6, 0)) then
@@ -534,6 +534,3 @@ $body$
 SECURITY INVOKER
 PARALLEL UNSAFE
 COST 100;
-
-ALTER FUNCTION asis.ft_tele_trabajo_ime (p_administrador integer, p_id_usuario integer, p_tabla varchar, p_transaccion varchar)
-  OWNER TO postgres;
