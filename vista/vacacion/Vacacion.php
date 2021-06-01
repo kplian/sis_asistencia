@@ -875,6 +875,10 @@ header("content-type: text/javascript; charset=UTF-8");
                 scope: this
             });
         },
+        diagramGanttDinamico: function (){
+            const data=this.sm.getSelected().data.id_proceso_wf;
+            window.open('../../../sis_workflow/reportes/gantt/gantt_dinamico.html?id_proceso_wf='+data)
+        },
         preparaMenu:function(n){
             Phx.vista.Vacacion.superclass.preparaMenu.call(this, n);
             const data = this.sm.getSelected().data;

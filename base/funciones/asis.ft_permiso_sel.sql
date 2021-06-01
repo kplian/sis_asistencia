@@ -1,7 +1,11 @@
-create or replace function asis.ft_permiso_sel(p_administrador integer, p_id_usuario integer, p_tabla character varying, p_transaccion character varying) returns character varying
-    language plpgsql
-as
-$$
+CREATE OR REPLACE FUNCTION asis.ft_permiso_sel (
+    p_administrador integer,
+    p_id_usuario integer,
+    p_tabla varchar,
+    p_transaccion varchar
+)
+    RETURNS varchar AS
+$body$
 /**************************************************************************
  SISTEMA:		Sistema de Asistencia
  FUNCION: 		asis.ft_permiso_sel
@@ -26,7 +30,7 @@ DECLARE
     v_filtro             varchar;
     v_id_funcionario_sol integer;
     v_count              integer;
-
+    v_dept               record;
 
 BEGIN
 
@@ -284,16 +288,38 @@ BEGIN
     elsif (p_transaccion = 'ASIS_RFL_SEL') then
 
         begin
-
-
-            v_consulta := 'WITH RECURSIVE path(id_funcionario,id_uo,presupuesta,gerencia,numero_nivel) AS (
+            select vf.id_funcionario,
+                   vf.id_uo,
+                   dep.nombre_unidad as departametno
+            into v_dept
+            from orga.vfuncionario_cargo vf
+                     inner join orga.tuo dep ON dep.id_uo = orga.f_get_uo_departamento(
+                    vf.id_uo, NULL::integer, NULL::date)
+            where vf.id_funcionario = v_parametros.id_funcionario
+              and vf.fecha_asignacion <= now()::date
+              and (vf.fecha_finalizacion is null or vf.fecha_finalizacion >= now()::date);
+            --raise exception '%',v_dept.departametno;
+            if (v_dept.departametno = 'DEPARTAMENTO DE FINANZAS') then
+                v_consulta := 'select f.id_funcionario,
+                                       f.desc_funcionario1,
+                                       f.codigo,
+                                       (case
+                                      when f.id_funcionario = 271 then
+                                          1
+                                        else
+                                            2
+                                        end)::integer as  numero_nivel
+                                from orga.vfuncionario f
+                                where f.id_funcionario in (373,271) and';
+            else
+                v_consulta := 'WITH RECURSIVE path(id_funcionario,id_uo,presupuesta,gerencia,numero_nivel) AS (
                                       SELECT uofun.id_funcionario,uo.id_uo,uo.presupuesta,uo.gerencia, no.numero_nivel
                                       from orga.tuo_funcionario uofun
                                       inner join orga.tuo uo on uo.id_uo = uofun.id_uo
                                       inner join orga.tnivel_organizacional no on no.id_nivel_organizacional = uo.id_nivel_organizacional
                                       where uofun.fecha_asignacion <= now()::date and (uofun.fecha_finalizacion is null or uofun.fecha_finalizacion >= now()::date)
                                       and uofun.estado_reg = ''activo'' and uofun.id_funcionario = ' ||
-                          v_parametros.id_funcionario || '
+                              v_parametros.id_funcionario || '
                                   UNION
                                       SELECT uofun.id_funcionario,euo.id_uo_padre,uo.presupuesta,uo.gerencia,no.numero_nivel
                                       from orga.testructura_uo euo
@@ -310,7 +336,9 @@ BEGIN
                              FROM path p
                              inner join orga.vfuncionario f on f.id_funcionario = p.id_funcionario
                              where p.numero_nivel in (1,2,4,6) and p.id_funcionario != ' ||
-                          v_parametros.id_funcionario || ' and ';
+                              v_parametros.id_funcionario || ' and ';
+            end if;
+
 
             --Definicion de la respuesta
             v_consulta := v_consulta || v_parametros.filtro;
@@ -333,15 +361,30 @@ BEGIN
 
         begin
 
-            --Sentencia de la consulta de conteo de registros
-            v_consulta := ' WITH RECURSIVE path(id_funcionario,id_uo,presupuesta,gerencia,numero_nivel) AS (
+            select vf.id_funcionario,
+                   vf.id_uo,
+                   dep.nombre_unidad as departametno
+            into v_dept
+            from orga.vfuncionario_cargo vf
+                     inner join orga.tuo dep ON dep.id_uo = orga.f_get_uo_departamento(
+                    vf.id_uo, NULL::integer, NULL::date)
+            where vf.id_funcionario = v_parametros.id_funcionario
+              and vf.fecha_asignacion <= now()::date
+              and (vf.fecha_finalizacion is null or vf.fecha_finalizacion >= now()::date);
+            if (v_dept.departametno = 'DEPARTAMENTO DE FINANZAS') then
+                v_consulta := 'select count(f.id_funcionario)
+                                from orga.vfuncionario f
+                                where f.id_funcionario in (373,271) and ';
+            else
+                --Sentencia de la consulta de conteo de registros
+                v_consulta := ' WITH RECURSIVE path(id_funcionario,id_uo,presupuesta,gerencia,numero_nivel) AS (
                                         SELECT uofun.id_funcionario,uo.id_uo,uo.presupuesta,uo.gerencia, no.numero_nivel
                                         from orga.tuo_funcionario uofun
                                         inner join orga.tuo uo on uo.id_uo = uofun.id_uo
                                         inner join orga.tnivel_organizacional no on no.id_nivel_organizacional = uo.id_nivel_organizacional
                                         where uofun.fecha_asignacion <= now()::date and (uofun.fecha_finalizacion is null or uofun.fecha_finalizacion >= now()::date)
                                         and uofun.estado_reg = ''activo'' and uofun.id_funcionario = ' ||
-                          v_parametros.id_funcionario || '
+                              v_parametros.id_funcionario || '
                                     UNION
                                         SELECT uofun.id_funcionario,euo.id_uo_padre,uo.presupuesta,uo.gerencia,no.numero_nivel
                                         from orga.testructura_uo euo
@@ -355,8 +398,8 @@ BEGIN
                                FROM path p
                                inner join orga.vfuncionario f on f.id_funcionario = p.id_funcionario
                                where p.numero_nivel in (1,2,4,6) and p.id_funcionario != ' ||
-                          v_parametros.id_funcionario || ' and ';
-
+                              v_parametros.id_funcionario || ' and ';
+            end if;
             --Definicion de la respuesta
             v_consulta := v_consulta || v_parametros.filtro;
             --Devuelve la respuesta
@@ -434,4 +477,13 @@ EXCEPTION
         v_resp = pxp.f_agrega_clave(v_resp, 'procedimientos', v_nombre_funcion);
         raise exception '%',v_resp;
 END;
-$$;
+$body$
+    LANGUAGE 'plpgsql'
+    VOLATILE
+    CALLED ON NULL INPUT
+    SECURITY INVOKER
+    PARALLEL UNSAFE
+    COST 100;
+
+ALTER FUNCTION asis.ft_permiso_sel (p_administrador integer, p_id_usuario integer, p_tabla varchar, p_transaccion varchar)
+    OWNER TO postgres;

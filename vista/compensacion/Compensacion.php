@@ -197,7 +197,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         gwidth: 100,
                         format: 'd/m/Y',
                         editable:false,
-                        disabledDays: [1, 2, 3, 4, 5],
+                        // disabledDays: [1, 2, 3, 4, 5],
                         renderer: function (value, p, record) {
                             return value ? value.dateFormat('d/m/Y') : ''
                         }
@@ -217,7 +217,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         gwidth: 100,
                         format: 'd/m/Y',
                         editable:false,
-                        disabledDays: [1, 2, 3, 4, 5],
+                        //disabledDays: [1, 2, 3, 4, 5],
                         renderer: function (value, p, record) {
                             return value ? value.dateFormat('d/m/Y') : ''
                         }
@@ -448,16 +448,13 @@ header("content-type: text/javascript; charset=UTF-8");
                 {name: 'fecha_mod', type: 'date', dateFormat: 'Y-m-d H:i:s.u'},
                 {name: 'usr_reg', type: 'string'},
                 {name: 'usr_mod', type: 'string'},
-
                 {name: 'id_procesos_wf', type: 'numeric'},
                 {name: 'id_estado_wf', type: 'numeric'},
                 {name: 'estado', type: 'string'},
                 {name: 'nro_tramite', type: 'string'},
-
                 {name: 'funcionario', type: 'string'},
                 {name: 'responsable', type: 'string'},
                 {name: 'social_forestal', type: 'boolean'},
-
             ],
             sortInfo: {
                 field: 'id_compensacion',

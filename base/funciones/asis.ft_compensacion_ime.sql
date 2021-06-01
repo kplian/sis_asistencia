@@ -63,7 +63,9 @@ DECLARE
     v_fin_con             DATE;
     v_id_compensacion_det INTEGER;
     v_record_con          RECORD;
-
+    v_fecha_ini           DATE;
+    v_fecha_fin           DATE;
+    v_days_desible        TEXT[];
 BEGIN
 
     v_nombre_funcion = 'asis.ft_compensacion_ime';
@@ -169,7 +171,8 @@ BEGIN
                                      from generate_series(v_parametros.desde, v_parametros.hasta,
                                                           '1 day'::interval) dia)
                     LOOP
-                        IF (select extract(dow from v_record_det.dia::date) in (v_sabado, v_domingo)) THEN
+                        IF (select extract(dow from v_record_det.dia::date) in
+                                   (v_domingo, 1, 2, 3, 4, 5, v_sabado)) THEN
 
 
                             INSERT INTO asis.tcompensacion_det(estado_reg,
@@ -450,13 +453,12 @@ BEGIN
             ELSIF (v_parametros.fin_semana = 'fin_semana') THEN
                 WHILE (SELECT (v_fecha_aux::date) <= v_parametros.fecha_fin::date)
                     LOOP
-                        IF (select extract(dow from v_fecha_aux::date) in (v_sabado, v_domingo)) THEN
+                        IF (select extract(dow from v_fecha_aux::date) in  (v_domingo, 1, 2, 3, 4, 5, v_sabado)) THEN
                             if (extract(dow from v_fecha_aux::date) = v_sabado) then
                                 v_cant_dias = v_cant_dias + 0.5;
                             else
                                 v_cant_dias = v_cant_dias + 1;
                             end if;
-
                         END IF;
                         v_incremento_fecha = v_fecha_aux::date + v_valor_incremento::INTERVAL;
                         v_fecha_aux := v_incremento_fecha;
@@ -606,6 +608,79 @@ BEGIN
             --Definicion de la respuesta
             v_resp = pxp.f_agrega_clave(v_resp, 'mensaje', 'Exito');
             v_resp = pxp.f_agrega_clave(v_resp, 'id_proceso_wf', v_parametros.id_proceso_wf::varchar);
+
+            --Devuelve la respuesta
+            return v_resp;
+
+
+        end;
+        /****************************************************
+        #TRANSACCION:     'ASIS_FDI_INS'
+        #DESCRIPCION:     Feriados
+        #AUTOR:           MMV
+        #FECHA:			  31-01-2020 13:53:10
+        ***************************************************/
+
+    elsif (p_transaccion = 'ASIS_FDI_INS') then
+
+        begin
+
+
+            select g.id_gestion
+            into v_id_gestion
+            from param.tgestion g
+            where now() between g.fecha_ini and g.fecha_fin;
+
+
+            select min(p.fecha_ini) as fecha_inicio
+            into v_fecha_ini
+            from param.tperiodo p
+            where p.id_gestion = v_id_gestion;
+
+
+            select max(p.fecha_fin) as fecha_fin
+            into v_fecha_fin
+            from param.tperiodo p
+            where p.id_gestion = v_id_gestion;
+
+            select l.codigo
+            into v_lugar
+            from segu.tusuario us
+                     join segu.tpersona p on p.id_persona = us.id_persona
+                     join orga.tfuncionario f on f.id_persona = p.id_persona
+                     join orga.tuo_funcionario uf on uf.id_funcionario = f.id_funcionario
+                     join orga.tcargo c on c.id_cargo = uf.id_cargo
+                     join param.tlugar l on l.id_lugar = c.id_lugar
+            where uf.estado_reg = 'activo'
+              and uf.tipo = 'oficial'
+              and uf.fecha_asignacion <= now()
+              and coalesce(uf.fecha_finalizacion, now()) >= now()
+              and us.id_usuario = p_id_usuario;
+
+            for v_record_det in (select dia::date as dia
+                                 from generate_series(v_fecha_ini, v_fecha_fin,
+                                                      '1 day'::interval) dia)
+                loop
+
+                    if (select extract(dow from v_record_det.dia::date) not in (v_sabado, v_domingo)) then
+                        if not exists(select *
+                                      from param.tferiado f
+                                               join param.tlugar l on l.id_lugar = f.id_lugar
+                                      WHERE l.codigo in ('BO', v_lugar)
+                                        AND (EXTRACT(MONTH from f.fecha))::integer =
+                                            (EXTRACT(MONTH from v_record_det.dia::date))::integer
+                                        AND (EXTRACT(DAY from f.fecha))::integer =
+                                            (EXTRACT(DAY from v_record_det.dia::date))
+                                        AND f.id_gestion = v_id_gestion) then
+                            v_days_desible = array_append(v_days_desible, to_char(v_record_det.dia, 'DD/MM/YYYY'));
+                        end if;
+                    end if;
+
+                end loop;
+
+            --Definicion de la respuesta
+            v_resp = pxp.f_agrega_clave(v_resp, 'mensaje', 'Exito');
+            v_resp = pxp.f_agrega_clave(v_resp, 'v_days_desible', v_days_desible::varchar);
 
             --Devuelve la respuesta
             return v_resp;

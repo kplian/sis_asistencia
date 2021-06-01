@@ -33,9 +33,15 @@ header("content-type: text/javascript; charset=UTF-8");
                 if (minDate.getDay() === 6) {
                     this.Cmp.fecha_comp.setMinValue(this.sumarDias(minDate, +2));
                     this.Cmp.fecha_comp.setMaxValue(this.sumarDias(this.maestro.fecha, 6));
+                }else {
+                    this.Cmp.fecha_comp.setMinValue(this.sumarDias(minDate, + 1));
+                    this.Cmp.fecha_comp.setMaxValue(this.sumarDias(this.maestro.fecha, 5));
                 }
                 if (minDate.getDay() === 0) {
                     this.Cmp.fecha_comp.setMinValue(this.sumarDias(minDate, +1));
+                    this.Cmp.fecha_comp.setMaxValue(this.sumarDias(this.maestro.fecha, 5));
+                }else {
+                    this.Cmp.fecha_comp.setMinValue(this.sumarDias(minDate, + 1));
                     this.Cmp.fecha_comp.setMaxValue(this.sumarDias(this.maestro.fecha, 5));
                 }
             } else {
@@ -46,7 +52,6 @@ header("content-type: text/javascript; charset=UTF-8");
         },
         preparaMenu: function (n) {
             Phx.vista.CompensacionDetComSol.superclass.preparaMenu.call(this, n);
-            console.log(this.maestro.social_forestal)
             if (this.maestro.social_forestal) {
                 this.getBoton('new').disable();
                 this.getBoton('del').disable();
@@ -61,10 +66,6 @@ header("content-type: text/javascript; charset=UTF-8");
         liberaMenu: function () {
             var tb = Phx.vista.CompensacionDetComSol.superclass.liberaMenu.call(this);
             if (tb) {
-                // this.getBoton('new').disable();
-                // this.getBoton('del').disable();
-                // this.getBoton('edit').disable();
-
                 if (this.maestro.social_forestal) {
                     this.getBoton('new').disable();
                     this.getBoton('del').disable();
@@ -79,7 +80,6 @@ header("content-type: text/javascript; charset=UTF-8");
         },
         onButtonNew: function () {
             Phx.vista.CompensacionDetComSol.superclass.onButtonNew.call(this);
-            // this.Cmp.fecha_comp.maxValue = this.sumarDias(this.maestro.fecha, 5);
         },
         sumarDias: function (fecha, dias) {
             fecha.setDate(fecha.getDate() + dias);

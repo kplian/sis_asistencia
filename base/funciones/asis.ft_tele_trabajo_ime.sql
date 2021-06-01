@@ -1,4 +1,4 @@
-CREATE OR REPLACE FUNCTION asis.ft_tele_trabajo_ime (
+CREATE OR REPLACE FUNCTION asis.ft_tele_trabajo_ime(
     p_administrador integer,
     p_id_usuario integer,
     p_tabla varchar,
@@ -159,8 +159,8 @@ BEGIN
                     v_parametros.martes,
                     v_parametros.miercoles,
                     v_parametros.jueves,
-                    v_parametros.viernes)
-                RETURNING id_tele_trabajo into v_id_tele_trabajo;
+                    v_parametros.viernes) RETURNING id_tele_trabajo
+            into v_id_tele_trabajo;
 
 
             v_fecha_aux = v_parametros.fecha_inicio;
@@ -194,8 +194,10 @@ BEGIN
                                   from param.tferiado f
                                            join param.tlugar l on l.id_lugar = f.id_lugar
                                   where l.codigo in ('BO', v_lugar)
-                                    and (extract(MONTH from f.fecha))::integer = (extract(MONTH from v_fecha_aux::date))::integer
-                                    and (extract(DAY from f.fecha))::integer = (extract(DAY from v_fecha_aux))
+                                    and (extract(MONTH from f.fecha))::integer =
+                                        (extract(MONTH from v_record_det.dia::date))::integer
+                                    and (extract(DAY from f.fecha))::integer =
+                                        (extract(DAY from v_record_det.dia::date))
                                     and f.id_gestion = v_id_gestion_actual) then
 
                         if (extract(dow from v_record_det.dia::date) not in (6, 0)) then
@@ -310,7 +312,8 @@ BEGIN
 
                 delete
                 from asis.ttele_trabajo_det d
-                where d.id_tele_trabajo = v_parametros.id_tele_trabajo;
+                where d.
+                id_tele_trabajo = v_parametros.id_tele_trabajo;
 
                 for v_record_det in (select dia::date as dia
                                      from generate_series(v_parametros.fecha_inicio, v_parametros.fecha_fin,
@@ -322,7 +325,8 @@ BEGIN
                                       where l.codigo in ('BO', v_lugar)
                                         and (extract(MONTH from f.fecha))::integer =
                                             (extract(MONTH from v_record_det.dia::date))::integer
-                                        and (extract(DAY from f.fecha))::integer = (extract(DAY from v_record_det.dia::date))
+                                        and (extract(DAY from f.fecha))::integer =
+                                            (extract(DAY from v_record_det.dia::date))
                                         and f.id_gestion = v_id_gestion_actual) then
 
                             if (extract(dow from v_record_det.dia::date) not in (6, 0)) then
@@ -529,8 +533,11 @@ EXCEPTION
 END;
 $body$
     LANGUAGE 'plpgsql'
-    VOLATILE
-    CALLED ON NULL INPUT
+    VOLATILE CALLED ON NULL INPUT
 SECURITY INVOKER
 PARALLEL UNSAFE
 COST 100;
+
+ALTER
+FUNCTION asis.ft_tele_trabajo_ime (p_administrador integer, p_id_usuario integer, p_tabla varchar, p_transaccion varchar)
+  OWNER TO postgres;

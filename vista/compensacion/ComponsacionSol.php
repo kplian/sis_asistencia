@@ -52,6 +52,27 @@ header("content-type: text/javascript; charset=UTF-8");
             this.iniciarEventos();
             // this.iniciarEventosCom();
             this.addBotonesGantt();
+            this.ocultarComponente(this.Cmp.social_forestal);
+            Ext.Ajax.request({
+                url: '../../sis_asistencia/control/Compensacion/getDiaDisable',
+                params: {id_usuario: 0},
+                success: function (resp) {
+                    const reg = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));
+                    const data = JSON.stringify(reg.ROOT.datos.v_days_desible);
+                    const one = data.replace('"{', '');
+                    const two = one.replace('}"', '');
+                    const arreglo = two.split(',');
+                    const dayDisable = []
+                    for (let value of arreglo) {
+                        dayDisable.push(value)
+                    }
+                    this.Cmp.desde.setDisabledDates(dayDisable);
+                    this.Cmp.hasta.setDisabledDates(dayDisable);
+                },
+                failure: this.conexionFailure,
+                timeout: this.timeout,
+                scope: this
+            });
             this.store.baseParams = {tipo_interfaz: this.nombreVista};
             this.store.baseParams.pes_estado = 'registro';
             this.load({params: {start: 0, limit: this.tam_pag}});
@@ -108,6 +129,15 @@ header("content-type: text/javascript; charset=UTF-8");
         },
         onButtonNew: function () {
             Phx.vista.ComponsacionSol.superclass.onButtonNew.call(this);//habilita el boton y se abre
+            this.Cmp.id_funcionario.on('select', function (combo, record, index) {
+                if (record.data.departamento === 'GESTIÓN SOCIAL, FORESTAL, AMBIENTAL Y ARQ.') {
+                    this.mostrarComponente(this.Cmp.social_forestal);
+                } else {
+                    this.ocultarComponente(this.Cmp.social_forestal);
+                }
+            }, this);
+
+
             const less = this;
             this.Cmp.id_funcionario.store.load({
                 params: {start: 0, limit: this.tam_pag, es_combo_solicitud: 'si'},
@@ -128,14 +158,21 @@ header("content-type: text/javascript; charset=UTF-8");
                 this.Cmp.id_responsable.store.baseParams = Ext.apply(this.Cmp.id_responsable.store.baseParams, {id_funcionario: record.data.id_funcionario});
                 this.Cmp.id_responsable.modificado = true;
             }, this);
-
             this.onchangeSocial();
-
-            // this.Cmp.desde.disabledDays = [];
-            // this.Cmp.hasta.disabledDays = [];
+            this.onPermisoRol();
         },
         onButtonEdit: function () {
             Phx.vista.ComponsacionSol.superclass.onButtonEdit.call(this);
+
+
+            this.Cmp.id_funcionario.on('select', function (combo, record, index) {
+                if (record.data.departamento === 'GESTIÓN SOCIAL, FORESTAL, AMBIENTAL Y ARQ.') {
+                    this.mostrarComponente(this.Cmp.social_forestal);
+                } else {
+                    this.ocultarComponente(this.Cmp.social_forestal);
+                }
+            }, this);
+
             this.onCargarResponsable(this.Cmp.id_funcionario.getValue(), false);
             this.Cmp.id_funcionario.on('select', function (combo, record, index) {
                 this.Cmp.id_responsable.reset();
@@ -144,21 +181,39 @@ header("content-type: text/javascript; charset=UTF-8");
                 this.onCargarResponsable(record.data.id_funcionario, true);
                 this.Cmp.id_responsable.modificado = true;
             }, this);
-            // this.onPermisoRol();
+            this.onPermisoRol();
         },
         onchangeSocial: function () {
             this.Cmp.social_forestal.on('check', function (record) {
                 this.Cmp.desde.reset();
                 this.Cmp.hasta.reset();
                 this.Cmp.dias.reset();
-                const arreglo = [1, 2, 3, 4, 5];
+                const less = this;
                 if (record.checked) {
-                    this.Cmp.desde.setDisabledDays();
-                    this.Cmp.hasta.setDisabledDays();
+                    this.Cmp.desde.setDisabledDates([new Date()]);
+                    this.Cmp.hasta.setDisabledDates([new Date()]);
                     this.bandera = 'no';
                 } else {
-                    this.Cmp.desde.setDisabledDays(arreglo);
-                    this.Cmp.hasta.setDisabledDays(arreglo);
+                    Ext.Ajax.request({
+                        url: '../../sis_asistencia/control/Compensacion/getDiaDisable',
+                        params: {id_usuario: 0},
+                        success: function (resp) {
+                            const reg = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));
+                            const data = JSON.stringify(reg.ROOT.datos.v_days_desible);
+                            const one = data.replace('"{', '');
+                            const two = one.replace('}"', '');
+                            const arreglo = two.split(',');
+                            const dayDisable = []
+                            for (let value of arreglo) {
+                                dayDisable.push(value)
+                            }
+                            less.Cmp.desde.setDisabledDates(dayDisable);
+                            less.Cmp.hasta.setDisabledDates(dayDisable);
+                        },
+                        failure: this.conexionFailure,
+                        timeout: this.timeout,
+                        scope: this
+                    });
                     this.bandera = 'fin_semana';
                 }
             }, this)

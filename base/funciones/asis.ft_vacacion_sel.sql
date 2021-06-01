@@ -1,4 +1,4 @@
-CREATE OR REPLACE FUNCTION asis.ft_vacacion_sel (
+CREATE OR REPLACE FUNCTION asis.ft_vacacion_sel(
     p_administrador integer,
     p_id_usuario integer,
     p_tabla varchar,
@@ -22,23 +22,16 @@ $body$
 
 DECLARE
 
-    v_consulta    		varchar;
-    v_parametros  		record;
-    v_nombre_funcion   	text;
-    v_resp				varchar;
-    v_filtro			varchar;
-    item                record;
-    v_tiempo_vacacion   varchar;
-    v_record_tiempo     record;
-    v_id_gestion_actual integer;
+    v_consulta                     varchar;
+    v_parametros                   record;
+    v_nombre_funcion               text;
+    v_resp                         varchar;
+    v_filtro                       varchar;
+    v_id_gestion_actual            integer;
     v_id_ultima_gestion_antiguedad integer;
-    v_dias_incremento_vacacion     numeric;
-    v_record_ultima_vacacion       record;
-    v_id_funcionario	           integer;
-    v_id_funcionario_sol		   integer;
-    v_count						   integer;
-    v_id_movimiento				   integer;
-    v_fecha_acomulado				date;
+    v_id_funcionario               integer;
+    v_id_funcionario_sol           integer;
+    v_count                        integer;
 BEGIN
 
     v_nombre_funcion = 'asis.ft_vacacion_sel';
@@ -51,44 +44,46 @@ BEGIN
      #FECHA:		01-10-2019 15:29:35
     ***********************************/
 
-    if(p_transaccion='ASIS_VAC_SEL')then
+    if (p_transaccion = 'ASIS_VAC_SEL') then
 
         begin
             --raise exception
 
 
-            if v_parametros.tipo_interfaz = 'SolicitudVacaciones'then
+            if v_parametros.tipo_interfaz = 'SolicitudVacaciones' then
 
 
-                select  fp.id_funcionario into v_id_funcionario_sol
+                select fp.id_funcionario
+                into v_id_funcionario_sol
                 from segu.vusuario usu
                          inner join orga.vfuncionario_persona fp on fp.id_persona = usu.id_persona
                          inner join asis.tpermiso p on p.id_funcionario = fp.id_funcionario
-                where usu.id_usuario  = p_id_usuario;
+                where usu.id_usuario = p_id_usuario;
 
 
-
-                select count(p.id_permiso) into v_count
+                select count(p.id_permiso)
+                into v_count
                 from asis.tpermiso p
                 where p.id_usuario_reg = p_id_usuario;
 
                 v_filtro = '';
 
-                if p_administrador != 1  then
+                if p_administrador != 1 then
 
                     if v_id_funcionario_sol is null and v_count = 0 then
 
 
-                        v_filtro = '( vac.id_usuario_reg = '||p_id_usuario|| ') and ';
+                        v_filtro = '( vac.id_usuario_reg = ' || p_id_usuario || ') and ';
 
                     else
 
-                        if (v_id_funcionario_sol is null)then
+                        if (v_id_funcionario_sol is null) then
 
-                            v_filtro = '( vac.id_usuario_reg = '||p_id_usuario|| ') and ';
+                            v_filtro = '( vac.id_usuario_reg = ' || p_id_usuario || ') and ';
 
                         else
-                            v_filtro = '(vac.id_funcionario = '||v_id_funcionario_sol||' or vac.id_usuario_reg = '||p_id_usuario|| ') and ';
+                            v_filtro = '(vac.id_funcionario = ' || v_id_funcionario_sol ||
+                                       ' or vac.id_usuario_reg = ' || p_id_usuario || ') and ';
 
                         end if;
 
@@ -96,25 +91,26 @@ BEGIN
                 end if;
             end if;
 
-            if v_parametros.tipo_interfaz = 'VacacionVoBo'then
+            if v_parametros.tipo_interfaz = 'VacacionVoBo' then
                 v_filtro = '';
-                if p_administrador != 1  then
+                if p_administrador != 1 then
 
-                    select f.id_funcionario into v_id_funcionario
+                    select f.id_funcionario
+                    into v_id_funcionario
                     from segu.vusuario u
                              inner join orga.vfuncionario_persona f on f.id_persona = u.id_persona
                     where u.id_usuario = p_id_usuario;
 
                     if v_id_funcionario is not null then
-                        v_filtro = 'wet.id_funcionario =  '||v_id_funcionario||' and ';
+                        v_filtro = 'wet.id_funcionario =  ' || v_id_funcionario || ' and ';
                     end if;
                 end if;
             end if;
 
-            if v_parametros.tipo_interfaz = 'VacacionRrhh'then
+            if v_parametros.tipo_interfaz = 'VacacionRrhh' then
                 v_filtro = '';
             end if;
-            v_consulta:='select
+            v_consulta := 'select
 						vac.id_vacacion,
 						vac.estado_reg,
 						vac.id_funcionario,
@@ -153,12 +149,14 @@ BEGIN
                         inner join orga.tuo dep ON dep.id_uo = orga.f_get_uo_departamento(vf.id_uo, NULL::integer, NULL::date)
                         left join orga.vfuncionario sof on sof.id_funcionario = vac.id_funcionario_sol
 						left join segu.tusuario usu2 on usu2.id_usuario = vac.id_usuario_mod
-				        where vf.fecha_asignacion <= now()::date 
-                                and (vf.fecha_finalizacion is null or vf.fecha_finalizacion >= now()::date) and '||v_filtro;
+				        where vf.fecha_asignacion <= now()::date
+                                and (vf.fecha_finalizacion is null or vf.fecha_finalizacion >= now()::date) and ' ||
+                          v_filtro;
 
             --Definicion de la respuesta
-            v_consulta:=v_consulta||v_parametros.filtro;
-            v_consulta:=v_consulta||' order by ' ||v_parametros.ordenacion|| ' ' || v_parametros.dir_ordenacion || ' limit ' || v_parametros.cantidad || ' offset ' || v_parametros.puntero;
+            v_consulta := v_consulta || v_parametros.filtro;
+            v_consulta := v_consulta || ' order by ' || v_parametros.ordenacion || ' ' || v_parametros.dir_ordenacion ||
+                          ' limit ' || v_parametros.cantidad || ' offset ' || v_parametros.puntero;
             --RAISE EXCEPTION 'error provocado EXPETPIOM %', v_consulta;
             --Devuelve la respuesta
             return v_consulta;
@@ -172,41 +170,43 @@ BEGIN
          #FECHA:		01-10-2019 15:29:35
         ***********************************/
 
-    elsif(p_transaccion='ASIS_VAC_CONT')then
+    elsif (p_transaccion = 'ASIS_VAC_CONT') then
 
         begin
-            if v_parametros.tipo_interfaz = 'SolicitudVacaciones'then
+            if v_parametros.tipo_interfaz = 'SolicitudVacaciones' then
 
 
-                select  fp.id_funcionario into v_id_funcionario_sol
+                select fp.id_funcionario
+                into v_id_funcionario_sol
                 from segu.vusuario usu
                          inner join orga.vfuncionario_persona fp on fp.id_persona = usu.id_persona
                          inner join asis.tpermiso p on p.id_funcionario = fp.id_funcionario
-                where usu.id_usuario  = p_id_usuario;
+                where usu.id_usuario = p_id_usuario;
 
 
-
-                select count(p.id_permiso) into v_count
+                select count(p.id_permiso)
+                into v_count
                 from asis.tpermiso p
                 where p.id_usuario_reg = p_id_usuario;
 
                 v_filtro = '';
 
-                if p_administrador != 1  then
+                if p_administrador != 1 then
 
                     if v_id_funcionario_sol is null and v_count = 0 then
 
 
-                        v_filtro = '( vac.id_usuario_reg = '||p_id_usuario|| ') and ';
+                        v_filtro = '( vac.id_usuario_reg = ' || p_id_usuario || ') and ';
 
                     else
 
-                        if (v_id_funcionario_sol is null)then
+                        if (v_id_funcionario_sol is null) then
 
-                            v_filtro = '( vac.id_usuario_reg = '||p_id_usuario|| ') and ';
+                            v_filtro = '( vac.id_usuario_reg = ' || p_id_usuario || ') and ';
 
                         else
-                            v_filtro = '(vac.id_funcionario = '||v_id_funcionario_sol||' or vac.id_usuario_reg = '||p_id_usuario|| ') and ';
+                            v_filtro = '(vac.id_funcionario = ' || v_id_funcionario_sol ||
+                                       ' or vac.id_usuario_reg = ' || p_id_usuario || ') and ';
 
                         end if;
 
@@ -214,27 +214,28 @@ BEGIN
                 end if;
             end if;
 
-            if v_parametros.tipo_interfaz = 'VacacionVoBo'then
+            if v_parametros.tipo_interfaz = 'VacacionVoBo' then
                 v_filtro = '';
-                if p_administrador != 1  then
+                if p_administrador != 1 then
 
-                    select f.id_funcionario into v_id_funcionario
+                    select f.id_funcionario
+                    into v_id_funcionario
                     from segu.vusuario u
                              inner join orga.vfuncionario_persona f on f.id_persona = u.id_persona
                     where u.id_usuario = p_id_usuario;
 
                     if v_id_funcionario is not null then
-                        v_filtro = 'wet.id_funcionario =  '||v_id_funcionario||' and ';
+                        v_filtro = 'wet.id_funcionario =  ' || v_id_funcionario || ' and ';
                     end if;
                 end if;
             end if;
 
 
-            if v_parametros.tipo_interfaz = 'VacacionRrhh'then
+            if v_parametros.tipo_interfaz = 'VacacionRrhh' then
                 v_filtro = '';
             end if;
             --Sentencia de la consulta de conteo de registros
-            v_consulta:='select count(id_vacacion)
+            v_consulta := 'select count(id_vacacion)
 					    from asis.tvacacion vac
 						inner join segu.tusuario usu1 on usu1.id_usuario = vac.id_usuario_reg
                         inner join wf.testado_wf wet on wet.id_estado_wf = vac.id_estado_wf
@@ -243,11 +244,12 @@ BEGIN
                         inner join orga.tuo dep ON dep.id_uo = orga.f_get_uo_departamento(vf.id_uo, NULL::integer, NULL::date)
                         left join orga.vfuncionario sof on sof.id_funcionario = vac.id_funcionario_sol
 						left join segu.tusuario usu2 on usu2.id_usuario = vac.id_usuario_mod
-					    where vf.fecha_asignacion <= now()::date 
-                                and (vf.fecha_finalizacion is null or vf.fecha_finalizacion >= now()::date) and '||v_filtro;
+					    where vf.fecha_asignacion <= now()::date
+                                and (vf.fecha_finalizacion is null or vf.fecha_finalizacion >= now()::date) and ' ||
+                          v_filtro;
 
             --Definicion de la respuesta
-            v_consulta:=v_consulta||v_parametros.filtro;
+            v_consulta := v_consulta || v_parametros.filtro;
 
             --Devuelve la respuesta
             return v_consulta;
@@ -256,36 +258,41 @@ BEGIN
 
 
         /*********************************
- 	#TRANSACCION:  'ASIS_REFOF_SEL'  
+ 	#TRANSACCION:  'ASIS_REFOF_SEL'
  	#DESCRIPCION:	Listar funcionario
  	#AUTOR:		miguel.mamani
  	#FECHA:		31-01-2019 13:53:10
 	***********************************/
-    elsif(p_transaccion='ASIS_REFOF_SEL')then
+    elsif (p_transaccion = 'ASIS_REFOF_SEL') then
         begin
 
-            v_consulta:='select distinct on (uofun.id_funcionario) uofun.id_funcionario,
-                                           pe.nombre_completo1::text as desc_funcionario1,
-                                           fun.codigo,
-                                           car.nombre as cargo,
-                                           dep.nombre_unidad as departamento,
-                                           ofi.nombre as oficina
-                        from orga.tuo_funcionario uofun
-                        inner join orga.tfuncionario fun on fun.id_funcionario = uofun.id_funcionario
-                        inner join segu.vpersona pe on pe.id_persona = fun.id_persona
-                        inner join segu.vusuario uo on uo.id_persona = pe.id_persona
-                        inner join orga.tcargo car on car.id_cargo = uofun.id_cargo
-                        inner join orga.ttipo_contrato tc on car.id_tipo_contrato = tc.id_tipo_contrato
-                        inner join orga.tuo dep ON dep.id_uo = orga.f_get_uo_departamento(uofun.id_uo, NULL::integer, NULL::date)
-                        inner join orga.toficina ofi on ofi.id_oficina = car.id_oficina
-                        where tc.codigo in (''PLA'', ''EVE'') and UOFUN.tipo = ''oficial'' and uofun.fecha_asignacion <=  now()::date and
-                         (uofun.fecha_finalizacion is null or uofun.fecha_finalizacion >= now()::date) and
-                         uofun.estado_reg != ''inactivo'' and ';
+            v_consulta := 'select distinct on (uofun.id_funcionario) uofun.id_funcionario,
+                                          pe.nombre_completo1::text as desc_funcionario1,
+                                          fun.codigo,
+                                          car.nombre                as cargo,
+                                           uoc.nombre_uo_centro        as departamento,
+                                          ofi.nombre                as oficina
+                            from orga.tuo_funcionario uofun
+                                     inner join orga.tfuncionario fun on fun.id_funcionario = uofun.id_funcionario
+                                     inner join segu.vpersona pe on pe.id_persona = fun.id_persona
+                                     inner join segu.vusuario uo on uo.id_persona = pe.id_persona
+                                     inner join orga.tcargo car on car.id_cargo = uofun.id_cargo
+                                     inner join orga.ttipo_contrato tc on car.id_tipo_contrato = tc.id_tipo_contrato
+                                     inner join orga.tuo dep ON dep.id_uo = orga.f_get_uo_departamento(uofun.id_uo, NULL::integer, NULL::date)
+                                     inner join orga.toficina ofi on ofi.id_oficina = car.id_oficina
+                                     inner join orga.vuo_centro uoc ON uoc.id_uo = uofun.id_uo
+                            where tc.codigo in (''PLA'', ''EVE'')
+                              and UOFUN.tipo = ''oficial''
+                              and uofun.fecha_asignacion <= now()::date
+                              and (uofun.fecha_finalizacion is null or uofun.fecha_finalizacion >= now()::date)
+                              and uofun.estado_reg != ''inactivo'' and ';
 
             --Definicion de la respuesta
 
-            v_consulta:=v_consulta||v_parametros.filtro;
-            v_consulta:=v_consulta||' order by uofun.id_funcionario, uofun.fecha_asignacion desc' || v_parametros.dir_ordenacion || ' limit ' || v_parametros.cantidad || ' offset ' || v_parametros.puntero;
+            v_consulta := v_consulta || v_parametros.filtro;
+            v_consulta := v_consulta || ' order by uofun.id_funcionario, uofun.fecha_asignacion desc' ||
+                          v_parametros.dir_ordenacion || ' limit ' || v_parametros.cantidad || ' offset ' ||
+                          v_parametros.puntero;
             raise notice '%',v_consulta;
             return v_consulta;
         end;
@@ -295,12 +302,12 @@ BEGIN
          #AUTOR:		miguel.mamani
          #FECHA:		31-01-2019 13:53:10
         ***********************************/
-    elsif(p_transaccion='ASIS_REFOF_CONT')then
+    elsif (p_transaccion = 'ASIS_REFOF_CONT') then
 
         begin
             --Sentencia de la consulta de conteo de registros
 
-            v_consulta:='select count(distinct uofun.id_funcionario) 
+            v_consulta := 'select count(distinct uofun.id_funcionario)
                           from orga.tuo_funcionario uofun
                           inner join orga.tfuncionario fun on fun.id_funcionario = uofun.id_funcionario
                           inner join segu.vpersona pe on pe.id_persona = fun.id_persona
@@ -309,12 +316,13 @@ BEGIN
                           inner join orga.ttipo_contrato tc on car.id_tipo_contrato = tc.id_tipo_contrato
                           inner join orga.tuo dep ON dep.id_uo = orga.f_get_uo_departamento(uofun.id_uo, NULL::integer, NULL::date)
                           inner join orga.toficina ofi on ofi.id_oficina = car.id_oficina
+                          inner join orga.vuo_centro uoc ON uoc.id_uo = uofun.id_uo
                           where tc.codigo in (''PLA'', ''EVE'') and UOFUN.tipo = ''oficial'' and uofun.fecha_asignacion <=  now()::date and
                            (uofun.fecha_finalizacion is null or uofun.fecha_finalizacion >= now()::date) and
                            uofun.estado_reg != ''inactivo'' and ';
 
             --Definicion de la respuesta
-            v_consulta:=v_consulta||v_parametros.filtro;
+            v_consulta := v_consulta || v_parametros.filtro;
             --Devuelve la respuesta
 
             return v_consulta;
@@ -327,7 +335,7 @@ BEGIN
           #FECHA:            15-10-2019 14:48:35
          ***********************************/
 
-    elsif(p_transaccion='ASIS_ASIGVAC_SEL')then
+    elsif (p_transaccion = 'ASIS_ASIGVAC_SEL') then
 
         begin
 
@@ -340,31 +348,32 @@ BEGIN
             select a.id_gestion
             INTO
                 v_id_ultima_gestion_antiguedad
-            from param.tantiguedad a order by a.id_gestion desc limit 1;
+            from param.tantiguedad a
+            order by a.id_gestion desc
+            limit 1;
 
             IF NOT EXISTS(select *
                           from param.tantiguedad a
-                          where a.id_gestion = v_id_gestion_actual)THEN
+                          where a.id_gestion = v_id_gestion_actual) THEN
 
-                INSERT INTO param.tantiguedad (
-                    categoria_antiguedad,
-                    dias_asignados,
-                    desde_anhos,
-                    hasta_anhos,
-                    obs_antiguedad,
-                    id_gestion,
-                    id_usuario_reg,
-                    fecha_reg,
-                    estado_reg
-                )SELECT a.categoria_antiguedad,
-                        a.dias_asignados,
-                        a.desde_anhos,
-                        a.hasta_anhos,
-                        a.obs_antiguedad,
-                        v_id_gestion_actual,
-                        a.id_usuario_reg,
-                        now()::TIMESTAMP,
-                        a.estado_reg
+                INSERT INTO param.tantiguedad (categoria_antiguedad,
+                                               dias_asignados,
+                                               desde_anhos,
+                                               hasta_anhos,
+                                               obs_antiguedad,
+                                               id_gestion,
+                                               id_usuario_reg,
+                                               fecha_reg,
+                                               estado_reg)
+                SELECT a.categoria_antiguedad,
+                       a.dias_asignados,
+                       a.desde_anhos,
+                       a.hasta_anhos,
+                       a.obs_antiguedad,
+                       v_id_gestion_actual,
+                       a.id_usuario_reg,
+                       now()::TIMESTAMP,
+                       a.estado_reg
                 FROM param.tantiguedad a
                 WHERE a.id_gestion = v_id_ultima_gestion_antiguedad
                 ORDER BY a.id_antiguedad ASC;
@@ -378,29 +387,40 @@ BEGIN
             v_id_gestion_actual := null;
             v_id_ultima_gestion_antiguedad := null;
 
-            select
-                max(f.id_gestion)
+            select max(f.id_gestion)
             into
                 v_id_gestion_actual
             from param.tferiado f;
 
-            select
-                f.id_gestion
+            select f.id_gestion
             into
                 v_id_ultima_gestion_antiguedad
             from param.tgestion f
-            where f.id_gestion> v_id_gestion_actual::integer
-            order by f.id_gestion asc limit 1;
+            where f.id_gestion > v_id_gestion_actual::integer
+            order by f.id_gestion asc
+            limit 1;
 
             insert into param.tferiado
-            (id_usuario_reg,id_usuario_mod,fecha_reg,fecha_mod,estado_reg,id_usuario_ai,usuario_ai,id_lugar,descripcion,fecha,tipo,id_gestion)
-            select
-                id_usuario_reg,id_usuario_mod,fecha_reg,fecha_mod,estado_reg,id_usuario_ai,usuario_ai,id_lugar,descripcion,fecha,tipo,v_id_ultima_gestion_antiguedad
-            from param.tferiado  where id_gestion=v_id_gestion_actual;
+            (id_usuario_reg, id_usuario_mod, fecha_reg, fecha_mod, estado_reg, id_usuario_ai, usuario_ai, id_lugar,
+             descripcion, fecha, tipo, id_gestion)
+            select id_usuario_reg,
+                   id_usuario_mod,
+                   fecha_reg,
+                   fecha_mod,
+                   estado_reg,
+                   id_usuario_ai,
+                   usuario_ai,
+                   id_lugar,
+                   descripcion,
+                   fecha,
+                   tipo,
+                   v_id_ultima_gestion_antiguedad
+            from param.tferiado
+            where id_gestion = v_id_gestion_actual;
             --------------------------------------------------------------------------------------------------
 
 
-            v_consulta:='select a.dias_asignados from param.tantiguedad a ';
+            v_consulta := 'select a.dias_asignados from param.tantiguedad a ';
             return v_consulta;
         end;
 
@@ -414,10 +434,10 @@ BEGIN
 EXCEPTION
 
     WHEN OTHERS THEN
-        v_resp='';
-        v_resp = pxp.f_agrega_clave(v_resp,'mensaje',SQLERRM);
-        v_resp = pxp.f_agrega_clave(v_resp,'codigo_error',SQLSTATE);
-        v_resp = pxp.f_agrega_clave(v_resp,'procedimientos',v_nombre_funcion);
+        v_resp = '';
+        v_resp = pxp.f_agrega_clave(v_resp, 'mensaje', SQLERRM);
+        v_resp = pxp.f_agrega_clave(v_resp, 'codigo_error', SQLSTATE);
+        v_resp = pxp.f_agrega_clave(v_resp, 'procedimientos', v_nombre_funcion);
         raise exception '%',v_resp;
 END;
 $body$

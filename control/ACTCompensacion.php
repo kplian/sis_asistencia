@@ -81,6 +81,13 @@ class ACTCompensacion extends ACTbase
         $this->res = $this->objFunc->cambiarEstado($this->objParam);
         $this->res->imprimirRespuesta($this->res->generarJson());
     }
+
+    function getDiaDisable()
+    {
+        $this->objFunc = $this->create('MODCompensacion');
+        $this->res = $this->objFunc->getDiaDisable($this->objParam);
+        $this->res->imprimirRespuesta($this->res->generarJson());
+    }
 }
 
 ?>

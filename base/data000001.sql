@@ -307,6 +307,7 @@ select wf.f_import_ttipo_documento ('insert','SOL-TE','SOL-TTO','Solicitud de Te
 /***********************************F-DAT-MMV-ASIS-SDA-70-11/03/2021*****************************************/
 /***********************************I-DAT-MMV-ASIS-ETR-4007-18/05/2021*****************************************/
 select pxp.f_insert_tgui ('Solicitud Compensación', 'Solicitud Compensación', 'SCN', 'si', 44, 'sis_asistencia/vista/compensacion/ComponsacionSol.php', 2, '', 'ComponsacionSol', 'ASIS');
+select pxp.f_insert_tgui ('VoBo Compensación', 'VoBo Compensación', 'VBN', 'si', 4, 'sis_asistencia/vista/compensacion/ComponsacionVoBo.php', 3, '', 'ComponsacionVoBo', 'ASIS');
 /***********************************F-DAT-MMV-ASIS-ETR-4007-18/05/2021*****************************************/
 /***********************************I-DAT-MMV-ASIS-ETR-4007-19/05/2021*****************************************/
 select wf.f_import_tproceso_macro ('insert','LPC', 'ASIS', 'Licencia por compensación','si');

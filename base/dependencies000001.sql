@@ -339,4 +339,5 @@ create or replace view  asis.vteletrabajo as (
 /***********************************F-DEP-MMV-ASIS-SDA-0-11/05/2021*****************************************/
 /***********************************I-DEP-MMV-ASIS-ETR-4007-18/05/2021*****************************************/
 select pxp.f_insert_testructura_gui ('SCN', 'ASIS');
+select pxp.f_insert_testructura_gui ('VBN', 'SBO');
 /***********************************F-DEP-MMV-ASIS-ETR-4007-18/05/2021*****************************************/
