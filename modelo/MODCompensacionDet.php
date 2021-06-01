@@ -44,7 +44,9 @@ class MODCompensacionDet extends MODbase
         $this->captura('obs_dba', 'varchar');
         $this->captura('fecha_comp', 'date');
         $this->captura('tiempo_comp', 'varchar');
-
+        $this->captura('social_forestal', 'boolean');
+        $this->captura('fecha_fin', 'date');
+        $this->captura('fecha_comp_fin', 'date');
         //Ejecuta la instruccion
         $this->armarConsulta();
         $this->ejecutarConsulta();

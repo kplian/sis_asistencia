@@ -23,6 +23,15 @@ header("content-type: text/javascript; charset=UTF-8");
             // this.Atributos[this.getIndAtributo('tiempo')].grid = false;
             Phx.vista.CompensacionDetTrabajo.superclass.constructor.call(this, config);
         },
+        onReloadPage: function (m) {
+            this.maestro = m;
+            this.store.baseParams = {id_compensacion: this.maestro.id_compensacion};
+            this.load({params: {start: 0, limit: 50}})
+        },
+        loadValoresIniciales: function () {
+            Phx.vista.CompensacionDet.superclass.loadValoresIniciales.call(this);
+            this.Cmp.id_compensacion.setValue(this.maestro.id_compensacion);
+        },
         tabsouth:[
             {
                 url:'../../../sis_asistencia/vista/compensacion_det_com/CompensacionDetComSol.php',

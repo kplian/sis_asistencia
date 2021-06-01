@@ -116,7 +116,8 @@ BEGIN
                                    cpm.estado,
                                    cpm.nro_tramite,
                                    f.desc_funcionario2  as funcionario,
-                                   r.desc_funcionario2 as responsable
+                                   r.desc_funcionario2 as responsable,
+                                   cpm.social_forestal
                             FROM asis.tcompensacion cpm
                                      JOIN segu.tusuario usu1 ON usu1.id_usuario = cpm.id_usuario_reg
                                      JOIN orga.vfuncionario f on f.id_funcionario = cpm.id_funcionario

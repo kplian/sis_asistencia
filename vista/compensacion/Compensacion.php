@@ -174,12 +174,29 @@ header("content-type: text/javascript; charset=UTF-8");
                 },
                 {
                     config: {
+                        name: 'social_forestal',
+                        fieldLabel: 'Gestión Social o Forestal ',
+                        editable:false,
+                        renderer: function (value, p, record) {
+                            return record.data['social_forestal'] ? 'si' : 'no';
+                        },
+                        gwidth: 50,
+
+                    },
+                    type: 'Checkbox',
+                    id_grupo: 1,
+                    grid: true,
+                    form: true
+                },
+                {
+                    config: {
                         name: 'desde',
                         fieldLabel: 'Fecha inicio trabajo',
                         allowBlank: false,
                         anchor: '60%',
                         gwidth: 100,
                         format: 'd/m/Y',
+                        editable:false,
                         disabledDays: [1, 2, 3, 4, 5],
                         renderer: function (value, p, record) {
                             return value ? value.dateFormat('d/m/Y') : ''
@@ -199,6 +216,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         anchor: '60%',
                         gwidth: 100,
                         format: 'd/m/Y',
+                        editable:false,
                         disabledDays: [1, 2, 3, 4, 5],
                         renderer: function (value, p, record) {
                             return value ? value.dateFormat('d/m/Y') : ''
@@ -438,11 +456,12 @@ header("content-type: text/javascript; charset=UTF-8");
 
                 {name: 'funcionario', type: 'string'},
                 {name: 'responsable', type: 'string'},
+                {name: 'social_forestal', type: 'boolean'},
 
             ],
             sortInfo: {
                 field: 'id_compensacion',
-                direction: 'ASC'
+                direction: 'DESC'
             },
             bdel: true,
             bsave: true,

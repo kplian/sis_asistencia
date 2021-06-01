@@ -16,13 +16,13 @@ header("content-type: text/javascript; charset=UTF-8");
 ?>
 <script>
     Phx.vista.CompensacionDet = Ext.extend(Phx.gridInterfaz, {
-            dblclickEdit: true,
+            // dblclickEdit: true,
             constructor: function (config) {
                 this.maestro = config.maestro;
                 //llama al constructor de la clase padre
                 Phx.vista.CompensacionDet.superclass.constructor.call(this, config);
                 this.init();
-                 this.grid.addListener('cellclick', this.oncellclick, this); /// revisar
+                this.grid.addListener('cellclick', this.oncellclick, this); /// revisar
 
             },
 
@@ -53,6 +53,16 @@ header("content-type: text/javascript; charset=UTF-8");
                         labelSeparator: '',
                         inputType: 'hidden',
                         name: 'obs_dba'
+                    },
+                    type: 'Field',
+                    form: true
+                },
+                {
+                    //configuracion del componente
+                    config: {
+                        labelSeparator: '',
+                        inputType: 'hidden',
+                        name: 'social_forestal'
                     },
                     type: 'Field',
                     form: true
@@ -89,11 +99,18 @@ header("content-type: text/javascript; charset=UTF-8");
                         fieldLabel: 'Fecha Trabajo',
                         allowBlank: false,
                         anchor: '80%',
-                        gwidth: 100,
+                        gwidth: 130,
                         format: 'd/m/Y',
                         disabled: true,
                         renderer: function (value, p, record) {
-                            return value ? value.dateFormat('d/m/Y') : ''
+                            if (!record.data.social_forestal) {
+                                return value ? value.dateFormat('d/m/Y') : ''
+                            } else {
+                                const inicio = value ? value.dateFormat('d/m/Y') : '';
+                                const fin = record.data.fecha_fin ? record.data.fecha_fin.dateFormat('d/m/Y') : '';
+                                return String.format('<p class="text-align:center;"> <b>De:</b> ' + inicio + '</p> ' +
+                                    '<p class="text-align:center;">' + '<b>Al:</b> ' + fin + '</p>')
+                            }
                         }
                     },
                     type: 'DateField',
@@ -111,7 +128,14 @@ header("content-type: text/javascript; charset=UTF-8");
                         gwidth: 130,
                         format: 'd/m/Y',
                         renderer: function (value, p, record) {
-                            return value ? value.dateFormat('d/m/Y') : ''
+                            if (!record.data.social_forestal) {
+                                return String.format('<p class="text-align:center;"><font size=2 color="#006400">{0}</font></p>', value ? value.dateFormat('d/m/Y') : '')
+                            } else {
+                                const inicio = value ? value.dateFormat('d/m/Y') : '';
+                                const fin = record.data.fecha_comp_fin ? record.data.fecha_comp_fin.dateFormat('d/m/Y') : '';
+                                return String.format('<p class="text-align:center;"> <b>De:</b> <font size=2 color="#006400">' + inicio + '</font></p> ' +
+                                    '<p class="text-align:center;">' + '<b>Al:</b><font size=2 color="#006400"> ' + fin + '</font></p>')
+                            }
                         }
                     },
                     type: 'DateField',
@@ -126,7 +150,11 @@ header("content-type: text/javascript; charset=UTF-8");
                         fieldLabel: 'Tiempo Compensación',
                         allowBlank: true,
                         anchor: '80%',
-                        gwidth: 60
+                        gwidth: 150,
+                        renderer: function (value, p, record) {
+                            return String.format('<p class="text-align:center"><font size=2 color="#006400">{0}</font></p>', value)
+
+                        }
                     },
                     type: 'TextField',
                     id_grupo: 0,
@@ -154,17 +182,6 @@ header("content-type: text/javascript; charset=UTF-8");
                         }),
                         valueField: 'variable',
                         displayField: 'valor',
-                        renderer: function (value, p, record) {
-                            if (value === 'completo') {
-                                return String.format('<p class="text-align:center"><b>Tiempo Completo</b></p>', value)
-                            }
-                            if (value === 'mañana') {
-                                return String.format('<p class="text-align:center"><b>Mañana</b></p>', value)
-                            }
-                            if (value === 'tarde') {
-                                return String.format('<p class="text-align:center"><b>Tarde</b></p>', value)
-                            }
-                        }
                     },
                     type: 'ComboBox',
                     filters: {pfiltro: 'tas.tiempo', type: 'string'},
@@ -309,7 +326,9 @@ header("content-type: text/javascript; charset=UTF-8");
                 {name: 'obs_dba', type: 'string'},
                 {name: 'fecha_comp', type: 'date', dateFormat: 'Y-m-d'},
                 {name: 'tiempo_comp', type: 'string'},
-
+                {name: 'social_forestal', type: 'boolean'},
+                {name: 'fecha_fin', type: 'date', dateFormat: 'Y-m-d'},
+                {name: 'fecha_comp_fin', type: 'date', dateFormat: 'Y-m-d'},
             ],
             sortInfo: {
                 field: 'fecha',
@@ -333,11 +352,14 @@ header("content-type: text/javascript; charset=UTF-8");
             oncellclick: function (grid, rowIndex, columnIndex, e) {/// revisar
                 const record = this.store.getAt(rowIndex),
                     fieldName = grid.getColumnModel().getDataIndex(columnIndex); // Get field name
-                console.log(record)
                 // obs_dba
-                if (fieldName === 'tiempo' && record.data.obs_dba !== '6') {
-                    this.cambiarAsignacion(record, fieldName);
-
+                if (fieldName === 'tiempo') {
+                    console.log(record.data.obs_dba)
+                    if (record.data.obs_dba !== '6') {
+                        if (record.data.obs_dba !== 'social') {
+                            this.cambiarAsignacion(record, fieldName);
+                        }
+                    }
                 }
             },
             cambiarAsignacion: function (record, name) {

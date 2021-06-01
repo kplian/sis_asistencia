@@ -50,6 +50,11 @@ BEGIN
             select d.tiempo, d.obs_dba into v_record
             from asis.tcompensacion_det d
             where d.id_compensacion_det = v_parametros.id_compensacion_det;
+            -- raise exception '%',v_record.obs_dba;
+            update asis.tcompensacion_det set
+                                              fecha_comp = v_parametros.fecha_comp::date,
+                                              tiempo_comp =  v_parametros.tiempo_comp
+            where id_compensacion_det = v_parametros.id_compensacion_det;
 
             --Sentencia de la insercion
             INSERT INTO asis.tcompensacion_det_com(
@@ -83,15 +88,6 @@ BEGIN
 
             ---raise exception '%', v_parametros.id_compensacion_det;
 
-            update asis.tcompensacion_det set
-                                              fecha = v_parametros.fecha_comp,
-                                              tiempo =  (case
-                                                             when v_record.obs_dba = '6'then
-                                                                 v_record.tiempo
-                                                             else
-                                                                 v_parametros.tiempo_comp
-                                                  end )
-            where id_compensacion_det = v_parametros.id_compensacion_det;
 
             --Definicion de la respuesta
             v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Fecha Compensación almacenado(a) con exito (id_compensacion_det_com'||v_id_compensacion_det_com||')');
@@ -130,13 +126,8 @@ BEGIN
 
 
             update asis.tcompensacion_det set
-                                              fecha = v_parametros.fecha_comp,
-                                              tiempo =  (case
-                                                             when v_record.obs_dba = '6'then
-                                                                 v_record.tiempo
-                                                             else
-                                                                 v_parametros.tiempo_comp
-                                                  end )
+                                              fecha_comp = v_parametros.fecha_comp,
+                                              tiempo_comp = v_parametros.tiempo_comp
             where id_compensacion_det = v_parametros.id_compensacion_det;
 
             --Definicion de la respuesta
@@ -158,6 +149,18 @@ BEGIN
     ELSIF (p_transaccion='ASIS_FCN_ELI') THEN
 
         BEGIN
+
+            select c.id_compensacion_det into v_record
+            from asis.tcompensacion_det_com c
+            where c.id_compensacion_det_com = v_parametros.id_compensacion_det_com;
+
+            update asis.tcompensacion_det set
+                                              fecha_comp = null,
+                                              tiempo_comp =  null
+            where id_compensacion_det = v_record.id_compensacion_det;
+
+
+
             --Sentencia de la eliminacion
             DELETE FROM asis.tcompensacion_det_com
             WHERE id_compensacion_det_com=v_parametros.id_compensacion_det_com;

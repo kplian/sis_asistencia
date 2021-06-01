@@ -43,26 +43,29 @@ BEGIN
 
         BEGIN
             --Sentencia de la consulta
-            v_consulta:='SELECT
-                        cmd.id_compensacion_det,
-                        cmd.estado_reg,
-                        cmd.fecha,
-                        cmd.id_compensacion,
-                        cmd.tiempo,
-                        cmd.id_usuario_reg,
-                        cmd.fecha_reg,
-                        cmd.id_usuario_ai,
-                        cmd.usuario_ai,
-                        cmd.id_usuario_mod,
-                        cmd.fecha_mod,
-                        usu1.cuenta as usr_reg,
-                        usu2.cuenta as usr_mod,
-                        cmd.obs_dba,
-                        cmd.fecha_comp,
-                        cmd.tiempo_comp
-                        FROM asis.tcompensacion_det cmd
-                        JOIN segu.tusuario usu1 ON usu1.id_usuario = cmd.id_usuario_reg
-                        LEFT JOIN segu.tusuario usu2 ON usu2.id_usuario = cmd.id_usuario_mod
+            v_consulta:='SELECT   cmd.id_compensacion_det,
+                                   cmd.estado_reg,
+                                   cmd.fecha,
+                                   cmd.id_compensacion,
+                                   cmd.tiempo,
+                                   cmd.id_usuario_reg,
+                                   cmd.fecha_reg,
+                                   cmd.id_usuario_ai,
+                                   cmd.usuario_ai,
+                                   cmd.id_usuario_mod,
+                                   cmd.fecha_mod,
+                                   usu1.cuenta as usr_reg,
+                                   usu2.cuenta as usr_mod,
+                                   cmd.obs_dba,
+                                   cmd.fecha_comp,
+                                   cmd.tiempo_comp,
+                                   con.social_forestal,
+                                   cmd.fecha_fin,
+                                   cmd.fecha_comp_fin
+                            FROM asis.tcompensacion_det cmd
+                                     JOIN segu.tusuario usu1 ON usu1.id_usuario = cmd.id_usuario_reg
+                                     JOIN asis.tcompensacion con on con.id_compensacion = cmd.id_compensacion
+                                     LEFT JOIN segu.tusuario usu2 ON usu2.id_usuario = cmd.id_usuario_mod
                         WHERE  ';
 
             --Definicion de la respuesta
@@ -88,6 +91,7 @@ BEGIN
             v_consulta:='SELECT COUNT(id_compensacion_det)
                          FROM asis.tcompensacion_det cmd
                          JOIN segu.tusuario usu1 ON usu1.id_usuario = cmd.id_usuario_reg
+                         JOIN asis.tcompensacion con on con.id_compensacion = cmd.id_compensacion
                          LEFT JOIN segu.tusuario usu2 ON usu2.id_usuario = cmd.id_usuario_mod
                          WHERE ';
 

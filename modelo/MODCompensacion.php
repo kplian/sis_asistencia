@@ -56,6 +56,7 @@ class MODCompensacion extends MODbase
 
         $this->captura('funcionario', 'text');
         $this->captura('responsable', 'text');
+        $this->captura('social_forestal', 'boolean');
 
         //Ejecuta la instruccion
         $this->armarConsulta();
@@ -83,6 +84,7 @@ class MODCompensacion extends MODbase
         $this->setParametro('hasta_comp', 'hasta_comp', 'date');
         $this->setParametro('dias_comp', 'dias_comp', 'numeric');
         $this->setParametro('justificacion', 'justificacion', 'varchar');
+        $this->setParametro('social_forestal', 'social_forestal', 'boolean');
 
         //Ejecuta la instruccion
         $this->armarConsulta();
@@ -111,6 +113,7 @@ class MODCompensacion extends MODbase
         $this->setParametro('hasta_comp', 'hasta_comp', 'date');
         $this->setParametro('dias_comp', 'dias_comp', 'numeric');
         $this->setParametro('justificacion', 'justificacion', 'varchar');
+        $this->setParametro('social_forestal', 'social_forestal', 'boolean');
 
         //Ejecuta la instruccion
         $this->armarConsulta();

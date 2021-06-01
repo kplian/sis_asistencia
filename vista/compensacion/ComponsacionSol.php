@@ -19,6 +19,7 @@ header("content-type: text/javascript; charset=UTF-8");
         fwidth: '35%',
         fheight: '70%',
         tam_pag: 50,
+        bandera: 'fin_semana',
         //funcion para mandar el name de tab
         actualizarSegunTab: function (name, indice) {
             if (this.finCons) {
@@ -49,7 +50,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 handler: this.onSiguiente
             });
             this.iniciarEventos();
-           // this.iniciarEventosCom();
+            // this.iniciarEventosCom();
             this.addBotonesGantt();
             this.store.baseParams = {tipo_interfaz: this.nombreVista};
             this.store.baseParams.pes_estado = 'registro';
@@ -112,10 +113,10 @@ header("content-type: text/javascript; charset=UTF-8");
                 params: {start: 0, limit: this.tam_pag, es_combo_solicitud: 'si'},
                 callback: function (r) {
                     if (r.length > 0) {
-                        this.Cmp.id_funcionario.setValue(r[0].data.id_funcionario);
-                        this.Cmp.id_funcionario.fireEvent('select', less.Cmp.id_funcionario, r[0]);
-                        this.Cmp.id_funcionario.modificado = true;
-                        this.Cmp.id_funcionario.collapse();
+                        less.Cmp.id_funcionario.setValue(r[0].data.id_funcionario);
+                        less.Cmp.id_funcionario.fireEvent('select', less.Cmp.id_funcionario, r[0]);
+                        less.Cmp.id_funcionario.modificado = true;
+                        less.Cmp.id_funcionario.collapse();
                         this.onCargarResponsable(r[0].data.id_funcionario, true);
                     }
 
@@ -127,7 +128,11 @@ header("content-type: text/javascript; charset=UTF-8");
                 this.Cmp.id_responsable.store.baseParams = Ext.apply(this.Cmp.id_responsable.store.baseParams, {id_funcionario: record.data.id_funcionario});
                 this.Cmp.id_responsable.modificado = true;
             }, this);
-            // this.onPermisoRol();
+
+            this.onchangeSocial();
+
+            // this.Cmp.desde.disabledDays = [];
+            // this.Cmp.hasta.disabledDays = [];
         },
         onButtonEdit: function () {
             Phx.vista.ComponsacionSol.superclass.onButtonEdit.call(this);
@@ -140,6 +145,24 @@ header("content-type: text/javascript; charset=UTF-8");
                 this.Cmp.id_responsable.modificado = true;
             }, this);
             // this.onPermisoRol();
+        },
+        onchangeSocial: function () {
+            this.Cmp.social_forestal.on('check', function (record) {
+                this.Cmp.desde.reset();
+                this.Cmp.hasta.reset();
+                this.Cmp.dias.reset();
+                const arreglo = [1, 2, 3, 4, 5];
+                if (record.checked) {
+                    this.Cmp.desde.setDisabledDays();
+                    this.Cmp.hasta.setDisabledDays();
+                    this.bandera = 'no';
+                } else {
+                    this.Cmp.desde.setDisabledDays(arreglo);
+                    this.Cmp.hasta.setDisabledDays(arreglo);
+                    this.bandera = 'fin_semana';
+                }
+            }, this)
+
         },
         onCargarResponsable: function (id, filtro = true) {
             this.Cmp.id_responsable.store.baseParams = Ext.apply(this.Cmp.id_responsable.store.baseParams, {id_funcionario: id});
@@ -183,7 +206,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         'fecha_fin': this.Cmp.hasta.getValue(),
                         'fecha_inicio': Fecha.getValue(),
                         'id_funcionario': this.Cmp.id_funcionario.getValue(),
-                        'fin_semana': 'fin_semana'
+                        'fin_semana': this.bandera
 
                     },
                     success: this.respuestaValidacion,
@@ -199,7 +222,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         'fecha_fin': Fecha.getValue(),
                         'fecha_inicio': this.Cmp.desde.getValue(),
                         'id_funcionario': this.Cmp.id_funcionario.getValue(),
-                        'fin_semana': 'fin_semana'
+                        'fin_semana': this.bandera
                     },
                     success: this.respuestaValidacion,
                     failure: this.conexionFailure,
@@ -208,37 +231,37 @@ header("content-type: text/javascript; charset=UTF-8");
                 });
             }, this);
 
-            this.Cmp.desde.on('change', function (Fecha, dato) {
-                Ext.Ajax.request({
-                    url: '../../sis_asistencia/control/Compensacion/getDias', //llamando a la funcion getDias.
-                    params: {
-                        'fecha_fin': this.Cmp.hasta.getValue(),
-                        'fecha_inicio': Fecha.getValue(),
-                        'id_funcionario': this.Cmp.id_funcionario.getValue(),
-                        'fin_semana': 'fin_semana'
-                    },
-                    success: this.respuestaValidacion,
-                    failure: this.conexionFailure,
-                    timeout: this.timeout,
-                    scope: this
-                });
-            }, this);
-
-            this.Cmp.hasta.on('change', function (Fecha, dato) {
-                Ext.Ajax.request({
-                    url: '../../sis_asistencia/control/Compensacion/getDias', //llamando a la funcion getDias.
-                    params: {
-                        'fecha_fin': Fecha.getValue(),
-                        'fecha_inicio': this.Cmp.desde.getValue(),
-                        'id_funcionario': this.Cmp.id_funcionario.getValue(),
-                        'fin_semana': 'fin_semana'
-                    },
-                    success: this.respuestaValidacion,
-                    failure: this.conexionFailure,
-                    timeout: this.timeout,
-                    scope: this
-                });
-            }, this);
+            // this.Cmp.desde.on('change', function (Fecha, dato) {
+            //     Ext.Ajax.request({
+            //         url: '../../sis_asistencia/control/Compensacion/getDias', //llamando a la funcion getDias.
+            //         params: {
+            //             'fecha_fin': this.Cmp.hasta.getValue(),
+            //             'fecha_inicio': Fecha.getValue(),
+            //             'id_funcionario': this.Cmp.id_funcionario.getValue(),
+            //             'fin_semana': 'fin_semana'
+            //         },
+            //         success: this.respuestaValidacion,
+            //         failure: this.conexionFailure,
+            //         timeout: this.timeout,
+            //         scope: this
+            //     });
+            // }, this);
+            //
+            // this.Cmp.hasta.on('change', function (Fecha, dato) {
+            //     Ext.Ajax.request({
+            //         url: '../../sis_asistencia/control/Compensacion/getDias', //llamando a la funcion getDias.
+            //         params: {
+            //             'fecha_fin': Fecha.getValue(),
+            //             'fecha_inicio': this.Cmp.desde.getValue(),
+            //             'id_funcionario': this.Cmp.id_funcionario.getValue(),
+            //             'fin_semana': 'fin_semana'
+            //         },
+            //         success: this.respuestaValidacion,
+            //         failure: this.conexionFailure,
+            //         timeout: this.timeout,
+            //         scope: this
+            //     });
+            // }, this);
         },
         arrayStore: {
             'Selección': [
