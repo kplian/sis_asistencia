@@ -176,6 +176,20 @@ class MODCompensacion extends MODbase
         //Devuelve la respuesta
         return $this->respuesta;
     }
+    function getDiaDisable()
+    {
+        $this->procedimiento = 'asis.ft_compensacion_ime';
+        $this->transaccion = 'ASIS_FDI_INS';
+        $this->tipo_procedimiento = 'IME';
+        $this->setParametro('p_id_usuario', 'p_id_usuario', 'int4');
+
+        //Ejecuta la instruccion
+        $this->armarConsulta();
+        $this->ejecutarConsulta();
+
+        //Devuelve la respuesta
+        return $this->respuesta;
+    }
 }
 
 ?>
