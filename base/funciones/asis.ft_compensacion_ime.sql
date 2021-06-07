@@ -166,13 +166,44 @@ BEGIN
                     v_parametros.social_forestal)
             RETURNING id_compensacion into v_id_compensacion;
 
+
+            select l.codigo
+            into v_lugar
+            from segu.tusuario us
+                     join segu.tpersona p on p.id_persona = us.id_persona
+                     join orga.tfuncionario f on f.id_persona = p.id_persona
+                     join orga.tuo_funcionario uf on uf.id_funcionario = f.id_funcionario
+                     join orga.tcargo c on c.id_cargo = uf.id_cargo
+                     join param.tlugar l on l.id_lugar = c.id_lugar
+            where uf.estado_reg = 'activo'
+              and uf.tipo = 'oficial'
+              and uf.fecha_asignacion <= now()
+              and coalesce(uf.fecha_finalizacion, now()) >= now()
+              and us.id_usuario = p_id_usuario;
+
+
+
+
             if (v_parametros.social_forestal = false) then
                 FOR v_record_det IN (select dia::date as dia
                                      from generate_series(v_parametros.desde, v_parametros.hasta,
                                                           '1 day'::interval) dia)
                     LOOP
-                        IF (select extract(dow from v_record_det.dia::date) in
-                                   (v_domingo, 1, 2, 3, 4, 5, v_sabado)) THEN
+
+                        SELECT g.id_gestion
+                        INTO
+                            v_id_gestion_actual
+                        FROM param.tgestion g
+                        WHERE v_record_det.dia::date BETWEEN g.fecha_ini and g.fecha_fin;
+
+
+                        IF EXISTS(select *
+                                  from param.tferiado f
+                                           JOIN param.tlugar l on l.id_lugar = f.id_lugar
+                                  WHERE l.codigo in ('BO', v_lugar)
+                                    AND (EXTRACT(MONTH from f.fecha))::integer = (EXTRACT(MONTH from v_record_det.dia::date))::integer
+                                    AND (EXTRACT(DAY from f.fecha))::integer = (EXTRACT(DAY from v_record_det.dia::date))
+                                    AND f.id_gestion = v_id_gestion_actual) THEN
 
 
                             INSERT INTO asis.tcompensacion_det(estado_reg,
@@ -203,7 +234,41 @@ BEGIN
                                     null,
                                     extract(dow from v_record_det.dia::date));
 
+                        ELSE
+                            IF (select extract(dow from v_record_det.dia::date) in
+                                       (v_domingo, v_sabado)) THEN
 
+
+                                INSERT INTO asis.tcompensacion_det(estado_reg,
+                                                                   fecha,
+                                                                   id_compensacion,
+                                                                   tiempo,
+                                                                   id_usuario_reg,
+                                                                   fecha_reg,
+                                                                   id_usuario_ai,
+                                                                   usuario_ai,
+                                                                   id_usuario_mod,
+                                                                   fecha_mod,
+                                                                   obs_dba)
+                                VALUES ('activo',
+                                        v_record_det.dia,
+                                        v_id_compensacion,
+                                        (case
+                                             when extract(dow from v_record_det.dia::date) = v_sabado then
+                                                 'tarde'
+                                             else
+                                                 'completo'
+                                            end),
+                                        p_id_usuario,
+                                        now(),
+                                        v_parametros._id_usuario_ai,
+                                        v_parametros._nombre_usuario_ai,
+                                        null,
+                                        null,
+                                        extract(dow from v_record_det.dia::date));
+
+
+                            END IF;
                         END IF;
                     END LOOP;
             else
@@ -303,9 +368,9 @@ BEGIN
                 desde           = v_parametros.desde,
                 hasta           = v_parametros.hasta,
                 dias            = v_parametros.dias,
-                desde_comp      = v_parametros.desde_comp,
-                hasta_comp      = v_parametros.hasta_comp,
-                dias_comp       = v_parametros.dias_comp,
+                -- desde_comp      = v_parametros.desde_comp,
+                -- hasta_comp      = v_parametros.hasta_comp,
+                -- dias_comp       = v_parametros.dias_comp,
                 justificacion   = v_parametros.justificacion,
                 id_usuario_mod  = p_id_usuario,
                 fecha_mod       = now(),
@@ -315,44 +380,182 @@ BEGIN
             WHERE id_compensacion = v_parametros.id_compensacion;
 
 
-            FOR v_record_det IN (select dia::date as dia
-                                 from generate_series(v_parametros.desde, v_parametros.hasta,
-                                                      '1 day'::interval) dia)
-                LOOP
-                    IF (select extract(dow from v_record_det.dia::date) in (v_sabado, v_domingo)) THEN
 
 
-                        INSERT INTO asis.tcompensacion_det(estado_reg,
-                                                           fecha,
-                                                           id_compensacion,
-                                                           tiempo,
-                                                           id_usuario_reg,
-                                                           fecha_reg,
-                                                           id_usuario_ai,
-                                                           usuario_ai,
-                                                           id_usuario_mod,
-                                                           fecha_mod,
-                                                           obs_dba)
+            select l.codigo
+            into v_lugar
+            from segu.tusuario us
+                     join segu.tpersona p on p.id_persona = us.id_persona
+                     join orga.tfuncionario f on f.id_persona = p.id_persona
+                     join orga.tuo_funcionario uf on uf.id_funcionario = f.id_funcionario
+                     join orga.tcargo c on c.id_cargo = uf.id_cargo
+                     join param.tlugar l on l.id_lugar = c.id_lugar
+            where uf.estado_reg = 'activo'
+              and uf.tipo = 'oficial'
+              and uf.fecha_asignacion <= now()
+              and coalesce(uf.fecha_finalizacion, now()) >= now()
+              and us.id_usuario = p_id_usuario;
+
+
+            delete from asis.tcompensacion_det de
+            where de.id_compensacion = v_parametros.id_compensacion;
+
+            if (v_parametros.social_forestal = false) then
+                FOR v_record_det IN (select dia::date as dia
+                                     from generate_series(v_parametros.desde, v_parametros.hasta,
+                                                          '1 day'::interval) dia)
+                    LOOP
+                        SELECT g.id_gestion
+                        INTO
+                            v_id_gestion_actual
+                        FROM param.tgestion g
+                        WHERE v_record_det.dia::date BETWEEN g.fecha_ini and g.fecha_fin;
+
+
+
+                        IF  EXISTS(select *
+                                   from param.tferiado f
+                                            JOIN param.tlugar l on l.id_lugar = f.id_lugar
+                                   WHERE l.codigo in ('BO', v_lugar)
+                                     AND (EXTRACT(MONTH from f.fecha))::integer = (EXTRACT(MONTH from v_record_det.dia::date))::integer
+                                     AND (EXTRACT(DAY from f.fecha))::integer = (EXTRACT(DAY from v_record_det.dia::date))
+                                     AND f.id_gestion = v_id_gestion_actual) THEN
+
+
+                            INSERT INTO asis.tcompensacion_det(estado_reg,
+                                                               fecha,
+                                                               id_compensacion,
+                                                               tiempo,
+                                                               id_usuario_reg,
+                                                               fecha_reg,
+                                                               id_usuario_ai,
+                                                               usuario_ai,
+                                                               id_usuario_mod,
+                                                               fecha_mod,
+                                                               obs_dba)
+                            VALUES ('activo',
+                                    v_record_det.dia,
+                                    v_parametros.id_compensacion,
+                                    (case
+                                         when extract(dow from v_record_det.dia::date) = v_sabado then
+                                             'tarde'
+                                         else
+                                             'completo'
+                                        end),
+                                    p_id_usuario,
+                                    now(),
+                                    v_parametros._id_usuario_ai,
+                                    v_parametros._nombre_usuario_ai,
+                                    null,
+                                    null,
+                                    extract(dow from v_record_det.dia::date));
+
+                        ELSE
+                            IF (select extract(dow from v_record_det.dia::date) in
+                                       (v_domingo, v_sabado)) THEN
+
+
+                                INSERT INTO asis.tcompensacion_det(estado_reg,
+                                                                   fecha,
+                                                                   id_compensacion,
+                                                                   tiempo,
+                                                                   id_usuario_reg,
+                                                                   fecha_reg,
+                                                                   id_usuario_ai,
+                                                                   usuario_ai,
+                                                                   id_usuario_mod,
+                                                                   fecha_mod,
+                                                                   obs_dba)
+                                VALUES ('activo',
+                                        v_record_det.dia,
+                                        v_parametros.id_compensacion,
+                                        (case
+                                             when extract(dow from v_record_det.dia::date) = v_sabado then
+                                                 'tarde'
+                                             else
+                                                 'completo'
+                                            end),
+                                        p_id_usuario,
+                                        now(),
+                                        v_parametros._id_usuario_ai,
+                                        v_parametros._nombre_usuario_ai,
+                                        null,
+                                        null,
+                                        extract(dow from v_record_det.dia::date));
+
+
+                            END IF;
+                        END IF;
+                    END LOOP;
+            else
+                -- raise exception 'puto';
+                v_incio_con = v_parametros.hasta::date + CAST('1 days' AS INTERVAL);
+                v_fin_con = v_parametros.hasta::date + CAST('7 days' AS INTERVAL);
+
+                INSERT INTO asis.tcompensacion_det(estado_reg,
+                                                   fecha,
+                                                   id_compensacion,
+                                                   tiempo,
+                                                   id_usuario_reg,
+                                                   fecha_reg,
+                                                   id_usuario_ai,
+                                                   usuario_ai,
+                                                   id_usuario_mod,
+                                                   fecha_mod,
+                                                   obs_dba,
+                                                   fecha_fin,
+                                                   fecha_comp,
+                                                   fecha_comp_fin,
+                                                   tiempo_comp)
+                VALUES ('activo',
+                        v_parametros.desde,
+                        v_parametros.id_compensacion,
+                        'completo',
+                        p_id_usuario,
+                        now(),
+                        v_parametros._id_usuario_ai,
+                        v_parametros._nombre_usuario_ai,
+                        null,
+                        null,
+                        'social',
+                        v_parametros.hasta,
+                        v_incio_con,
+                        v_fin_con,
+                        'completo')
+                RETURNING id_compensacion_det into v_id_compensacion_det;
+
+
+                v_incio_con = v_parametros.hasta::date + CAST('1 days' AS INTERVAL);
+                v_fin_con = v_parametros.hasta::date + CAST('7 days' AS INTERVAL);
+                FOR v_record_con IN (select dia::date as dia
+                                     from generate_series(v_incio_con, v_fin_con,
+                                                          '1 day'::interval) dia)
+                    loop
+                        INSERT INTO asis.tcompensacion_det_com(estado_reg,
+                                                               fecha_comp,
+                                                               tiempo_comp,
+                                                               id_compensacion_det,
+                                                               id_usuario_reg,
+                                                               fecha_reg,
+                                                               id_usuario_ai,
+                                                               usuario_ai,
+                                                               id_usuario_mod,
+                                                               fecha_mod)
                         VALUES ('activo',
-                                v_record_det.dia,
-                                v_parametros.id_compensacion,
-                                (case
-                                     when extract(dow from v_record_det.dia::date) = v_sabado then
-                                         'tarde'
-                                     else
-                                         'completo'
-                                    end),
+                                v_record_con.dia,
+                                'completo',
+                                v_id_compensacion_det,
                                 p_id_usuario,
                                 now(),
                                 v_parametros._id_usuario_ai,
                                 v_parametros._nombre_usuario_ai,
                                 null,
-                                null,
-                                extract(dow from v_record_det.dia::date));
+                                null);
+
+                    end loop;
+            end if;
 
 
-                    END IF;
-                END LOOP;
 
             --Definicion de la respuesta
             v_resp = pxp.f_agrega_clave(v_resp, 'mensaje', 'Compensacion modificado(a)');
@@ -453,13 +656,35 @@ BEGIN
             ELSIF (v_parametros.fin_semana = 'fin_semana') THEN
                 WHILE (SELECT (v_fecha_aux::date) <= v_parametros.fecha_fin::date)
                     LOOP
-                        IF (select extract(dow from v_fecha_aux::date) in  (v_domingo, 1, 2, 3, 4, 5, v_sabado)) THEN
-                            if (extract(dow from v_fecha_aux::date) = v_sabado) then
-                                v_cant_dias = v_cant_dias + 0.5;
-                            else
-                                v_cant_dias = v_cant_dias + 1;
-                            end if;
+
+                        IF  EXISTS(select *
+                                   from param.tferiado f
+                                            JOIN param.tlugar l on l.id_lugar = f.id_lugar
+                                   WHERE l.codigo in ('BO', v_lugar)
+                                     AND (EXTRACT(MONTH from f.fecha))::integer =
+                                         (EXTRACT(MONTH from v_fecha_aux::date))::integer
+                                     AND (EXTRACT(DAY from f.fecha))::integer =
+                                         (EXTRACT(DAY from v_fecha_aux))
+                                     AND f.id_gestion = v_id_gestion_actual) THEN
+                            v_cant_dias = v_cant_dias + 1;
+                        ELSE
+
+
+                            IF (select extract(dow from v_fecha_aux::date) in  (v_domingo, v_sabado)) THEN
+
+
+                                if (extract(dow from v_fecha_aux::date) = v_sabado) then
+                                    v_cant_dias = v_cant_dias + 0.5;
+                                else
+                                    v_cant_dias = v_cant_dias + 1;
+                                end if;
+
+
+                            END IF;
+
                         END IF;
+
+
                         v_incremento_fecha = v_fecha_aux::date + v_valor_incremento::INTERVAL;
                         v_fecha_aux := v_incremento_fecha;
                     END LOOP;
