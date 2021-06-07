@@ -32,17 +32,17 @@ header("content-type: text/javascript; charset=UTF-8");
             if (!social) {
                 if (minDate.getDay() === 6) {
                     this.Cmp.fecha_comp.setMinValue(this.sumarDias(minDate, +2));
-                    this.Cmp.fecha_comp.setMaxValue(this.sumarDias(this.maestro.fecha, 6));
+                    this.Cmp.fecha_comp.setMaxValue(this.sumarDias(this.maestro.fecha, 11));
                 }else {
                     this.Cmp.fecha_comp.setMinValue(this.sumarDias(minDate, + 1));
-                    this.Cmp.fecha_comp.setMaxValue(this.sumarDias(this.maestro.fecha, 5));
+                    this.Cmp.fecha_comp.setMaxValue(this.sumarDias(this.maestro.fecha, 10));
                 }
                 if (minDate.getDay() === 0) {
                     this.Cmp.fecha_comp.setMinValue(this.sumarDias(minDate, +1));
-                    this.Cmp.fecha_comp.setMaxValue(this.sumarDias(this.maestro.fecha, 5));
+                    this.Cmp.fecha_comp.setMaxValue(this.sumarDias(this.maestro.fecha, 10));
                 }else {
                     this.Cmp.fecha_comp.setMinValue(this.sumarDias(minDate, + 1));
-                    this.Cmp.fecha_comp.setMaxValue(this.sumarDias(this.maestro.fecha, 5));
+                    this.Cmp.fecha_comp.setMaxValue(this.sumarDias(this.maestro.fecha, 10));
                 }
             } else {
                 this.Cmp.fecha_comp.setMinValue(minDateSocial);
