@@ -1010,3 +1010,8 @@ ALTER TABLE asis.tcompensacion
 ALTER TABLE asis.tcompensacion
     RENAME COLUMN id_procesos_wf TO id_proceso_wf;
 /***********************************F-SCP-MMV-ASIS-ETR-4007-2-31/05/2021****************************************/
+
+/***********************************I-SCP-MMV-ASIS-ETR-4007-3-31/05/2021****************************************/
+ALTER TABLE asis.tcompensacion_det
+    ALTER COLUMN id_compensacion DROP NOT NULL;
+/***********************************F-SCP-MMV-ASIS-ETR-4007-3-31/05/2021****************************************/
