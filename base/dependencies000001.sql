@@ -341,3 +341,65 @@ create or replace view  asis.vteletrabajo as (
 select pxp.f_insert_testructura_gui ('SCN', 'ASIS');
 select pxp.f_insert_testructura_gui ('VBN', 'SBO');
 /***********************************F-DEP-MMV-ASIS-ETR-4007-18/05/2021*****************************************/
+
+/***********************************I-DEP-MMV-ASIS-1-07/07/2021*****************************************/
+CREATE OR REPLACE VIEW asis.vcompensacion_sol(
+                                              id_compensacion,
+                                              estado_reg,
+                                              id_funcionario,
+                                              id_responsable,
+                                              desde,
+                                              hasta,
+                                              dias,
+                                              desde_comp,
+                                              hasta_comp,
+                                              dias_comp,
+                                              justificacion,
+                                              id_usuario_reg,
+                                              fecha_reg,
+                                              id_usuario_ai,
+                                              usuario_ai,
+                                              id_usuario_mod,
+                                              fecha_mod,
+                                              usr_reg,
+                                              usr_mod,
+                                              id_proceso_wf,
+                                              id_estado_wf,
+                                              estado,
+                                              nro_tramite,
+                                              funcionario,
+                                              responsable,
+                                              social_forestal)
+AS
+SELECT cpm.id_compensacion,
+       cpm.estado_reg,
+       cpm.id_funcionario,
+       cpm.id_responsable,
+       cpm.desde,
+       cpm.hasta,
+       cpm.dias,
+       cpm.desde_comp,
+       cpm.hasta_comp,
+       cpm.dias_comp,
+       cpm.justificacion,
+       cpm.id_usuario_reg,
+       cpm.fecha_reg,
+       cpm.id_usuario_ai,
+       cpm.usuario_ai,
+       cpm.id_usuario_mod,
+       cpm.fecha_mod,
+       usu1.cuenta AS usr_reg,
+       usu2.cuenta AS usr_mod,
+       cpm.id_proceso_wf,
+       cpm.id_estado_wf,
+       cpm.estado,
+       cpm.nro_tramite,
+       f.desc_funcionario2 AS funcionario,
+       r.desc_funcionario2 AS responsable,
+       cpm.social_forestal
+FROM asis.tcompensacion cpm
+         JOIN segu.tusuario usu1 ON usu1.id_usuario = cpm.id_usuario_reg
+         JOIN orga.vfuncionario f ON f.id_funcionario = cpm.id_funcionario
+         JOIN orga.vfuncionario r ON r.id_funcionario = cpm.id_responsable
+         LEFT JOIN segu.tusuario usu2 ON usu2.id_usuario = cpm.id_usuario_mod;
+/***********************************F-DEP-MMV-ASIS-1-07/07/2021*****************************************/

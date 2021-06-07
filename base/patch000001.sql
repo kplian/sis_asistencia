@@ -1013,3 +1013,8 @@ alter table asis.tcompensacion_det
 alter table asis.tcompensacion_det
     add fecha_comp_fin date;
 /***********************************F-SCP-MMV-ASIS-ETR-4007-2-31/05/2021****************************************/
+
+/***********************************I-SCP-MMV-ASIS-ETR-4007-2-31/05/2021****************************************/
+ALTER TABLE asis.tcompensacion
+    RENAME COLUMN id_procesos_wf TO id_proceso_wf;
+/***********************************F-SCP-MMV-ASIS-ETR-4007-2-31/05/2021****************************************/

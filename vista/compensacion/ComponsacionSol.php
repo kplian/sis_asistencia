@@ -106,7 +106,7 @@ header("content-type: text/javascript; charset=UTF-8");
             this.tbar.add(this.menuAdqGantt);
         },
         diagramGantt: function () {
-            var data = this.sm.getSelected().data.id_procesos_wf;
+            var data = this.sm.getSelected().data.id_proceso_wf;
             Phx.CP.loadingShow();
             Ext.Ajax.request({
                 url: '../../sis_workflow/control/ProcesoWf/diagramaGanttTramite',
@@ -118,7 +118,7 @@ header("content-type: text/javascript; charset=UTF-8");
             });
         },
         diagramGanttDinamico: function () {
-            const data = this.sm.getSelected().data.id_procesos_wf;
+            const data = this.sm.getSelected().data.id_proceso_wf;
             window.open('../../../sis_workflow/reportes/gantt/gantt_dinamico.html?id_proceso_wf=' + data)
         },
         east: {
@@ -436,7 +436,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 Ext.Ajax.request({
                     url: '../../sis_asistencia/control/Compensacion/cambiarEstado',
                     params: {
-                        id_proceso_wf: rec.data.id_procesos_wf,
+                        id_proceso_wf: rec.data.id_proceso_wf,
                         id_estado_wf: rec.data.id_estado_wf,
                         evento: 'siguiente',
                         obs: ''

@@ -42,7 +42,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     config: {
                         labelSeparator: '',
                         inputType: 'hidden',
-                        name: 'id_procesos_wf'
+                        name: 'id_proceso_wf'
                     },
                     type: 'Field',
                     form: true
@@ -448,13 +448,16 @@ header("content-type: text/javascript; charset=UTF-8");
                 {name: 'fecha_mod', type: 'date', dateFormat: 'Y-m-d H:i:s.u'},
                 {name: 'usr_reg', type: 'string'},
                 {name: 'usr_mod', type: 'string'},
-                {name: 'id_procesos_wf', type: 'numeric'},
+
+                {name: 'id_proceso_wf', type: 'numeric'},
                 {name: 'id_estado_wf', type: 'numeric'},
                 {name: 'estado', type: 'string'},
                 {name: 'nro_tramite', type: 'string'},
+
                 {name: 'funcionario', type: 'string'},
                 {name: 'responsable', type: 'string'},
                 {name: 'social_forestal', type: 'boolean'},
+
             ],
             sortInfo: {
                 field: 'id_compensacion',

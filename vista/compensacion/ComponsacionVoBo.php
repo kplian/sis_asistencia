@@ -62,7 +62,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 Ext.Ajax.request({
                     url: '../../sis_asistencia/control/Compensacion/cambiarEstado',
                     params: {
-                        id_proceso_wf:  rec.data.id_procesos_wf,
+                        id_proceso_wf:  rec.data.id_proceso_wf,
                         id_estado_wf:  rec.data.id_estado_wf,
                         evento : 'aprobado',
                         obs : ''
@@ -99,7 +99,7 @@ header("content-type: text/javascript; charset=UTF-8");
             Ext.Ajax.request({
                 url: '../../sis_asistencia/control/Compensacion/cambiarEstado',
                 params: {
-                    id_proceso_wf: resp.id_procesos_wf,
+                    id_proceso_wf: resp.id_proceso_wf,
                     id_estado_wf:  resp.id_estado_wf,
                     evento : 'rechazado',
                     obs: resp.obs

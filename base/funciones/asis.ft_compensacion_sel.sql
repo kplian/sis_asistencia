@@ -111,7 +111,7 @@ BEGIN
                                    cpm.fecha_mod,
                                    usu1.cuenta as usr_reg,
                                    usu2.cuenta as usr_mod,
-                                   cpm.id_procesos_wf,
+                                   cpm.id_proceso_wf,
                                    cpm.id_estado_wf,
                                    cpm.estado,
                                    cpm.nro_tramite,

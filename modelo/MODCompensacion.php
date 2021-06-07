@@ -49,7 +49,7 @@ class MODCompensacion extends MODbase
         $this->captura('usr_reg', 'varchar');
         $this->captura('usr_mod', 'varchar');
 
-        $this->captura('id_procesos_wf', 'int4');
+        $this->captura('id_proceso_wf', 'int4');
         $this->captura('id_estado_wf', 'int4');
         $this->captura('estado', 'varchar');
         $this->captura('nro_tramite', 'varchar');
