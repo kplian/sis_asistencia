@@ -138,7 +138,7 @@ BEGIN
                                            usuario_ai,
                                            id_usuario_mod,
                                            fecha_mod,
-                                           id_procesos_wf,
+                                           id_proceso_wf,
                                            id_estado_wf,
                                            estado,
                                            nro_tramite,
@@ -524,12 +524,12 @@ BEGIN
             select c.id_compensacion,
                    c.id_responsable,
                    c.justificacion,
-                   c.id_procesos_wf,
+                   c.id_proceso_wf,
                    c.id_estado_wf
             into
                 v_compensacion
             from asis.tcompensacion c
-            where c.id_procesos_wf = v_parametros.id_proceso_wf;
+            where c.id_proceso_wf = v_parametros.id_proceso_wf;
 
 
             select ps_id_tipo_estado,
@@ -602,7 +602,7 @@ BEGIN
                 usuario_ai    = v_parametros._nombre_usuario_ai,
                 fecha_mod=now(),
                 justificacion = v_compensacion.justificacion
-            where id_procesos_wf = v_parametros.id_proceso_wf;
+            where id_proceso_wf = v_parametros.id_proceso_wf;
 
 
             --Definicion de la respuesta
