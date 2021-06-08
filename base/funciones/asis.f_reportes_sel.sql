@@ -1,8 +1,11 @@
-create or replace function asis.f_reportes_sel(p_administrador integer, p_id_usuario integer, p_tabla character varying,
-                                               p_transaccion character varying) returns character varying
-    language plpgsql
-as
-$fun$
+CREATE OR REPLACE FUNCTION asis.f_reportes_sel(
+    p_administrador integer,
+    p_id_usuario integer,
+    p_tabla varchar,
+    p_transaccion varchar
+)
+    RETURNS varchar AS
+$body$
 /**************************************************************************
  SISTEMA:        Sistema de Asistencia
  FUNCION:         asis.f_reportes_sel
@@ -2121,6 +2124,7 @@ BEGIN
                                                 pe.hro_desde        as hro_desde_permiso,
                                                 pe.hro_hasta        as hro_hasta_permiso,
                                                 va.nro_tramite      as vacacion,
+                                                va.tiempo,
                                                 va.fecha_dia,
                                                 tt.nro_tramite      as teletrabajo_temp,
                                                 ba.nro_tramite      as baja_medica,
@@ -2232,7 +2236,74 @@ BEGIN
                                                     'Permiso');
                                         end if;
                                     end if;
+                                    if (v_asistencia.vacacion is not null
+                                        and v_asistencia.tiempo = 'mañana') then
+                                        insert into tmp_control_total(codigo,
+                                                                      fecha,
+                                                                      gerencia,
+                                                                      departamento,
+                                                                      codigo_funcionario,
+                                                                      id_funcionario,
+                                                                      funcionario,
+                                                                      cargo,
+                                                                      hora,
+                                                                      hora_cal,
+                                                                      ruta,
+                                                                      nivel_ordernar,
+                                                                      motivo)
+                                        values (v_asistencia.codigo_ger,
+                                                v_record_fecha.dia::date,
+                                                v_asistencia.gerencia,
+                                                v_asistencia.departamento,
+                                                v_asistencia.codigo,
+                                                v_asistencia.id_funcionario,
+                                                v_asistencia.funcioanrio,
+                                                v_asistencia.cargo,
+                                                v_asistencia.hora,
+                                                '00:00:00'::time,
+                                                v_asistencia.ruta,
+                                                v_asistencia.nivel,
+                                                'Vacacion');
+                                    end if;
 
+                                    if (v_asistencia.cargo like '%Gerente%' or
+                                        v_asistencia.cargo like '%Asesor Legal%' or
+                                        v_asistencia.cargo like '%Operador%' or
+                                        v_asistencia.cargo like '%Conductor%') then
+
+                                        insert into tmp_control_total(codigo,
+                                                                      fecha,
+                                                                      gerencia,
+                                                                      departamento,
+                                                                      codigo_funcionario,
+                                                                      id_funcionario,
+                                                                      funcionario,
+                                                                      cargo,
+                                                                      hora,
+                                                                      hora_cal,
+                                                                      ruta,
+                                                                      nivel_ordernar,
+                                                                      motivo)
+                                        values (v_asistencia.codigo_ger,
+                                                v_record_fecha.dia::date,
+                                                v_asistencia.gerencia,
+                                                v_asistencia.departamento,
+                                                v_asistencia.codigo,
+                                                v_asistencia.id_funcionario,
+                                                v_asistencia.funcioanrio,
+                                                v_asistencia.cargo,
+                                                (case
+                                                     when extract(dow from v_record_fecha.dia::date) = 5 then
+                                                         '08:30:00'
+                                                     else
+                                                         '08:00:00'
+                                                    end
+                                                    )::time,
+                                                '00:00:00'::time,
+                                                v_asistencia.ruta,
+                                                v_asistencia.nivel,
+                                                'Oficina');
+                                    end if;
                                     if not exists(
                                             select 1
                                             from tmp_control_total t
@@ -2777,4 +2848,13 @@ EXCEPTION
             );
         raise exception '%',v_resp;
 END;
-$fun$;
+$body$
+    LANGUAGE 'plpgsql'
+    VOLATILE
+    CALLED ON NULL INPUT
+    SECURITY INVOKER
+    PARALLEL UNSAFE
+    COST 100;
+
+ALTER FUNCTION asis.f_reportes_sel (p_administrador integer, p_id_usuario integer, p_tabla varchar, p_transaccion varchar)
+    OWNER TO postgres;
