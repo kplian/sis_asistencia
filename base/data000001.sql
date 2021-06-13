@@ -325,3 +325,6 @@ select wf.f_import_testructura_estado ('insert','vobo','rechazado','LPC-S',1,'',
 select wf.f_import_testructura_estado ('insert','aprobado','cancelado','LPC-S',1,'','no');
 select wf.f_import_testructura_estado ('insert','rechazado','vobo','LPC-S',1,'','si');
 /***********************************F-DAT-MMV-ASIS-ETR-4007-19/05/2021*****************************************/
+/***********************************I-DAT-MMV-ASIS-ETR-4217-13/06/2021*****************************************/
+select pxp.f_insert_tgui ('Seguimiento Compensación', 'Seguimiento Compensación', 'SSC', 'si', 22, 'sis_asistencia/vista/consulta_rrhh/CompensacionRrhh.php', 2, '', 'CompensacionRrhh', 'ASIS');
+/***********************************F-DAT-MMV-ASIS-ETR-4217-13/06/2021*****************************************/

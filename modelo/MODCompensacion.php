@@ -57,6 +57,8 @@ class MODCompensacion extends MODbase
         $this->captura('funcionario', 'text');
         $this->captura('responsable', 'text');
         $this->captura('social_forestal', 'boolean');
+        $this->captura('id_uo', 'int4');
+        $this->captura('gerencia', 'varchar');
 
         //Ejecuta la instruccion
         $this->armarConsulta();

@@ -59,6 +59,24 @@ header("content-type: text/javascript; charset=UTF-8");
                 },
                 {
                     config: {
+                        labelSeparator: '',
+                        inputType: 'hidden',
+                        name: 'id_uo'
+                    },
+                    type: 'Field',
+                    form: true
+                },
+                {
+                    config: {
+                        labelSeparator: '',
+                        inputType: 'hidden',
+                        name: 'gerencia'
+                    },
+                    type: 'Field',
+                    form: true
+                },
+                {
+                    config: {
                         name: 'nro_tramite',
                         fieldLabel: 'Nro. Tramite',
                         allowBlank: true,
@@ -457,6 +475,8 @@ header("content-type: text/javascript; charset=UTF-8");
                 {name: 'funcionario', type: 'string'},
                 {name: 'responsable', type: 'string'},
                 {name: 'social_forestal', type: 'boolean'},
+                {name: 'id_uo', type: 'numeric'},
+                {name: 'gerencia', type: 'string'},
 
             ],
             sortInfo: {

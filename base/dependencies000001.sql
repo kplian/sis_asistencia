@@ -403,3 +403,7 @@ FROM asis.tcompensacion cpm
          JOIN orga.vfuncionario r ON r.id_funcionario = cpm.id_responsable
          LEFT JOIN segu.tusuario usu2 ON usu2.id_usuario = cpm.id_usuario_mod;
 /***********************************F-DEP-MMV-ASIS-1-07/07/2021*****************************************/
+
+/***********************************I-DEP-MMV-ASIS-ETR-4217-13/06/2021*****************************************/
+select pxp.f_insert_testructura_gui ('SSC', 'ASIS');
+/***********************************F-DEP-MMV-ASIS-ETR-4217-13/06/2021*****************************************/

@@ -111,17 +111,24 @@ BEGIN
                 v_id_estado_wf,
                 v_codigo_estado
             FROM wf.f_inicia_tramite(
-                    p_id_usuario,
+                    1,
                     v_parametros._id_usuario_ai,
                     v_parametros._nombre_usuario_ai,
                     v_id_gestion,
                     v_codigo_proceso,
                     v_parametros.id_funcionario,
                     null,
-                    'Vacaciones',
+                    'Compensacion',
                     v_codigo_proceso);
 
-            --Sentencia de la insercion
+            IF v_parametros.fecha_inicio::DATE > v_parametros.fecha_fin::DATE THEN
+                raise exception 'ERROR: FECHA INICIO MAYOR A FECHA FIN.';
+            END IF;
+
+            IF v_parametros.dias =< 0 THEN
+                raise exception 'ERROR: DIA NO PERMITIDO.';
+            END IF;
+
             INSERT INTO asis.tcompensacion(estado_reg,
                                            id_funcionario,
                                            id_responsable,
@@ -368,9 +375,6 @@ BEGIN
                 desde           = v_parametros.desde,
                 hasta           = v_parametros.hasta,
                 dias            = v_parametros.dias,
-                -- desde_comp      = v_parametros.desde_comp,
-                -- hasta_comp      = v_parametros.hasta_comp,
-                -- dias_comp       = v_parametros.dias_comp,
                 justificacion   = v_parametros.justificacion,
                 id_usuario_mod  = p_id_usuario,
                 fecha_mod       = now(),
@@ -379,7 +383,13 @@ BEGIN
                 social_forestal =v_parametros.social_forestal
             WHERE id_compensacion = v_parametros.id_compensacion;
 
+            IF v_parametros.fecha_inicio::DATE > v_parametros.fecha_fin::DATE THEN
+                raise exception 'ERROR: FECHA INICIO MAYOR A FECHA FIN.';
+            END IF;
 
+            IF v_parametros.dias =< 0 THEN
+                raise exception 'ERROR: DIA NO PERMITIDO.';
+            END IF;
 
 
             select l.codigo
@@ -620,9 +630,9 @@ BEGIN
               and coalesce(uf.fecha_finalizacion, now()) >= now()
               and us.id_usuario = p_id_usuario;
 
-            --Sentencia de la insercion
+
             IF v_parametros.fecha_inicio::DATE > v_parametros.fecha_fin::DATE THEN
-                v_mensaje = 'ERROR: FECHA INICIO MAYOR A FECHA FIN.';
+                raise exception 'ERROR: FECHA INICIO MAYOR A FECHA FIN.';
             END IF;
 
             v_fecha_aux := v_parametros.fecha_inicio;
@@ -726,7 +736,6 @@ BEGIN
 
         begin
 
-            -- raise exception '%',v_parametros;
             -- Validar estado
             select pw.id_proceso_wf,
                    ew.id_estado_wf,
@@ -756,6 +765,8 @@ BEGIN
             from asis.tcompensacion c
             where c.id_proceso_wf = v_parametros.id_proceso_wf;
 
+            ---raise exception '% ',v_registro_estado;
+
 
             select ps_id_tipo_estado,
                    ps_codigo_estado,
@@ -782,7 +793,7 @@ BEGIN
             v_tipo_noti = 'notificacion';
             v_titulo = 'Visto Bueno';
 
-
+            --
             if (array_length(va_codigo_estado, 1) >= 2) then
 
                 select tt.id_tipo_estado,
@@ -802,6 +813,8 @@ BEGIN
                 v_id_estado_maestro = va_id_tipo_estado[1]::integer;
                 v_estado_maestro = va_codigo_estado[1]::varchar;
 
+
+
             end if;
 
             --- raise exception '% --> %',v_id_estado_maestro,v_estado_maestro;
@@ -819,6 +832,16 @@ BEGIN
                                                          v_parametros_ad,
                                                          v_tipo_noti,
                                                          v_titulo);
+            --raise exception '%',v_estado_maestro;
+
+
+            if not exists (  select 1
+                             from asis.tcompensacion c
+                                      inner join  asis.tcompensacion_det d on d.id_compensacion = c.id_compensacion
+                                      inner join asis.tcompensacion_det_com  t on t.id_compensacion_det = d.id_compensacion_det
+                             where c.id_proceso_wf = v_parametros.id_proceso_wf)then
+                raise exception 'No tienes registrado tus dias de compensacion';
+            end if;
             update asis.tcompensacion
             set id_estado_wf  = v_id_estado_actual,
                 estado        = v_estado_maestro,

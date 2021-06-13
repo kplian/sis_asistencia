@@ -36,7 +36,38 @@ class ACTCompensacion extends ACTbase
                     break;
             }
         }
-        if ($this->objParam->getParametro('tipo_interfaz') == 'ComponsacionVoBo'){
+
+        if ($this->objParam->getParametro('tipo_interfaz') == 'CompensacionRrhh') {
+            switch ($this->objParam->getParametro('pes_estado')) {
+                case 'registro':
+                    $this->objParam->addFiltro("cpm.estado in (''registro'')"); // un where de conuslta de sel es una concatenando
+                    break;
+                case 'vobo':
+                    $this->objParam->addFiltro("cpm.estado = ''vobo''");
+                    break;
+                case 'aprobado':
+                    $this->objParam->addFiltro("cpm.estado = ''aprobado''");
+                    break;
+                case 'rechazado':
+                    $this->objParam->addFiltro("cpm.estado = ''rechazado''");
+                    break;
+                case 'cancelado':
+                    $this->objParam->addFiltro("cpm.estado = ''cancelado''");
+                    break;
+            }
+            $filtroInit = "cpm.desde::date >= now()::date and  cpm.hasta::date <= now()::date";
+
+            if ($this->objParam->getParametro('param') != '') {
+                if ($this->objParam->getParametro('desde') != '' && $this->objParam->getParametro('hasta') != '') {
+                    $filtroInit = "cpm.desde::date >= '' " . $this->objParam->getParametro('desde') . "'' and cpm.hasta::date <= ''" . $this->objParam->getParametro('hasta') . "''";
+                }
+                if ($this->objParam->getParametro('id_uo') != '') {
+                    $filtroInit = "ger.id_uo =  " . $this->objParam->getParametro('id_uo') . "  ";
+                }
+            }
+            $this->objParam->addFiltro($filtroInit);
+        }
+        if ($this->objParam->getParametro('tipo_interfaz') == 'ComponsacionVoBo') {
             $this->objParam->addFiltro("cpm.estado = ''vobo''");
         }
         if ($this->objParam->getParametro('tipoReporte') == 'excel_grid' || $this->objParam->getParametro('tipoReporte') == 'pdf_grid') {

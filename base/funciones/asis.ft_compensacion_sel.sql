@@ -90,9 +90,12 @@ BEGIN
                 END IF;
             END IF;
 
+            IF (v_parametros.tipo_interfaz = 'CompensacionRrhh') THEN
+                v_filtro = '';
+            END IF;
 
             --Sentencia de la consulta
-            v_consulta := 'SELECT    cpm.id_compensacion,
+            v_consulta := 'SELECT   cpm.id_compensacion,
                                    cpm.estado_reg,
                                    cpm.id_funcionario,
                                    cpm.id_responsable,
@@ -117,13 +120,17 @@ BEGIN
                                    cpm.nro_tramite,
                                    f.desc_funcionario2  as funcionario,
                                    r.desc_funcionario2 as responsable,
-                                   cpm.social_forestal
+                                   cpm.social_forestal,
+                                   ger.id_uo,
+                                   ger.nombre_unidad as gerencia
                             FROM asis.tcompensacion cpm
                                      JOIN segu.tusuario usu1 ON usu1.id_usuario = cpm.id_usuario_reg
-                                     JOIN orga.vfuncionario f on f.id_funcionario = cpm.id_funcionario
+                                     JOIN orga.vfuncionario_cargo f on f.id_funcionario = cpm.id_funcionario
                                      JOIN orga.vfuncionario r on r.id_funcionario = cpm.id_responsable
+                                     JOIN orga.tuo ger ON ger.id_uo = orga.f_get_uo_gerencia(f.id_uo, NULL::integer, NULL::date)
                                      LEFT JOIN segu.tusuario usu2 ON usu2.id_usuario = cpm.id_usuario_mod
-                        WHERE  ' || v_filtro;
+                            WHERE  f.fecha_asignacion <=  now()::date and
+                          (f.fecha_finalizacion is null or f.fecha_finalizacion >= now()::date) AND  ' || v_filtro;
 
             --Definicion de la respuesta
             v_consulta := v_consulta || v_parametros.filtro;
@@ -191,14 +198,21 @@ BEGIN
                     END IF;
                 END IF;
             END IF;
+
+            IF (v_parametros.tipo_interfaz = 'CompensacionRrhh') THEN
+                v_filtro = '';
+            END IF;
+
             --Sentencia de la consulta de conteo de registros
             v_consulta := 'SELECT COUNT(id_compensacion)
-                         FROM asis.tcompensacion cpm
-                         JOIN segu.tusuario usu1 ON usu1.id_usuario = cpm.id_usuario_reg
-                         JOIN orga.vfuncionario f on f.id_funcionario = cpm.id_funcionario
-                         JOIN orga.vfuncionario r on r.id_funcionario = cpm.id_responsable
-                         LEFT JOIN segu.tusuario usu2 ON usu2.id_usuario = cpm.id_usuario_mod
-                         WHERE ' || v_filtro;
+                           FROM asis.tcompensacion cpm
+                                     JOIN segu.tusuario usu1 ON usu1.id_usuario = cpm.id_usuario_reg
+                                     JOIN orga.vfuncionario_cargo f on f.id_funcionario = cpm.id_funcionario
+                                     JOIN orga.vfuncionario r on r.id_funcionario = cpm.id_responsable
+                                     JOIN orga.tuo ger ON ger.id_uo = orga.f_get_uo_gerencia(f.id_uo, NULL::integer, NULL::date)
+                                     LEFT JOIN segu.tusuario usu2 ON usu2.id_usuario = cpm.id_usuario_mod
+                            WHERE  f.fecha_asignacion <=  now()::date and
+                          (f.fecha_finalizacion is null or f.fecha_finalizacion >= now()::date) AND  ' || v_filtro;
 
             --Definicion de la respuesta
             v_consulta := v_consulta || v_parametros.filtro;
