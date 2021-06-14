@@ -121,11 +121,11 @@ BEGIN
                     'Compensacion',
                     v_codigo_proceso);
 
-            IF v_parametros.fecha_inicio::DATE > v_parametros.fecha_fin::DATE THEN
+            IF v_parametros.hasta::DATE > v_parametros.hasta::DATE THEN
                 raise exception 'ERROR: FECHA INICIO MAYOR A FECHA FIN.';
             END IF;
 
-            IF v_parametros.dias =< 0 THEN
+            IF v_parametros.dias = 0 THEN
                 raise exception 'ERROR: DIA NO PERMITIDO.';
             END IF;
 
@@ -383,11 +383,11 @@ BEGIN
                 social_forestal =v_parametros.social_forestal
             WHERE id_compensacion = v_parametros.id_compensacion;
 
-            IF v_parametros.fecha_inicio::DATE > v_parametros.fecha_fin::DATE THEN
+            IF v_parametros.desde::DATE > v_parametros.hasta::DATE THEN
                 raise exception 'ERROR: FECHA INICIO MAYOR A FECHA FIN.';
             END IF;
 
-            IF v_parametros.dias =< 0 THEN
+            IF v_parametros.dias = 0 THEN
                 raise exception 'ERROR: DIA NO PERMITIDO.';
             END IF;
 

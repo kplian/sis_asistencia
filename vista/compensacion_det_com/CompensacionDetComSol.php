@@ -38,7 +38,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     this.Cmp.fecha_comp.setMaxValue(this.sumarDias(this.maestro.fecha, 10));
                 }
                 if (minDate.getDay() === 0) {
-                    this.Cmp.fecha_comp.setMinValue(this.sumarDias(minDate, +1));
+                    this.Cmp.fecha_comp.setMinValue(this.sumarDias(minDate));
                     this.Cmp.fecha_comp.setMaxValue(this.sumarDias(this.maestro.fecha, 10));
                 }else {
                     this.Cmp.fecha_comp.setMinValue(this.sumarDias(minDate, + 1));
