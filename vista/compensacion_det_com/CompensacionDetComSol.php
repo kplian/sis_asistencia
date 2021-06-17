@@ -33,11 +33,11 @@ header("content-type: text/javascript; charset=UTF-8");
                 switch (minDate.getDay()) {
                     case 6:
                         this.Cmp.fecha_comp.setMinValue(this.sumarDias(minDate, +2));
-                        this.Cmp.fecha_comp.setMaxValue(this.sumarDias(this.maestro.fecha, 11));
+                        this.Cmp.fecha_comp.setMaxValue(this.sumarDias(this.maestro.fecha, 16));
                         break;
-                    case 6:
+                    case 0:
                         this.Cmp.fecha_comp.setMinValue(this.sumarDias(minDate, +1));
-                        this.Cmp.fecha_comp.setMaxValue(this.sumarDias(this.maestro.fecha, 10));
+                        this.Cmp.fecha_comp.setMaxValue(this.sumarDias(this.maestro.fecha, 15));
                         break;
                     default:
                         this.Cmp.fecha_comp.setMinValue(this.sumarDias(minDate, + 1));
