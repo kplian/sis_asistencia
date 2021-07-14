@@ -43,6 +43,7 @@ DECLARE
     v_evento            varchar;
     v_record_fecha      record;
     v_id_gestion_actual integer;
+    v_hora_recorrer		time;
 
 BEGIN
 
@@ -383,29 +384,359 @@ BEGIN
     elseif (p_transaccion = 'ASIS_RPT_MAR_GRAL') then
         begin
             --Sentencia de la consulta
-            v_consulta := 'SELECT *
-            				FROM crosstab($$
-                            SELECT
-                                  bio.fecha ||'' | ''|| vfu.desc_funcionario1 ||'' | ''|| ger.nombre_unidad::varchar AS fecha_usr,
-                                  bio.pivot,
-                                  bio.hora
-                            FROM asis.ttransacc_zkb_etl bio
-                            INNER JOIN orga.vfuncionario_cargo vfu ON bio.id_funcionario = vfu.id_funcionario
-                            INNER JOIN orga.tuo ger on ger.id_uo = orga.f_get_uo_departamento(vfu.id_uo, NULL::integer, NULL::date)
-                            WHERE bio.id_funcionario = ' ||
-                          v_parametros.id_funcionario ||
-                          ' AND bio.rango = ''si''   AND bio.fecha::date BETWEEN '''
-                              || v_parametros.fecha_ini || ''' AND ''' ||
-                          v_parametros.fecha_fin || '''
-                            GROUP BY bio.fecha,1,2,3 ORDER BY bio.fecha, bio.pivot
-                            $$,$$
-                            SELECT DISTINCT pivot
-                            FROM asis.ttransacc_zkb_etl
-                            WHERE pivot <> 0 ORDER BY pivot
-                            $$)
-                          	AS (detalles text, hra1 time, hra2 time, hra3 time, hra4 time)';
 
-            raise notice '%',v_consulta;
+
+            CREATE TEMPORARY TABLE tmp_detalle
+            (
+                id_funcionario    integer,
+                fecha			  date,
+                funcionario		  text,
+                departamento	  text,
+                hra1 time,
+                hra2 time,
+                hra3 time,
+                hra4 time,
+                obs  varchar
+            ) ON COMMIT DROP;
+
+            ---raise exception 'entra';
+            for v_record_fecha in (select mes::date as dia
+                                   from generate_series(v_parametros.fecha_ini::date, v_parametros.fecha_fin::date,
+                                                        '1 day'::interval) mes
+                                   order by dia) loop
+
+
+                    for v_asistencia in (
+                        with biometrico as (select   b.id_funcionario,
+                                                     b.fecha::date as fecha,
+                                                     asis.array_sort(string_to_array(pxp.list(to_char(b.event_time::timestamp, 'HH24:MI:SS')),',')) as array_dia
+                                            from asis.tbiometrico_central b
+                                            where b.fecha::date = v_record_fecha.dia
+                                            group by b.id_funcionario,
+                                                     b.fecha::date
+                                            order by fecha  ),
+                             permiso as (
+                                 select p.id_funcionario,
+                                        p.nro_tramite,
+                                        p.fecha_solicitud,
+                                        p.estado,
+                                        p.hro_desde,
+                                        p.hro_hasta,
+                                        t.nombre as tipo_permiso
+                                 from asis.tpermiso p
+                                          inner join asis.ttipo_permiso t on t.id_tipo_permiso = p.id_tipo_permiso
+                                 where p.estado in ('aprobado')
+                                   and p.fecha_solicitud = v_record_fecha.dia
+                                   and p.id_tipo_licencia is null
+                             ),
+                             vacaciones as (
+                                 select v.id_funcionario,
+                                        v.nro_tramite,
+                                        d.fecha_dia,
+                                        d.tiempo
+                                 from asis.tvacacion v
+                                          inner join asis.tvacacion_det d on d.id_vacacion = v.id_vacacion
+                                 where v.estado in ('aprobado')
+                                   and d.fecha_dia = v_record_fecha.dia),
+                             teletrabajo_temp as (
+                                 select t.id_funcionario,
+                                        t.nro_tramite,
+                                        t.fecha_inicio,
+                                        t.fecha_fin,
+                                        t.estado,
+                                        de.fecha
+                                 from asis.ttele_trabajo t
+                                          inner join asis.ttele_trabajo_det de on de.id_tele_trabajo = t.id_tele_trabajo
+                                 where t.estado in ('aprobado')
+                                   and t.tipo_teletrabajo != 'Permanente'
+                                   and de.fecha = v_record_fecha.dia),
+                             teletrabajo_per as (
+                                 select t.id_funcionario,
+                                        t.nro_tramite,
+                                        t.fecha_inicio,
+                                        t.fecha_fin,
+                                        t.estado
+                                 from asis.ttele_trabajo t
+                                 where t.estado in ('aprobado')
+                                   and t.tipo_teletrabajo = 'Permanente'
+                                   and t.fecha_inicio <= v_record_fecha.dia
+                                   and (t.fecha_fin is null or t.fecha_fin >= v_record_fecha.dia)),
+                             baje_medica as (
+                                 select b.id_funcionario,
+                                        b.nro_tramite,
+                                        b.fecha_inicio,
+                                        b.fecha_fin,
+                                        b.estado,
+                                        m.nombre as tipo_baja
+                                 from asis.tbaja_medica b
+                                          inner join asis.ttipo_bm m on m.id_tipo_bm = b.id_tipo_bm
+                                 where v_record_fecha.dia between b.fecha_inicio and b.fecha_fin),
+                             viaticos as (
+                                 select cdoc.id_funcionario,
+                                        cdoc.nro_tramite,
+                                        cdoc.fecha_salida,
+                                        cdoc.fecha_llegada,
+                                        cdoc.estado
+                                 from cd.tcuenta_doc cdoc
+                                 where cdoc.estado_reg = 'activo'
+                                   and cdoc.id_tipo_cuenta_doc = 5
+                                   -- and cdoc.fecha_salida >= v_record_fecha.dia and  cdoc.fecha_llegada <= v_record_fecha.di
+                                   and v_record_fecha.dia between cdoc.fecha_salida and cdoc.fecha_llegada
+                             ),
+                             licencias as (select p.id_funcionario,
+                                                  p.nro_tramite,
+                                                  p.fecha_solicitud,
+                                                  p.estado,
+                                                  p.fecha_inicio,
+                                                  p.fecha_fin,
+                                                  d.nombre as tipo_licencia,
+                                                  d.dias
+                                           from asis.tpermiso p
+                                                    inner join asis.tdetalle_tipo_permiso d
+                                                               on d.id_detalle_tipo_permiso = p.id_tipo_licencia
+                                           where p.estado in ('aprobado', 'vobo')
+                                             and v_record_fecha.dia between p.fecha_inicio and p.fecha_fin
+                                             and p.id_tipo_licencia is not null),
+                             compensacion as (
+                                 select c.id_compensacion,
+                                        c.nro_tramite,
+                                        c.id_funcionario,
+                                        dc.tiempo_comp,
+                                        dc.fecha_comp
+                                 from asis.tcompensacion c
+                                          inner join asis.tcompensacion_det de on de.id_compensacion = c.id_compensacion
+                                          inner join asis.tcompensacion_det_com dc
+                                                     on dc.id_compensacion_det = de.id_compensacion_det
+                                 where dc.tiempo_comp in ('completo', 'mañana')
+                                   and c.estado = 'aprobado'
+                                   and dc.fecha_comp =  v_record_fecha.dia
+                             ),
+                             viaticos_grupo as (
+                                 select cdoc.id_funcionarios,
+                                        cdoc.nro_tramite,
+                                        cdoc.fecha_salida,
+                                        cdoc.fecha_llegada,
+                                        cdoc.estado
+                                 from cd.tcuenta_doc cdoc
+                                 where cdoc.estado_reg = 'activo'
+                                   and cdoc.id_tipo_cuenta_doc = 5
+                                   and  v_record_fecha.dia::date between cdoc.fecha_salida and cdoc.fecha_llegada
+                             )
+                        select fc.id_funcionario,
+                               fc.codigo,
+                               fc.funcioanrio,
+                               fc.cargo,
+                               fc.id_gerencia,
+                               fc.codigo_ger,
+                               fc.gerencia,
+                               fc.nombre_uo_centro as departamento,
+                               fc.ruta,
+                               fc.nivel,
+                               bo.fecha,
+                               bo.array_dia,
+                               pe.nro_tramite      as permiso,
+                               pe.hro_desde        as hro_desde_permiso,
+                               pe.hro_hasta        as hro_hasta_permiso,
+                               pe.tipo_permiso,
+                               va.nro_tramite      as vacacion,
+                               va.tiempo,
+                               va.fecha_dia,
+                               tt.nro_tramite      as teletrabajo_temp,
+                               ba.nro_tramite      as baja_medica,
+                               vi.nro_tramite      as viatico,
+                               tp.nro_tramite      as teletrabajo_perm,
+                               li.nro_tramite      as lincencia,
+                               co.nro_tramite      as compesacion,
+                               vg.nro_tramite      as viatico_grupo
+
+                        from asis.vfuncionario_centro_costo fc
+                                 left join biometrico bo on bo.id_funcionario = fc.id_funcionario
+                                 left join permiso pe on pe.id_funcionario = fc.id_funcionario
+                                 left join vacaciones va on va.id_funcionario = fc.id_funcionario
+                                 left join teletrabajo_temp tt on tt.id_funcionario = fc.id_funcionario
+                                 left join teletrabajo_per tp on tp.id_funcionario = fc.id_funcionario
+                                 left join baje_medica ba on ba.id_funcionario = fc.id_funcionario
+                                 left join viaticos vi on vi.id_funcionario = fc.id_funcionario
+                                 left join licencias li on li.id_funcionario = fc.id_funcionario
+                                 left join compensacion co on co.id_funcionario = fc.id_funcionario
+                                 left join viaticos_grupo vg on fc.id_funcionario = any (vg.id_funcionarios)
+                        where fc.fecha_asignacion <= v_record_fecha.dia and (fc.fecha_finalizacion is null or fc.fecha_finalizacion >= v_record_fecha.dia)
+                          and fc.id_funcionario = v_parametros.id_funcionario)
+                        loop
+
+                            v_dia = case extract(dow from v_record_fecha.dia::date)
+                                        when 1 then 'lunes'
+                                        when 2 then 'martes'
+                                        when 3 then 'miercoles'
+                                        when 4 then 'jueves'
+                                        when 5 then 'viernes'
+                                        when 6 then 'sabado'
+                                        else 'domingo'
+                                end;
+
+                            /*  v_consulta_rango = 'select rh.hora_entrada
+                                          from asis.trango_horario rh
+                                          inner join asis.tasignar_rango ar on ar.id_rango_horario = rh.id_rango_horario
+                                          where  ar.desde <=''' || v_record_fecha.dia ||
+                                                 '''::date and (ar.hasta is null or ar.hasta >= '''
+                                                     || v_record_fecha.dia || '''::date) and ar.id_uo = ' ||
+                                                 v_asistencia.id_gerencia || ' and rh.' || v_dia || ' = ''si'' ';
+
+                              execute (v_consulta_rango) into v_hora;*/
+
+
+                            if(array_length(v_asistencia.array_dia, 1) > 0)then
+
+                                foreach v_hora_recorrer in array v_asistencia.array_dia loop
+
+                                        ----
+                                        if (v_hora_recorrer between '00:00:00'::time and  '09:00:00'::time ) then
+
+                                            insert into tmp_detalle(   id_funcionario,
+                                                                       funcionario,
+                                                                       departamento,
+                                                                       fecha,
+                                                                       hra1
+                                            )values(
+                                                       v_asistencia.id_funcionario,
+                                                       v_asistencia.funcioanrio,
+                                                       v_asistencia.departamento,
+                                                       v_record_fecha.dia,
+                                                       v_hora_recorrer
+                                                   );
+                                        else
+
+                                            if not exists  (select 1
+                                                            from  tmp_detalle
+                                                            where id_funcionario =  v_asistencia.id_funcionario
+                                                              and fecha =   v_record_fecha.dia)  then
+
+                                                insert into tmp_detalle(   id_funcionario,
+                                                                           funcionario,
+                                                                           departamento,
+                                                                           fecha,
+                                                                           hra1
+                                                )values(
+                                                           v_asistencia.id_funcionario,
+                                                           v_asistencia.funcioanrio,
+                                                           v_asistencia.departamento,
+                                                           v_record_fecha.dia,
+                                                           v_hora_recorrer
+                                                       );
+                                            end if ;
+
+                                        end if;
+
+
+
+
+                                        if (v_dia = 'viernes') then
+
+
+                                            if (v_hora_recorrer between  '14:30:00'::time and '16:00:00'::time   ) then
+
+                                                update  tmp_detalle set
+                                                    hra2 =  v_hora_recorrer
+                                                where id_funcionario = v_asistencia.id_funcionario and fecha = v_record_fecha.dia;
+                                            else
+
+                                                update  tmp_detalle set
+                                                    hra2 =  v_hora_recorrer
+                                                where id_funcionario = v_asistencia.id_funcionario and fecha = v_record_fecha.dia;
+
+                                            end if;
+
+
+                                        else
+
+                                            if (v_hora_recorrer between '16:00:00'::time and '23:00:00'::time  ) then
+
+                                                update  tmp_detalle set
+                                                    hra2 =  v_hora_recorrer
+                                                where id_funcionario = v_asistencia.id_funcionario and fecha = v_record_fecha.dia;
+                                            else
+
+                                                update  tmp_detalle set
+                                                    hra2 =  v_hora_recorrer
+                                                where id_funcionario = v_asistencia.id_funcionario and fecha = v_record_fecha.dia;
+
+                                            end if;
+                                        end if;
+                                        ----
+
+                                    end loop;
+
+                            else
+
+                                if not exists(select *
+                                              from param.tferiado f
+                                                       inner join param.tlugar l on l.id_lugar = f.id_lugar
+                                              where l.codigo in ('BO')
+                                                and (EXTRACT(MONTH from f.fecha))::integer =
+                                                    (EXTRACT(MONTH from v_record_fecha.dia ::date))::integer
+                                                and (EXTRACT(DAY from f.fecha))::integer =
+                                                    (EXTRACT(DAY from v_record_fecha.dia))
+                                                and f.id_gestion = v_id_gestion_actual) then
+
+                                    if (extract(dow from v_record_fecha.dia::date) not in (6, 0)) then
+
+                                        if (v_asistencia.teletrabajo_temp is not null) then
+
+                                            insert into tmp_detalle(   id_funcionario,
+                                                                       funcionario,
+                                                                       departamento,
+                                                                       fecha,
+                                                                       hra1,
+                                                                       hra2
+                                            )values(
+                                                       v_asistencia.id_funcionario,
+                                                       v_asistencia.funcioanrio,
+                                                       v_asistencia.departamento,
+                                                       v_record_fecha.dia,
+                                                       '08:00:00'::time,
+                                                       '16:00:00'::time
+                                                   );
+
+                                        end if;
+
+                                        if (v_asistencia.teletrabajo_perm is not null) then
+
+                                            insert into tmp_detalle(   id_funcionario,
+                                                                       funcionario,
+                                                                       departamento,
+                                                                       fecha,
+                                                                       hra1,
+                                                                       hra2
+                                            )values(
+                                                       v_asistencia.id_funcionario,
+                                                       v_asistencia.funcioanrio,
+                                                       v_asistencia.departamento,
+                                                       v_record_fecha.dia,
+                                                       '08:00:00'::time,
+                                                       '16:00:00'::time
+                                                   );
+                                        end if;
+
+
+                                    end if;
+                                end if;
+
+
+                            end if;
+
+                        end loop;
+
+                end loop;
+
+
+
+            v_consulta := 'select fecha ||'' | ''|| funcionario ||'' | ''|| departamento as detalles,
+                                 hra1,
+                                 hra2,
+                                 hra3,
+                                 hra4
+                          from tmp_detalle ';
+
             --Devuelve la respuesta
             return v_consulta;
         end;
@@ -1103,17 +1434,19 @@ BEGIN
                                 v.fecha_fin,
                                 v.estado
                          from asis.tvacacion v
+                                  inner join asis.tvacacion_det d on d.id_vacacion = v.id_vacacion
                          where v.estado in ('aprobado')
-                           and v.fecha_inicio <= v_parametros.fecha::date
-                           and v.fecha_fin >= v_parametros.fecha::date),
+                           and d.fecha_dia = v_parametros.fecha::date and d.tiempo in ('mañana','completo')),
                      permiso as (
                          select p.id_funcionario,
                                 p.nro_tramite,
                                 p.fecha_solicitud,
                                 p.estado,
                                 p.hro_desde,
-                                p.hro_hasta
+                                p.hro_hasta,
+                                t.nombre as tipo_permiso
                          from asis.tpermiso p
+                                  inner join asis.ttipo_permiso t on t.id_tipo_permiso = p.id_tipo_permiso
                          where p.estado in ('aprobado')
                            and p.fecha_solicitud = v_parametros.fecha::date
                            and p.id_tipo_licencia is null
@@ -1189,6 +1522,17 @@ BEGIN
                          where dc.tiempo_comp in ('completo', 'mañana')
                            and c.estado = 'aprobado'
                            and dc.fecha_comp = v_parametros.fecha::date
+                     ),
+                     viaticos_grupo as (
+                         select cdoc.id_funcionarios,
+                                cdoc.nro_tramite,
+                                cdoc.fecha_salida,
+                                cdoc.fecha_llegada,
+                                cdoc.estado
+                         from cd.tcuenta_doc cdoc
+                         where cdoc.estado_reg = 'activo'
+                           and cdoc.id_tipo_cuenta_doc = 5
+                           and v_parametros.fecha::date between cdoc.fecha_salida and cdoc.fecha_llegada
                      )
                 select fc.id_funcionario,
                        fc.funcioanrio,
@@ -1206,6 +1550,7 @@ BEGIN
                        pe.estado           as permiso_estado,
                        pe.hro_desde,
                        pe.hro_hasta,
+                       pe.tipo_permiso,
                        ba.nro_tramite      as baje_medica,
                        ba.estado           as baje_medica_estado,
                        ba.tipo_baja,
@@ -1217,7 +1562,8 @@ BEGIN
                        li.estado           as armonia_estado,
                        tt.nro_tramite      as teletrabajo_temp,
                        tp.nro_tramite      as teletrabajo_per,
-                       co.nro_tramite      as compesacion
+                       co.nro_tramite      as compesacion,
+                       vg.nro_tramite      as viatico_grupo
                 from asis.vfuncionario_centro_costo fc
                          left join biometrico bo on bo.pin = fc.codigo
                          left join vacaciones va on va.id_funcionario = fc.id_funcionario
@@ -1228,6 +1574,7 @@ BEGIN
                          left join viaticos vi on vi.id_funcionario = fc.id_funcionario
                          left join licencias li on li.id_funcionario = fc.id_funcionario
                          left join compensacion co on co.id_funcionario = fc.id_funcionario
+                         left join viaticos_grupo vg on fc.id_funcionario = any (vg.id_funcionarios)
                 where fc.fecha_asignacion <= v_parametros.fecha::date
                   and (fc.fecha_finalizacion is null or
                        fc.fecha_finalizacion >= v_parametros.fecha::date)
@@ -1317,7 +1664,9 @@ BEGIN
                                             v_asistencia.nivel);
                                 end if;
                             end if;
+
                             if (v_asistencia.cargo != 'Conductor Operador De Grúa') then
+
                                 if (v_asistencia.cargo like '%Operador%') then
                                     insert into tmp_asitencia(codigo,
                                                               fecha,
@@ -1370,7 +1719,68 @@ BEGIN
                                             v_asistencia.ruta,
                                             v_asistencia.nivel);
                                 end if;
+
+
                             end if;
+                            if (v_asistencia.baje_medica is not null) then
+                                insert into tmp_asitencia(codigo,
+                                                          fecha,
+                                                          gerencia,
+                                                          departamento,
+                                                          codigo_funcionario,
+                                                          id_funcionario,
+                                                          funcionario,
+                                                          cargo,
+                                                          observacion,
+                                                          evento,
+                                                          baje_medica,
+                                                          ruta,
+                                                          nivel)
+                                values (v_asistencia.codigo_ger,
+                                        v_parametros.fecha::date,
+                                        v_asistencia.gerencia,
+                                        v_asistencia.departamento,
+                                        v_asistencia.codigo,
+                                        v_asistencia.id_funcionario,
+                                        v_asistencia.funcioanrio,
+                                        v_asistencia.cargo,
+                                        'LPE', --'Baja Medica (' || v_asistencia.tipo_baja || ') Esatdo ' ||v_asistencia.baje_medica_estado,
+                                        'Licencia por enfermedad (LPE)',
+                                        'si',
+                                        v_asistencia.ruta,
+                                        v_asistencia.nivel);
+                            end if;
+
+
+                            if (v_asistencia.teletrabajo_temp is not null) then
+                                insert into tmp_asitencia(codigo,
+                                                          fecha,
+                                                          gerencia,
+                                                          departamento,
+                                                          codigo_funcionario,
+                                                          id_funcionario,
+                                                          funcionario,
+                                                          cargo,
+                                                          observacion,
+                                                          evento,
+                                                          teletrabajo,
+                                                          ruta,
+                                                          nivel)
+                                values (v_asistencia.codigo_ger,
+                                        v_parametros.fecha::date,
+                                        v_asistencia.gerencia,
+                                        v_asistencia.departamento,
+                                        v_asistencia.codigo,
+                                        v_asistencia.id_funcionario,
+                                        v_asistencia.funcioanrio,
+                                        v_asistencia.cargo,
+                                        'Teletrabajo',
+                                        'Personas en teletrabajo',
+                                        'si',
+                                        v_asistencia.ruta,
+                                        v_asistencia.nivel);
+                            end if;
+
                             if not exists(
                                     select 1
                                     from tmp_asitencia t
@@ -1441,33 +1851,38 @@ BEGIN
                                     v_asistencia.ruta,
                                     v_asistencia.nivel);
                         end if;
-                        if (v_asistencia.teletrabajo_temp is not null) then
-                            insert into tmp_asitencia(codigo,
-                                                      fecha,
-                                                      gerencia,
-                                                      departamento,
-                                                      codigo_funcionario,
-                                                      id_funcionario,
-                                                      funcionario,
-                                                      cargo,
-                                                      observacion,
-                                                      evento,
-                                                      teletrabajo,
-                                                      ruta,
-                                                      nivel)
-                            values (v_asistencia.codigo_ger,
-                                    v_parametros.fecha::date,
-                                    v_asistencia.gerencia,
-                                    v_asistencia.departamento,
-                                    v_asistencia.codigo,
-                                    v_asistencia.id_funcionario,
-                                    v_asistencia.funcioanrio,
-                                    v_asistencia.cargo,
-                                    'Teletrabajo',
-                                    'Personas en teletrabajo',
-                                    'si',
-                                    v_asistencia.ruta,
-                                    v_asistencia.nivel);
+                        if not exists(
+                                select 1
+                                from tmp_asitencia t
+                                where t.id_funcionario = v_asistencia.id_funcionario) then
+                            if (v_asistencia.teletrabajo_temp is not null) then
+                                insert into tmp_asitencia(codigo,
+                                                          fecha,
+                                                          gerencia,
+                                                          departamento,
+                                                          codigo_funcionario,
+                                                          id_funcionario,
+                                                          funcionario,
+                                                          cargo,
+                                                          observacion,
+                                                          evento,
+                                                          teletrabajo,
+                                                          ruta,
+                                                          nivel)
+                                values (v_asistencia.codigo_ger,
+                                        v_parametros.fecha::date,
+                                        v_asistencia.gerencia,
+                                        v_asistencia.departamento,
+                                        v_asistencia.codigo,
+                                        v_asistencia.id_funcionario,
+                                        v_asistencia.funcioanrio,
+                                        v_asistencia.cargo,
+                                        'Teletrabajo',
+                                        'Personas en teletrabajo',
+                                        'si',
+                                        v_asistencia.ruta,
+                                        v_asistencia.nivel);
+                            end if;
                         end if;
                         if (v_asistencia.teletrabajo_per is not null) then
                             insert into tmp_asitencia(codigo,
@@ -1525,33 +1940,71 @@ BEGIN
                                     v_asistencia.ruta,
                                     v_asistencia.nivel);
                         end if;
-                        if (v_asistencia.viatico is not null) then
-                            insert into tmp_asitencia(codigo,
-                                                      fecha,
-                                                      gerencia,
-                                                      departamento,
-                                                      codigo_funcionario,
-                                                      id_funcionario,
-                                                      funcionario,
-                                                      cargo,
-                                                      observacion,
-                                                      evento,
-                                                      viatico,
-                                                      ruta,
-                                                      nivel)
-                            values (v_asistencia.codigo_ger,
-                                    v_parametros.fecha::date,
-                                    v_asistencia.gerencia,
-                                    v_asistencia.departamento,
-                                    v_asistencia.codigo,
-                                    v_asistencia.id_funcionario,
-                                    v_asistencia.funcioanrio,
-                                    v_asistencia.cargo,
-                                    'CDV',--'Comisión de viaje - Esatdo ' || v_asistencia.vacacion_estado,
-                                    'Comisión de viaje (CDV)',
-                                    'si',
-                                    v_asistencia.ruta,
-                                    v_asistencia.nivel);
+                        if not exists(
+                                select 1
+                                from tmp_asitencia t
+                                where t.id_funcionario = v_asistencia.id_funcionario) then
+                            if (v_asistencia.viatico is not null) then
+                                insert into tmp_asitencia(codigo,
+                                                          fecha,
+                                                          gerencia,
+                                                          departamento,
+                                                          codigo_funcionario,
+                                                          id_funcionario,
+                                                          funcionario,
+                                                          cargo,
+                                                          observacion,
+                                                          evento,
+                                                          viatico,
+                                                          ruta,
+                                                          nivel)
+                                values (v_asistencia.codigo_ger,
+                                        v_parametros.fecha::date,
+                                        v_asistencia.gerencia,
+                                        v_asistencia.departamento,
+                                        v_asistencia.codigo,
+                                        v_asistencia.id_funcionario,
+                                        v_asistencia.funcioanrio,
+                                        v_asistencia.cargo,
+                                        'CDV',--'Comisión de viaje - Esatdo ' || v_asistencia.vacacion_estado,
+                                        'Comisión de viaje (CDV)',
+                                        'si',
+                                        v_asistencia.ruta,
+                                        v_asistencia.nivel);
+                            end if;
+                        end if;
+                        if not exists(
+                                select 1
+                                from tmp_asitencia t
+                                where t.id_funcionario = v_asistencia.id_funcionario) then
+                            if (v_asistencia.viatico_grupo is not null) then
+                                insert into tmp_asitencia(codigo,
+                                                          fecha,
+                                                          gerencia,
+                                                          departamento,
+                                                          codigo_funcionario,
+                                                          id_funcionario,
+                                                          funcionario,
+                                                          cargo,
+                                                          observacion,
+                                                          evento,
+                                                          viatico,
+                                                          ruta,
+                                                          nivel)
+                                values (v_asistencia.codigo_ger,
+                                        v_parametros.fecha::date,
+                                        v_asistencia.gerencia,
+                                        v_asistencia.departamento,
+                                        v_asistencia.codigo,
+                                        v_asistencia.id_funcionario,
+                                        v_asistencia.funcioanrio,
+                                        v_asistencia.cargo,
+                                        'CDV',--'Comisión de viaje - Esatdo ' || v_asistencia.vacacion_estado,
+                                        'Comisión de viaje (CDV)',
+                                        'si',
+                                        v_asistencia.ruta,
+                                        v_asistencia.nivel);
+                            end if;
                         end if;
                         if (v_asistencia.armonia is not null) then
                             insert into tmp_asitencia(codigo,
@@ -1684,11 +2137,46 @@ BEGIN
                                     v_asistencia.id_funcionario,
                                     v_asistencia.funcioanrio,
                                     v_asistencia.cargo,
-                                    'LPV',--''Vacación',
+                                    'LPC',--''Vacación',
                                     'Licencia por Compensacion (LPC)',
                                     'si',
                                     v_asistencia.ruta,
                                     v_asistencia.nivel);
+                        end if;
+                        if not exists(
+                                select 1
+                                from tmp_asitencia t
+                                where t.id_funcionario = v_asistencia.id_funcionario) then
+                            if (v_asistencia.permiso is not null) then
+                                --if(v_asistencia.tipo_permiso = 'Trabajo')then
+                                insert into tmp_asitencia(codigo,
+                                                          fecha,
+                                                          gerencia,
+                                                          departamento,
+                                                          codigo_funcionario,
+                                                          id_funcionario,
+                                                          funcionario,
+                                                          cargo,
+                                                          observacion,
+                                                          evento,
+                                                          vacacion,
+                                                          ruta,
+                                                          nivel)
+                                values (v_asistencia.codigo_ger,
+                                        v_parametros.fecha::date,
+                                        v_asistencia.gerencia,
+                                        v_asistencia.departamento,
+                                        v_asistencia.codigo,
+                                        v_asistencia.id_funcionario,
+                                        v_asistencia.funcioanrio,
+                                        v_asistencia.cargo,
+                                        'Permiso', --|| v_asistencia.hro_desde || ' - ' || v_asistencia.hro_hasta,
+                                        'Personas en oficina',
+                                        'si',
+                                        v_asistencia.ruta,
+                                        v_asistencia.nivel);
+                                --   end if;
+                            end if;
                         end if;
                         if not exists(
                                 select 1
@@ -2093,18 +2581,18 @@ BEGIN
             where p.dev_alias in
                   ('ACCESO_SOT1', 'barrera1', 'barrera2', 'barrera3', 'barrera4', 'ALM_ACC260')
               and to_char(p.fecha, 'DD/MM/YYYY')::date between v_parametros.fecha_ini::date and v_parametros.fecha_fin::date;
-
-            insert into tmp_biometrico
-            (pin,
-             fecha,
-             hora)
-            select h.pin::varchar                               as pin,
-                   h.tiempo_evento::date                        as fecha,
-                   to_char(h.tiempo_evento, 'HH24:MI:SS')::time as hora
-            from asis.thuella_sotano h
-            where h.dispositivo = 'FV18_SOT_ASIST'
-              and h.tiempo_evento::date between v_parametros.fecha_ini::date and v_parametros.fecha_fin::date
-              and h.pin is not null;
+            /*
+                        insert into tmp_biometrico
+                        (pin,
+                         fecha,
+                         hora)
+                        select h.pin::varchar                               as pin,
+                               h.tiempo_evento::date                        as fecha,
+                               to_char(h.tiempo_evento, 'HH24:MI:SS')::time as hora
+                        from asis.thuella_sotano h
+                        where h.dispositivo = 'FV18_SOT_ASIST'
+                          and h.tiempo_evento::date between v_parametros.fecha_ini::date and v_parametros.fecha_fin::date
+                          and h.pin is not null;*/
 
 
             /*           insert into tmp_biometrico
@@ -2163,8 +2651,10 @@ BEGIN
                                                          p.fecha_solicitud,
                                                          p.estado,
                                                          p.hro_desde,
-                                                         p.hro_hasta
+                                                         p.hro_hasta,
+                                                         t.nombre as tipo_permiso
                                                   from asis.tpermiso p
+                                                           inner join asis.ttipo_permiso t on t.id_tipo_permiso = p.id_tipo_permiso
                                                   where p.estado in ('aprobado')
                                                     and p.fecha_solicitud = v_record_fecha.dia
                                                     and p.id_tipo_licencia is null
@@ -2187,7 +2677,7 @@ BEGIN
                                                          de.fecha
                                                   from asis.ttele_trabajo t
                                                            inner join asis.ttele_trabajo_det de on de.id_tele_trabajo = t.id_tele_trabajo
-                                                  where t.estado in ('aprobado', 'vobo')
+                                                  where t.estado in ('aprobado')
                                                     and t.tipo_teletrabajo != 'Permanente'
                                                     and de.fecha = v_record_fecha.dia),
                                               teletrabajo_per as (
@@ -2197,7 +2687,7 @@ BEGIN
                                                          t.fecha_fin,
                                                          t.estado
                                                   from asis.ttele_trabajo t
-                                                  where t.estado in ('aprobado', 'vobo')
+                                                  where t.estado in ('aprobado')
                                                     and t.tipo_teletrabajo = 'Permanente'
                                                     and t.fecha_inicio <= v_record_fecha.dia
                                                     and (t.fecha_fin is null or t.fecha_fin >= v_record_fecha.dia)),
@@ -2220,6 +2710,7 @@ BEGIN
                                                   from cd.tcuenta_doc cdoc
                                                   where cdoc.estado_reg = 'activo'
                                                     and cdoc.id_tipo_cuenta_doc = 5
+                                                    -- and cdoc.fecha_salida >= v_record_fecha.dia and  cdoc.fecha_llegada <= v_record_fecha.di
                                                     and v_record_fecha.dia between cdoc.fecha_salida and cdoc.fecha_llegada
                                               ),
                                               licencias as (select p.id_funcionario,
@@ -2249,6 +2740,17 @@ BEGIN
                                                   where dc.tiempo_comp in ('completo', 'mañana')
                                                     and c.estado = 'aprobado'
                                                     and dc.fecha_comp =  v_record_fecha.dia
+                                              ),
+                                              viaticos_grupo as (
+                                                  select cdoc.id_funcionarios,
+                                                         cdoc.nro_tramite,
+                                                         cdoc.fecha_salida,
+                                                         cdoc.fecha_llegada,
+                                                         cdoc.estado
+                                                  from cd.tcuenta_doc cdoc
+                                                  where cdoc.estado_reg = 'activo'
+                                                    and cdoc.id_tipo_cuenta_doc = 5
+                                                    and  v_record_fecha.dia::date between cdoc.fecha_salida and cdoc.fecha_llegada
                                               )
                                          select fc.id_funcionario,
                                                 fc.codigo,
@@ -2265,6 +2767,7 @@ BEGIN
                                                 pe.nro_tramite      as permiso,
                                                 pe.hro_desde        as hro_desde_permiso,
                                                 pe.hro_hasta        as hro_hasta_permiso,
+                                                pe.tipo_permiso,
                                                 va.nro_tramite      as vacacion,
                                                 va.tiempo,
                                                 va.fecha_dia,
@@ -2273,7 +2776,9 @@ BEGIN
                                                 vi.nro_tramite      as viatico,
                                                 tp.nro_tramite      as teletrabajo_perm,
                                                 li.nro_tramite      as lincencia,
-                                                co.nro_tramite      as compesacion
+                                                co.nro_tramite      as compesacion,
+                                                vg.nro_tramite      as viatico_grupo
+
                                          from asis.vfuncionario_centro_costo fc
                                                   left join biometrico bo on bo.pin = fc.codigo
                                                   left join permiso pe on pe.id_funcionario = fc.id_funcionario
@@ -2284,6 +2789,7 @@ BEGIN
                                                   left join viaticos vi on vi.id_funcionario = fc.id_funcionario
                                                   left join licencias li on li.id_funcionario = fc.id_funcionario
                                                   left join compensacion co on co.id_funcionario = fc.id_funcionario
+                                                  left join viaticos_grupo vg on fc.id_funcionario = any (vg.id_funcionarios)
 
                                          where fc.fecha_asignacion <= v_record_fecha.dia
                                            and (fc.fecha_finalizacion is null
@@ -2375,7 +2881,7 @@ BEGIN
                                                     v_asistencia.cargo,
                                                     v_asistencia.hora,-- v_asistencia.hro_desde_permiso::time,
                                                     '00:00:00'::time,
-                                                    'si',
+                                                    'no',
                                                     v_asistencia.ruta,
                                                     v_asistencia.nivel,
                                                     'Permiso');
@@ -2449,7 +2955,66 @@ BEGIN
                                                     v_asistencia.nivel,
                                                     'Oficina');
                                         end if;
+                                        if (v_asistencia.baja_medica is not null) then
+                                            insert into tmp_control_total(codigo,
+                                                                          fecha,
+                                                                          gerencia,
+                                                                          departamento,
+                                                                          codigo_funcionario,
+                                                                          id_funcionario,
+                                                                          funcionario,
+                                                                          cargo,
+                                                                          hora,
+                                                                          hora_cal,
+                                                                          ruta,
+                                                                          nivel_ordernar,
+                                                                          motivo)
+                                            values (v_asistencia.codigo_ger,
+                                                    v_record_fecha.dia::date,
+                                                    v_asistencia.gerencia,
+                                                    v_asistencia.departamento,
+                                                    v_asistencia.codigo,
+                                                    v_asistencia.id_funcionario,
+                                                    v_asistencia.funcioanrio,
+                                                    v_asistencia.cargo,
+                                                    '00:00:00'::time,
+                                                    '00:00:00'::time,
+                                                    v_asistencia.ruta,
+                                                    v_asistencia.nivel,
+                                                    'Baja Medica');
+                                        end if;
                                     end if;
+
+                                    if (v_asistencia.teletrabajo_temp is not null) then
+                                        insert into tmp_control_total(codigo,
+                                                                      fecha,
+                                                                      gerencia,
+                                                                      departamento,
+                                                                      codigo_funcionario,
+                                                                      id_funcionario,
+                                                                      funcionario,
+                                                                      cargo,
+                                                                      hora,
+                                                                      hora_cal,
+                                                                      ruta,
+                                                                      nivel_ordernar,
+                                                                      motivo)
+                                        values (v_asistencia.codigo_ger,
+                                                v_record_fecha.dia::date,
+                                                v_asistencia.gerencia,
+                                                v_asistencia.departamento,
+                                                v_asistencia.codigo,
+                                                v_asistencia.id_funcionario,
+                                                v_asistencia.funcioanrio,
+                                                v_asistencia.cargo,
+                                                '00:00:00'::time,
+                                                '00:00:00'::time,
+                                                v_asistencia.ruta,
+                                                v_asistencia.nivel,
+                                                'Teletrabajo');
+                                    end if;
+
+
                                     if not exists(
                                             select 1
                                             from tmp_control_total t
@@ -2588,61 +3153,113 @@ BEGIN
                                                     v_asistencia.nivel,
                                                     'Programa Armonía');
                                         end if;
-                                        if (v_asistencia.viatico is not null) then
-                                            insert into tmp_control_total(codigo,
-                                                                          fecha,
-                                                                          gerencia,
-                                                                          departamento,
-                                                                          codigo_funcionario,
-                                                                          id_funcionario,
-                                                                          funcionario,
-                                                                          cargo,
-                                                                          hora,
-                                                                          hora_cal,
-                                                                          ruta,
-                                                                          nivel_ordernar,
-                                                                          motivo)
-                                            values (v_asistencia.codigo_ger,
-                                                    v_record_fecha.dia::date,
-                                                    v_asistencia.gerencia,
-                                                    v_asistencia.departamento,
-                                                    v_asistencia.codigo,
-                                                    v_asistencia.id_funcionario,
-                                                    v_asistencia.funcioanrio,
-                                                    v_asistencia.cargo,
-                                                    '00:00:00'::time,
-                                                    '00:00:00'::time,
-                                                    v_asistencia.ruta,
-                                                    v_asistencia.nivel,
-                                                    'Viaticos');
+                                        if not exists(
+                                                select 1
+                                                from tmp_control_total t
+                                                where t.id_funcionario =
+                                                      v_asistencia.id_funcionario
+                                                  and t.fecha = v_record_fecha.dia) then
+
+                                            if (v_asistencia.viatico is not null) then
+                                                insert into tmp_control_total(codigo,
+                                                                              fecha,
+                                                                              gerencia,
+                                                                              departamento,
+                                                                              codigo_funcionario,
+                                                                              id_funcionario,
+                                                                              funcionario,
+                                                                              cargo,
+                                                                              hora,
+                                                                              hora_cal,
+                                                                              ruta,
+                                                                              nivel_ordernar,
+                                                                              motivo)
+                                                values (v_asistencia.codigo_ger,
+                                                        v_record_fecha.dia::date,
+                                                        v_asistencia.gerencia,
+                                                        v_asistencia.departamento,
+                                                        v_asistencia.codigo,
+                                                        v_asistencia.id_funcionario,
+                                                        v_asistencia.funcioanrio,
+                                                        v_asistencia.cargo,
+                                                        '00:00:00'::time,
+                                                        '00:00:00'::time,
+                                                        v_asistencia.ruta,
+                                                        v_asistencia.nivel,
+                                                        'Viaticos');
+                                            end if;
                                         end if;
-                                        if (v_asistencia.teletrabajo_temp is not null) then
-                                            insert into tmp_control_total(codigo,
-                                                                          fecha,
-                                                                          gerencia,
-                                                                          departamento,
-                                                                          codigo_funcionario,
-                                                                          id_funcionario,
-                                                                          funcionario,
-                                                                          cargo,
-                                                                          hora,
-                                                                          hora_cal,
-                                                                          ruta,
-                                                                          nivel_ordernar,
-                                                                          motivo)
-                                            values (v_asistencia.codigo_ger,
-                                                    v_record_fecha.dia::date,
-                                                    v_asistencia.gerencia,
-                                                    v_asistencia.departamento,
-                                                    v_asistencia.codigo,
-                                                    v_asistencia.id_funcionario,
-                                                    v_asistencia.funcioanrio,
-                                                    v_asistencia.cargo,
-                                                    '00:00:00'::time,
-                                                    '00:00:00'::time,
-                                                    v_asistencia.ruta,
-                                                    v_asistencia.nivel,
-                                                    'Teletrabajo');
+                                        if not exists(
+                                                select 1
+                                                from tmp_control_total t
+                                                where t.id_funcionario =
+                                                      v_asistencia.id_funcionario
+                                                  and t.fecha = v_record_fecha.dia) then
+
+                                            if (v_asistencia.viatico_grupo is not null) then
+                                                insert into tmp_control_total(codigo,
+                                                                              fecha,
+                                                                              gerencia,
+                                                                              departamento,
+                                                                              codigo_funcionario,
+                                                                              id_funcionario,
+                                                                              funcionario,
+                                                                              cargo,
+                                                                              hora,
+                                                                              hora_cal,
+                                                                              ruta,
+                                                                              nivel_ordernar,
+                                                                              motivo)
+                                                values (v_asistencia.codigo_ger,
+                                                        v_record_fecha.dia::date,
+                                                        v_asistencia.gerencia,
+                                                        v_asistencia.departamento,
+                                                        v_asistencia.codigo,
+                                                        v_asistencia.id_funcionario,
+                                                        v_asistencia.funcioanrio,
+                                                        v_asistencia.cargo,
+                                                        '00:00:00'::time,
+                                                        '00:00:00'::time,
+                                                        v_asistencia.ruta,
+                                                        v_asistencia.nivel,
+                                                        'Viaticos');
+                                            end if;
+                                        end if;
+
+                                        if not exists(
+                                                select 1
+                                                from tmp_control_total t
+                                                where t.id_funcionario =
+                                                      v_asistencia.id_funcionario
+                                                  and t.fecha = v_record_fecha.dia) then
+                                            if (v_asistencia.teletrabajo_temp is not null) then
+                                                insert into tmp_control_total(codigo,
+                                                                              fecha,
+                                                                              gerencia,
+                                                                              departamento,
+                                                                              codigo_funcionario,
+                                                                              id_funcionario,
+                                                                              funcionario,
+                                                                              cargo,
+                                                                              hora,
+                                                                              hora_cal,
+                                                                              ruta,
+                                                                              nivel_ordernar,
+                                                                              motivo)
+                                                values (v_asistencia.codigo_ger,
+                                                        v_record_fecha.dia::date,
+                                                        v_asistencia.gerencia,
+                                                        v_asistencia.departamento,
+                                                        v_asistencia.codigo,
+                                                        v_asistencia.id_funcionario,
+                                                        v_asistencia.funcioanrio,
+                                                        v_asistencia.cargo,
+                                                        '00:00:00'::time,
+                                                        '00:00:00'::time,
+                                                        v_asistencia.ruta,
+                                                        v_asistencia.nivel,
+                                                        'Teletrabajo');
+                                            end if;
                                         end if;
                                         if (v_asistencia.teletrabajo_perm is not null) then
                                             insert into tmp_control_total(codigo,
@@ -2708,10 +3325,6 @@ BEGIN
                                                 v_asistencia.cargo like '%Operador%' or
                                                 v_asistencia.cargo like '%Conductor%') then
 
-                                                /*if (v_asistencia.cargo in ('Operador', 'Conductor')) then
-                                                    v_evento = v_asistencia.cargo;
-                                                end if;*/
-
                                                 insert into tmp_control_total(codigo,
                                                                               fecha,
                                                                               gerencia,
@@ -2747,6 +3360,47 @@ BEGIN
                                             end if;
 
                                         end if;
+                                        if not exists(
+                                                select 1
+                                                from tmp_control_total t
+                                                where t.id_funcionario =
+                                                      v_asistencia.id_funcionario
+                                                  and t.fecha = v_record_fecha.dia) then
+                                            if (v_asistencia.permiso is not null) then
+                                                if(v_asistencia.tipo_permiso = 'Trabajo')then
+                                                    insert into tmp_control_total(codigo,
+                                                                                  fecha,
+                                                                                  gerencia,
+                                                                                  departamento,
+                                                                                  codigo_funcionario,
+                                                                                  id_funcionario,
+                                                                                  funcionario,
+                                                                                  cargo,
+                                                                                  hora,
+                                                                                  hora_cal,
+                                                                                  retraso,
+                                                                                  ruta,
+                                                                                  nivel_ordernar,
+                                                                                  motivo)
+                                                    values (v_asistencia.codigo_ger,
+                                                            v_record_fecha.dia::date,
+                                                            v_asistencia.gerencia,
+                                                            v_asistencia.departamento,
+                                                            v_asistencia.codigo,
+                                                            v_asistencia.id_funcionario,
+                                                            v_asistencia.funcioanrio,
+                                                            v_asistencia.cargo,
+                                                            v_asistencia.hora,-- v_asistencia.hro_desde_permiso::time,
+                                                            '00:00:00'::time,
+                                                            'no',
+                                                            v_asistencia.ruta,
+                                                            v_asistencia.nivel,
+                                                            'Permiso');
+                                                end if;
+                                            end if;
+                                        end if;
+
+
                                         if not exists(
                                                 select 1
                                                 from tmp_control_total t
