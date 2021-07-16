@@ -77,7 +77,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     allowBlank: false,
                     format: 'd/m/Y',
                     vtype: 'daterange',
-                    width: 250
+                    width: 315
                 },
                 type: 'DateField',
                 id_grupo: 0,
@@ -93,7 +93,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     gwidth: 200,
                     emptyText: 'Dejar blanco para toda la empresa...',
                     width: 315,
-                    baseParams: {gerencia: 'si', fill_gerente: 'si'},
+                    baseParams: {gerencia: 'si', /*fill_gerente: 'si'*/},
                     allowBlank: true,
                     tpl: '<tpl for="."><div class="x-combo-list-item"><p><b>{codigo}</b> - {nombre_unidad}</p> </div></tpl>',
                     listWidth: '315',
@@ -173,7 +173,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     sef.mostrarComponente(sef.Cmp.fecha_ini);
                     sef.mostrarComponente(sef.Cmp.fecha_fin);
                     sef.ocultarComponente(sef.Cmp.fecha);
-                    sef.ocultarComponente(sef.Cmp.tipo_filtro);
+                    sef.mostrarComponente(sef.Cmp.tipo_filtro);
                 }
 
                 if (r.data.variable === 'Retrasos') {
@@ -183,7 +183,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     sef.ocultarComponente(sef.Cmp.tipo_filtro);
                 }
             });
-            this.iniciarEvento();
+           // this.iniciarEvento();
         },
         iniciarEvento: function (){
             this.Cmp.id_uo.store.baseParams = Ext.apply(this.Cmp.id_uo.store.baseParams, {gerencia: 'si', fill_gerente: 'si'});
