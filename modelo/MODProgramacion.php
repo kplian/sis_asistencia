@@ -75,6 +75,8 @@ class MODProgramacion extends MODbase
         $this->captura('usr_reg','varchar');
         $this->captura('usr_mod','varchar');
         $this->captura('desc_funcionario1','text');
+        $this->captura('revisado','varchar');
+
         //Ejecuta la instruccion
         $this->armarConsulta();
         $this->ejecutarConsulta();
@@ -183,6 +185,24 @@ class MODProgramacion extends MODbase
         //Define los parametros para la funcion
         $this->setParametro('fecha_inicio', 'fecha_inicio', 'date');
         $this->setParametro('fecha_fin', 'fecha_fin', 'date');
+
+        //Ejecuta la instruccion
+        $this->armarConsulta();
+        $this->ejecutarConsulta();
+
+        //Devuelve la respuesta
+        return $this->respuesta;
+    }
+
+    function cambiarRevision()
+    {
+        //Definicion de variables para ejecucion del procedimiento
+        $this->procedimiento = 'asis.ft_programacion_ime';
+        $this->transaccion = 'ASIS_PRO_REV';
+        $this->tipo_procedimiento = 'IME';
+
+        //Define los parametros para la funcion
+        $this->setParametro('id_programacion', 'id_programacion', 'int4');
 
         //Ejecuta la instruccion
         $this->armarConsulta();

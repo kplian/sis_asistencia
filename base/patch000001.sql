@@ -1015,3 +1015,8 @@ ALTER TABLE asis.tcompensacion
 ALTER TABLE asis.tcompensacion_det
     ALTER COLUMN id_compensacion DROP NOT NULL;
 /***********************************F-SCP-MMV-ASIS-ETR-4007-3-31/05/2021****************************************/
+
+/***********************************I-SCP-MMV-ASIS-ETR-4007-1-20/07/2021****************************************/
+ALTER TABLE asis.tprogramacion
+    ADD COLUMN revisado VARCHAR(10) DEFAULT 'no' NOT NULL;
+/***********************************F-SCP-MMV-ASIS-ETR-4007-1-20/07/2021****************************************/

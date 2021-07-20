@@ -120,9 +120,9 @@ header("content-type: text/javascript; charset=UTF-8");
             title: "Programaciones",
             layout: 'accordion',
             floating: true,
-            collapsed: true,
-            animCollapse: true,
-            collapsible: true
+            // collapsed: true,
+            // animCollapse: true,
+            // collapsible: true
         },
         Atributos: [],
         tam_pag: 31,

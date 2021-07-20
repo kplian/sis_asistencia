@@ -122,6 +122,12 @@ class ACTProgramacion extends ACTbase
         $this->res = $this->objFunc->generarSolicitudes($this->objParam);
         $this->res->imprimirRespuesta($this->res->generarJson());
     }
+    function cambiarRevision()
+    {
+        $this->objFunc = $this->create('MODProgramacion');
+        $this->res = $this->objFunc->cambiarRevision($this->objParam);
+        $this->res->imprimirRespuesta($this->res->generarJson());
+    }
 }
 
 ?>

@@ -18,7 +18,11 @@ header("content-type: text/javascript; charset=UTF-8");
 
         constructor: function (config) {
             this.maestro = config.maestro;
+            this.Atributos[this.getIndAtributo('revisado')].grid=true;
+
             Phx.vista.ListaProgramacionVoBo.superclass.constructor.call(this, config);
+            this.grid.addListener('cellclick', this.oncellclick,this);
+
             this.panel.on('collapse', function (p) {
                 if (!p.col) {
                     var id = p.getEl().id,
@@ -28,7 +32,6 @@ header("content-type: text/javascript; charset=UTF-8");
                     col.insertHtml('beforeEnd', '<div style="writing-mode: vertical-lr; transform: rotate(180deg); text-align: center; height: 100%;"><span class="x-panel-header-text"><b>' + p.title + '</b></span></div>');
                     p.col = col;
                 }
-                ;
             }, this);
             this.addButton('btn-generar',
                 {
@@ -66,6 +69,12 @@ header("content-type: text/javascript; charset=UTF-8");
         bsave: false,
         bnew: false,
         bedit: false,
+        tipoStore: 'GroupingStore',//GroupingStore o JsonStore #
+        remoteGroup: true,
+        groupField: 'desc_funcionario1',
+        viewGrid: new Ext.grid.GroupingView({
+            forceFit: false
+        }),
         onReloadPage: function (m) {
             this.maestro = m;
             var start = this.maestro.programacion.start;
@@ -114,7 +123,32 @@ header("content-type: text/javascript; charset=UTF-8");
             Phx.CP.loadingHide();
             var reg = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));
             Phx.CP.getPagina(this.idContenedorPadre).refresh();
-        }
+        },
+
+        oncellclick : function(grid, rowIndex, columnIndex, e) {
+            var record = this.store.getAt(rowIndex),
+                fieldName = grid.getColumnModel().getDataIndex(columnIndex); // Get field name
+            if(fieldName === 'revisado') {
+                this.cambiarRevision(record);
+            }
+        },
+        cambiarRevision: function(record){
+            Phx.CP.loadingShow();
+            var d = record.data;
+            Ext.Ajax.request({
+                url:'../../sis_asistencia/control/Programacion/cambiarRevision',
+                params:{ id_programacion: d.id_programacion},
+                success: this.successRevision,
+                failure: this.conexionFailure,
+                timeout: this.timeout,
+                scope: this
+            });
+            this.reload();
+        },
+        successRevision: function(resp){
+            Phx.CP.loadingHide();
+            var reg = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));
+        },
     }
 </script>
 

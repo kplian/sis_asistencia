@@ -1,8 +1,11 @@
-CREATE OR REPLACE FUNCTION "asis"."ft_programacion_ime"(p_administrador integer, p_id_usuario integer,
-                                                        p_tabla character varying, p_transaccion character varying)
-    RETURNS character varying AS
-$BODY$
-
+CREATE OR REPLACE FUNCTION asis.ft_programacion_ime (
+    p_administrador integer,
+    p_id_usuario integer,
+    p_tabla varchar,
+    p_transaccion varchar
+)
+    RETURNS varchar AS
+$body$
 /**************************************************************************
  SISTEMA:        Sistema de Asistencia
  FUNCION:         asis.ft_programacion_ime
@@ -31,6 +34,7 @@ DECLARE
     v_crear             boolean;
     v_tiempo            varchar;
     v_id_funcionario    integer;
+    v_revisado			varchar;
 BEGIN
 
     v_nombre_funcion = 'asis.ft_programacion_ime';
@@ -310,6 +314,43 @@ BEGIN
             RETURN v_resp;
 
         END;
+        /*********************************
+         #TRANSACCION:  'ASIS_PRO_REV'
+         #DESCRIPCION:	Control revision
+         #AUTOR:		MMV
+         #FECHA:		20-07-2021
+        ***********************************/
+    elsif (p_transaccion='ASIS_PRO_REV')then
+
+        begin
+
+            select p.revisado into v_revisado
+            from asis.tprogramacion p
+            where p.id_programacion = v_parametros.id_programacion;
+
+            if v_revisado = 'si' then
+
+                update  asis.tprogramacion set
+                    revisado = 'no'
+                where id_programacion = v_parametros.id_programacion;
+
+            end if;
+
+            if v_revisado = 'no' then
+
+                update  asis.tprogramacion set
+                    revisado = 'si'
+                where id_programacion = v_parametros.id_programacion;
+
+            end if;
+            --Definicion de la respuesta
+            v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Revision con exito (id_programacion'||v_parametros.id_programacion||')');
+            v_resp = pxp.f_agrega_clave(v_resp,'id_programacion',v_parametros.id_programacion::varchar);
+
+            --Devuelve la respuesta
+            return v_resp;
+
+        end;
     ELSE
 
         RAISE EXCEPTION 'Transaccion inexistente: %',p_transaccion;
@@ -325,6 +366,13 @@ EXCEPTION
         raise exception '%',v_resp;
 
 END;
-$BODY$ LANGUAGE 'plpgsql' VOLATILE
-                          COST 100;
-ALTER FUNCTION "asis"."ft_programacion_ime"(integer, integer, character varying, character varying) OWNER TO postgres;
+$body$
+    LANGUAGE 'plpgsql'
+    VOLATILE
+    CALLED ON NULL INPUT
+    SECURITY INVOKER
+    PARALLEL UNSAFE
+    COST 100;
+
+ALTER FUNCTION asis.ft_programacion_ime (p_administrador integer, p_id_usuario integer, p_tabla varchar, p_transaccion varchar)
+    OWNER TO postgres;

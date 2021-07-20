@@ -1,19 +1,22 @@
-CREATE
-    OR REPLACE FUNCTION "asis"."ft_programacion_sel"(p_administrador integer, p_id_usuario integer,
-                                                     p_tabla character varying, p_transaccion character varying)
-    RETURNS character varying AS
-$BODY$
+CREATE OR REPLACE FUNCTION asis.ft_programacion_sel (
+    p_administrador integer,
+    p_id_usuario integer,
+    p_tabla varchar,
+    p_transaccion varchar
+)
+    RETURNS varchar AS
+$body$
 /**************************************************************************
  SISTEMA:        Sistema de Asistencia
  FUNCION:         asis.ft_programacion_sel
  DESCRIPCION:   Funcion que devuelve conjuntos de registros de las consultas relacionadas con la tabla 'asis.tprogramacion'
  AUTOR:          (admin.miguel)
  FECHA:            14-12-2020 20:28:34
- COMENTARIOS:    
+ COMENTARIOS:
 ***************************************************************************
  HISTORIAL DE MODIFICACIONES:
 #ISSUE                FECHA                AUTOR                DESCRIPCION
- #0                14-12-2020 20:28:34    admin.miguel             Creacion    
+ #0                14-12-2020 20:28:34    admin.miguel             Creacion
  #
  ***************************************************************************/
 
@@ -34,10 +37,10 @@ BEGIN
     v_nombre_funcion = 'asis.ft_programacion_sel';
     v_parametros = pxp.f_get_record(p_tabla);
 
-    /*********************************    
+    /*********************************
      #TRANSACCION:  'ASIS_PRNCAL_SEL'
      #DESCRIPCION:    Consulta de datos
-     #AUTOR:        admin.miguel    
+     #AUTOR:        admin.miguel
      #FECHA:        14-12-2020 20:28:34
     ***********************************/
 
@@ -106,7 +109,7 @@ BEGIN
                                    prn.fecha_programada fecha_fin,
                                    prn.tiempo,
                                    prn.valor,
-                                   fun.desc_funcionario1,
+                                  fun.desc_funcionario1,
                                    fun.id_funcionario,
                                    prn.estado
                             FROM asis.tprogramacion prn
@@ -201,7 +204,8 @@ BEGIN
                         prn.fecha_mod,
                         usu1.cuenta as usr_reg,
                         usu2.cuenta as usr_mod,
-                        fun.desc_funcionario1
+                        initcap(fun.desc_funcionario1) as desc_funcionario1,
+                        prn.revisado
                         FROM asis.tprogramacion prn
                         JOIN segu.tusuario usu1 ON usu1.id_usuario = prn.id_usuario_reg
                         LEFT JOIN segu.tusuario usu2 ON usu2.id_usuario = prn.id_usuario_mod
@@ -265,7 +269,13 @@ EXCEPTION
         RAISE
             EXCEPTION '%',v_resp;
 END;
-$BODY$
-    LANGUAGE 'plpgsql' VOLATILE
-                       COST 100;
-ALTER FUNCTION "asis"."ft_programacion_sel"(integer, integer, character varying, character varying) OWNER TO postgres;
+$body$
+    LANGUAGE 'plpgsql'
+    VOLATILE
+    CALLED ON NULL INPUT
+    SECURITY INVOKER
+    PARALLEL UNSAFE
+    COST 100;
+
+ALTER FUNCTION asis.ft_programacion_sel (p_administrador integer, p_id_usuario integer, p_tabla varchar, p_transaccion varchar)
+    OWNER TO postgres;

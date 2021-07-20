@@ -95,7 +95,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         fieldLabel: 'Fecha',
                         allowBlank: false,
                         anchor: '80%',
-                        gwidth: 100,
+                        gwidth: 80,
                         format: 'd/m/Y',
                         renderer: function (value, p, record) {
                             return value ? value.dateFormat('d/m/Y') : ''
@@ -113,12 +113,37 @@ header("content-type: text/javascript; charset=UTF-8");
                         fieldLabel: 'Funcionario',
                         allowBlank: true,
                         anchor: '80%',
-                        gwidth: 300,
+                        gwidth: 200,
                         maxLength: 4
                     },
                     type: 'Field',
                     id_grupo: 1,
                     grid: true,
+                    form: false
+                },
+                {
+                    config:{
+                        name: 'revisado',
+                        fieldLabel: 'Revisado',
+                        allowBlank: true,
+                        anchor: '80%',
+                        gwidth: 100,
+                        maxLength:3,
+                        renderer: function (value){
+                            //check or un check row
+                            var checked = '',
+                                momento = 'no';
+                            if(value == 'si'){
+                                checked = 'checked';;
+                            }
+                            return  String.format('<div style="vertical-align:middle;text-align:center;"><input style="height:37px;width:37px;" type="checkbox"  {0}></div>',checked);
+
+                        }
+                    },
+                    type: 'TextField',
+                    filters: { pfiltro:'cm.revisado',type:'string'},
+                    id_grupo: 0,
+                    grid: false,
                     form: false
                 },
                 {
@@ -234,7 +259,8 @@ header("content-type: text/javascript; charset=UTF-8");
                 {name: 'id_usuario_reg', type: 'numeric'},
                 {name: 'fecha_reg', type: 'date', dateFormat: 'Y-m-d H:i:s.u'},
                 {name: 'usr_reg', type: 'string'},
-                {name: 'desc_funcionario1', type: 'string'}
+                {name: 'desc_funcionario1', type: 'string'},
+                {name: 'revisado', type: 'string'}
 
 
             ],
